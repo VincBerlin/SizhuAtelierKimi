@@ -1,0 +1,57 @@
+/* Shop / conversion styles — loaded after index.css so it can override.
+   Kept separate from the 1900-line index.css for cohesion. */
+
+/* The dominant Add-to-Cart action: terracotta signal colour, clearly the
+   strongest element on the product page (per conversion brief). */
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 14px 28px;
+  background: #a0522d;
+  color: #f5f2ed;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(160, 82, 45, 0.22);
+  transition: background 0.25s, transform 0.1s, box-shadow 0.25s;
+}
+.cta-button:hover {
+  background: #b5652b;
+  box-shadow: 0 8px 26px rgba(160, 82, 45, 0.3);
+}
+.cta-button:active {
+  transform: translateY(1px);
+}
+.cta-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Terracotta focus ring for shop inputs. */
+.form-input:focus {
+  border-color: #a0522d;
+}
+
+/* Free-shipping progress bar (cart). */
+.ship-progress-track {
+  height: 6px;
+  width: 100%;
+  background: #e0d7c8;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ship-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c4a265, #a0522d);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
