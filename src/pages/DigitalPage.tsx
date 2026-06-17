@@ -3,6 +3,7 @@ import { FileText, Check, ShieldCheck } from 'lucide-react'
 import { digitalProduct } from '../lib/catalog'
 import { useShopStore } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
+import { COMMERCE_ENABLED } from '../lib/config'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
@@ -49,13 +50,19 @@ export default function DigitalPage() {
                 </li>
               ))}
             </ul>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 600, color: C.ink, marginBottom: 14 }}>{euro(digitalProduct.price)}</div>
-            <button onClick={add} className="transition-[filter] hover:brightness-110" style={{ width: '100%', maxWidth: 360, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>
-              {t('pages.digitalAdd')} · {euro(digitalProduct.price)}
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontFamily: FONT_SANS, fontSize: 12.5, color: C.textMuted2 }}>
-              <ShieldCheck size={15} strokeWidth={1.6} style={{ color: C.accent }} /> {t('pages.digitalSecure')}
-            </div>
+            {COMMERCE_ENABLED ? (
+              <>
+                <div style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 600, color: C.ink, marginBottom: 14 }}>{euro(digitalProduct.price)}</div>
+                <button onClick={add} className="transition-[filter] hover:brightness-110" style={{ width: '100%', maxWidth: 360, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>
+                  {t('pages.digitalAdd')} · {euro(digitalProduct.price)}
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontFamily: FONT_SANS, fontSize: 12.5, color: C.textMuted2 }}>
+                  <ShieldCheck size={15} strokeWidth={1.6} style={{ color: C.accent }} /> {t('pages.digitalSecure')}
+                </div>
+              </>
+            ) : (
+              <div style={{ maxWidth: 360, textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
+            )}
           </div>
         </div>
       </div>

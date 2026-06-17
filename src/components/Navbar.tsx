@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router'
 import { ShoppingBag, Menu, X, ChevronDown } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
+import { COMMERCE_ENABLED } from '../lib/config'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
 const posterLinks = [
@@ -156,12 +157,14 @@ export default function Navbar() {
 
           <div className="flex items-center" style={{ gap: 14, flexShrink: 0 }}>
             <div className="hidden sm:block"><LangDropdown /></div>
-            <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
-              <ShoppingBag size={20} strokeWidth={1.5} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
-              )}
-            </button>
+            {COMMERCE_ENABLED && (
+              <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+                <ShoppingBag size={20} strokeWidth={1.5} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>

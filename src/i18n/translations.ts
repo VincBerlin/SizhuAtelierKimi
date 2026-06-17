@@ -7,6 +7,7 @@ export type Lang = 'EN' | 'DE' | 'FR'
 export const translations: Record<Lang, Record<string, any>> = {
   EN: {
     announce: { shipping: 'Free shipping over €80', handmade: 'Handcrafted in Germany', saju: 'Saju coming soon' },
+    preview: { announce: 'Preview — our shop is launching soon ✦ Saju & Junishi coming', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
     nav: { tagline: 'Astrology · Art · Atelier', poster: 'Poster', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart' },
     hero: { eyebrow: 'PERSONAL ASTROLOGY ART', title1: 'Your', title2: 'Star Chart', subtitle: 'BaZi in focus — Saju and Junishi as upcoming personalisations, hand-finished in the atelier.', cta1: 'Explore posters', cta2: 'How it works' },
     trust: {
@@ -131,6 +132,7 @@ export const translations: Record<Lang, Record<string, any>> = {
 
   DE: {
     announce: { shipping: 'Kostenloser Versand ab 80 €', handmade: 'Handgefertigt in Deutschland', saju: 'Saju coming soon' },
+    preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦ Saju & Junishi folgen', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
     nav: { tagline: 'Astrologie · Kunst · Atelier', poster: 'Poster', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb' },
     hero: { eyebrow: 'PERSÖNLICHE ASTROLOGIE KUNST', title1: 'Dein', title2: 'Sternenbild', subtitle: 'BaZi im Fokus — Saju und Junishi als kommende Personalisierungen, handveredelt im Atelier.', cta1: 'Poster entdecken', cta2: 'So funktioniert’s' },
     trust: {
@@ -255,6 +257,7 @@ export const translations: Record<Lang, Record<string, any>> = {
 
   FR: {
     announce: { shipping: 'Livraison offerte dès 80 €', handmade: 'Fabriqué main en Allemagne', saju: 'Saju bientôt disponible' },
+    preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦ Saju & Junishi à venir', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
     nav: { tagline: 'Astrologie · Art · Atelier', poster: 'Posters', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier' },
     hero: { eyebrow: 'ART ASTROLOGIQUE PERSONNALISÉ', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'BaZi au cœur — Saju et Junishi en personnalisations à venir, finitions à la main à l’atelier.', cta1: 'Découvrir les posters', cta2: 'Comment ça marche' },
     trust: {

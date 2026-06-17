@@ -1,5 +1,6 @@
 import { C, FONT_SANS } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
+import { COMMERCE_ENABLED } from '../../lib/config'
 
 export const ANNOUNCEMENT_HEIGHT = 34
 
@@ -26,9 +27,15 @@ export default function AnnouncementBar() {
       }}
     >
       <p style={{ margin: 0, fontFamily: FONT_SANS, fontSize: 11.5, letterSpacing: '0.06em', textAlign: 'center', padding: '0 16px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {t('announce.shipping')}
-        <span className="hidden sm:inline"> · {t('announce.handmade')}</span>
-        {' · '}{t('announce.saju')}
+        {COMMERCE_ENABLED ? (
+          <>
+            {t('announce.shipping')}
+            <span className="hidden sm:inline"> · {t('announce.handmade')}</span>
+            {' · '}{t('announce.saju')}
+          </>
+        ) : (
+          t('preview.announce')
+        )}
       </p>
     </div>
   )

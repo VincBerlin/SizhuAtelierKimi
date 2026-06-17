@@ -2,6 +2,7 @@ import { type CSSProperties, type ReactNode } from 'react'
 import { frames, backgrounds, sizes } from '../../lib/bazi'
 import { useShopStore } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
+import { COMMERCE_ENABLED } from '../../lib/config'
 import { euro } from '../../lib/format'
 import { C, FONT_SANS } from '../../lib/tokens'
 
@@ -83,7 +84,7 @@ export default function Configurator() {
                 <button key={z.id} onClick={() => setCfg({ size: z.id })} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
                   <div style={{ fontSize: 11, color: C.textMuted3, margin: '3px 0 4px' }}>{z.sub}</div>
-                  <div style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>{deltaText}</div>
+                  {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>{deltaText}</div>}
                   {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
                 </button>
               )

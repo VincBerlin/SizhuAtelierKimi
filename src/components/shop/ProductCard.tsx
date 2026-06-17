@@ -4,6 +4,7 @@ import StarRating from './StarRating'
 import { euro, de } from '../../lib/format'
 import { C, FONT_SERIF } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
+import { COMMERCE_ENABLED } from '../../lib/config'
 import type { Product } from '../../lib/catalog'
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -19,7 +20,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <div onClick={go} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column' }}>
       <PosterScene poster={product.poster} hover aspect="3 / 4">
-        {hasAnchor && (
+        {COMMERCE_ENABLED && hasAnchor && (
           <span style={{ position: 'absolute', top: 14, left: 14, background: C.accent, color: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', padding: '5px 10px', borderRadius: 4, zIndex: 2 }}>
             −{euro((product.anchor as number) - product.price)}
           </span>
@@ -32,10 +33,14 @@ export default function ProductCard({ product }: { product: Product }) {
           <StarRating pct={starPct} />
           <span style={{ fontSize: 12, color: C.textMuted2 }}>{lang === 'EN' ? product.rating.toFixed(1) : product.rating.toFixed(1).replace('.', ',')} · {de(product.sold)}× {t('card.bought')}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 9 }}>
-          <span style={{ fontSize: 17, fontWeight: 600, color: C.ink }}>{euro(product.price)}</span>
-          {hasAnchor && <span style={{ fontSize: 14, color: C.strike, textDecoration: 'line-through' }}>{euro(product.anchor as number)}</span>}
-        </div>
+        {COMMERCE_ENABLED ? (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 9 }}>
+            <span style={{ fontSize: 17, fontWeight: 600, color: C.ink }}>{euro(product.price)}</span>
+            {hasAnchor && <span style={{ fontSize: 14, color: C.strike, textDecoration: 'line-through' }}>{euro(product.anchor as number)}</span>}
+          </div>
+        ) : (
+          <span style={{ fontSize: 12, letterSpacing: '0.04em', color: C.textMuted3 }}>{t('preview.soon')}</span>
+        )}
       </div>
     </div>
   )
