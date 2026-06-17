@@ -53,9 +53,35 @@ export const products: Product[] = [
     bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'],
     poster: mk('#1B1B1B', '#E9DFCB', 'Sofia Reuter', '1991-09-14'),
   },
+  {
+    id: 7, category: 'Wuxing', title: 'Wuxing Fünf-Elemente Poster', price: 49, anchor: 59, rating: 4.8, reviews: 142, sold: 760,
+    bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Premium-Papierdruck, handgefertigt'],
+    poster: mk('#B98A5E', '#AFBCA6', 'Fünf Elemente', '1990-03-21'),
+  },
+  {
+    id: 8, category: 'Feuerpferd', title: 'Feuerpferd 2026 · Limited Edition', price: 65, anchor: 79, rating: 4.9, reviews: 88, sold: 210,
+    bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'],
+    poster: mk('#1B1B1B', '#BC7A5E', 'Feuer-Pferd', '2026-02-17'),
+  },
 ]
 
+// Featured lines shown in the slimmed "Die Kollektion" (Aufgabe 5).
+export const featuredIds = [1, 7, 8]
+
 export const categories = ['Alle', 'TCM', 'Praxen', 'Wellness', 'Yoga']
+
+// Digital product (PDF) — standalone, not a poster; surfaced on /digital and
+// as a bundle. Placeholder pricing/copy.
+export const digitalProduct = {
+  id: 'digital-bazi',
+  title: 'Digitale BaZi-Chart-Analyse',
+  subtitle: '10–15 Seiten PDF',
+  price: 39,
+  description: [
+    'Eine persönliche, ausführliche PDF-Auswertung deines BaZi-Charts: die vier Säulen, dein Tagesmeister, die Balance der fünf Elemente und was sie für dich bedeuten.',
+    'Sofort nach Fertigstellung als Download — einzeln oder vergünstigt im Bundle mit einem Poster.',
+  ],
+}
 
 export function getProduct(id: number): Product | undefined {
   return products.find((p) => p.id === id)

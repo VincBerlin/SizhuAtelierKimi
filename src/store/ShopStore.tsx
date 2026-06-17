@@ -35,6 +35,7 @@ interface ShopValue {
   addCurrent: (productId: number) => void
   addBundle: (b: Bundle) => void
   addAddon: (a: Addon) => void
+  addItem: (item: Omit<CartLine, 'key'>) => void
   setQty: (key: string, d: number) => void
   removeLine: (key: string) => void
   clearCart: () => void
@@ -110,6 +111,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
         showToast('Set zum Warenkorb hinzugefügt')
       },
       addAddon: (a) => addLine({ title: a.title, price: a.price, qty: 1, poster: null, meta: a.note }),
+      addItem: (item) => addLine(item),
       setQty: (key, d) => setCart((s) => s.map((i) => (i.key === key ? { ...i, qty: Math.max(1, i.qty + d) } : i))),
       removeLine: (key) => setCart((s) => s.filter((i) => i.key !== key)),
       clearCart: () => setCart([]),
