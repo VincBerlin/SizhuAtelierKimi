@@ -38,7 +38,7 @@ export default function Navbar() {
   ]
 
   const secondaryLinks = [
-    { label: 'Atelier', href: '/atelier' },
+    { label: 'Blog', href: '/blog' },
     { label: 'Kontakt', href: '/kontakt' },
   ]
 

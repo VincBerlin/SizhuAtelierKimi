@@ -4,6 +4,8 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import ProductView from './pages/ProductView'
 import Checkout from './pages/Checkout'
+import Blog from './pages/Blog'
+import Article from './pages/Article'
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
 import SiteFooter from './components/shop/SiteFooter'
@@ -29,6 +31,8 @@ function AppShell() {
           <Route path="/" element={<Home />} />
           <Route path="/produkt/:id" element={<ProductView />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<Article />} />
           <Route path="/atelier" element={<About />} />
           <Route path="/kontakt" element={<Contact />} />
         </Routes>
