@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router'
 import InkWave from '../components/InkWave'
+import TrustBar from '../components/shop/TrustBar'
 import CatalogSection from '../components/shop/CatalogSection'
 import BundlesSection from '../components/shop/BundlesSection'
 import ComingSoonSection from '../components/shop/ComingSoonSection'
@@ -123,6 +124,7 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
+      <TrustBar />
       <CatalogSection />
       <BundlesSection />
       <ComingSoonSection />
