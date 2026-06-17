@@ -103,6 +103,16 @@ export const bundles: Bundle[] = [
   { id: 'b2', title: 'Wellness Trio', sub: 'Stimmige Ruhe für Studio, Flur & Ruheraum', price: 119, anchor: 147, p1: products[2].poster, p2: products[3].poster, p3: products[4].poster },
 ]
 
+// Poster + digital PDF analysis combo (Aufgabe 6) — consistent with /digital.
+export const digitalBundle = {
+  id: 'b-digital',
+  title: 'BaZi Poster + Digitalanalyse',
+  sub: 'Dein personalisiertes Poster plus die 10–15-seitige PDF-Auswertung deines Charts.',
+  price: 79,
+  anchor: 88,
+  poster: products[0].poster,
+}
+
 export interface Addon {
   id: string
   icon: string
