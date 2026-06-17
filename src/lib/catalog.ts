@@ -184,6 +184,26 @@ export interface FaqDef {
   a: string
 }
 
+// Full shop FAQ (Aufgabe 8) — home FAQ section. Item 10 is a marked placeholder.
+export interface ShopFaq {
+  q: string
+  a: string
+  placeholder?: boolean
+}
+export const shopFaqs: ShopFaq[] = [
+  { q: 'Wie wird mein BaZi-Poster berechnet?', a: 'Aus Geburtsdatum, -zeit und -ort werden die vier Säulen (Jahr, Monat, Tag, Stunde) berechnet und gestalterisch aufs Poster gebracht.' },
+  { q: 'Welche Daten brauche ich für die Bestellung?', a: 'Geburtsdatum, möglichst genaue Geburtszeit und Geburtsort. Optional ein Name fürs Poster.' },
+  { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja. Ohne exakte Zeit kann die Stunden-Säule abweichen; gib an, was du weißt, wir wählen eine sinnvolle Annäherung.' },
+  { q: 'Wie lange dauern Produktion und Versand?', a: 'Handveredelte Produktion plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
+  { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
+  { q: 'Auf welchem Papier wird gedruckt?', a: 'Premium-Papierdruck, handgefertigt in Deutschland.' },
+  { q: 'Kann ich mein Poster vor dem Kauf sehen?', a: 'Ja, der Konfigurator zeigt eine Live-Vorschau mit deinen Daten, Rahmen und Hintergrund.' },
+  { q: 'Was ist die digitale BaZi-Chart-Analyse?', a: 'Eine persönliche 10–15-seitige PDF-Auswertung deines Charts, einzeln oder als Bundle erhältlich.' },
+  { q: 'Wie sicher ist die Zahlung?', a: 'Verschlüsselte Bezahlung über PayPal, Apple Pay und Google Pay.' },
+  { q: 'Rückgabe & Umtausch?', a: 'PLATZHALTER — an eure tatsächliche Rückgabe-/Widerrufsrichtlinie anpassen; personalisierte Artikel sind ggf. vom Widerruf ausgenommen.', placeholder: true },
+  { q: 'Saju / koreanische Astrologie?', a: 'In Vorbereitung („Saju coming soon"). Im Newsletter eintragen, um zum Launch dabei zu sein.' },
+]
+
 export const faqDefs: FaqDef[] = [
   { id: 'details', q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier handsigniert.' },
   { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },

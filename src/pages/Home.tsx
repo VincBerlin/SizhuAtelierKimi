@@ -6,6 +6,7 @@ import CatalogSection from '../components/shop/CatalogSection'
 import BundlesSection from '../components/shop/BundlesSection'
 import NewsletterSection from '../components/shop/NewsletterSection'
 import WissenSection from '../components/shop/WissenSection'
+import FaqSection from '../components/shop/FaqSection'
 
 /* ===== HERO SECTION ===== */
 function HeroSection() {
@@ -129,6 +130,7 @@ export default function Home() {
       <BundlesSection />
       <NewsletterSection />
       <WissenSection />
+      <FaqSection />
     </main>
   )
 }
