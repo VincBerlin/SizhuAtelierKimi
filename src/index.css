@@ -1920,3 +1920,12 @@
     transition: none;
   }
 }
+
+/* TrustBar: single-row, hide scrollbar when it must scroll on narrow screens */
+.trustbar-row {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.trustbar-row::-webkit-scrollbar {
+  display: none;
+}

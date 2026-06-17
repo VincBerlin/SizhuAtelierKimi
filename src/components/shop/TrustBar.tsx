@@ -25,14 +25,17 @@ function PayChips() {
 export default function TrustBar() {
   const { t } = useT()
   return (
-    <section aria-label={t('trust.payTitle')} style={{ background: C.surfaceWarm, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-      <div className="max-w-[1200px] mx-auto" style={{ maxWidth: CONTAINER, padding: '0 32px' }}>
-        <ul style={{ listStyle: 'none', margin: 0, padding: '12px 0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '10px 22px' }}>
+    <section aria-label={t('trust.payTitle')} style={{ background: C.ink }}>
+      <div className="max-w-[1200px] mx-auto" style={{ maxWidth: CONTAINER, padding: '0 24px' }}>
+        <ul
+          className="trustbar-row"
+          style={{ listStyle: 'none', margin: 0, padding: '11px 0', display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between', gap: 24, overflowX: 'auto' }}
+        >
           {items.map((it) => (
-            <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
-              <it.icon size={17} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
-              <span style={{ fontFamily: FONT_SANS, fontSize: 12.5, color: C.textMuted, lineHeight: 1.3 }}>
-                <strong style={{ color: C.ink, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
+            <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, whiteSpace: 'nowrap' }}>
+              <it.icon size={16} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
+              <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: 'rgba(243,238,227,0.66)', lineHeight: 1.3 }}>
+                <strong style={{ color: C.inkOnDark, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
                 {it.key === 'pay' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
                 {it.key === 'pay' && <PayChips />}
               </span>

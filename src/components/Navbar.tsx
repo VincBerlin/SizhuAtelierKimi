@@ -18,6 +18,53 @@ const mainLinks = [
   { key: 'contact', href: '/kontakt' },
 ]
 
+function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: number; up?: boolean; align?: 'left' | 'right' }) {
+  const { lang, setLang } = useT()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onEsc)
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onEsc) }
+  }, [])
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
+        className="flex items-center transition-colors hover:text-[#C0492E]"
+        style={{ gap: 5, background: 'none', border: `1px solid ${C.borderInput}`, borderRadius: 999, padding: '5px 11px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size, fontWeight: 600, color: C.ink }}
+      >
+        {lang} <ChevronDown size={size + 2} style={{ transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'none' }} />
+      </button>
+      <div
+        role="listbox"
+        style={{
+          position: 'absolute', minWidth: 86, background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10,
+          boxShadow: '0 16px 36px -18px rgba(28,24,18,0.4)', padding: 6, zIndex: 60,
+          ...(up ? { bottom: 'calc(100% + 8px)' } : { top: 'calc(100% + 8px)' }),
+          ...(align === 'right' ? { right: 0 } : { left: 0 }),
+          opacity: open ? 1 : 0, visibility: open ? 'visible' : 'hidden',
+          transform: open ? 'translateY(0)' : `translateY(${up ? '6px' : '-6px'})`,
+          transition: 'opacity .2s, transform .2s, visibility .2s',
+        }}
+      >
+        {LANGS.map((l) => (
+          <button
+            key={l} role="option" aria-selected={lang === l}
+            onClick={() => { setLang(l); setOpen(false) }}
+            className="block w-full text-left transition-colors hover:bg-[#F5F0E6]"
+            style={{ background: lang === l ? '#F5F0E6' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', borderRadius: 7 }}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -25,7 +72,7 @@ export default function Navbar() {
   const [mPosterOpen, setMPosterOpen] = useState(false)
   const location = useLocation()
   const { cartCount, openCart } = useShopStore()
-  const { t, lang, setLang } = useT()
+  const { t } = useT()
   const posterRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -65,17 +112,6 @@ export default function Navbar() {
     color: active ? C.ink : '#5A5346', fontWeight: active ? 600 : 400,
     textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
   } as const)
-
-  const LangToggle = ({ size = 12 }: { size?: number }) => (
-    <div className="flex items-center" style={{ gap: 6 }}>
-      {LANGS.map((l, i) => (
-        <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {i > 0 && <span style={{ color: C.border }}>·</span>}
-          <button onClick={() => setLang(l)} aria-pressed={lang === l} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: FONT_SANS, fontSize: size, fontWeight: lang === l ? 600 : 400, color: lang === l ? C.ink : C.textMuted2 }}>{l}</button>
-        </span>
-      ))}
-    </div>
-  )
 
   return (
     <>
@@ -119,7 +155,7 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center" style={{ gap: 14, flexShrink: 0 }}>
-            <div className="hidden sm:block"><LangToggle /></div>
+            <div className="hidden sm:block"><LangDropdown /></div>
             <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
               {cartCount > 0 && (
@@ -153,7 +189,7 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="flex items-center" style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, gap: 10 }}>
-            <LangToggle size={14} />
+            <LangDropdown size={14} up align="left" />
             <span style={{ marginLeft: 'auto', fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted2 }}>hello@sizhuatelier.shop</span>
           </div>
         </div>

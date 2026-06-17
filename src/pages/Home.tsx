@@ -130,9 +130,9 @@ export default function Home() {
       <TrustBar />
       <CatalogSection />
       <BundlesSection />
-      <NewsletterSection />
       <WissenSection />
       <FaqSection />
+      <NewsletterSection />
     </main>
   )
 }
