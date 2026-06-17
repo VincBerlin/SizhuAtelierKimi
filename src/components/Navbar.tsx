@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router'
 import { Search, User, ShoppingBag, Menu, X } from 'lucide-react'
-import { useShop } from './ShopProvider'
+import { useShopStore } from '../store/ShopStore'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
-  const { cartCount, openCart } = useShop()
+  const { cartCount, openCart } = useShopStore()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,18 +31,15 @@ export default function Navbar() {
   }, [mobileOpen])
 
   const navLinks = [
-    { label: 'Shop', href: '/shop' },
-    { label: 'BaZi', href: '/produkt/bazi-chart-poster' },
-    { label: 'Saju soon', href: '/produkt/saju-poster' },
-    { label: 'Junishi soon', href: '/produkt/junishi-poster' },
-    { label: 'TCM Art', href: '/shop' },
-    { label: 'Bundles', href: '/shop#bundles' },
+    { label: 'Poster', href: '/' },
+    { label: 'BaZi', href: '/produkt/1' },
+    { label: 'Praxis-Edition', href: '/produkt/2' },
+    { label: 'Yoga', href: '/produkt/4' },
   ]
 
   const secondaryLinks = [
-    { label: 'Geschenke', href: '/#geschenke' },
-    { label: 'Blog', href: '/blog' },
     { label: 'Atelier', href: '/atelier' },
+    { label: 'Kontakt', href: '/kontakt' },
   ]
 
   return (
@@ -136,7 +133,7 @@ export default function Navbar() {
               </span>
             </button>
             <Link
-              to="/produkt/bazi-chart-poster"
+              to="/produkt/1"
               className="hidden lg:inline-flex items-center transition-colors duration-300"
               style={{
                 background: '#A0522D',
@@ -160,8 +157,10 @@ export default function Navbar() {
       <div
         className="fixed inset-0 z-[100] transition-opacity duration-300"
         style={{
+          display: mobileOpen ? 'block' : 'none',
           opacity: mobileOpen ? 1 : 0,
           pointerEvents: mobileOpen ? 'auto' : 'none',
+          overflow: 'hidden',
         }}
       >
         <div className="absolute inset-0 bg-black/20" onClick={() => setMobileOpen(false)} />

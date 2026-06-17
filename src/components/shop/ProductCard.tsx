@@ -1,0 +1,40 @@
+import { useNavigate } from 'react-router'
+import PosterScene from './PosterScene'
+import StarRating from './StarRating'
+import { euro, de } from '../../lib/format'
+import { C, FONT_SERIF } from '../../lib/tokens'
+import type { Product } from '../../lib/catalog'
+
+export default function ProductCard({ product }: { product: Product }) {
+  const navigate = useNavigate()
+  const hasAnchor = product.anchor != null
+  const starPct = (product.rating / 5) * 100 + '%'
+  const go = () => {
+    navigate(`/produkt/${product.id}`)
+    window.scrollTo(0, 0)
+  }
+
+  return (
+    <div onClick={go} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column' }}>
+      <PosterScene poster={product.poster} hover aspect="3 / 4">
+        {hasAnchor && (
+          <span style={{ position: 'absolute', top: 14, left: 14, background: C.accent, color: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', padding: '5px 10px', borderRadius: 4, zIndex: 2 }}>
+            −{euro((product.anchor as number) - product.price)}
+          </span>
+        )}
+      </PosterScene>
+      <div style={{ padding: '16px 2px 0' }}>
+        <div style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.textMuted4, marginBottom: 5 }}>{product.category}</div>
+        <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 21, margin: '0 0 8px', lineHeight: 1.15 }}>{product.title}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+          <StarRating pct={starPct} />
+          <span style={{ fontSize: 12, color: C.textMuted2 }}>{product.rating.toFixed(1).replace('.', ',')} · {de(product.sold)}× gekauft</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 9 }}>
+          <span style={{ fontSize: 17, fontWeight: 600, color: C.ink }}>{euro(product.price)}</span>
+          {hasAnchor && <span style={{ fontSize: 14, color: C.strike, textDecoration: 'line-through' }}>{euro(product.anchor as number)}</span>}
+        </div>
+      </div>
+    </div>
+  )
+}

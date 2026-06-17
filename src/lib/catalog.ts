@@ -1,0 +1,156 @@
+// Catalog + content data — ported 1:1 from the dc-runtime prototype.
+// PLACEHOLDER data; real product/price/review sources are wired later.
+import { computeChart, type PosterData } from './bazi'
+import { euro } from './format'
+import { FREE_SHIP_THRESHOLD } from './tokens'
+
+export interface Product {
+  id: number
+  category: string
+  title: string
+  price: number
+  anchor?: number
+  rating: number
+  reviews: number
+  sold: number
+  bullets: string[]
+  poster: PosterData
+}
+
+const mk = (frame: string, bg: string, name: string, date: string): PosterData => {
+  const c = computeChart(date)
+  return { frame, bg, name, element: c.element, animal: c.animal, pillars: c.pillars }
+}
+
+export const products: Product[] = [
+  {
+    id: 1, category: 'TCM', title: 'BaZi Geburtschart — Vier Säulen', price: 49, anchor: 59, rating: 4.9, reviews: 318, sold: 2140,
+    bullets: ['Aus deinen Geburtsdaten berechnet — kein Standardmotiv', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Massivholzrahmen mit entspiegeltem Glas', 'Produktion in 3 Werktagen, handsigniert'],
+    poster: mk('#B98A5E', '#E9DFCB', 'Mara Lindqvist', '1990-07-21'),
+  },
+  {
+    id: 2, category: 'Praxen', title: 'BaZi Praxis-Edition', price: 69, anchor: 79, rating: 4.8, reviews: 196, sold: 870,
+    bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Abwischbares Museumsglas, hygienefreundlich', 'Optional mit Praxisname statt Personenname'],
+    poster: mk('#1B1B1B', '#2C3A57', 'Praxis Anand', '1985-03-09'),
+  },
+  {
+    id: 3, category: 'Wellness', title: 'BaZi Elemente-Poster', price: 45, anchor: 55, rating: 4.9, reviews: 241, sold: 1320,
+    bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Nachhaltiges Recyclingpapier, FSC-zertifiziert', 'Auch als Gutschein-Geschenk beliebt'],
+    poster: mk('#B98A5E', '#AFBCA6', 'Lina Sommer', '1992-11-02'),
+  },
+  {
+    id: 4, category: 'Yoga', title: 'BaZi Yoga-Flow Chart', price: 39, anchor: 49, rating: 4.7, reviews: 158, sold: 990,
+    bullets: ['Erdiges Terracotta — passt zu Holz & Pflanzen', 'Kompaktes Format für Studio-Wände', 'Leichter Rahmen, einfache Wandmontage', 'Set-Rabatt für mehrere Studio-Räume'],
+    poster: mk('#B98A5E', '#BC7A5E', 'Yara Khan', '1994-05-18'),
+  },
+  {
+    id: 5, category: 'Wellness', title: 'BaZi Mond & Sterne', price: 52, rating: 4.9, reviews: 134, sold: 640,
+    bullets: ['Tiefes Anthrazit für eine elegante, ruhige Wirkung', 'Premium-Schwarzrahmen, matt', 'Goldfarbene Akzentschrift optional', 'Hochwertiges Geschenk zum Jahreswechsel'],
+    poster: mk('#1B1B1B', '#2A2A2C', 'Noah Berger', '1988-12-30'),
+  },
+  {
+    id: 6, category: 'TCM', title: 'BaZi Minimal', price: 42, anchor: 52, rating: 4.8, reviews: 205, sold: 1510,
+    bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'],
+    poster: mk('#1B1B1B', '#E9DFCB', 'Sofia Reuter', '1991-09-14'),
+  },
+]
+
+export const categories = ['Alle', 'TCM', 'Praxen', 'Wellness', 'Yoga']
+
+export function getProduct(id: number): Product | undefined {
+  return products.find((p) => p.id === id)
+}
+
+export interface Bundle {
+  id: string
+  title: string
+  sub: string
+  price: number
+  anchor: number
+  p1: PosterData
+  p2: PosterData
+  p3: PosterData
+}
+
+export const bundles: Bundle[] = [
+  { id: 'b1', title: 'Praxis Starter-Set', sub: '3 Poster für Behandlung, Empfang & Wartebereich', price: 129, anchor: 177, p1: products[1].poster, p2: products[0].poster, p3: products[5].poster },
+  { id: 'b2', title: 'Wellness Trio', sub: 'Stimmige Ruhe für Studio, Flur & Ruheraum', price: 119, anchor: 147, p1: products[2].poster, p2: products[3].poster, p3: products[4].poster },
+]
+
+export interface Addon {
+  id: string
+  icon: string
+  title: string
+  note: string
+  price: number
+}
+
+export const addons: Addon[] = [
+  { id: 'a1', icon: '▢', title: 'Premium Passepartout', note: 'Säurefreier Museumskarton', price: 9 },
+  { id: 'a2', icon: '✿', title: 'Geschenkverpackung', note: 'Recycelt, mit Banderole', price: 6 },
+  { id: 'a3', icon: '⚒', title: 'Aufhänge-Set', note: 'Inkl. Nagel & Wasserwaage', price: 7 },
+  { id: 'a4', icon: '◇', title: 'Glas-Pflegetuch', note: 'Mikrofaser, wiederverwendbar', price: 5 },
+]
+
+export interface Article {
+  id: string
+  tag: string
+  title: string
+  meta: string
+  excerpt: string
+  body: string[]
+}
+
+export const articles: Article[] = [
+  {
+    id: 'r1', tag: 'Grundlagen', title: 'Was ist BaZi? Die vier Säulen des Schicksals', meta: '6 Min. Lesezeit · Atelier-Journal',
+    excerpt: 'Jahr, Monat, Tag und Stunde deiner Geburt ergeben vier „Säulen" — die Landkarte deiner Energie.',
+    body: [
+      'BaZi (chinesisch 八字, „acht Zeichen") liest deinen Geburtszeitpunkt als vier Säulen: Jahr, Monat, Tag und Stunde. Jede Säule trägt einen Himmelsstamm und einen Erdzweig — zusammen acht Zeichen, die deine Konstitution beschreiben.',
+      'Die Tagessäule gilt als dein Kern, das „Tagesmeister"-Zeichen. Von ihm aus betrachtet man, wie die übrigen Säulen stützen oder fordern. So entsteht ein Bild von Stärken, Mustern und günstigen Zeitfenstern — keine Wahrsagerei, sondern ein Werkzeug zur Selbstreflexion.',
+      'Auf deinem Poster halten wir genau diese acht Zeichen fest: ein ruhiges, persönliches Diagramm, das Gespräche in Praxis und Studio eröffnet und zuhause ein stiller Begleiter ist.',
+    ],
+  },
+  {
+    id: 'r2', tag: 'Theorie', title: 'Die fünf Elemente und ihre Balance', meta: '5 Min. Lesezeit · Atelier-Journal',
+    excerpt: 'Holz, Feuer, Erde, Metall, Wasser — wie ihr Zusammenspiel deine Säulen färbt.',
+    body: [
+      'Jedes der acht Zeichen gehört zu einem der fünf Elemente. Sie nähren und kontrollieren einander in einem Kreislauf: Holz nährt Feuer, Feuer schafft Erde, Erde trägt Metall, Metall sammelt Wasser, Wasser nährt Holz.',
+      'Ein BaZi-Chart zeigt, welche Elemente reichlich vorhanden sind und welche fehlen. Diese Balance ist der Kern vieler TCM- und Wellness-Beratungen — von Ernährung bis Raumgestaltung.',
+      'Die fünf Hintergrundfarben unserer Poster greifen diese Sprache auf: Sandstein für Erde, Salbei für Holz, Terracotta für Feuer, Indigo für Wasser, Anthrazit für Metall.',
+    ],
+  },
+  {
+    id: 'r3', tag: 'Für die Praxis', title: 'BaZi in der TCM-Praxis: Raum & Wirkung', meta: '4 Min. Lesezeit · Atelier-Journal',
+    excerpt: 'Wie ein persönliches Chart Vertrauen schafft und Behandlungsräume erdet.',
+    body: [
+      'Ein an der Wand sichtbares BaZi-Poster signalisiert Tiefe: Es zeigt Klient:innen, dass hier mit Tradition und Sorgfalt gearbeitet wird. Das senkt die Einstiegshürde für ein Gespräch.',
+      'In Behandlungsräumen wirken ruhige Töne wie Indigo oder Salbei nachweislich beruhigend. Ein großes Format mit klarer Fernwirkung erdet den Raum, ohne ihn zu überladen.',
+      'Viele Praxen bieten personalisierte Charts als Geschenk oder Zusatzleistung an — ein hochwertiges, sinnstiftendes Mitbringsel, das die Bindung zur Praxis stärkt.',
+    ],
+  },
+]
+
+export interface ComingSoonItem {
+  id: string
+  title: string
+  desc: string
+}
+
+export const comingSoon: ComingSoonItem[] = [
+  { id: 'saju', title: 'Saju · 사주', desc: 'Die koreanische Vier-Säulen-Astrologie. Gleiche Tiefe, eigene Bildsprache — bald als personalisiertes Poster.' },
+  { id: 'junishi', title: 'Junishi · 十二支', desc: 'Die japanische Tradition der zwölf Tierkreiszeichen. In Vorbereitung im Atelier.' },
+]
+
+export interface FaqDef {
+  id: string
+  q: string
+  a: string
+}
+
+export const faqDefs: FaqDef[] = [
+  { id: 'details', q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier handsigniert.' },
+  { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
+  { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. 30 Tage Rückgaberecht.' },
+  { id: 'bazi', q: 'Über deine Berechnung', a: 'Aus Datum, Uhrzeit und Ort berechnen wir deine vier Säulen mit Himmelsstämmen und Erdzweigen. Ohne Geburtszeit erstellen wir eine Tages-Näherung — die Uhrzeit präzisiert die Stundensäule.' },
+]
