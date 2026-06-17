@@ -18,7 +18,7 @@ export default function About() {
     <main>
       {/* Hero */}
       <section style={{ minHeight: '60vh', background: '#E8E1D6' }}>
-        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[45%_55%] gap-8 items-center" style={{ padding: '120px 24px 0', minHeight: '60vh' }}>
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[45fr_55fr] gap-8 items-center" style={{ padding: '120px 24px 0', minHeight: '60vh' }}>
           <div style={{ paddingBottom: 60 }}>
             <p
               style={{

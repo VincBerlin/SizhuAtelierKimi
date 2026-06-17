@@ -125,7 +125,7 @@ export default function Contact() {
 
       {/* Contact Form */}
       <section style={{ padding: '80px 0', background: '#E8E1D6' }}>
-        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12 lg:gap-16" style={{ padding: '0 24px' }}>
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-16" style={{ padding: '0 24px' }}>
           {/* Form */}
           <div>
             <form onSubmit={(e) => { e.preventDefault() }} className="space-y-6">
