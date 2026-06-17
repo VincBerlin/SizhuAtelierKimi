@@ -34,7 +34,8 @@ export default function ProductView() {
   const addToCart = () => {
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    addItem({ title: t(`content.products.${prod.id}.title`), price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}` })
+    const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', frame: frameName, bg: bgName, size: size.label }
+    addItem({ title: t(`content.products.${prod.id}.title`), price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization })
     showToast(t('cart.toastAdded'))
   }
 

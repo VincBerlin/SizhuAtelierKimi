@@ -4,6 +4,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import ProductView from './pages/ProductView'
 import Checkout from './pages/Checkout'
+import OrderResult from './pages/OrderResult'
 import Blog from './pages/Blog'
 import Article from './pages/Article'
 import TcmOverview from './pages/TcmOverview'
@@ -36,6 +37,8 @@ function AppShell() {
           <Route path="/" element={<Home />} />
           <Route path="/produkt/:id" element={<ProductView />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout/success" element={<OrderResult success />} />
+          <Route path="/checkout/cancel" element={<OrderResult success={false} />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/kollektion" element={<Kollektion />} />

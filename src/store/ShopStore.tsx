@@ -10,6 +10,19 @@ export interface CartLine {
   qty: number
   poster: PosterData | null
   meta: string
+  personalization?: Record<string, string>
+}
+
+const CART_KEY = 'sizhu_cart'
+
+function loadCart(): CartLine[] {
+  try {
+    const raw = localStorage.getItem(CART_KEY)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
 }
 
 interface ShopValue {
@@ -51,7 +64,7 @@ interface ShopValue {
 const ShopContext = createContext<ShopValue | null>(null)
 
 export function ShopStoreProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<CartLine[]>([])
+  const [cart, setCart] = useState<CartLine[]>(loadCart)
   const [cartOpen, setCartOpen] = useState(false)
   const [cfg, setCfgState] = useState<CfgState>(defaultCfg)
   const [openFaqId, setOpenFaqId] = useState('details')
@@ -67,6 +80,11 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
     document.body.style.overflow = cartOpen || articleId ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [cartOpen, articleId])
+
+  // persist cart so it survives the Stripe redirect round-trip and reloads
+  useEffect(() => {
+    try { localStorage.setItem(CART_KEY, JSON.stringify(cart)) } catch { /* ignore */ }
+  }, [cart])
 
   const value = useMemo<ShopValue>(() => {
     const cartCount = cart.reduce((a, i) => a + i.qty, 0)
@@ -103,7 +121,8 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
         const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
         const chart = computeChart(cfg.date, cfg.time)
         const poster: PosterData = { frame: cfg.frameHex, bg: cfg.bgHex, name: cfg.name || 'Dein Name', element: chart.element, animal: chart.animal, pillars: chart.pillars }
-        addLine({ title: prod.title, price: prod.price + size.delta, qty: 1, poster, meta: `${cfg.frameName} · ${cfg.bgName} · ${size.label}` })
+        const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', frame: cfg.frameName, bg: cfg.bgName, size: size.label }
+        addLine({ title: prod.title, price: prod.price + size.delta, qty: 1, poster, meta: `${cfg.frameName} · ${cfg.bgName} · ${size.label}`, personalization })
         showToast('Zum Warenkorb hinzugefügt')
       },
       addBundle: (b) => {

@@ -1,8 +1,9 @@
-import { type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { useNavigate } from 'react-router'
 import Poster from '../components/Poster'
 import { useShopStore } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
+import { startCheckout } from '../lib/checkout'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
@@ -18,16 +19,22 @@ const inputStyle: CSSProperties = {
 }
 
 export default function Checkout() {
-  const { cart, subtotal, shipCost, total, tax, openCart, clearCart, showToast } = useShopStore()
-  const { t } = useT()
+  const { cart, subtotal, shipCost, total, tax, openCart, showToast } = useShopStore()
+  const { t, lang } = useT()
   const navigate = useNavigate()
+  const [placing, setPlacing] = useState(false)
 
-  const placeOrder = () => {
-    if (cart.length === 0) return
-    clearCart()
-    showToast(t('checkout.orderToast'))
-    navigate('/')
-    window.scrollTo(0, 0)
+  const placeOrder = async () => {
+    if (cart.length === 0 || placing) return
+    setPlacing(true)
+    showToast(t('checkout.starting'))
+    const r = await startCheckout(cart, shipCost, lang.toLowerCase())
+    if (!r.ok) {
+      if (r.error && r.error !== 'empty' && r.error !== 'Checkout failed') console.error('[checkout]', r.error)
+      showToast(t('checkout.payError'))
+      setPlacing(false)
+    }
+    // on success the browser is redirected to Stripe by startCheckout
   }
 
   if (cart.length === 0) {
@@ -74,7 +81,7 @@ export default function Checkout() {
               <input type="text" placeholder={t('checkout.zip')} autoComplete="postal-code" style={inputStyle} />
               <input type="text" placeholder={t('checkout.city')} autoComplete="address-level2" style={inputStyle} />
             </div>
-            <button onClick={placeOrder} className="transition-[filter] hover:brightness-110" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{t('checkout.placeOrder')} · {euro(total)}</button>
+            <button onClick={placeOrder} disabled={placing} className="transition-[filter] hover:brightness-110 disabled:cursor-wait disabled:opacity-70" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${euro(total)}`}</button>
             <div style={{ fontSize: 12, color: C.textMuted2, textAlign: 'center' }}>{t('checkout.noHidden')}</div>
           </div>
         </div>
