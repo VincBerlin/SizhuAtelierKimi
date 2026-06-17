@@ -45,7 +45,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-400"
+        className="fixed top-[34px] left-0 right-0 z-50 transition-all duration-400"
         style={{
           height: 72,
           background: scrolled ? 'rgba(232, 225, 214, 0.92)' : 'transparent',
