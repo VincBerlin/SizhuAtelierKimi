@@ -9,6 +9,7 @@ import Article from './pages/Article'
 import TcmOverview from './pages/TcmOverview'
 import BundlesPage from './pages/BundlesPage'
 import DigitalPage from './pages/DigitalPage'
+import Kollektion from './pages/Kollektion'
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
 import SiteFooter from './components/shop/SiteFooter'
@@ -36,6 +37,7 @@ function AppShell() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
+          <Route path="/kollektion" element={<Kollektion />} />
           <Route path="/tcm" element={<TcmOverview />} />
           <Route path="/bundles" element={<BundlesPage />} />
           <Route path="/digital" element={<DigitalPage />} />
