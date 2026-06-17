@@ -17,6 +17,7 @@ import CartDrawer from './components/shop/CartDrawer'
 import ArticleOverlay from './components/shop/ArticleOverlay'
 import Toast from './components/shop/Toast'
 import { ShopStoreProvider } from './store/ShopStore'
+import { I18nProvider } from './i18n/I18nProvider'
 
 const NAV_HEIGHT = 72
 
@@ -55,8 +56,10 @@ function AppShell() {
 
 export default function App() {
   return (
-    <ShopStoreProvider>
-      <AppShell />
-    </ShopStoreProvider>
+    <I18nProvider>
+      <ShopStoreProvider>
+        <AppShell />
+      </ShopStoreProvider>
+    </I18nProvider>
   )
 }

@@ -1,4 +1,5 @@
 import { C, FONT_SANS } from '../../lib/tokens'
+import { useT } from '../../i18n/I18nProvider'
 
 export const ANNOUNCEMENT_HEIGHT = 34
 
@@ -7,6 +8,7 @@ export const ANNOUNCEMENT_HEIGHT = 34
  * Free-shipping hook + "Saju coming soon". Shorter on mobile.
  */
 export default function AnnouncementBar() {
+  const { t } = useT()
   return (
     <div
       style={{
@@ -24,9 +26,9 @@ export default function AnnouncementBar() {
       }}
     >
       <p style={{ margin: 0, fontFamily: FONT_SANS, fontSize: 11.5, letterSpacing: '0.06em', textAlign: 'center', padding: '0 16px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        Kostenloser Versand ab 80 €
-        <span className="hidden sm:inline"> · Handgefertigt in Deutschland</span>
-        {' · '}Saju coming soon
+        {t('announce.shipping')}
+        <span className="hidden sm:inline"> · {t('announce.handmade')}</span>
+        {' · '}{t('announce.saju')}
       </p>
     </div>
   )

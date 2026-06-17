@@ -1,18 +1,22 @@
 import { useState } from 'react'
-import { shopFaqs } from '../../lib/catalog'
+import { useT } from '../../i18n/I18nProvider'
 import { C, FONT_SERIF, FONT_SANS } from '../../lib/tokens'
 
+interface Faq { q: string; a: string; placeholder?: boolean }
+
 export default function FaqSection() {
+  const { t } = useT()
   const [open, setOpen] = useState<number | null>(0)
+  const faqs = (t('content.shopFaqs') as Faq[]) || []
 
   return (
     <section style={{ background: C.bg }}>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '64px 32px' }}>
-        <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>FAQ</div>
-        <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(28px,3.5vw,38px)', color: C.ink, margin: '0 0 24px' }}>Häufige Fragen</h2>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>{t('faq.eyebrow')}</div>
+        <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(28px,3.5vw,38px)', color: C.ink, margin: '0 0 24px' }}>{t('faq.title')}</h2>
 
         <div style={{ borderTop: `1px solid ${C.border}` }}>
-          {shopFaqs.map((f, i) => {
+          {faqs.map((f, i) => {
             const isOpen = open === i
             return (
               <div key={i} style={{ borderBottom: `1px solid ${C.border}` }}>

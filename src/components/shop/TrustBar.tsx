@@ -1,14 +1,14 @@
 import { Sparkles, Palette, Truck, ShieldCheck } from 'lucide-react'
 import { C, FONT_SANS, CONTAINER } from '../../lib/tokens'
+import { useT } from '../../i18n/I18nProvider'
 
 const items = [
-  { icon: Sparkles, title: 'Persönlich', sub: 'Unikat aus deinen Geburtsdaten' },
-  { icon: Palette, title: 'Individuell gestaltet', sub: 'Stile, Farben, Rahmen' },
-  { icon: Truck, title: 'Schnelle Lieferung', sub: '5–7 Werktage, weltweit' },
-  { icon: ShieldCheck, title: 'Sichere Zahlung', sub: 'pay' },
+  { icon: Sparkles, key: 'personal' },
+  { icon: Palette, key: 'design' },
+  { icon: Truck, key: 'ship' },
+  { icon: ShieldCheck, key: 'pay' },
 ]
 
-/** Mini payment "logos" — styled text chips (replace with brand SVGs later). */
 function PayChips() {
   const chip = (bg: string, color: string, label: string, border?: boolean) => (
     <span style={{ fontFamily: FONT_SANS, fontSize: 9, fontWeight: 700, lineHeight: 1, padding: '3px 5px', borderRadius: 3, background: bg, color, border: border ? '1px solid #dadce0' : 'none' }}>{label}</span>
@@ -22,22 +22,19 @@ function PayChips() {
   )
 }
 
-/**
- * Slim trust / payment strip directly under the hero. Replaces the old
- * 3-column block. Wraps on small screens (no squeezing).
- */
 export default function TrustBar() {
+  const { t } = useT()
   return (
-    <section aria-label="Vorteile" style={{ background: C.surfaceWarm, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+    <section aria-label={t('trust.payTitle')} style={{ background: C.surfaceWarm, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
       <div className="max-w-[1200px] mx-auto" style={{ maxWidth: CONTAINER, padding: '0 32px' }}>
         <ul style={{ listStyle: 'none', margin: 0, padding: '12px 0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '10px 22px' }}>
           {items.map((it) => (
-            <li key={it.title} style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+            <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
               <it.icon size={17} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
               <span style={{ fontFamily: FONT_SANS, fontSize: 12.5, color: C.textMuted, lineHeight: 1.3 }}>
-                <strong style={{ color: C.ink, fontWeight: 600 }}>{it.title}</strong>
-                {it.sub === 'pay' ? ' · ' : <> · {it.sub}</>}
-                {it.sub === 'pay' && <PayChips />}
+                <strong style={{ color: C.ink, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
+                {it.key === 'pay' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
+                {it.key === 'pay' && <PayChips />}
               </span>
             </li>
           ))}

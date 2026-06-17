@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router'
+import { useT } from '../i18n/I18nProvider'
 import InkWave from '../components/InkWave'
 import TrustBar from '../components/shop/TrustBar'
 import CatalogSection from '../components/shop/CatalogSection'
@@ -10,6 +11,7 @@ import FaqSection from '../components/shop/FaqSection'
 
 /* ===== HERO SECTION ===== */
 function HeroSection() {
+  const { t } = useT()
   return (
     <section id="hero" style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
       <InkWave />
@@ -38,7 +40,7 @@ function HeroSection() {
             textShadow: '0 0 40px rgba(232, 225, 214, 0.6)',
           }}
         >
-          PERS&Ouml;NLICHE ASTROLOGIE KUNST
+          {t('hero.eyebrow')}
         </p>
         <h1
           style={{
@@ -50,7 +52,7 @@ function HeroSection() {
             textShadow: '0 0 40px rgba(232, 225, 214, 0.6)',
           }}
         >
-          Dein<br />Sternenbild
+          {t('hero.title1')}<br />{t('hero.title2')}
         </h1>
         <p
           style={{
@@ -64,7 +66,7 @@ function HeroSection() {
             textShadow: '0 0 40px rgba(232, 225, 214, 0.6)',
           }}
         >
-          BaZi im Fokus &mdash; Saju und Junishi als kommende Personalisierungen, handveredelt im Atelier.
+          {t('hero.subtitle')}
         </p>
         <div className="flex flex-wrap gap-4" style={{ marginTop: 36 }}>
           <a
@@ -86,7 +88,7 @@ function HeroSection() {
             onMouseEnter={(e) => { e.currentTarget.style.background = '#B5652B' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
           >
-            Poster entdecken
+            {t('hero.cta1')}
           </a>
           <Link
             to="/atelier"
@@ -108,7 +110,7 @@ function HeroSection() {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A0522D'; e.currentTarget.style.color = '#A0522D' }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(44, 36, 32, 0.15)'; e.currentTarget.style.color = '#2C2420' }}
           >
-            So funktioniert&apos;s
+            {t('hero.cta2')}
           </Link>
         </div>
       </div>
