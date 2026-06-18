@@ -6,6 +6,7 @@ import ProductView from './pages/ProductView'
 import Personalize from './pages/Personalize'
 import Legal from './pages/Legal'
 import Faq from './pages/Faq'
+import Account from './pages/Account'
 import Checkout from './pages/Checkout'
 import OrderResult from './pages/OrderResult'
 import Blog from './pages/Blog'
@@ -21,6 +22,7 @@ import CartDrawer from './components/shop/CartDrawer'
 import ArticleOverlay from './components/shop/ArticleOverlay'
 import Toast from './components/shop/Toast'
 import { ShopStoreProvider } from './store/ShopStore'
+import { AuthProvider } from './store/AuthProvider'
 import { I18nProvider } from './i18n/I18nProvider'
 
 const NAV_HEIGHT = 72
@@ -60,6 +62,7 @@ function AppShell() {
           <Route path="/contact" element={<Contact />} />
           {/* Legal + info pages (Iteration 8) */}
           <Route path="/faq" element={<Faq />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/impressum" element={<Legal docKey="impressum" />} />
           <Route path="/privacy" element={<Legal docKey="privacy" />} />
           <Route path="/terms" element={<Legal docKey="terms" />} />
@@ -84,7 +87,9 @@ export default function App() {
   return (
     <I18nProvider>
       <ShopStoreProvider>
-        <AppShell />
+        <AuthProvider>
+          <AppShell />
+        </AuthProvider>
       </ShopStoreProvider>
     </I18nProvider>
   )

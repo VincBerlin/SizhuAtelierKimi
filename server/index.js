@@ -6,7 +6,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -20,6 +20,8 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 const PUBLIC_URL = (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '')).replace(/\/$/, '')
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null
+// Secret for signing session cookies. Auth is disabled unless this is set.
+const SESSION_SECRET = process.env.SESSION_SECRET || ''
 
 // ---- optional persistence (Postgres) -------------------------------------
 let pool = null
@@ -56,6 +58,21 @@ if (process.env.DATABASE_URL) {
     balance_after INTEGER,
     order_id TEXT UNIQUE
   )`).catch((e) => console.error('[db] credits init failed:', e.message))
+  await pool.query(`CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    points_balance INTEGER NOT NULL DEFAULT 0,
+    lifetime_points INTEGER NOT NULL DEFAULT 0,
+    marketing_consent BOOLEAN NOT NULL DEFAULT false,
+    marketing_consent_at TIMESTAMPTZ,
+    newsletter_status TEXT NOT NULL DEFAULT 'none',
+    unlocked_features JSONB NOT NULL DEFAULT '[]'::jsonb,
+    achievements JSONB NOT NULL DEFAULT '[]'::jsonb,
+    reset_token TEXT,
+    reset_expires TIMESTAMPTZ
+  )`).catch((e) => console.error('[db] users init failed:', e.message))
   console.log('[db] Postgres connected')
 }
 
@@ -188,6 +205,200 @@ app.post('/api/newsletter', async (req, res) => {
   }
 })
 
+// ---- auth (profile + Celestial Credits accounts) ---------------------------
+// Stateless sessions: an HMAC-signed cookie carrying the user id + expiry (no
+// session table; tampering fails the HMAC check). Passwords are scrypt-hashed.
+const SESSION_COOKIE = 'sizhu_session'
+const SESSION_DAYS = 30
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+function hashPassword(pw) {
+  const salt = randomBytes(16).toString('hex')
+  const dk = scryptSync(pw, salt, 64).toString('hex')
+  return `scrypt$${salt}$${dk}`
+}
+function verifyPassword(pw, stored) {
+  try {
+    const [scheme, salt, dk] = String(stored).split('$')
+    if (scheme !== 'scrypt' || !salt || !dk) return false
+    const dkBuf = Buffer.from(dk, 'hex')
+    const test = scryptSync(pw, salt, dkBuf.length)
+    return dkBuf.length === test.length && timingSafeEqual(dkBuf, test)
+  } catch { return false }
+}
+// Compared against for unknown-email logins so scrypt always runs — equalizes
+// response time and removes the email-enumeration timing oracle.
+const DUMMY_PASSWORD_HASH = hashPassword(randomUUID())
+function signSession(uid) {
+  const payload = Buffer.from(JSON.stringify({ uid, exp: Date.now() + SESSION_DAYS * 86400000 })).toString('base64url')
+  const sig = createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url')
+  return `${payload}.${sig}`
+}
+function verifySession(token) {
+  if (!token || !SESSION_SECRET) return null
+  const [payload, sig] = String(token).split('.')
+  if (!payload || !sig) return null
+  const expected = createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url')
+  const a = Buffer.from(sig)
+  const b = Buffer.from(expected)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null
+  try {
+    const { uid, exp } = JSON.parse(Buffer.from(payload, 'base64url').toString())
+    if (!uid || !exp || Date.now() > exp) return null
+    return uid
+  } catch { return null }
+}
+function readCookie(req, name) {
+  const raw = req.headers.cookie || ''
+  for (const part of raw.split(';')) {
+    const i = part.indexOf('=')
+    if (i > -1 && part.slice(0, i).trim() === name) return decodeURIComponent(part.slice(i + 1).trim())
+  }
+  return null
+}
+function setSessionCookie(res, token) {
+  const secure = !!PUBLIC_URL || process.env.NODE_ENV === 'production'
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; HttpOnly; Path=/; Max-Age=${SESSION_DAYS * 86400}; SameSite=Lax${secure ? '; Secure' : ''}`)
+}
+function clearSessionCookie(res) {
+  const secure = !!PUBLIC_URL || process.env.NODE_ENV === 'production'
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure ? '; Secure' : ''}`)
+}
+const authReady = () => !!(pool && SESSION_SECRET)
+
+app.post('/api/auth/signup', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const { email, password, marketingConsent } = req.body || {}
+  const e = String(email || '').trim().toLowerCase()
+  if (!EMAIL_RE.test(e) || e.length > 200) return res.status(400).json({ error: 'invalid_email' })
+  if (typeof password !== 'string' || password.length < 8 || password.length > 200) return res.status(400).json({ error: 'weak_password' })
+  try {
+    const consent = marketingConsent === true
+    const r = await pool.query(
+      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status)
+       VALUES ($1,$2,$3,$4,$5) ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none'],
+    )
+    if (!r.rows.length) return res.status(409).json({ error: 'email_taken' })
+    setSessionCookie(res, signSession(r.rows[0].id))
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] signup failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+app.post('/api/auth/login', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const { email, password } = req.body || {}
+  const e = String(email || '').trim().toLowerCase()
+  try {
+    const r = await pool.query('SELECT id, password_hash FROM users WHERE email = $1', [e])
+    const row = r.rows[0]
+    // Always run scrypt (against a dummy hash when the email is unknown) so the
+    // response time does not reveal whether the account exists. Same generic error.
+    const ok = verifyPassword(String(password || ''), row ? row.password_hash : DUMMY_PASSWORD_HASH)
+    if (!row || !ok) {
+      return res.status(401).json({ error: 'invalid_credentials' })
+    }
+    setSessionCookie(res, signSession(row.id))
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] login failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+app.post('/api/auth/logout', (_req, res) => { clearSessionCookie(res); res.json({ ok: true }) })
+
+app.get('/api/auth/orders', async (req, res) => {
+  if (!authReady()) return res.json({ orders: [] })
+  const uid = verifySession(readCookie(req, SESSION_COOKIE))
+  if (!uid) return res.json({ orders: [] })
+  try {
+    const u = await pool.query('SELECT email FROM users WHERE id = $1', [uid])
+    if (!u.rows.length || !u.rows[0].email) return res.json({ orders: [] })
+    const r = await pool.query('SELECT created_at, amount_total, currency, status, items FROM orders WHERE email = $1 ORDER BY created_at DESC LIMIT 20', [u.rows[0].email])
+    return res.json({ orders: r.rows })
+  } catch (err) {
+    console.error('[auth] orders failed:', err.message)
+    return res.json({ orders: [] })
+  }
+})
+
+app.get('/api/auth/me', async (req, res) => {
+  if (!authReady()) return res.json({ user: null })
+  const uid = verifySession(readCookie(req, SESSION_COOKIE))
+  if (!uid) return res.json({ user: null })
+  try {
+    const r = await pool.query(
+      `SELECT email, points_balance, lifetime_points, marketing_consent, newsletter_status, unlocked_features, achievements, created_at
+       FROM users WHERE id = $1`, [uid])
+    if (!r.rows.length) return res.json({ user: null })
+    const u = r.rows[0]
+    return res.json({ user: {
+      email: u.email, points: u.points_balance, lifetime: u.lifetime_points,
+      marketingConsent: u.marketing_consent, newsletterStatus: u.newsletter_status,
+      unlockedFeatures: u.unlocked_features, achievements: u.achievements, createdAt: u.created_at,
+    } })
+  } catch (err) {
+    console.error('[auth] me failed:', err.message)
+    return res.json({ user: null })
+  }
+})
+
+app.post('/api/auth/preferences', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = verifySession(readCookie(req, SESSION_COOKIE))
+  if (!uid) return res.status(401).json({ error: 'unauthorized' })
+  const consent = req.body?.marketingConsent === true
+  try {
+    await pool.query('UPDATE users SET marketing_consent = $1, marketing_consent_at = $2, newsletter_status = $3 WHERE id = $4',
+      [consent, consent ? new Date() : null, consent ? 'subscribed' : 'unsubscribed', uid])
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] preferences failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+app.post('/api/auth/reset/request', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const e = String(req.body?.email || '').trim().toLowerCase()
+  if (!EMAIL_RE.test(e)) return res.json({ ok: true }) // never reveal whether an email exists
+  try {
+    const token = randomUUID()
+    const r = await pool.query('UPDATE users SET reset_token = $1, reset_expires = $2 WHERE email = $3 RETURNING id',
+      [token, new Date(Date.now() + 3600000), e])
+    if (r.rows.length && resend) {
+      const origin = PUBLIC_URL || ''
+      await resend.emails.send({
+        from: FROM_EMAIL, to: e, subject: 'Reset your SizhuAtelier password',
+        text: `Reset your password (valid 1 hour): ${origin}/account?reset=${token}\n\nIf you did not request this, ignore this email.`,
+      }).catch((err) => console.error('[auth] reset email failed:', err.message))
+    }
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] reset request failed:', err.message)
+    return res.json({ ok: true })
+  }
+})
+
+app.post('/api/auth/reset/confirm', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const { token, password } = req.body || {}
+  if (typeof password !== 'string' || password.length < 8 || password.length > 200) return res.status(400).json({ error: 'weak_password' })
+  try {
+    const r = await pool.query('SELECT id FROM users WHERE reset_token = $1 AND reset_expires > now()', [String(token || '')])
+    if (!r.rows.length) return res.status(400).json({ error: 'invalid_token' })
+    await pool.query('UPDATE users SET password_hash = $1, reset_token = NULL, reset_expires = NULL WHERE id = $2', [hashPassword(password), r.rows[0].id])
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] reset confirm failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
 // ---- read back a session for the success page ------------------------------
 app.get('/api/order/:id', async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'not configured' })
@@ -276,6 +487,8 @@ async function recordCreditsEarned(session, items) {
        VALUES ($1,'purchase_earned',$2,$3,$4) ON CONFLICT (order_id) DO NOTHING`,
       [email, credits, balanceAfter, session.id],
     )
+    // If the buyer has an account, reflect the earned credits on their profile.
+    if (email) await pool.query('UPDATE users SET points_balance = points_balance + $1, lifetime_points = lifetime_points + $1 WHERE email = $2', [credits, email])
   } catch (e) {
     console.error('[credits] record failed:', e.message)
   }

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router'
-import { ShoppingBag, Menu, X, ChevronDown, Search } from 'lucide-react'
+import { ShoppingBag, Menu, X, ChevronDown, Search, User } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
+import { useAuth } from '../store/AuthProvider'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import SearchOverlay from './shop/SearchOverlay'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
@@ -77,6 +78,7 @@ export default function Navbar() {
   const [mPosterOpen, setMPosterOpen] = useState(false)
   const location = useLocation()
   const { cartCount, openCart } = useShopStore()
+  const { user } = useAuth()
   const { t } = useT()
   const posterRef = useRef<HTMLDivElement>(null)
 
@@ -166,6 +168,10 @@ export default function Navbar() {
               <Search size={19} strokeWidth={1.5} />
             </button>
             <div className="hidden sm:block"><LangDropdown /></div>
+            <Link to="/account" aria-label={t('auth.account')} className="flex items-center transition-colors hover:text-[#C0492E]" style={{ gap: 5, color: C.ink, textDecoration: 'none' }}>
+              {user && <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600 }}>{user.points} C.</span>}
+              <User size={19} strokeWidth={1.5} />
+            </Link>
             <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
               {cartCount > 0 && (
