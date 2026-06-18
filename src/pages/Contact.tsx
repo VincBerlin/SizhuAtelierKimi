@@ -1,34 +1,10 @@
 import { useState, useEffect } from 'react'
 import { ChevronDown, Mail, Instagram, MapPin, Clock } from 'lucide-react'
+import { useT } from '../i18n/I18nProvider'
 
-const faqItems = [
-  {
-    q: 'Wie kann ich ein Werk anfragen?',
-    a: 'W\u00e4hle einfach dein gew\u00fcnschtes Poster-Format aus unserer Kollektion aus, gib deine Geburtsdaten ein und wir erstellen dein personalisiertes Chart-Poster. F\u00fcr Sonderanfertigungen kannst du uns \u00fcber das Kontaktformular erreichen.',
-  },
-  {
-    q: 'Bietet das Atelier Auftragsarbeiten an?',
-    a: 'Ja, wir erstellen gerne individuelle Auftragsarbeiten. Ob f\u00fcr Hochzeiten, Firmenevents, Wellness-Studios oder als besonderes Geschenk &mdash; sprich uns an und wir finden gemeinsam die perfekte L\u00f6sung.',
-  },
-  {
-    q: 'Welche Formate sind verf\u00fcgbar?',
-    a: 'Unsere Standard-Poster sind in den Formaten A4, A3, A2 und 50&times;70 cm erh\u00e4ltlich. Rahmen k\u00f6nnen in Eiche, Nussbaum oder Schwarz dazubestellt werden. Sonderformate auf Anfrage.',
-  },
-  {
-    q: 'Wie l\u00e4uft der Prozess ab?',
-    a: 'Nach deiner Bestellung berechnen wir deine astrologischen S\u00e4ulen und erstellen ein Design-Vorschlag. Nach deiner Freigabe drucken wir dein Poster im Atelier und versenden es innerhalb von 5&ndash;7 Werktagen.',
-  },
-  {
-    q: 'Wie kann ich Kontakt aufnehmen?',
-    a: 'Du erreichst uns per E-Mail an hello@sizhuatelier.shop, \u00fcber das Kontaktformular auf dieser Seite oder direkt \u00fcber Instagram @sizhuatelier. Wir antworten innerhalb von 24 Stunden.',
-  },
-  {
-    q: 'Kann ich mein Poster zur\u00fcckgeben?',
-    a: 'Da jedes Poster personalisiert ist, k\ouml;nnen wir grunds\u00e4tzlich keine Retouren annehmen. Bei besch\u00e4digter Lieferung oder Druckfehlern tauschen wir selbstverst\u00e4ndlich kostenlos aus.',
-  },
-]
+type Faq = { q: string; a: string }
 
-function FAQItem({ item, isOpen, onToggle }: { item: typeof faqItems[0]; isOpen: boolean; onToggle: () => void }) {
+function FAQItem({ item, isOpen, onToggle }: { item: Faq; isOpen: boolean; onToggle: () => void }) {
   return (
     <div style={{ borderBottom: '1px solid #D5C9B7' }}>
       <button
@@ -73,20 +49,48 @@ function FAQItem({ item, isOpen, onToggle }: { item: typeof faqItems[0]; isOpen:
             paddingBottom: 20,
             maxWidth: 640,
           }}
-          dangerouslySetInnerHTML={{ __html: item.a }}
-        />
+        >
+          {item.a}
+        </p>
       </div>
     </div>
   )
 }
 
 export default function Contact() {
+  const { t } = useT()
   const [openFaq, setOpenFaq] = useState<number | null>(0)
-  const [formData, setFormData] = useState({ name: '', email: '', subject: 'allgemein', message: '' })
+  const [formData, setFormData] = useState({ name: '', email: '', subject: 'general', message: '' })
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  const faqItems = (t('pages.contact.faqs') as unknown as Faq[]) || []
+  const atelierLines: string[] = String(t('pages.contact.atelierValue')).split('|')
+
+  const labelStyle = {
+    fontFamily: '"Inter", sans-serif',
+    fontSize: 11,
+    fontWeight: 500,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.08em',
+    color: '#8A7E72',
+    display: 'block',
+    marginBottom: 8,
+  }
+  const fieldStyle = {
+    width: '100%',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid #D5C9B7',
+    fontFamily: '"Inter", sans-serif',
+    fontSize: 15,
+    color: '#2C2420',
+    padding: '14px 0',
+    outline: 'none',
+    transition: 'border-color 0.3s',
+  }
 
   return (
     <main>
@@ -102,7 +106,7 @@ export default function Contact() {
               lineHeight: 1.1,
             }}
           >
-            Sag Hallo
+            {t('pages.contact.heroTitle')}
           </h1>
           <p
             style={{
@@ -110,167 +114,65 @@ export default function Contact() {
               fontSize: 16,
               color: '#8A7E72',
               lineHeight: 1.75,
-              marginTop: 16,
               maxWidth: 480,
               margin: '16px auto 0',
             }}
           >
-            Wir freuen uns auf deine Nachricht &mdash; ob Frage, Sonderwunsch oder Atelierbesuch.
+            {t('pages.contact.heroIntro')}
           </p>
         </div>
       </section>
 
       {/* Contact Form */}
       <section style={{ padding: '80px 0', background: '#E8E1D6' }}>
-        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12 lg:gap-16" style={{ padding: '0 24px' }}>
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-16" style={{ padding: '0 24px' }}>
           {/* Form */}
           <div>
-            <form
-              onSubmit={(e) => { e.preventDefault() }}
-              className="space-y-6"
-            >
+            <form onSubmit={(e) => { e.preventDefault() }} className="space-y-6">
               <div>
-                <label
-                  style={{
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#8A7E72',
-                    display: 'block',
-                    marginBottom: 8,
-                  }}
-                >
-                  Name
-                </label>
+                <label style={labelStyle}>{t('pages.contact.name')}</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid #D5C9B7',
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 15,
-                    color: '#2C2420',
-                    padding: '14px 0',
-                    outline: 'none',
-                    transition: 'border-color 0.3s',
-                  }}
+                  style={fieldStyle}
                   onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 />
               </div>
               <div>
-                <label
-                  style={{
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#8A7E72',
-                    display: 'block',
-                    marginBottom: 8,
-                  }}
-                >
-                  E-Mail
-                </label>
+                <label style={labelStyle}>{t('pages.contact.email')}</label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid #D5C9B7',
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 15,
-                    color: '#2C2420',
-                    padding: '14px 0',
-                    outline: 'none',
-                    transition: 'border-color 0.3s',
-                  }}
+                  style={fieldStyle}
                   onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 />
               </div>
               <div>
-                <label
-                  style={{
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#8A7E72',
-                    display: 'block',
-                    marginBottom: 8,
-                  }}
-                >
-                  Betreff
-                </label>
+                <label style={labelStyle}>{t('pages.contact.subject')}</label>
                 <select
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid #D5C9B7',
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 15,
-                    color: '#2C2420',
-                    padding: '14px 0',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.3s',
-                  }}
+                  style={{ ...fieldStyle, cursor: 'pointer' }}
                   onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 >
-                  <option value="allgemein">Allgemeine Anfrage</option>
-                  <option value="bestellung">Bestellung</option>
-                  <option value="sonderanfertigung">Sonderanfertigung</option>
-                  <option value="atelierbesuch">Atelierbesuch</option>
+                  <option value="general">{t('pages.contact.subjectGeneral')}</option>
+                  <option value="order">{t('pages.contact.subjectOrder')}</option>
+                  <option value="custom">{t('pages.contact.subjectCustom')}</option>
+                  <option value="visit">{t('pages.contact.subjectVisit')}</option>
                 </select>
               </div>
               <div>
-                <label
-                  style={{
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: '#8A7E72',
-                    display: 'block',
-                    marginBottom: 8,
-                  }}
-                >
-                  Nachricht
-                </label>
+                <label style={labelStyle}>{t('pages.contact.message')}</label>
                 <textarea
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   rows={6}
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid #D5C9B7',
-                    fontFamily: '"Inter", sans-serif',
-                    fontSize: 15,
-                    color: '#2C2420',
-                    padding: '14px 0',
-                    outline: 'none',
-                    resize: 'vertical',
-                    transition: 'border-color 0.3s',
-                  }}
+                  style={{ ...fieldStyle, resize: 'vertical' }}
                   onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 />
@@ -295,7 +197,7 @@ export default function Contact() {
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#B5652B' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
               >
-                Senden
+                {t('pages.contact.send')}
               </button>
             </form>
           </div>
@@ -313,13 +215,13 @@ export default function Contact() {
                 letterSpacing: '0.04em',
               }}
             >
-              Direkter Kontakt
+              {t('pages.contact.directTitle')}
             </h3>
             <div className="space-y-5">
               <div className="flex items-start gap-3">
                 <Mail size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
                 <div>
-                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>E-Mail</p>
+                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.emailLabel')}</p>
                   <a
                     href="mailto:hello@sizhuatelier.shop"
                     className="transition-colors duration-300 hover:text-terracotta"
@@ -332,7 +234,7 @@ export default function Contact() {
               <div className="flex items-start gap-3">
                 <Instagram size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
                 <div>
-                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>Instagram</p>
+                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.instagramLabel')}</p>
                   <a
                     href="#"
                     className="transition-colors duration-300 hover:text-terracotta"
@@ -345,19 +247,20 @@ export default function Contact() {
               <div className="flex items-start gap-3">
                 <MapPin size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
                 <div>
-                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>Atelier</p>
+                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.atelierLabel')}</p>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, color: '#8A7E72' }}>
-                    SizhuAtelier<br />
-                    Schweiz
+                    {atelierLines.map((line, i) => (
+                      <span key={i}>{line}{i < atelierLines.length - 1 ? <br /> : null}</span>
+                    ))}
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Clock size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
                 <div>
-                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>Antwortzeit</p>
+                  <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.responseLabel')}</p>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, color: '#8A7E72' }}>
-                    Wir antworten innerhalb von 24 Stunden.
+                    {t('pages.contact.responseValue')}
                   </p>
                 </div>
               </div>
@@ -378,7 +281,7 @@ export default function Contact() {
               marginBottom: 8,
             }}
           >
-            H&auml;ufige Fragen
+            {t('pages.contact.faqTitle')}
           </h2>
           <p
             style={{
@@ -388,7 +291,7 @@ export default function Contact() {
               marginBottom: 40,
             }}
           >
-            Antworten auf die wichtigsten Fragen rund um unsere Poster und den Bestellprozess.
+            {t('pages.contact.faqIntro')}
           </p>
           <div>
             {faqItems.map((item, i) => (

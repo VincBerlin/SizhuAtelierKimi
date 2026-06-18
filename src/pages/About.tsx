@@ -1,20 +1,15 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router'
+import { useT } from '../i18n/I18nProvider'
 
-const steps = [
-  { num: '01', title: 'Geburtsdaten eingeben', desc: 'Teile uns Datum, Uhrzeit und Ort deiner Geburt mit. F\u00fcr Paar-Charts auch die Daten deines Partners.' },
-  { num: '02', title: 'Chart berechnen', desc: 'Wir berechnen deine astrologischen S\u00e4ulen nach traditionellen Methoden und analysieren die Elemente.' },
-  { num: '03', title: 'Design w\u00e4hlen', desc: 'W\u00e4hle aus verschiedenen Design-Stilen, Farbpaletten und Layouts, die zu deiner pers\u00f6nlichen Chart-Energie passen.' },
-  { num: '04', title: 'Im Atelier drucken', desc: 'Dein Poster wird auf hochwertigem Hahnem\u00fchle-Papier mit archivalischen Tinten gedruckt und sorgf\u00e4ltig verpackt.' },
-]
-
-const materials = [
-  { title: 'Hahnem\u00fchle Papier', desc: '100% Baumwolle, 308gsm, museum grade. Acid-free f\u00fcr eine Lebensdauer von \u00fcber 100 Jahren.' },
-  { title: 'Archivale Tinten', desc: 'Pigmentbasierte Tinten mit UV-Best\u00e4ndigkeit. Farben, die nicht verblassen.' },
-  { title: 'Handgefertigte Rahmen', desc: 'Massivholzrahmen aus nachhaltiger Forstwirtschaft. Erh\u00e4ltlich in Eiche, Nuss und Schwarz.' },
-]
+type Step = { num: string; title: string; desc: string }
+type Material = { title: string; desc: string }
 
 export default function About() {
+  const { t } = useT()
+  const steps = (t('pages.about.steps') as unknown as Step[]) || []
+  const materials = (t('pages.about.materials') as unknown as Material[]) || []
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
@@ -23,7 +18,7 @@ export default function About() {
     <main>
       {/* Hero */}
       <section style={{ minHeight: '60vh', background: '#E8E1D6' }}>
-        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[45%_55%] gap-8 items-center" style={{ padding: '120px 24px 0', minHeight: '60vh' }}>
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-[45fr_55fr] gap-8 items-center" style={{ padding: '120px 24px 0', minHeight: '60vh' }}>
           <div style={{ paddingBottom: 60 }}>
             <p
               style={{
@@ -36,7 +31,7 @@ export default function About() {
                 marginBottom: 16,
               }}
             >
-              DAS ATELIER
+              {t('pages.about.eyebrow')}
             </p>
             <h1
               style={{
@@ -47,7 +42,7 @@ export default function About() {
                 lineHeight: 1.1,
               }}
             >
-              Wo Astrologie<br />Begegnung Kunst wird
+              {t('pages.about.title1')}<br />{t('pages.about.title2')}
             </h1>
             <p
               style={{
@@ -59,7 +54,7 @@ export default function About() {
                 maxWidth: 440,
               }}
             >
-              SizhuAtelier ist ein Schweizer Kunststudio, das die Weisheit der ostasiatischen Astrologie in zeitlose, personalisierte Wandkunst &uuml;bersetzt.
+              {t('pages.about.heroIntro')}
             </p>
           </div>
           <div className="h-[40vh] lg:h-[60vh]">
@@ -79,7 +74,7 @@ export default function About() {
           <div className="overflow-hidden rounded" style={{ aspectRatio: '3/2' }}>
             <img
               src="/images/atelier/studio-process.jpg"
-              alt="H\u00e4nde bei der Arbeit"
+              alt="Studio process"
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -94,17 +89,17 @@ export default function About() {
                 lineHeight: 1.2,
               }}
             >
-              Unsere Philosophie
+              {t('pages.about.philTitle')}
             </h2>
             <div className="mt-8 space-y-6">
               <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 15, color: '#8A7E72', lineHeight: 1.75 }}>
-                Wir glauben, dass Astrologie mehr ist als Vorhersage &mdash; sie ist eine Sprache der Selbsterkenntnis. Die traditionellen Systeme des Ostens, ob Chinesische Vier-S\u00e4ulen-Lehre, Koreanisches Saju oder Japanisches Junishi, bieten eine tiefgr\u00fcndige Kartografie der menschlichen Pers\u00f6nlichkeit.
+                {t('pages.about.philP1')}
               </p>
               <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 15, color: '#8A7E72', lineHeight: 1.75 }}>
-                Jedes Poster, das unser Atelier verl\u00e4sst, ist ein Unikat. Wir verbinden computergest\u00fctzte Chart-Berechnung mit handwerklicher Druckkunst, um Werke zu schaffen, die sowohl wissenschaftlich fundiert als auch \u00e4sthetisch \u00fcberzeugend sind.
+                {t('pages.about.philP2')}
               </p>
               <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 15, color: '#8A7E72', lineHeight: 1.75 }}>
-                Unser Atelier in der Schweiz steht f\u00fcr Pr\u00e4zision, Qualit\u00e4t und Respekt vor der Tradition. Wir arbeiten ausschliesslich mit archivalischen Materialien, damit dein pers\u00f6nliches Kunstwerk Generationen \u00fcberdauert.
+                {t('pages.about.philP3')}
               </p>
             </div>
           </div>
@@ -123,7 +118,7 @@ export default function About() {
               color: '#2C2420',
             }}
           >
-            Der Weg zu deinem Poster
+            {t('pages.about.processTitle')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step) => (
@@ -181,7 +176,7 @@ export default function About() {
                   lineHeight: 1.2,
                 }}
               >
-                Materialien mit Bedeutung
+                {t('pages.about.materialsTitle')}
               </h2>
               <p
                 style={{
@@ -192,13 +187,13 @@ export default function About() {
                   marginTop: 16,
                 }}
               >
-                Wir verwenden ausschliesslich Materialien von h\u00f6chster Qualit\u00e4t. Jedes Detail wird sorgf\u00e4ltig ausgew\u00e4hlt, um sowohl die \u00e4sthetische als auch die energetische Qualit\u00e4t deines Posters zu gew\u00e4hrleisten.
+                {t('pages.about.materialsIntro')}
               </p>
             </div>
             <div className="overflow-hidden rounded" style={{ aspectRatio: '3/2' }}>
               <img
                 src="/images/atelier/materials.jpg"
-                alt="Materialien im Atelier"
+                alt="Materials"
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
@@ -254,7 +249,7 @@ export default function About() {
               marginBottom: 36,
             }}
           >
-            Bereit f&uuml;r dein pers&ouml;nliches Kunstwerk?
+            {t('pages.about.ctaTitle')}
           </h2>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -276,10 +271,10 @@ export default function About() {
               onMouseEnter={(e) => { e.currentTarget.style.background = '#B5652B' }}
               onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
             >
-              Poster gestalten
+              {t('pages.about.ctaBtn1')}
             </Link>
             <Link
-              to="/kontakt"
+              to="/contact"
               style={{
                 background: 'transparent',
                 color: '#2C2420',
@@ -298,7 +293,7 @@ export default function About() {
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A0522D'; e.currentTarget.style.color = '#A0522D' }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(44, 36, 32, 0.15)'; e.currentTarget.style.color = '#2C2420' }}
             >
-              Kontakt
+              {t('pages.about.ctaBtn2')}
             </Link>
           </div>
         </div>
