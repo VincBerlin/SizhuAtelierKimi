@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import ProductView from './pages/ProductView'
+import Personalize from './pages/Personalize'
 import Checkout from './pages/Checkout'
 import OrderResult from './pages/OrderResult'
 import Blog from './pages/Blog'
@@ -42,10 +43,8 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductView />} />
-          {/* Iteration 1: personalization entry reuses ProductView (defaults to the
-              BaZi product when no id). Iteration 3 replaces this with the dedicated
-              multi-product /personalize flow. */}
-          <Route path="/personalize" element={<ProductView />} />
+          {/* Dedicated multi-product personalization flow (Iteration 3). */}
+          <Route path="/personalize" element={<Personalize />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout/success" element={<OrderResult success />} />
           <Route path="/checkout/cancel" element={<OrderResult success={false} />} />

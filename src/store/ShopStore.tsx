@@ -11,6 +11,8 @@ export interface CartLine {
   poster: PosterData | null
   meta: string
   personalization?: Record<string, string>
+  /** Celestial Credits earned by this line (1 per net €/$ spent). Display-only in MVP. */
+  creditsEarned?: number
 }
 
 const CART_KEY = 'sizhu_cart'

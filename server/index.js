@@ -69,8 +69,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       const session = event.data.object
       const full = await stripe.checkout.sessions.retrieve(session.id, { expand: ['line_items'] })
       const items = (full.line_items?.data || []).map((li) => ({ description: li.description, qty: li.quantity, amount: li.amount_total }))
-      let personalization = {}
-      try { personalization = session.metadata?.personalization ? JSON.parse(session.metadata.personalization) : {} } catch { /* ignore */ }
+      const personalization = readPersonalizationMetadata(session.metadata)
       await persistOrder(full, items, personalization)
       await sendEmails(full, items, personalization)
       console.log(`[order] ${full.id} · ${eur(full.amount_total)} · ${full.customer_details?.email}`)
@@ -118,7 +117,11 @@ app.post('/api/checkout', async (req, res) => {
     }
 
     const origin = PUBLIC_URL || (req.headers.origin || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '')
-    const metaPersonal = JSON.stringify(personalization).slice(0, 4900) // Stripe metadata value cap = 500 chars/key; keep compact
+    // Stripe caps each metadata VALUE at 500 chars (and ~50 keys per object). A
+    // couple or multi-line cart easily exceeds 500 chars, so chunk the
+    // personalization JSON across numbered keys instead of silently dropping it —
+    // the customer's birth data is the whole product and must reach fulfilment.
+    const metadata = buildPersonalizationMetadata(personalization)
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -128,7 +131,7 @@ app.post('/api/checkout', async (req, res) => {
       billing_address_collection: 'auto',
       shipping_address_collection: { allowed_countries: ['DE', 'AT', 'CH', 'FR', 'NL', 'BE', 'LU', 'IT', 'ES'] },
       phone_number_collection: { enabled: false },
-      metadata: metaPersonal.length <= 500 ? { personalization: metaPersonal } : {},
+      metadata,
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout/cancel`,
     })
@@ -163,6 +166,41 @@ app.listen(PORT, '0.0.0.0', () => {
 })
 
 // ---- helpers ---------------------------------------------------------------
+
+// Stripe metadata limits: <=500 chars/value, ~50 keys/object. Chunk the
+// personalization JSON so a couple / multi-line cart never silently loses the
+// customer's birth data; reassemble in the webhook via readPersonalizationMetadata.
+const META_CHUNK = 480
+const META_MAX_CHUNKS = 45 // 45 x 480 ≈ 21.6k chars — far beyond any realistic cart
+
+function buildPersonalizationMetadata(personalization) {
+  const json = JSON.stringify(personalization || {})
+  if (json === '{}') return {}
+  if (json.length <= META_CHUNK) return { personalization: json }
+  const needed = Math.ceil(json.length / META_CHUNK)
+  const n = Math.min(META_MAX_CHUNKS, needed)
+  const meta = { personalization_chunks: String(n) }
+  for (let i = 0; i < n; i++) meta[`personalization_${i}`] = json.slice(i * META_CHUNK, (i + 1) * META_CHUNK)
+  if (needed > META_MAX_CHUNKS) meta.personalization_truncated = '1'
+  return meta
+}
+
+function readPersonalizationMetadata(metadata) {
+  const md = metadata || {}
+  try {
+    if (md.personalization) return JSON.parse(md.personalization)
+    if (md.personalization_chunks) {
+      const n = parseInt(md.personalization_chunks, 10) || 0
+      let json = ''
+      for (let i = 0; i < n; i++) json += md[`personalization_${i}`] || ''
+      return json ? JSON.parse(json) : {}
+    }
+  } catch (e) {
+    console.error('[webhook] personalization parse failed:', e.message)
+  }
+  return {}
+}
+
 async function persistOrder(session, items, personalization) {
   if (!pool) { console.log('[order] (no DB) ', JSON.stringify({ id: session.id, items, personalization })); return }
   await pool.query(
