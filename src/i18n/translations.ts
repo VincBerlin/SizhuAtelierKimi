@@ -39,7 +39,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       payTitle: 'Secure payment',
     },
     catalog: { title: 'The Collection', more: 'See the full collection →' },
-    search: { placeholder: 'Search posters, collections…', hint: 'Try “BaZi”, “Birth Chart”, “Couple”, “Fire Horse”, “Gift”…', noResults: 'No results — try another term.', products: 'Posters', collections: 'Collections' },
+    search: { placeholder: 'Search products, collections, posters…', hint: 'Try “BaZi”, “Birth Chart”, “Couple”, “Fire Horse”, “Gift”…', noResults: 'No matching results', error: 'Search is temporarily unavailable', products: 'Posters', collections: 'Collections', gifts: { wedding: 'Wedding Gift Ideas', birthday: 'Birthday Gift Ideas', anniversary: 'Anniversary Gift Ideas', baby: 'Baby Shower Gift Ideas', newbeginning: 'New Beginning Gifts', studio: 'Practice & Studio Gifts' } },
     auth: {
       account: 'Account', loginTitle: 'Welcome back', createTitle: 'Create your profile', forgotTitle: 'Reset your password', resetTitle: 'Set a new password',
       subtitle: 'Your Celestial Vault — credits, orders and cosmic updates.',
@@ -224,7 +224,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       payTitle: 'Sichere Zahlung',
     },
     catalog: { title: 'Die Kollektion', more: 'Weiter zur Kollektion →' },
-    search: { placeholder: 'Poster, Kollektionen suchen…', hint: 'Versuche „BaZi“, „Geburtschart“, „Paar“, „Feuerpferd“, „Geschenk“…', noResults: 'Keine Ergebnisse — versuche einen anderen Begriff.', products: 'Poster', collections: 'Kollektionen' },
+    search: { placeholder: 'Produkte, Kollektionen, Poster suchen…', hint: 'Versuche „BaZi“, „Geburtschart“, „Paar“, „Feuerpferd“, „Geschenk“…', noResults: 'Keine passenden Ergebnisse', error: 'Suche momentan nicht verfügbar', products: 'Poster', collections: 'Kollektionen', gifts: { wedding: 'Hochzeits-Geschenkideen', birthday: 'Geburtstags-Geschenkideen', anniversary: 'Jahrestags-Geschenkideen', baby: 'Baby-Geschenkideen', newbeginning: 'Neuanfang-Geschenke', studio: 'Praxis- & Studio-Geschenke' } },
     auth: {
       account: 'Konto', loginTitle: 'Willkommen zurück', createTitle: 'Profil erstellen', forgotTitle: 'Passwort zurücksetzen', resetTitle: 'Neues Passwort festlegen',
       subtitle: 'Dein Celestial Vault — Credits, Bestellungen und kosmische Updates.',
@@ -409,7 +409,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       payTitle: 'Paiement sécurisé',
     },
     catalog: { title: 'La Collection', more: 'Voir toute la collection →' },
-    search: { placeholder: 'Rechercher posters, collections…', hint: 'Essayez « BaZi », « Carte du ciel », « Couple », « Cheval de Feu », « Cadeau »…', noResults: 'Aucun résultat — essayez un autre terme.', products: 'Posters', collections: 'Collections' },
+    search: { placeholder: 'Rechercher produits, collections, posters…', hint: 'Essayez « BaZi », « Carte du ciel », « Couple », « Cheval de Feu », « Cadeau »…', noResults: 'Aucun résultat correspondant', error: 'Recherche temporairement indisponible', products: 'Posters', collections: 'Collections', gifts: { wedding: 'Idées cadeaux mariage', birthday: 'Idées cadeaux anniversaire', anniversary: 'Idées cadeaux anniversaire de couple', baby: 'Idées cadeaux baby shower', newbeginning: 'Cadeaux nouveau départ', studio: 'Cadeaux cabinet & studio' } },
     auth: {
       account: 'Compte', loginTitle: 'Bon retour', createTitle: 'Créez votre profil', forgotTitle: 'Réinitialiser le mot de passe', resetTitle: 'Définir un nouveau mot de passe',
       subtitle: 'Votre Celestial Vault — crédits, commandes et actualités cosmiques.',

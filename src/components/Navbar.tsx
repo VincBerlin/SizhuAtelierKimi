@@ -4,7 +4,7 @@ import { ShoppingBag, Menu, X, ChevronDown, Search, User } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
 import { useAuth } from '../store/AuthProvider'
 import { useT, LANGS } from '../i18n/I18nProvider'
-import SearchOverlay from './shop/SearchOverlay'
+import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
 // "Personalized Posters" dropdown — current MVP categories only (no Saju/Junishi).
@@ -144,7 +144,8 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center" style={{ gap: 28 }}>
+          {searchOpen && <HeaderSearch onClose={() => setSearchOpen(false)} />}
+          <nav className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
             <Link to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
             <div ref={posterRef} className="relative" onMouseEnter={() => setPosterOpen(true)} onMouseLeave={() => setPosterOpen(false)}>
               <button className="flex items-center gap-1 transition-colors hover:text-[#C0492E]" style={navLinkStyle(posterActive)} aria-haspopup="true" aria-expanded={posterOpen} onClick={() => setPosterOpen((o) => !o)}>
@@ -164,9 +165,11 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center" style={{ gap: 14, flexShrink: 0 }}>
-            <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
-              <Search size={19} strokeWidth={1.5} />
-            </button>
+            {!searchOpen && (
+              <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+                <Search size={19} strokeWidth={1.5} />
+              </button>
+            )}
             <div className="hidden sm:block"><LangDropdown /></div>
             <Link to="/account" aria-label={t('auth.account')} className="flex items-center transition-colors hover:text-[#C0492E]" style={{ gap: 5, color: C.ink, textDecoration: 'none' }}>
               {user && <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600 }}>{user.points} C.</span>}
@@ -212,7 +215,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   )
 }
