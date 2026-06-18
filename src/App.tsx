@@ -4,6 +4,8 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import ProductView from './pages/ProductView'
 import Personalize from './pages/Personalize'
+import Legal from './pages/Legal'
+import Faq from './pages/Faq'
 import Checkout from './pages/Checkout'
 import OrderResult from './pages/OrderResult'
 import Blog from './pages/Blog'
@@ -56,6 +58,13 @@ function AppShell() {
           <Route path="/digital" element={<DigitalPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          {/* Legal + info pages (Iteration 8) */}
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/impressum" element={<Legal docKey="impressum" />} />
+          <Route path="/privacy" element={<Legal docKey="privacy" />} />
+          <Route path="/terms" element={<Legal docKey="terms" />} />
+          <Route path="/returns" element={<Legal docKey="returns" />} />
+          <Route path="/shipping" element={<Legal docKey="shipping" />} />
           {/* Legacy German-slug redirects (kept so old links/bookmarks keep working) */}
           <Route path="/produkt/:id" element={<LegacyProductRedirect />} />
           <Route path="/kollektion" element={<Navigate to="/collections" replace />} />

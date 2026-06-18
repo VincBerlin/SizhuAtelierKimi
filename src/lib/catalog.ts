@@ -203,6 +203,6 @@ export const shopFaqs: ShopFaq[] = [
 export const faqDefs: FaqDef[] = [
   { id: 'details', q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier handsigniert.' },
   { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
-  { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. 30 Tage Rückgaberecht.' },
+  { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie.' },
   { id: 'bazi', q: 'Über deine Berechnung', a: 'Aus Datum, Uhrzeit und Ort berechnen wir deine vier Säulen mit Himmelsstämmen und Erdzweigen. Ohne Geburtszeit erstellen wir eine Tages-Näherung — die Uhrzeit präzisiert die Stundensäule.' },
 ]

@@ -92,6 +92,8 @@ export default function ProductView() {
 
           <Configurator />
 
+          <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>
+
           {COMMERCE_ENABLED ? (
             <>
               <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {euro(livePrice)}</button>
