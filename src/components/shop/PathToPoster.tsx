@@ -31,7 +31,25 @@ export default function PathToPoster() {
   const steps = (t('path.steps') as { title: string; desc: string }[]) || []
   return (
     <section aria-label={t('path.title')} style={{ background: C.bg }}>
-      <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '56px 24px 0' }}>
+      {/* Striking-but-minimal dark trust banner — sits directly ABOVE the heading (§3.2). */}
+      <div style={{ background: C.ink }}>
+        <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '0 24px' }}>
+          <ul className="trustbar-row" style={{ listStyle: 'none', margin: 0, padding: '11px 0', display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between', gap: 24, overflowX: 'auto' }}>
+            {trustItems.map((it) => (
+              <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                <it.icon size={16} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
+                <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: 'rgba(243,238,227,0.66)', lineHeight: 1.3 }}>
+                  <strong style={{ color: C.inkOnDark, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
+                  {it.key === 'secure' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
+                  {it.key === 'secure' && <PayChips />}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '48px 24px 8px' }}>
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: C.accent, marginBottom: 10 }}>{t('path.eyebrow')}</div>
           <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3.4vw,38px)', color: C.ink, margin: 0, lineHeight: 1.1 }}>{t('path.title')}</h2>
@@ -51,24 +69,6 @@ export default function PathToPoster() {
             )
           })}
         </ol>
-      </div>
-
-      {/* Integrated trust strip — the four trust signals stay (§3.2). */}
-      <div style={{ background: C.ink, marginTop: 48 }}>
-        <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '0 24px' }}>
-          <ul className="trustbar-row" style={{ listStyle: 'none', margin: 0, padding: '11px 0', display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between', gap: 24, overflowX: 'auto' }}>
-            {trustItems.map((it) => (
-              <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, whiteSpace: 'nowrap' }}>
-                <it.icon size={16} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
-                <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: 'rgba(243,238,227,0.66)', lineHeight: 1.3 }}>
-                  <strong style={{ color: C.inkOnDark, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
-                  {it.key === 'secure' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
-                  {it.key === 'secure' && <PayChips />}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </section>
   )

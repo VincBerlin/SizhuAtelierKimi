@@ -7,19 +7,22 @@ import { useT, LANGS } from '../i18n/I18nProvider'
 import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
-// "Personalized Posters" dropdown — personalizable products ONLY (§4.6). Fire
-// Horse, Bundles and the Gift Collection are NOT personalizable and live under
-// Shop/Collection + Gifts instead.
-const posterLinks = [
+// "Collections" dropdown — the full shop (§4.4): all products, both
+// personalizable and ready-to-ship. (The old "Personalized Posters" item is
+// removed; everything now lives under Collections.)
+const shopLinks = [
   { key: 'bazi', href: '/personalize' },
   { key: 'birthChart', href: '/personalize' },
   { key: 'couple', href: '/personalize' },
+  { key: 'fireHorse', href: '/product/8' },
+  { key: 'tcm', href: '/tcm' },
   { key: 'digital', href: '/digital' },
+  { key: 'bundles', href: '/bundles' },
+  { key: 'gifts', href: '/gifts' },
 ]
 const mainLinks = [
-  { key: 'collections', href: '/collections' },
   { key: 'gifts', href: '/gifts' },
-  { key: 'wissen', href: '/blog' },
+  { key: 'blog', href: '/blog' },
   { key: 'faq', href: '/faq' },
   { key: 'about', href: '/about' },
   { key: 'contact', href: '/contact' },
@@ -152,12 +155,12 @@ export default function Navbar() {
           <nav className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
             <Link to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
             <div ref={posterRef} className="relative" onMouseEnter={() => setPosterOpen(true)} onMouseLeave={() => setPosterOpen(false)}>
-              <button className="flex items-center gap-1 transition-colors hover:text-[#C0492E]" style={navLinkStyle(posterActive)} aria-haspopup="true" aria-expanded={posterOpen} onClick={() => setPosterOpen((o) => !o)}>
-                {t('nav.poster')} <ChevronDown size={14} style={{ transition: 'transform .2s', transform: posterOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
+              <Link to="/collections" className="flex items-center gap-1 transition-colors hover:text-[#C0492E]" style={navLinkStyle(posterActive || isActive('/collections'))} aria-haspopup="true" aria-expanded={posterOpen}>
+                {t('nav.collections')} <ChevronDown size={14} style={{ transition: 'transform .2s', transform: posterOpen ? 'rotate(180deg)' : 'none' }} />
+              </Link>
               {/* REQ-006: rectangular premium dropdown — radius 2px, calm ivory, subtle border */}
               <div role="menu" style={{ position: 'absolute', top: 'calc(100% + 10px)', left: 0, minWidth: 264, background: '#FBF8F1', border: `1px solid ${C.border}`, borderRadius: 2, boxShadow: '0 16px 36px -18px rgba(28,24,18,0.4)', padding: 6, opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden', transform: posterOpen ? 'translateY(0)' : 'translateY(-6px)', transition: 'opacity .2s, transform .2s, visibility .2s' }}>
-                {posterLinks.map((l) => (
+                {shopLinks.map((l) => (
                   <Link key={l.key} to={l.href} role="menuitem" className="block transition-colors hover:bg-[#F0E9DA]" style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.ink, textDecoration: 'none', padding: '10px 12px', borderRadius: 0 }}>{t('nav.posterMenu.' + l.key)}</Link>
                 ))}
               </div>
@@ -199,11 +202,12 @@ export default function Navbar() {
           <nav className="flex flex-col" style={{ padding: '14px 24px', gap: 2, overflowY: 'auto', flex: 1 }}>
             <Link to="/personalize" style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.accent, fontWeight: 600, textDecoration: 'none', padding: '12px 0' }}>{t('nav.startPersonalizing')}</Link>
             <button onClick={() => setMPosterOpen((o) => !o)} aria-expanded={mPosterOpen} className="flex items-center justify-between" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '12px 0', fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textAlign: 'left' }}>
-              {t('nav.poster')} <ChevronDown size={20} style={{ transition: 'transform .2s', transform: mPosterOpen ? 'rotate(180deg)' : 'none' }} />
+              {t('nav.collections')} <ChevronDown size={20} style={{ transition: 'transform .2s', transform: mPosterOpen ? 'rotate(180deg)' : 'none' }} />
             </button>
             {mPosterOpen && (
               <div className="flex flex-col" style={{ paddingLeft: 12, gap: 2, marginBottom: 4 }}>
-                {posterLinks.map((l) => (
+                <Link to="/collections" style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.ink, textDecoration: 'none', padding: '8px 0' }}>{t('coll.allPosters')}</Link>
+                {shopLinks.map((l) => (
                   <Link key={l.key} to={l.href} style={{ fontFamily: FONT_SANS, fontSize: 16, color: C.textMuted, textDecoration: 'none', padding: '8px 0' }}>{t('nav.posterMenu.' + l.key)}</Link>
                 ))}
               </div>
