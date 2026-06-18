@@ -144,7 +144,12 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       },
       addAddon: (a) => addLine({ title: a.title, price: a.price, qty: 1, poster: null, meta: a.note }),
       addItem: (item) => addLine(item),
-      setQty: (key, d) => setCart((s) => s.map((i) => (i.key === key ? { ...i, qty: Math.max(1, i.qty + d) } : i))),
+      // Decrementing below 1 removes the line (so the − button empties the item).
+      setQty: (key, d) => setCart((s) => s.flatMap((i) => {
+        if (i.key !== key) return [i]
+        const q = i.qty + d
+        return q < 1 ? [] : [{ ...i, qty: q }]
+      })),
       removeLine: (key) => setCart((s) => s.filter((i) => i.key !== key)),
       clearCart: () => setCart([]),
       setCfg: (patch) => setCfgState((s) => ({ ...s, ...patch })),
