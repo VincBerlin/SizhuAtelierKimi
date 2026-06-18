@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router'
-import { ShoppingBag, Menu, X, ChevronDown } from 'lucide-react'
+import { ShoppingBag, Menu, X, ChevronDown, Search } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
+import SearchOverlay from './shop/SearchOverlay'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
 // "Personalized Posters" dropdown — current MVP categories only (no Saju/Junishi).
@@ -71,6 +72,7 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [posterOpen, setPosterOpen] = useState(false)
   const [mPosterOpen, setMPosterOpen] = useState(false)
   const location = useLocation()
@@ -160,6 +162,9 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center" style={{ gap: 14, flexShrink: 0 }}>
+            <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <Search size={19} strokeWidth={1.5} />
+            </button>
             <div className="hidden sm:block"><LangDropdown /></div>
             <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
@@ -200,6 +205,8 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   )
 }

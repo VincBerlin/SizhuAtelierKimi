@@ -33,9 +33,12 @@ export default function ProductView() {
   const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
 
   const addToCart = () => {
+    // Same required-field discipline as the /personalize flow (REQ-009/016): don't
+    // add a half-personalized line that would only be caught later at checkout.
+    if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', palette: bgName, frame: frameName, size: size.label }
+    const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name.trim(), unknownTime: String(!cfg.time), palette: bgName, frame: frameName, size: size.label }
     addItem({ title: t(`content.products.${prod.id}.title`), price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice) })
     showToast(t('cart.toastAdded'))
   }

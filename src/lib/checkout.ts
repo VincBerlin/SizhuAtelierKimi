@@ -9,7 +9,21 @@ export interface CheckoutResult {
 // any personalized line is missing required birth data. Used by both the cart
 // drawer and the Checkout page so the two gates can never silently desync.
 export function cartHasIncompletePersonalization(cart: CartLine[]): boolean {
-  return cart.some((l) => l.personalization && (!l.personalization.name || !l.personalization.date || !l.personalization.place))
+  return cart.some((l) => {
+    const p = l.personalization
+    if (!p) return false
+    // Person A — always required.
+    if (!p.name || !p.date || !p.place) return true
+    // Birth time — required unless explicitly marked unknown. Only enforced when
+    // the line carries the unknownTime flag, so a line without it is not wrongly blocked.
+    if (p.unknownTime !== undefined && p.unknownTime !== 'true' && !p.time) return true
+    // Couple — Person B required, with the same time rule.
+    if (p.productType === 'couple') {
+      if (!p.nameB || !p.dateB || !p.placeB) return true
+      if (p.unknownTime !== undefined && p.unknownTime !== 'true' && !p.timeB) return true
+    }
+    return false
+  })
 }
 
 // POSTs the cart to the backend, which creates a Stripe Checkout Session and

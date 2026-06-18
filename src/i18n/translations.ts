@@ -6,7 +6,7 @@ export type Lang = 'EN' | 'DE' | 'FR'
 
 export const translations: Record<Lang, Record<string, any>> = {
   EN: {
-    announce: { shipping: 'Free shipping over €80', personalized: 'Personalized from your birth data' },
+    announce: { shipping: 'Free shipping over {amount}', personalized: 'Personalized from your birth data' },
     preview: { announce: 'Preview — our shop is launching soon ✦', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
     nav: { tagline: 'Astrology · Art · Atelier', startPersonalizing: 'Start Personalizing', poster: 'Personalized Posters', collections: 'Collections', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'About', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart', posterMenu: { bazi: 'Personalized BaZi Posters', birthChart: 'Personalized Birth Chart Posters', couple: 'Personalized Couple Compatibility Posters', fireHorse: 'Fire Horse 2026 Edition', digital: 'Digital Analysis PDFs', bundles: 'Bundles', gifts: 'Gift Collection' } },
     hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections' },
@@ -39,6 +39,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       payTitle: 'Secure payment',
     },
     catalog: { title: 'The Collection', more: 'See the full collection →' },
+    search: { placeholder: 'Search posters, collections…', hint: 'Try “BaZi”, “Birth Chart”, “Couple”, “Fire Horse”, “Gift”…', noResults: 'No results — try another term.', products: 'Posters', collections: 'Collections' },
     card: { bought: 'bought', reviews: 'reviews', sold: 'sold', personalize: 'Personalize', personalLine: 'Created from your birth date, time & place.' },
     coll: {
       allPosters: 'All personalized posters',
@@ -161,7 +162,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'How is my BaZi poster calculated?', a: 'From date, time and place of birth, the four pillars (year, month, day, hour) are calculated and brought onto the poster.' },
         { q: 'What data do I need to order?', a: 'Date of birth, the most accurate time of birth possible, and place of birth. Optionally a name for the poster.' },
         { q: 'I don’t know my exact birth time — is that ok?', a: 'Yes. Without an exact time the hour pillar may vary; tell us what you know and we choose a sensible approximation.' },
-        { q: 'How long do production and shipping take?', a: 'Hand-finished production plus 5–7 business days shipping, worldwide. Free shipping over €80.' },
+        { q: 'How long do production and shipping take?', a: 'Hand-finished production plus 5–7 business days shipping, worldwide. Free shipping over €75.' },
         { q: 'Which formats, frames and colours are available?', a: 'Several formats, frame colours and background palettes; all selectable in the configurator with a live preview.' },
         { q: 'What paper do you print on?', a: 'Premium paper print, handcrafted in Germany.' },
         { q: 'Can I see my poster before buying?', a: 'Yes, the configurator shows a live preview with your data, frame and background.' },
@@ -172,14 +173,14 @@ export const translations: Record<Lang, Record<string, any>> = {
       faqDefs: {
         details: { q: 'Details & material', a: 'Fine-grain fine-art print on 250 g/m² acid-free natural paper, lightfast for decades. Solid wood frame with anti-reflective real glass. Each poster is hand-signed in the atelier.' },
         size: { q: 'Size guide', a: 'A3 (30×42 cm) for nooks & shelves, A2 (42×59 cm) the versatile standard for practice walls, A1 (59×84 cm) for big distance impact in reception or waiting areas.' },
-        ship: { q: 'Shipping & production', a: 'Production in 3 business days, then climate-neutral shipping (DE 1–2 days). Free shipping over €80. Personalized items are made to order — see our Return Policy; your statutory rights apply for faulty items.' },
+        ship: { q: 'Shipping & production', a: 'Production in 3 business days, then climate-neutral shipping (DE 1–2 days). Free shipping over €75. Personalized items are made to order — see our Return Policy; your statutory rights apply for faulty items.' },
         bazi: { q: 'About your calculation', a: 'From date, time and place we calculate your four pillars with heavenly stems and earthly branches. Without a birth time we create a day approximation — the time refines the hour pillar.' },
       },
     },
   },
 
   DE: {
-    announce: { shipping: 'Kostenloser Versand ab 80 €', personalized: 'Personalisiert aus deinen Geburtsdaten' },
+    announce: { shipping: 'Kostenloser Versand ab {amount}', personalized: 'Personalisiert aus deinen Geburtsdaten' },
     preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
     nav: { tagline: 'Astrologie · Kunst · Atelier', startPersonalizing: 'Personalisierung starten', poster: 'Personalisierte Poster', collections: 'Kollektionen', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb', posterMenu: { bazi: 'Personalisierte BaZi-Poster', birthChart: 'Personalisierte Geburtschart-Poster', couple: 'Personalisierte Paar-Kompatibilitäts-Poster', fireHorse: 'Feuerpferd 2026 Edition', digital: 'Digitale Analyse-PDFs', bundles: 'Bundles', gifts: 'Geschenk-Kollektion' } },
     hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken' },
@@ -212,6 +213,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       payTitle: 'Sichere Zahlung',
     },
     catalog: { title: 'Die Kollektion', more: 'Weiter zur Kollektion →' },
+    search: { placeholder: 'Poster, Kollektionen suchen…', hint: 'Versuche „BaZi“, „Geburtschart“, „Paar“, „Feuerpferd“, „Geschenk“…', noResults: 'Keine Ergebnisse — versuche einen anderen Begriff.', products: 'Poster', collections: 'Kollektionen' },
     card: { bought: 'gekauft', reviews: 'Bewertungen', sold: 'verkauft', personalize: 'Personalisieren', personalLine: 'Aus deinem Geburtsdatum, -zeit & -ort erstellt.' },
     coll: {
       allPosters: 'Alle personalisierten Poster',
@@ -334,7 +336,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Wie wird mein BaZi-Poster berechnet?', a: 'Aus Geburtsdatum, -zeit und -ort werden die vier Säulen (Jahr, Monat, Tag, Stunde) berechnet und gestalterisch aufs Poster gebracht.' },
         { q: 'Welche Daten brauche ich für die Bestellung?', a: 'Geburtsdatum, möglichst genaue Geburtszeit und Geburtsort. Optional ein Name fürs Poster.' },
         { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja. Ohne exakte Zeit kann die Stunden-Säule abweichen; gib an, was du weißt, wir wählen eine sinnvolle Annäherung.' },
-        { q: 'Wie lange dauern Produktion und Versand?', a: 'Handveredelte Produktion plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
+        { q: 'Wie lange dauern Produktion und Versand?', a: 'Handveredelte Produktion plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 75 €.' },
         { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
         { q: 'Auf welchem Papier wird gedruckt?', a: 'Premium-Papierdruck, handgefertigt in Deutschland.' },
         { q: 'Kann ich mein Poster vor dem Kauf sehen?', a: 'Ja, der Konfigurator zeigt eine Live-Vorschau mit deinen Daten, Rahmen und Hintergrund.' },
@@ -345,14 +347,14 @@ export const translations: Record<Lang, Record<string, any>> = {
       faqDefs: {
         details: { q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier handsigniert.' },
         size: { q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
-        ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 80 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
+        ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 75 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
         bazi: { q: 'Über deine Berechnung', a: 'Aus Datum, Uhrzeit und Ort berechnen wir deine vier Säulen mit Himmelsstämmen und Erdzweigen. Ohne Geburtszeit erstellen wir eine Tages-Näherung — die Uhrzeit präzisiert die Stundensäule.' },
       },
     },
   },
 
   FR: {
-    announce: { shipping: 'Livraison offerte dès 80 €', personalized: 'Personnalisé à partir de vos données de naissance' },
+    announce: { shipping: 'Livraison offerte dès {amount}', personalized: 'Personnalisé à partir de vos données de naissance' },
     preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
     nav: { tagline: 'Astrologie · Art · Atelier', startPersonalizing: 'Commencer la personnalisation', poster: 'Posters personnalisés', collections: 'Collections', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier', posterMenu: { bazi: 'Posters BaZi personnalisés', birthChart: 'Posters carte du ciel personnalisés', couple: 'Posters compatibilité de couple personnalisés', fireHorse: 'Édition Cheval de Feu 2026', digital: 'PDF d’analyse digitale', bundles: 'Coffrets', gifts: 'Collection cadeau' } },
     hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections' },
@@ -385,6 +387,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       payTitle: 'Paiement sécurisé',
     },
     catalog: { title: 'La Collection', more: 'Voir toute la collection →' },
+    search: { placeholder: 'Rechercher posters, collections…', hint: 'Essayez « BaZi », « Carte du ciel », « Couple », « Cheval de Feu », « Cadeau »…', noResults: 'Aucun résultat — essayez un autre terme.', products: 'Posters', collections: 'Collections' },
     card: { bought: 'achetés', reviews: 'avis', sold: 'vendus', personalize: 'Personnaliser', personalLine: 'Créé à partir de votre date, heure & lieu de naissance.' },
     coll: {
       allPosters: 'Tous les posters personnalisés',
@@ -507,7 +510,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Comment ma carte BaZi est-elle calculée ?', a: 'À partir de la date, de l’heure et du lieu de naissance, les quatre piliers (année, mois, jour, heure) sont calculés et mis en forme sur le poster.' },
         { q: 'Quelles données faut-il pour commander ?', a: 'Date de naissance, heure de naissance la plus précise possible, et lieu de naissance. En option, un nom pour le poster.' },
         { q: 'Je ne connais pas mon heure exacte de naissance — est-ce possible ?', a: 'Oui. Sans heure exacte, le pilier de l’heure peut varier ; indiquez ce que vous savez, nous choisissons une approximation pertinente.' },
-        { q: 'Combien de temps prennent la production et la livraison ?', a: 'Production finie à la main plus 5–7 jours ouvrés de livraison, dans le monde entier. Livraison offerte dès 80 €.' },
+        { q: 'Combien de temps prennent la production et la livraison ?', a: 'Production finie à la main plus 5–7 jours ouvrés de livraison, dans le monde entier. Livraison offerte dès 75 €.' },
         { q: 'Quels formats, cadres et couleurs proposez-vous ?', a: 'Plusieurs formats, couleurs de cadre et palettes de fond ; tout est sélectionnable dans le configurateur avec un aperçu en direct.' },
         { q: 'Sur quel papier imprimez-vous ?', a: 'Impression papier premium, fabriquée main en Allemagne.' },
         { q: 'Puis-je voir mon poster avant l’achat ?', a: 'Oui, le configurateur affiche un aperçu en direct avec vos données, le cadre et le fond.' },
@@ -518,7 +521,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       faqDefs: {
         details: { q: 'Détails & matériau', a: 'Impression fine-art à grain fin sur papier naturel 250 g/m² sans acide, résistant à la lumière pendant des décennies. Cadre en bois massif avec véritable verre antireflet. Chaque poster est signé à la main à l’atelier.' },
         size: { q: 'Guide des tailles', a: 'A3 (30×42 cm) pour niches & étagères, A2 (42×59 cm) le standard polyvalent pour les murs de cabinet, A1 (59×84 cm) pour une forte présence en accueil ou salle d’attente.' },
-        ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 80 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
+        ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 75 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
         bazi: { q: 'À propos de votre calcul', a: 'À partir de la date, de l’heure et du lieu, nous calculons vos quatre piliers avec troncs célestes et branches terrestres. Sans heure de naissance, nous créons une approximation au jour — l’heure affine le pilier de l’heure.' },
       },
     },
