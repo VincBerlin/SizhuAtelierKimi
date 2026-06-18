@@ -61,7 +61,7 @@ export default function CartDrawer() {
           {cart.map((i) => (
             <div key={i.key} style={{ display: 'flex', gap: 14, padding: '18px 0', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ width: 60, height: 78, flexShrink: 0, border: `1px solid ${C.borderInput}`, position: 'relative', overflow: 'hidden', background: '#fff' }}>
-                {i.poster && <Poster p={i.poster} scene="plain" />}
+                {i.image ? <img src={i.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : i.poster && <Poster p={i.poster} scene="plain" />}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>

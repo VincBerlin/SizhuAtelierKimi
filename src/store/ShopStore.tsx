@@ -13,6 +13,8 @@ export interface CartLine {
   personalization?: Record<string, string>
   /** Celestial Credits earned by this line (1 per net €/$ spent). Display-only in MVP. */
   creditsEarned?: number
+  /** Static product image for non-personalizable lines (TCM / Fire Horse). */
+  image?: string
 }
 
 const CART_KEY = 'sizhu_cart'

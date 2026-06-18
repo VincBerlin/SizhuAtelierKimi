@@ -15,6 +15,13 @@ export interface Product {
   sold: number
   bullets: string[]
   poster: PosterData
+  /** false = NOT personalizable (Fire Horse, TCM educational posters): no birth
+   *  data, plain Add to Cart. Default (undefined) = personalizable. */
+  personalizable?: boolean
+  /** Static product image, used instead of the rendered BaZi poster (TCM SKUs). */
+  image?: string
+  /** Use case for non-personalizable TCM posters: educational/practice/wellness/yoga. */
+  usage?: string
 }
 
 const mk = (frame: string, bg: string, name: string, date: string): PosterData => {
@@ -62,6 +69,29 @@ export const products: Product[] = [
     id: 8, category: 'Feuerpferd', title: 'Feuerpferd 2026 · Limited Edition', price: 65, anchor: 79, rating: 4.9, reviews: 88, sold: 210,
     bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'],
     poster: mk('#1B1B1B', '#BC7A5E', 'Feuer-Pferd', '2026-02-17'),
+    personalizable: false,
+  },
+  // ── TCM educational lehrposter — non-personalizable, placeholder SKUs (replace
+  //    images/prices/copy before launch). No birth data; plain Add to Cart. ──
+  {
+    id: 11, category: 'TCM', title: 'TCM Five Elements — Educational', price: 39, rating: 4.9, reviews: 0, sold: 0,
+    bullets: [], personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.jpg',
+    poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
+  },
+  {
+    id: 12, category: 'Praxen', title: 'TCM Practice Poster', price: 49, rating: 4.9, reviews: 0, sold: 0,
+    bullets: [], personalizable: false, usage: 'practice', image: '/images/categories/tcm.jpg',
+    poster: mk('#1B1B1B', '#2C3A57', 'TCM', '1990-01-01'),
+  },
+  {
+    id: 13, category: 'Wellness', title: 'TCM Wellness Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
+    bullets: [], personalizable: false, usage: 'wellness', image: '/images/posters/tcm-elements.jpg',
+    poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
+  },
+  {
+    id: 14, category: 'Yoga', title: 'TCM Yoga Studio Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
+    bullets: [], personalizable: false, usage: 'yoga', image: '/images/categories/tcm.jpg',
+    poster: mk('#1B1B1B', '#BC7A5E', 'TCM', '1990-01-01'),
   },
 ]
 

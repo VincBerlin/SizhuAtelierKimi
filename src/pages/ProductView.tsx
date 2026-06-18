@@ -19,27 +19,35 @@ export default function ProductView() {
   const { t, lang } = useT()
 
   const prod = getProduct(Number(id)) ?? products[0]
+  const personalizable = prod.personalizable !== false
 
   useEffect(() => { window.scrollTo(0, 0) }, [id])
 
   const chart = computeChart(cfg.date, cfg.time)
   const livePoster: PosterData = { frame: cfg.frameHex, bg: cfg.bgHex, name: cfg.name || 'Dein Name', element: chart.element, animal: chart.animal, pillars: chart.pillars }
   const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
-  const livePrice = prod.price + size.delta
-  const liveAnchor = prod.anchor != null ? prod.anchor + size.delta : null
+  const livePrice = personalizable ? prod.price + size.delta : prod.price
+  const liveAnchor = prod.anchor != null ? prod.anchor + (personalizable ? size.delta : 0) : null
   const starPct = (prod.rating / 5) * 100 + '%'
   const related = products.filter((p) => p.id !== prod.id).slice(0, 3)
   const ratingTxt = lang === 'EN' ? prod.rating.toFixed(1) : prod.rating.toFixed(1).replace('.', ',')
   const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
 
   const addToCart = () => {
+    const title = t(`content.products.${prod.id}.title`)
+    if (!personalizable) {
+      // Non-personalizable (Fire Horse / TCM lehrposter): plain line, no birth data.
+      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: prod.category, creditsEarned: Math.round(livePrice) })
+      showToast(t('cart.toastAdded'))
+      return
+    }
     // Same required-field discipline as the /personalize flow (REQ-009/016): don't
     // add a half-personalized line that would only be caught later at checkout.
     if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
     const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name.trim(), unknownTime: String(!cfg.time), palette: bgName, frame: frameName, size: size.label }
-    addItem({ title: t(`content.products.${prod.id}.title`), price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice) })
+    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice) })
     showToast(t('cart.toastAdded'))
   }
 
@@ -55,13 +63,21 @@ export default function ProductView() {
 
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]" style={{ marginTop: 8 }}>
         <div className="lg:sticky lg:top-24">
-          <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
-          <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
-            <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
-            {placeholderThumb(t('product.detail'))}
-            {placeholderThumb(t('product.lifestyle'))}
-          </div>
-          <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('product.caption')}</p>
+          {personalizable ? (
+            <>
+              <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
+              <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
+                <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
+                {placeholderThumb(t('product.detail'))}
+                {placeholderThumb(t('product.lifestyle'))}
+              </div>
+              <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('product.caption')}</p>
+            </>
+          ) : (
+            <div style={{ aspectRatio: '4 / 5', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm }}>
+              {prod.image && <img src={prod.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+            </div>
+          )}
         </div>
 
         <div>
@@ -94,9 +110,9 @@ export default function ProductView() {
             ))}
           </ul>
 
-          <Configurator />
+          {personalizable && <Configurator />}
 
-          <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>
+          {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
 
           {COMMERCE_ENABLED ? (
             <>

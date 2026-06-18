@@ -9,7 +9,7 @@ import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
 /* ---- Product-type catalogue (current MVP only — no Saju/Junishi) ---- */
-type ProductTypeId = 'bazi' | 'birthchart' | 'couple' | 'firehorse' | 'digital' | 'bundle'
+type ProductTypeId = 'bazi' | 'birthchart' | 'couple' | 'digital' | 'bundle'
 interface PTDef {
   id: ProductTypeId
   basePrice: number
@@ -23,7 +23,6 @@ const PRODUCT_TYPES: PTDef[] = [
   { id: 'bazi', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
   { id: 'birthchart', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
   { id: 'couple', basePrice: 69, couple: true, poster: true, pdfIncluded: false },
-  { id: 'firehorse', basePrice: 65, couple: false, poster: true, pdfIncluded: false },
   { id: 'digital', basePrice: 39, couple: false, poster: false, pdfIncluded: true },
   { id: 'bundle', basePrice: 79, couple: false, poster: true, pdfIncluded: true },
 ]

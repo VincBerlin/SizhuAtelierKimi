@@ -51,7 +51,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       dashboardTitle: 'Your Profile', logout: 'Log out', creditBalance: 'Celestial Credits', lifetime: 'Lifetime', emailLabel: 'Email', newsletterStatus: 'Newsletter', marketingPrefs: 'Marketing preferences', saved: 'Saved ✦', orderHistory: 'Order history', noOrders: 'No orders yet.',
       err: { invalid_email: 'Please enter a valid email address.', weak_password: 'Password must be at least 8 characters.', email_taken: 'An account with this email already exists.', invalid_credentials: 'Wrong email or password.', auth_unconfigured: 'Accounts are not available yet.', invalid_token: 'This reset link is invalid or has expired.', unauthorized: 'Please log in again.', server_error: 'Something went wrong — please try again.', network_error: 'Network error — please try again.' },
     },
-    card: { bought: 'bought', reviews: 'reviews', sold: 'sold', personalize: 'Personalize', personalLine: 'Created from your birth date, time & place.' },
+    card: { bought: 'bought', reviews: 'reviews', sold: 'sold', personalize: 'Personalize', personalLine: 'Created from your birth date, time & place.', shop: 'Shop this poster' },
     coll: {
       allPosters: 'All personalized posters',
       cards: {
@@ -163,6 +163,10 @@ export const translations: Record<Lang, Record<string, any>> = {
         6: { title: 'BaZi Minimal', bullets: ['Reduced sandstone — understated & timeless', 'Black frame, clean line', 'Fits any practice and living space', 'Bestseller for first-time buyers'] },
         7: { title: 'Wuxing Five-Element Poster', bullets: ['Wood, fire, earth, metal, water in balance', 'Calm sage green, soothing for any room', 'Educational for practice & home', 'Premium paper print, handcrafted'] },
         8: { title: 'Fire Horse 2026 · Limited Edition', bullets: ['Limited edition for the Year of the Fire Horse 2026', 'Powerful terracotta, numbered & signed', 'A collector’s piece with character', 'While stocks last'] },
+        11: { title: 'TCM Five Elements — Educational Poster', bullets: ['Wood, Fire, Earth, Metal, Water and their relationships', 'A clear teaching aid for treatment rooms and studios', 'Museum-grade archival print — not personalized'] },
+        12: { title: 'TCM Practice Poster', bullets: ['Refined educational wall art for TCM practices', 'Explains elemental and energetic systems with calm clarity', 'Premium archival print — not personalized'] },
+        13: { title: 'TCM Wellness Poster', bullets: ['Calm educational poster for wellness & treatment spaces', 'Visualizes core TCM principles', 'Premium archival print — not personalized'] },
+        14: { title: 'TCM Yoga Studio Poster', bullets: ['Educational poster for yoga & studio walls', 'Elemental relationships at a glance', 'Premium archival print — not personalized'] },
       },
       articles: {
         r1: { tag: 'Basics', title: 'What is BaZi? The four pillars of destiny', meta: '6 min read · Atelier Journal', excerpt: 'Year, month, day and hour of your birth form four "pillars" — the map of your energy.', body: ['BaZi (Chinese 八字, "eight characters") reads your moment of birth as four pillars: year, month, day and hour. Each pillar carries a heavenly stem and an earthly branch — eight characters that describe your constitution.', 'The day pillar is considered your core, the "day master". From it, you look at how the other pillars support or challenge you. This paints a picture of strengths, patterns and favourable windows — not fortune-telling, but a tool for self-reflection.', 'Your poster captures exactly these eight characters: a calm, personal diagram that opens conversations in practice and studio, and a quiet companion at home.'] },
@@ -236,7 +240,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       dashboardTitle: 'Dein Profil', logout: 'Abmelden', creditBalance: 'Celestial Credits', lifetime: 'Insgesamt', emailLabel: 'E-Mail', newsletterStatus: 'Newsletter', marketingPrefs: 'Marketing-Einstellungen', saved: 'Gespeichert ✦', orderHistory: 'Bestellhistorie', noOrders: 'Noch keine Bestellungen.',
       err: { invalid_email: 'Bitte gib eine gültige E-Mail-Adresse ein.', weak_password: 'Das Passwort muss mindestens 8 Zeichen haben.', email_taken: 'Ein Konto mit dieser E-Mail existiert bereits.', invalid_credentials: 'Falsche E-Mail oder Passwort.', auth_unconfigured: 'Konten sind noch nicht verfügbar.', invalid_token: 'Dieser Reset-Link ist ungültig oder abgelaufen.', unauthorized: 'Bitte melde dich erneut an.', server_error: 'Etwas ist schiefgelaufen — bitte erneut versuchen.', network_error: 'Netzwerkfehler — bitte erneut versuchen.' },
     },
-    card: { bought: 'gekauft', reviews: 'Bewertungen', sold: 'verkauft', personalize: 'Personalisieren', personalLine: 'Aus deinem Geburtsdatum, -zeit & -ort erstellt.' },
+    card: { bought: 'gekauft', reviews: 'Bewertungen', sold: 'verkauft', personalize: 'Personalisieren', personalLine: 'Aus deinem Geburtsdatum, -zeit & -ort erstellt.', shop: 'Poster ansehen' },
     coll: {
       allPosters: 'Alle personalisierten Poster',
       cards: {
@@ -348,6 +352,10 @@ export const translations: Record<Lang, Record<string, any>> = {
         6: { title: 'BaZi Minimal', bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'] },
         7: { title: 'Wuxing Fünf-Elemente Poster', bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Premium-Papierdruck, handgefertigt'] },
         8: { title: 'Feuerpferd 2026 · Limited Edition', bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'] },
+        11: { title: 'TCM Fünf Elemente — Lehrposter', bullets: ['Holz, Feuer, Erde, Metall, Wasser und ihre Beziehungen', 'Klare Lehrhilfe für Behandlungsräume und Studios', 'Premium-Archivdruck — nicht personalisiert'] },
+        12: { title: 'TCM Praxis-Poster', bullets: ['Edle Lehr-Wandkunst für TCM-Praxen', 'Erklärt elementare und energetische Systeme ruhig und klar', 'Premium-Archivdruck — nicht personalisiert'] },
+        13: { title: 'TCM Wellness-Poster', bullets: ['Ruhiges Lehrposter für Wellness- & Behandlungsräume', 'Visualisiert zentrale TCM-Prinzipien', 'Premium-Archivdruck — nicht personalisiert'] },
+        14: { title: 'TCM Yoga-Studio-Poster', bullets: ['Lehrposter für Yoga- & Studio-Wände', 'Elementbeziehungen auf einen Blick', 'Premium-Archivdruck — nicht personalisiert'] },
       },
       articles: {
         r1: { tag: 'Grundlagen', title: 'Was ist BaZi? Die vier Säulen des Schicksals', meta: '6 Min. Lesezeit · Atelier-Journal', excerpt: 'Jahr, Monat, Tag und Stunde deiner Geburt ergeben vier „Säulen" — die Landkarte deiner Energie.', body: ['BaZi (chinesisch 八字, „acht Zeichen") liest deinen Geburtszeitpunkt als vier Säulen: Jahr, Monat, Tag und Stunde. Jede Säule trägt einen Himmelsstamm und einen Erdzweig — zusammen acht Zeichen, die deine Konstitution beschreiben.', 'Die Tagessäule gilt als dein Kern, das „Tagesmeister"-Zeichen. Von ihm aus betrachtet man, wie die übrigen Säulen stützen oder fordern. So entsteht ein Bild von Stärken, Mustern und günstigen Zeitfenstern — keine Wahrsagerei, sondern ein Werkzeug zur Selbstreflexion.', 'Auf deinem Poster halten wir genau diese acht Zeichen fest: ein ruhiges, persönliches Diagramm, das Gespräche in Praxis und Studio eröffnet und zuhause ein stiller Begleiter ist.'] },
@@ -421,7 +429,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       dashboardTitle: 'Votre profil', logout: 'Se déconnecter', creditBalance: 'Celestial Credits', lifetime: 'Total', emailLabel: 'E-mail', newsletterStatus: 'Newsletter', marketingPrefs: 'Préférences marketing', saved: 'Enregistré ✦', orderHistory: 'Historique des commandes', noOrders: 'Aucune commande pour l’instant.',
       err: { invalid_email: 'Veuillez saisir une adresse e-mail valide.', weak_password: 'Le mot de passe doit comporter au moins 8 caractères.', email_taken: 'Un compte avec cet e-mail existe déjà.', invalid_credentials: 'E-mail ou mot de passe incorrect.', auth_unconfigured: 'Les comptes ne sont pas encore disponibles.', invalid_token: 'Ce lien de réinitialisation est invalide ou expiré.', unauthorized: 'Veuillez vous reconnecter.', server_error: 'Une erreur est survenue — veuillez réessayer.', network_error: 'Erreur réseau — veuillez réessayer.' },
     },
-    card: { bought: 'achetés', reviews: 'avis', sold: 'vendus', personalize: 'Personnaliser', personalLine: 'Créé à partir de votre date, heure & lieu de naissance.' },
+    card: { bought: 'achetés', reviews: 'avis', sold: 'vendus', personalize: 'Personnaliser', personalLine: 'Créé à partir de votre date, heure & lieu de naissance.', shop: 'Voir le poster' },
     coll: {
       allPosters: 'Tous les posters personnalisés',
       cards: {
@@ -533,6 +541,10 @@ export const translations: Record<Lang, Record<string, any>> = {
         6: { title: 'BaZi Minimal', bullets: ['Grès épuré — discret & intemporel', 'Cadre noir, ligne nette', 'S’intègre à tout cabinet et intérieur', 'Best-seller pour une première commande'] },
         7: { title: 'Poster Wuxing Cinq Éléments', bullets: ['Bois, feu, terre, métal, eau en équilibre', 'Vert sauge apaisant pour toute pièce', 'Pédagogique pour cabinet & maison', 'Impression papier premium, fait main'] },
         8: { title: 'Cheval de Feu 2026 · Édition limitée', bullets: ['Édition limitée pour l’année du Cheval de Feu 2026', 'Terracotta puissant, numéroté & signé', 'Une pièce de collection avec du caractère', 'Jusqu’à épuisement des stocks'] },
+        11: { title: 'TCM Cinq Éléments — Poster pédagogique', bullets: ['Bois, Feu, Terre, Métal, Eau et leurs relations', 'Un support pédagogique clair pour salles de soin et studios', 'Impression archive premium — non personnalisé'] },
+        12: { title: 'Poster TCM Cabinet', bullets: ['Œuvre murale pédagogique raffinée pour cabinets de MTC', 'Explique les systèmes élémentaires et énergétiques avec clarté', 'Impression archive premium — non personnalisé'] },
+        13: { title: 'Poster TCM Bien-être', bullets: ['Poster pédagogique apaisant pour espaces bien-être & soin', 'Visualise les principes fondamentaux de la MTC', 'Impression archive premium — non personnalisé'] },
+        14: { title: 'Poster TCM Studio de Yoga', bullets: ['Poster pédagogique pour murs de yoga & studio', 'Relations élémentaires en un coup d’œil', 'Impression archive premium — non personnalisé'] },
       },
       articles: {
         r1: { tag: 'Bases', title: 'Qu’est-ce que le BaZi ? Les quatre piliers du destin', meta: '6 min de lecture · Journal de l’Atelier', excerpt: 'Année, mois, jour et heure de votre naissance forment quatre « piliers » — la carte de votre énergie.', body: ['Le BaZi (chinois 八字, « huit caractères ») lit votre moment de naissance comme quatre piliers : année, mois, jour et heure. Chaque pilier porte un tronc céleste et une branche terrestre — huit caractères qui décrivent votre constitution.', 'Le pilier du jour est considéré comme votre noyau, le « maître du jour ». À partir de lui, on observe comment les autres piliers soutiennent ou sollicitent. Cela dresse un tableau de forces, de schémas et de fenêtres favorables — non pas de la voyance, mais un outil d’introspection.', 'Votre poster fixe précisément ces huit caractères : un diagramme calme et personnel qui ouvre la conversation en cabinet et en studio, et un compagnon silencieux à la maison.'] },
