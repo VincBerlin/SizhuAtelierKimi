@@ -26,7 +26,10 @@ export default function PosterScene({
         <Poster p={poster} scene={scene} />
       </div>
       {hover && (
-        <div className="opacity-0 group-hover:opacity-100" style={{ position: 'absolute', inset: 0, transition: 'opacity .55s ease-out' }}>
+        // REQ-019: hover image swap — desktop only. .poster-hover-fade is gated
+        // behind @media (hover: hover) in index.css, so touch devices never
+        // trigger a sticky hover. No layout shift (absolute overlay).
+        <div className="poster-hover-fade" style={{ position: 'absolute', inset: 0 }}>
           <Poster p={poster} scene="wall" />
         </div>
       )}

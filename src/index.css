@@ -689,6 +689,19 @@
   background: rgba(213, 201, 183, 0.78);
 }
 
+/* REQ-019: product-card hover image swap. Hidden by default; crossfades in only
+   on hover-capable, fine-pointer devices (desktop), so touch/mobile never
+   triggers a sticky hover. Absolute overlay = no layout shift. */
+.poster-hover-fade {
+  opacity: 0;
+  transition: opacity 0.55s ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .poster-hover-fade {
+    opacity: 1;
+  }
+}
+
 .bazi-grid {
   display: grid;
   width: 84%;
