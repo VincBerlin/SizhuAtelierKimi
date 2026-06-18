@@ -13,7 +13,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const hasAnchor = product.anchor != null
   const starPct = (product.rating / 5) * 100 + '%'
   const go = () => {
-    navigate(`/produkt/${product.id}`)
+    navigate(`/product/${product.id}`)
     window.scrollTo(0, 0)
   }
 

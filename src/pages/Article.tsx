@@ -37,7 +37,7 @@ export default function Article() {
         ))}
         <div style={{ marginTop: 24, padding: 24, background: C.surfaceWarm, borderRadius: 12 }}>
           <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink, marginBottom: 8 }}>{t('pages.articleCta')}</div>
-          <Link to="/produkt/1" className="transition-[filter] hover:brightness-110" style={{ display: 'inline-block', background: C.accent, color: '#fff', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS, textDecoration: 'none', boxShadow: ACCENT_CTA_SHADOW }}>{t('pages.articleCtaBtn')}</Link>
+          <Link to="/product/1" className="transition-[filter] hover:brightness-110" style={{ display: 'inline-block', background: C.accent, color: '#fff', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS, textDecoration: 'none', boxShadow: ACCENT_CTA_SHADOW }}>{t('pages.articleCtaBtn')}</Link>
         </div>
       </article>
     </main>

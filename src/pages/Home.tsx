@@ -91,7 +91,7 @@ function HeroSection() {
             {t('hero.cta1')}
           </Link>
           <Link
-            to="/kollektion"
+            to="/collections"
             style={{
               background: 'transparent',
               color: '#2C2420',

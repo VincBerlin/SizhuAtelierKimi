@@ -127,7 +127,7 @@ export default function ProductView() {
         <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 28, margin: '0 0 24px' }}>{t('product.related')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px,1fr))', gap: 24 }}>
           {related.map((r) => (
-            <div key={r.id} onClick={() => { navigate(`/produkt/${r.id}`); window.scrollTo(0, 0) }} style={{ cursor: 'pointer' }}>
+            <div key={r.id} onClick={() => { navigate(`/product/${r.id}`); window.scrollTo(0, 0) }} style={{ cursor: 'pointer' }}>
               <div style={{ aspectRatio: '3/4', background: '#fff', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden' }}><Poster p={r.poster} scene="plain" /></div>
               <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 18, margin: '12px 0 4px' }}>{t(`content.products.${r.id}.title`)}</h3>
               {COMMERCE_ENABLED ? <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(r.price)}</span> : <span style={{ fontSize: 12, color: C.textMuted3 }}>{t('preview.soon')}</span>}

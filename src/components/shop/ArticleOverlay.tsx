@@ -27,7 +27,7 @@ export default function ArticleOverlay() {
           ))}
           <div style={{ marginTop: 24, padding: 22, background: C.surfaceWarm, borderRadius: 12 }}>
             <div style={{ fontFamily: FONT_SERIF, fontSize: 20, marginBottom: 8 }}>{t('pages.articleCta')}</div>
-            <button onClick={() => { closeArticle(); navigate('/produkt/1'); window.scrollTo(0, 0) }} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS }}>{t('pages.articleCtaBtn')}</button>
+            <button onClick={() => { closeArticle(); navigate('/product/1'); window.scrollTo(0, 0) }} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS }}>{t('pages.articleCtaBtn')}</button>
           </div>
         </div>
       </aside>

@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router'
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -22,6 +22,12 @@ import { I18nProvider } from './i18n/I18nProvider'
 
 const NAV_HEIGHT = 72
 
+// Legacy German slugs redirect to the English routes (preserves existing links/SEO).
+function LegacyProductRedirect() {
+  const { id } = useParams()
+  return <Navigate to={`/product/${id}`} replace />
+}
+
 function AppShell() {
   const { pathname } = useLocation()
   // Home keeps a full-viewport hero under the transparent fixed chrome;
@@ -35,7 +41,7 @@ function AppShell() {
       <div style={{ paddingTop: isHome ? 0 : ANNOUNCEMENT_HEIGHT + NAV_HEIGHT }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/produkt/:id" element={<ProductView />} />
+          <Route path="/product/:id" element={<ProductView />} />
           {/* Iteration 1: personalization entry reuses ProductView (defaults to the
               BaZi product when no id). Iteration 3 replaces this with the dedicated
               multi-product /personalize flow. */}
@@ -45,12 +51,17 @@ function AppShell() {
           <Route path="/checkout/cancel" element={<OrderResult success={false} />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
-          <Route path="/kollektion" element={<Kollektion />} />
+          <Route path="/collections" element={<Kollektion />} />
           <Route path="/tcm" element={<TcmOverview />} />
           <Route path="/bundles" element={<BundlesPage />} />
           <Route path="/digital" element={<DigitalPage />} />
-          <Route path="/atelier" element={<About />} />
-          <Route path="/kontakt" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          {/* Legacy German-slug redirects (kept so old links/bookmarks keep working) */}
+          <Route path="/produkt/:id" element={<LegacyProductRedirect />} />
+          <Route path="/kollektion" element={<Navigate to="/collections" replace />} />
+          <Route path="/atelier" element={<Navigate to="/about" replace />} />
+          <Route path="/kontakt" element={<Navigate to="/contact" replace />} />
         </Routes>
       </div>
       <SiteFooter />

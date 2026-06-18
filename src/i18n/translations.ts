@@ -8,7 +8,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   EN: {
     announce: { shipping: 'Free shipping over €80', personalized: 'Personalized from your birth data' },
     preview: { announce: 'Preview — our shop is launching soon ✦', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
-    nav: { tagline: 'Astrology · Art · Atelier', poster: 'Poster', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart' },
+    nav: { tagline: 'Astrology · Art · Atelier', startPersonalizing: 'Start Personalizing', poster: 'Personalized Posters', collections: 'Collections', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'About', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart', posterMenu: { bazi: 'Personalized BaZi Posters', birthChart: 'Personalized Birth Chart Posters', couple: 'Personalized Couple Compatibility Posters', fireHorse: 'Fire Horse 2026 Edition', digital: 'Digital Analysis PDFs', bundles: 'Bundles', gifts: 'Gift Collection' } },
     hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections' },
     trust: {
       personalTitle: 'Personal', personalSub: 'A unique piece from your birth data',
@@ -132,7 +132,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   DE: {
     announce: { shipping: 'Kostenloser Versand ab 80 €', personalized: 'Personalisiert aus deinen Geburtsdaten' },
     preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
-    nav: { tagline: 'Astrologie · Kunst · Atelier', poster: 'Poster', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb' },
+    nav: { tagline: 'Astrologie · Kunst · Atelier', startPersonalizing: 'Personalisierung starten', poster: 'Personalisierte Poster', collections: 'Kollektionen', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb', posterMenu: { bazi: 'Personalisierte BaZi-Poster', birthChart: 'Personalisierte Geburtschart-Poster', couple: 'Personalisierte Paar-Kompatibilitäts-Poster', fireHorse: 'Feuerpferd 2026 Edition', digital: 'Digitale Analyse-PDFs', bundles: 'Bundles', gifts: 'Geschenk-Kollektion' } },
     hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken' },
     trust: {
       personalTitle: 'Persönlich', personalSub: 'Unikat aus deinen Geburtsdaten',
@@ -256,7 +256,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   FR: {
     announce: { shipping: 'Livraison offerte dès 80 €', personalized: 'Personnalisé à partir de vos données de naissance' },
     preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
-    nav: { tagline: 'Astrologie · Art · Atelier', poster: 'Posters', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier' },
+    nav: { tagline: 'Astrologie · Art · Atelier', startPersonalizing: 'Commencer la personnalisation', poster: 'Posters personnalisés', collections: 'Collections', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier', posterMenu: { bazi: 'Posters BaZi personnalisés', birthChart: 'Posters carte du ciel personnalisés', couple: 'Posters compatibilité de couple personnalisés', fireHorse: 'Édition Cheval de Feu 2026', digital: 'PDF d’analyse digitale', bundles: 'Coffrets', gifts: 'Collection cadeau' } },
     hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections' },
     trust: {
       personalTitle: 'Personnel', personalSub: 'Une pièce unique à partir de vos données de naissance',

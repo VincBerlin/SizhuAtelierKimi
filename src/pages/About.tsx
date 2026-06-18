@@ -274,7 +274,7 @@ export default function About() {
               {t('pages.about.ctaBtn1')}
             </Link>
             <Link
-              to="/kontakt"
+              to="/contact"
               style={{
                 background: 'transparent',
                 color: '#2C2420',
