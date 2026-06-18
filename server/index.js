@@ -229,6 +229,7 @@ app.post('/api/newsletter', async (req, res) => {
 // session table; tampering fails the HMAC check). Passwords are scrypt-hashed.
 const SESSION_COOKIE = 'sizhu_session'
 const SESSION_DAYS = 30
+const WELCOME_CREDITS = 20 // granted on profile creation — the relocated lead magnet
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 function hashPassword(pw) {
@@ -294,11 +295,17 @@ app.post('/api/auth/signup', async (req, res) => {
   try {
     const consent = marketingConsent === true
     const r = await pool.query(
-      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status)
-       VALUES ($1,$2,$3,$4,$5) ON CONFLICT (email) DO NOTHING RETURNING id`,
-      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none'],
+      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, points_balance, lifetime_points)
+       VALUES ($1,$2,$3,$4,$5,$6,$6) ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', WELCOME_CREDITS],
     )
     if (!r.rows.length) return res.status(409).json({ error: 'email_taken' })
+    // Grant the welcome credits as a ledger entry (idempotent via a synthetic order_id).
+    await pool.query(
+      `INSERT INTO credits_ledger (email, event_type, points_delta, balance_after, order_id)
+       VALUES ($1,'signup_bonus',$2,$2,$3) ON CONFLICT (order_id) DO NOTHING`,
+      [e, WELCOME_CREDITS, `signup-${r.rows[0].id}`],
+    ).catch((err) => console.error('[auth] welcome credits failed:', err.message))
     setSessionCookie(res, signSession(r.rows[0].id))
     return res.json({ ok: true })
   } catch (err) {

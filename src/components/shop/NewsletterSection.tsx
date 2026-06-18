@@ -7,10 +7,10 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 type Status = 'idle' | 'submitting' | 'success' | 'error'
 
 /**
- * Newsletter / lead capture (REQ-032/033): "Start Your Cosmic Profile", 20
- * Celestial Credits, benefits, consent + privacy link, language preference,
- * success/error states. Persists to Postgres via /api/newsletter (double-opt-in
- * ready) — no faked success.
+ * Cosmic Pulse newsletter (§4.8): weekly Energy Charts + marketing opt-in with
+ * benefits, consent + privacy link, language preference, success/error states.
+ * Persists to Postgres via /api/newsletter (double-opt-in ready) — no faked
+ * success. The 20-credit welcome bonus now lives in the profile / Celestial Vault.
  */
 export default function NewsletterSection() {
   const { t, lang } = useT()
