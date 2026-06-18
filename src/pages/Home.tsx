@@ -69,8 +69,8 @@ function HeroSection() {
           {t('hero.subtitle')}
         </p>
         <div className="flex flex-wrap gap-4" style={{ marginTop: 36 }}>
-          <a
-            href="#kollektionen"
+          <Link
+            to="/personalize"
             style={{
               background: '#A0522D',
               color: '#F5F2ED',
@@ -89,9 +89,9 @@ function HeroSection() {
             onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
           >
             {t('hero.cta1')}
-          </a>
+          </Link>
           <Link
-            to="/atelier"
+            to="/kollektion"
             style={{
               background: 'transparent',
               color: '#2C2420',

@@ -1,12 +1,11 @@
 // Commerce master switch.
 //
-// TEST / PREVIEW mode (false, the default) hides every price and the whole
-// purchase funnel — product prices, discount badges, size price deltas,
-// bundle prices, "add to cart" / express-pay buttons, the cart icon and
-// checkout. Browsing, the live poster personalization preview, blog, FAQ and
-// all content stay fully usable. The Stripe + Postgres backend stays in place,
-// dormant, ready to switch on.
+// LIVE is the default: prices, discount badges, size deltas, bundle prices,
+// "add to cart" / express-pay buttons and checkout are all shown. The cart
+// icon itself is ALWAYS visible regardless of this flag (it is rendered
+// unconditionally in Navbar) so the cart stays reachable on every page (REQ-004).
 //
-// To GO LIVE (show prices + enable buying): set VITE_COMMERCE_ENABLED=true at
-// build time (e.g. a Railway variable) and redeploy — no code change needed.
-export const COMMERCE_ENABLED = import.meta.env.VITE_COMMERCE_ENABLED === 'true'
+// To pause selling (hide prices + the purchase funnel) without removing code,
+// set VITE_COMMERCE_ENABLED=false at build time and redeploy — the cart icon
+// stays visible but the funnel goes dormant. Stripe + Postgres are unaffected.
+export const COMMERCE_ENABLED = import.meta.env.VITE_COMMERCE_ENABLED !== 'false'

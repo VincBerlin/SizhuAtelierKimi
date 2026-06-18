@@ -6,10 +6,10 @@ export type Lang = 'EN' | 'DE' | 'FR'
 
 export const translations: Record<Lang, Record<string, any>> = {
   EN: {
-    announce: { shipping: 'Free shipping over €80', handmade: 'Handcrafted in Germany', saju: 'Saju coming soon' },
-    preview: { announce: 'Preview — our shop is launching soon ✦ Saju & Junishi coming', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
+    announce: { shipping: 'Free shipping over €80', personalized: 'Personalized from your birth data' },
+    preview: { announce: 'Preview — our shop is launching soon ✦', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
     nav: { tagline: 'Astrology · Art · Atelier', poster: 'Poster', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart' },
-    hero: { eyebrow: 'PERSONAL ASTROLOGY ART', title1: 'Your', title2: 'Star Chart', subtitle: 'BaZi in focus — Saju and Junishi as upcoming personalisations, hand-finished in the atelier.', cta1: 'Explore posters', cta2: 'How it works' },
+    hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections' },
     trust: {
       personalTitle: 'Personal', personalSub: 'A unique piece from your birth data',
       designTitle: 'Individually designed', designSub: 'Styles, colours, frames',
@@ -22,7 +22,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     newsletter: { eyebrow: 'Atelier Circle', title: 'Cosmic insights in your inbox', copy: 'Cosmic insights, straight to your inbox — new posters, seasonal collections and exclusive knowledge about Chinese astrology.', placeholder: 'Your email address', button: 'Subscribe', note: 'Thanks for your interest — sign-up is still being connected (MailerLite / double opt-in). Your entry has not been stored yet.', fine: 'Double opt-in · unsubscribe anytime · TODO: backend integration' },
     wissen: { eyebrow: 'Knowledge', title: 'What lies behind BaZi', sub: 'Background for your consultations and for anyone who wants to understand their poster.', read: 'Read more →' },
     faq: { eyebrow: 'FAQ', title: 'Frequently asked questions' },
-    footer: { atelier: 'Atelier', contact: 'Contact', shipping: 'Shipping & returns', sustain: 'Sustainability', terms: 'Terms', claim: 'Hand-finished in Europe · climate-neutral shipping' },
+    footer: { atelier: 'Atelier', contact: 'Contact', shipping: 'Shipping & returns', sustain: 'Sustainability', terms: 'Terms', claim: 'Personalized from your birth data · climate-neutral shipping' },
     cart: { title: 'Cart', remaining: 'You’re only {amount} away from free shipping!', reached: '✓ Congrats — you get free shipping!', empty: 'Empty', emptyHint: 'Design your first BaZi poster.', toCollection: 'To the collection', alsoLike: 'Pairs perfectly', remove: 'Remove', subtotal: 'Subtotal', shipFree: 'Free shipping', ship: 'Shipping {amount}', inclVat: '· incl. VAT', checkout: 'Checkout', ssl: '· SSL secured', toastAdded: 'Added to cart', toastSet: 'Set added to cart' },
     checkout: { back: '← Back to cart', title: 'Checkout', expressHint: 'Express checkout — pay in seconds', orGuest: 'or pay as guest', contact: 'Contact & delivery', noAccount: '— no account needed', email: 'Email address', firstName: 'First name', lastName: 'Last name', street: 'Street & number', zip: 'ZIP', city: 'City', placeOrder: 'Place order now', noHidden: '🔒 No hidden costs · shipping & taxes shown below', summary: 'Your order', subtotal: 'Subtotal', shipping: 'Shipping', shipFree: 'Free shipping', total: 'Total', vat: 'incl. {amount} VAT (19%)', emptyTitle: 'Your cart is empty', toShop: 'To the shop', orderToast: 'Order confirmed — thank you! ✦', starting: 'Redirecting to secure checkout…', payError: 'Payment could not be started. Please try again.', successTitle: 'Thank you — your order is confirmed ✦', successBody: 'We’ve emailed your confirmation. Your poster is hand-finished and ships within 5–7 business days.', successHome: 'Back to the shop', successOrder: 'Order reference', cancelTitle: 'Checkout cancelled', cancelBody: 'No payment was taken — your cart is still here whenever you’re ready.', cancelRetry: 'Back to cart' },
     product: { back: '← Back to the collection', reviews: 'reviews', sold: 'sold', inclVat: 'incl. VAT · free shipping over {amount}', save: 'Save', addToCart: 'Add to cart', secure: '🔒 Secure payment', returns: '↺ 30-day returns', climate: '✺ Climate-neutral', related: 'Frequently bought together', caption: 'Live preview — frame, background and your data are applied instantly.', detail: 'Detail<br/>Frame macro', lifestyle: 'Lifestyle<br/>Practice mockup', express: 'Redirecting to express payment …' },
@@ -47,7 +47,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         title1: 'Where astrology', title2: 'becomes art',
         heroIntro: 'SizhuAtelier is a Swiss art studio that translates the wisdom of East Asian astrology into timeless, personalised wall art.',
         philTitle: 'Our philosophy',
-        philP1: 'We believe astrology is more than prediction — it is a language of self-knowledge. The traditional systems of the East, whether the Chinese Four Pillars, Korean Saju or Japanese Junishi, offer a profound cartography of the human personality.',
+        philP1: 'We believe astrology is more than prediction — it is a language of self-knowledge. The Chinese Four Pillars (BaZi) system offers a profound cartography of the human personality.',
         philP2: 'Every poster that leaves our atelier is one of a kind. We combine computer-assisted chart calculation with the craft of fine printing to create works that are both scientifically grounded and aesthetically compelling.',
         philP3: 'Our atelier in Switzerland stands for precision, quality and respect for tradition. We work exclusively with archival materials, so your personal artwork outlasts generations.',
         processTitle: 'The path to your poster',
@@ -119,7 +119,6 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'What is the digital BaZi chart analysis?', a: 'A personal 10–15 page PDF analysis of your chart, available on its own or as a bundle.' },
         { q: 'How secure is payment?', a: 'Encrypted payment via PayPal, Apple Pay and Google Pay.' },
         { q: 'Returns & exchanges?', a: 'PLACEHOLDER — adapt to your actual return/withdrawal policy; personalised items may be exempt from withdrawal.', placeholder: true },
-        { q: 'Saju / Korean astrology?', a: 'In preparation ("Saju coming soon"). Sign up to the newsletter to be there at launch.' },
       ],
       faqDefs: {
         details: { q: 'Details & material', a: 'Fine-grain fine-art print on 250 g/m² acid-free natural paper, lightfast for decades. Solid wood frame with anti-reflective real glass. Each poster is hand-signed in the atelier.' },
@@ -131,10 +130,10 @@ export const translations: Record<Lang, Record<string, any>> = {
   },
 
   DE: {
-    announce: { shipping: 'Kostenloser Versand ab 80 €', handmade: 'Handgefertigt in Deutschland', saju: 'Saju coming soon' },
-    preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦ Saju & Junishi folgen', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
+    announce: { shipping: 'Kostenloser Versand ab 80 €', personalized: 'Personalisiert aus deinen Geburtsdaten' },
+    preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
     nav: { tagline: 'Astrologie · Kunst · Atelier', poster: 'Poster', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb' },
-    hero: { eyebrow: 'PERSÖNLICHE ASTROLOGIE KUNST', title1: 'Dein', title2: 'Sternenbild', subtitle: 'BaZi im Fokus — Saju und Junishi als kommende Personalisierungen, handveredelt im Atelier.', cta1: 'Poster entdecken', cta2: 'So funktioniert’s' },
+    hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken' },
     trust: {
       personalTitle: 'Persönlich', personalSub: 'Unikat aus deinen Geburtsdaten',
       designTitle: 'Individuell gestaltet', designSub: 'Stile, Farben, Rahmen',
@@ -147,7 +146,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     newsletter: { eyebrow: 'Atelier-Kreis', title: 'Kosmische Einblicke ins Postfach', copy: 'Kosmische Einblicke, direkt in dein Postfach — neue Poster, saisonale Kollektionen und exklusives Wissen über die chinesische Astrologie.', placeholder: 'Deine E-Mail-Adresse', button: 'Eintragen', note: 'Danke für dein Interesse — die Anmeldung wird gerade angebunden (MailerLite / Double-Opt-in). Deine Eingabe ist noch nicht gespeichert.', fine: 'Double-Opt-in · Abmeldung jederzeit · TODO: Backend-Anbindung' },
     wissen: { eyebrow: 'Wissen', title: 'Was hinter BaZi steckt', sub: 'Hintergründe für deine Beratung und für alle, die ihr Poster verstehen möchten.', read: 'Weiterlesen →' },
     faq: { eyebrow: 'FAQ', title: 'Häufige Fragen' },
-    footer: { atelier: 'Atelier', contact: 'Kontakt', shipping: 'Versand & Rückgabe', sustain: 'Nachhaltigkeit', terms: 'AGB', claim: 'Handveredelt in Europa · klimaneutraler Versand' },
+    footer: { atelier: 'Atelier', contact: 'Kontakt', shipping: 'Versand & Rückgabe', sustain: 'Nachhaltigkeit', terms: 'AGB', claim: 'Personalisiert aus deinen Geburtsdaten · klimaneutraler Versand' },
     cart: { title: 'Warenkorb', remaining: 'Dir fehlen nur noch {amount} bis zum kostenlosen Versand!', reached: '✓ Glückwunsch — du erhältst kostenlosen Versand!', empty: 'Noch leer', emptyHint: 'Gestalte dein erstes BaZi-Poster.', toCollection: 'Zur Kollektion', alsoLike: 'Dazu passt perfekt', remove: 'Entfernen', subtotal: 'Zwischensumme', shipFree: 'Versand kostenlos', ship: 'Versand {amount}', inclVat: '· inkl. MwSt.', checkout: 'Zur Kasse', ssl: '· SSL gesichert', toastAdded: 'Zum Warenkorb hinzugefügt', toastSet: 'Set zum Warenkorb hinzugefügt' },
     checkout: { back: '← Zurück zum Warenkorb', title: 'Kasse', expressHint: 'Express-Checkout — in Sekunden bezahlen', orGuest: 'oder als Gast bezahlen', contact: 'Kontakt & Lieferung', noAccount: '— kein Konto nötig', email: 'E-Mail-Adresse', firstName: 'Vorname', lastName: 'Nachname', street: 'Straße & Hausnummer', zip: 'PLZ', city: 'Ort', placeOrder: 'Jetzt zahlungspflichtig bestellen', noHidden: '🔒 Keine versteckten Kosten · Versand & Steuern unten ausgewiesen', summary: 'Deine Bestellung', subtotal: 'Zwischensumme', shipping: 'Versand', shipFree: 'Versand kostenlos', total: 'Gesamt', vat: 'inkl. {amount} MwSt. (19%)', emptyTitle: 'Dein Warenkorb ist leer', toShop: 'Zum Shop', orderToast: 'Bestellung bestätigt — danke! ✦', starting: 'Weiterleitung zur sicheren Kasse…', payError: 'Zahlung konnte nicht gestartet werden. Bitte erneut versuchen.', successTitle: 'Danke — deine Bestellung ist bestätigt ✦', successBody: 'Die Bestätigung ist per E-Mail unterwegs. Dein Poster wird handveredelt und in 5–7 Werktagen versendet.', successHome: 'Zurück zum Shop', successOrder: 'Bestellnummer', cancelTitle: 'Bezahlung abgebrochen', cancelBody: 'Es wurde nichts abgebucht — dein Warenkorb bleibt erhalten.', cancelRetry: 'Zurück zum Warenkorb' },
     product: { back: '← Zurück zur Kollektion', reviews: 'Bewertungen', sold: 'verkauft', inclVat: 'inkl. MwSt. · Kostenloser Versand ab {amount}', save: 'Spare', addToCart: 'In den Warenkorb', secure: '🔒 Sichere Zahlung', returns: '↺ 30 Tage Rückgabe', climate: '✺ Klimaneutral', related: 'Wird oft zusammen gekauft', caption: 'Live-Vorschau — Rahmen, Hintergrund und deine Daten werden sofort übernommen.', detail: 'Detail<br/>Rahmen-Makro', lifestyle: 'Lifestyle<br/>Praxis-Mockup', express: 'Weiterleitung zur Express-Zahlung …' },
@@ -172,7 +171,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         title1: 'Wo Astrologie', title2: 'zur Kunst wird',
         heroIntro: 'SizhuAtelier ist ein Schweizer Kunststudio, das die Weisheit der ostasiatischen Astrologie in zeitlose, personalisierte Wandkunst übersetzt.',
         philTitle: 'Unsere Philosophie',
-        philP1: 'Wir glauben, dass Astrologie mehr ist als Vorhersage — sie ist eine Sprache der Selbsterkenntnis. Die traditionellen Systeme des Ostens, ob Chinesische Vier-Säulen-Lehre, Koreanisches Saju oder Japanisches Junishi, bieten eine tiefgründige Kartografie der menschlichen Persönlichkeit.',
+        philP1: 'Wir glauben, dass Astrologie mehr ist als Vorhersage — sie ist eine Sprache der Selbsterkenntnis. Die chinesische Vier-Säulen-Lehre (BaZi) bietet eine tiefgründige Kartografie der menschlichen Persönlichkeit.',
         philP2: 'Jedes Poster, das unser Atelier verlässt, ist ein Unikat. Wir verbinden computergestützte Chart-Berechnung mit handwerklicher Druckkunst, um Werke zu schaffen, die sowohl wissenschaftlich fundiert als auch ästhetisch überzeugend sind.',
         philP3: 'Unser Atelier in der Schweiz steht für Präzision, Qualität und Respekt vor der Tradition. Wir arbeiten ausschliesslich mit archivalischen Materialien, damit dein persönliches Kunstwerk Generationen überdauert.',
         processTitle: 'Der Weg zu deinem Poster',
@@ -244,7 +243,6 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Was ist die digitale BaZi-Chart-Analyse?', a: 'Eine persönliche 10–15-seitige PDF-Auswertung deines Charts, einzeln oder als Bundle erhältlich.' },
         { q: 'Wie sicher ist die Zahlung?', a: 'Verschlüsselte Bezahlung über PayPal, Apple Pay und Google Pay.' },
         { q: 'Rückgabe & Umtausch?', a: 'PLATZHALTER — an eure tatsächliche Rückgabe-/Widerrufsrichtlinie anpassen; personalisierte Artikel sind ggf. vom Widerruf ausgenommen.', placeholder: true },
-        { q: 'Saju / koreanische Astrologie?', a: 'In Vorbereitung („Saju coming soon"). Im Newsletter eintragen, um zum Launch dabei zu sein.' },
       ],
       faqDefs: {
         details: { q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier handsigniert.' },
@@ -256,10 +254,10 @@ export const translations: Record<Lang, Record<string, any>> = {
   },
 
   FR: {
-    announce: { shipping: 'Livraison offerte dès 80 €', handmade: 'Fabriqué main en Allemagne', saju: 'Saju bientôt disponible' },
-    preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦ Saju & Junishi à venir', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
+    announce: { shipping: 'Livraison offerte dès 80 €', personalized: 'Personnalisé à partir de vos données de naissance' },
+    preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
     nav: { tagline: 'Astrologie · Art · Atelier', poster: 'Posters', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier' },
-    hero: { eyebrow: 'ART ASTROLOGIQUE PERSONNALISÉ', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'BaZi au cœur — Saju et Junishi en personnalisations à venir, finitions à la main à l’atelier.', cta1: 'Découvrir les posters', cta2: 'Comment ça marche' },
+    hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections' },
     trust: {
       personalTitle: 'Personnel', personalSub: 'Une pièce unique à partir de vos données de naissance',
       designTitle: 'Conçu sur mesure', designSub: 'Styles, couleurs, cadres',
@@ -272,7 +270,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     newsletter: { eyebrow: 'Cercle de l’Atelier', title: 'Des éclairages cosmiques dans votre boîte mail', copy: 'Des éclairages cosmiques, directement dans votre boîte mail — nouveaux posters, collections saisonnières et savoirs exclusifs sur l’astrologie chinoise.', placeholder: 'Votre adresse e-mail', button: 'S’inscrire', note: 'Merci de votre intérêt — l’inscription est en cours de connexion (MailerLite / double opt-in). Votre saisie n’est pas encore enregistrée.', fine: 'Double opt-in · désinscription à tout moment · TODO : intégration backend' },
     wissen: { eyebrow: 'Savoir', title: 'Ce qui se cache derrière le BaZi', sub: 'Du contexte pour vos consultations et pour qui veut comprendre son poster.', read: 'Lire la suite →' },
     faq: { eyebrow: 'FAQ', title: 'Questions fréquentes' },
-    footer: { atelier: 'Atelier', contact: 'Contact', shipping: 'Livraison & retours', sustain: 'Durabilité', terms: 'CGV', claim: 'Finitions main en Europe · livraison neutre en carbone' },
+    footer: { atelier: 'Atelier', contact: 'Contact', shipping: 'Livraison & retours', sustain: 'Durabilité', terms: 'CGV', claim: 'Personnalisé à partir de vos données de naissance · livraison neutre en carbone' },
     cart: { title: 'Panier', remaining: 'Plus que {amount} pour la livraison offerte !', reached: '✓ Bravo — la livraison vous est offerte !', empty: 'Encore vide', emptyHint: 'Composez votre premier poster BaZi.', toCollection: 'Vers la collection', alsoLike: 'Se marie parfaitement', remove: 'Retirer', subtotal: 'Sous-total', shipFree: 'Livraison offerte', ship: 'Livraison {amount}', inclVat: '· TVA incluse', checkout: 'Commander', ssl: '· sécurisé SSL', toastAdded: 'Ajouté au panier', toastSet: 'Coffret ajouté au panier' },
     checkout: { back: '← Retour au panier', title: 'Commande', expressHint: 'Paiement express — payez en quelques secondes', orGuest: 'ou payer en tant qu’invité', contact: 'Contact & livraison', noAccount: '— sans compte', email: 'Adresse e-mail', firstName: 'Prénom', lastName: 'Nom', street: 'Rue & numéro', zip: 'Code postal', city: 'Ville', placeOrder: 'Commander et payer', noHidden: '🔒 Aucun frais caché · livraison & taxes indiquées ci-dessous', summary: 'Votre commande', subtotal: 'Sous-total', shipping: 'Livraison', shipFree: 'Livraison offerte', total: 'Total', vat: 'dont {amount} de TVA (19 %)', emptyTitle: 'Votre panier est vide', toShop: 'Vers la boutique', orderToast: 'Commande confirmée — merci ! ✦', starting: 'Redirection vers le paiement sécurisé…', payError: 'Le paiement n’a pas pu démarrer. Veuillez réessayer.', successTitle: 'Merci — votre commande est confirmée ✦', successBody: 'Votre confirmation arrive par e-mail. Votre poster est fini à la main et expédié sous 5–7 jours ouvrés.', successHome: 'Retour à la boutique', successOrder: 'Référence de commande', cancelTitle: 'Paiement annulé', cancelBody: 'Aucun paiement n’a été effectué — votre panier est conservé.', cancelRetry: 'Retour au panier' },
     product: { back: '← Retour à la collection', reviews: 'avis', sold: 'vendus', inclVat: 'TVA incluse · livraison offerte dès {amount}', save: 'Économisez', addToCart: 'Ajouter au panier', secure: '🔒 Paiement sécurisé', returns: '↺ Retours sous 30 jours', climate: '✺ Neutre en carbone', related: 'Souvent achetés ensemble', caption: 'Aperçu en direct — le cadre, le fond et vos données sont appliqués instantanément.', detail: 'Détail<br/>Macro cadre', lifestyle: 'Lifestyle<br/>Mise en situation', express: 'Redirection vers le paiement express …' },
@@ -297,7 +295,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         title1: 'Là où l’astrologie', title2: 'devient art',
         heroIntro: 'SizhuAtelier est un atelier d’art suisse qui traduit la sagesse de l’astrologie est-asiatique en œuvres murales intemporelles et personnalisées.',
         philTitle: 'Notre philosophie',
-        philP1: 'Nous croyons que l’astrologie est plus qu’une prédiction — c’est un langage de connaissance de soi. Les systèmes traditionnels de l’Orient, qu’il s’agisse des Quatre Piliers chinois, du Saju coréen ou du Junishi japonais, offrent une cartographie profonde de la personnalité humaine.',
+        philP1: 'Nous croyons que l’astrologie est plus qu’une prédiction — c’est un langage de connaissance de soi. Le système chinois des Quatre Piliers (BaZi) offre une cartographie profonde de la personnalité humaine.',
         philP2: 'Chaque poster qui quitte notre atelier est unique. Nous combinons le calcul de thème assisté par ordinateur avec l’art de l’impression fine pour créer des œuvres à la fois scientifiquement fondées et esthétiquement convaincantes.',
         philP3: 'Notre atelier en Suisse est synonyme de précision, de qualité et de respect de la tradition. Nous travaillons exclusivement avec des matériaux d’archivage, pour que votre œuvre personnelle traverse les générations.',
         processTitle: 'Le chemin vers votre poster',
@@ -369,7 +367,6 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Qu’est-ce que l’analyse digitale de carte BaZi ?', a: 'Une analyse PDF personnelle de 10–15 pages de votre carte, disponible seule ou en coffret.' },
         { q: 'Le paiement est-il sécurisé ?', a: 'Paiement chiffré via PayPal, Apple Pay et Google Pay.' },
         { q: 'Retours & échanges ?', a: 'ESPACE RÉSERVÉ — à adapter à votre politique réelle de retour/rétractation ; les articles personnalisés peuvent être exclus du droit de rétractation.', placeholder: true },
-        { q: 'Saju / astrologie coréenne ?', a: 'En préparation (« Saju coming soon »). Inscrivez-vous à la newsletter pour être présent au lancement.' },
       ],
       faqDefs: {
         details: { q: 'Détails & matériau', a: 'Impression fine-art à grain fin sur papier naturel 250 g/m² sans acide, résistant à la lumière pendant des décennies. Cadre en bois massif avec véritable verre antireflet. Chaque poster est signé à la main à l’atelier.' },

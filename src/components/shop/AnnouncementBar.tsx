@@ -6,7 +6,7 @@ export const ANNOUNCEMENT_HEIGHT = 34
 
 /**
  * Slim black announcement bar fixed at the very top, above the header.
- * Free-shipping hook + "Saju coming soon". Shorter on mobile.
+ * Free-shipping hook + personalization line. Shorter on mobile.
  */
 export default function AnnouncementBar() {
   const { t } = useT()
@@ -30,8 +30,7 @@ export default function AnnouncementBar() {
         {COMMERCE_ENABLED ? (
           <>
             {t('announce.shipping')}
-            <span className="hidden sm:inline"> · {t('announce.handmade')}</span>
-            {' · '}{t('announce.saju')}
+            <span className="hidden sm:inline"> · {t('announce.personalized')}</span>
           </>
         ) : (
           t('preview.announce')

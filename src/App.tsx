@@ -36,6 +36,10 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/produkt/:id" element={<ProductView />} />
+          {/* Iteration 1: personalization entry reuses ProductView (defaults to the
+              BaZi product when no id). Iteration 3 replaces this with the dedicated
+              multi-product /personalize flow. */}
+          <Route path="/personalize" element={<ProductView />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout/success" element={<OrderResult success />} />
           <Route path="/checkout/cancel" element={<OrderResult success={false} />} />

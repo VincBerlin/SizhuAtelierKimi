@@ -173,10 +173,7 @@ export interface ComingSoonItem {
   desc: string
 }
 
-export const comingSoon: ComingSoonItem[] = [
-  { id: 'saju', title: 'Saju · 사주', desc: 'Die koreanische Vier-Säulen-Astrologie. Gleiche Tiefe, eigene Bildsprache — bald als personalisiertes Poster.' },
-  { id: 'junishi', title: 'Junishi · 十二支', desc: 'Die japanische Tradition der zwölf Tierkreiszeichen. In Vorbereitung im Atelier.' },
-]
+export const comingSoon: ComingSoonItem[] = []
 
 export interface FaqDef {
   id: string
@@ -201,7 +198,6 @@ export const shopFaqs: ShopFaq[] = [
   { q: 'Was ist die digitale BaZi-Chart-Analyse?', a: 'Eine persönliche 10–15-seitige PDF-Auswertung deines Charts, einzeln oder als Bundle erhältlich.' },
   { q: 'Wie sicher ist die Zahlung?', a: 'Verschlüsselte Bezahlung über PayPal, Apple Pay und Google Pay.' },
   { q: 'Rückgabe & Umtausch?', a: 'PLATZHALTER — an eure tatsächliche Rückgabe-/Widerrufsrichtlinie anpassen; personalisierte Artikel sind ggf. vom Widerruf ausgenommen.', placeholder: true },
-  { q: 'Saju / koreanische Astrologie?', a: 'In Vorbereitung („Saju coming soon"). Im Newsletter eintragen, um zum Launch dabei zu sein.' },
 ]
 
 export const faqDefs: FaqDef[] = [
