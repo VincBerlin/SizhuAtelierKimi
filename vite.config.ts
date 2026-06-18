@@ -25,9 +25,12 @@ export default defineConfig(({ command }) => ({
     // so a route change or app update doesn't force a re-download of everything.
     rollupOptions: {
       output: {
+        // Only force the always-needed React runtime into a stable vendor chunk.
+        // Three.js is intentionally NOT listed: it lives behind a dynamic import
+        // (lazy Home -> lazy InkWave), so Rollup splits it on its own and Vite
+        // does NOT modulepreload it from index.html — it loads only on Home.
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router', 'react-router-dom'],
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
         },
       },
     },
