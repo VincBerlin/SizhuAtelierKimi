@@ -1,5 +1,6 @@
 import { C, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
+import { useShopStore } from '../../store/ShopStore'
 import { COMMERCE_ENABLED } from '../../lib/config'
 import { euro } from '../../lib/format'
 
@@ -11,6 +12,7 @@ export const ANNOUNCEMENT_HEIGHT = 34
  */
 export default function AnnouncementBar() {
   const { t } = useT()
+  const { region } = useShopStore()
   return (
     <div
       style={{
@@ -29,10 +31,16 @@ export default function AnnouncementBar() {
     >
       <p style={{ margin: 0, fontFamily: FONT_SANS, fontSize: 11.5, letterSpacing: '0.06em', textAlign: 'center', padding: '0 16px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {COMMERCE_ENABLED ? (
-          <>
-            {t('announce.shipping', { amount: euro(FREE_SHIP_THRESHOLD) })}
-            <span className="hidden sm:inline"> · {t('announce.personalized')}</span>
-          </>
+          region === 'us' || region === 'uk' ? (
+            t('announce.freeActivated')
+          ) : region === 'other' ? (
+            t('announce.fallback')
+          ) : (
+            <>
+              {t('announce.shipping', { amount: euro(FREE_SHIP_THRESHOLD) })}
+              <span className="hidden sm:inline"> · {t('announce.personalized')}</span>
+            </>
+          )
         ) : (
           t('preview.announce')
         )}

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { computeChart, defaultCfg, sizes, type CfgState, type PosterData } from '../lib/bazi'
 import { getProduct, type Addon, type Bundle } from '../lib/catalog'
 import { FREE_SHIP_THRESHOLD } from '../lib/tokens'
+import { fetchRegion, type Region } from '../lib/region'
 
 export interface CartLine {
   key: string
@@ -46,6 +47,8 @@ interface ShopValue {
   tax: number
   remaining: number
   reached: boolean
+  region: Region
+  freeShipThreshold: number
   // actions
   openCart: () => void
   closeCart: () => void
@@ -76,6 +79,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
   const [newsletterEmail, setNewsletterEmail] = useState<Record<string, string>>({})
   const [articleId, setArticleId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
+  const [region, setRegion] = useState<Region>('eu')
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const keyRef = useRef(0)
 
@@ -90,12 +94,17 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
     try { localStorage.setItem(CART_KEY, JSON.stringify(cart)) } catch { /* ignore */ }
   }, [cart])
 
+  // detect the shipping region (server IP geolocation) once
+  useEffect(() => { fetchRegion().then(setRegion) }, [])
+
   const value = useMemo<ShopValue>(() => {
     const cartCount = cart.reduce((a, i) => a + i.qty, 0)
     const subtotal = cart.reduce((a, i) => a + i.price * i.qty, 0)
-    const reached = subtotal >= FREE_SHIP_THRESHOLD && cart.length > 0
+    // US/UK ship free; EU (and other) get free shipping over the threshold (§13)
+    const freeShipThreshold = region === 'us' || region === 'uk' ? 0 : FREE_SHIP_THRESHOLD
+    const reached = cart.length > 0 && subtotal >= freeShipThreshold
     const shipCost = cart.length === 0 || reached ? 0 : 4.9
-    const remaining = Math.max(0, FREE_SHIP_THRESHOLD - subtotal)
+    const remaining = Math.max(0, freeShipThreshold - subtotal)
     const total = subtotal + shipCost
     const tax = total - total / 1.19
 
@@ -114,7 +123,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
 
     return {
       cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast,
-      cartCount, subtotal, shipCost, total, tax, remaining, reached,
+      cartCount, subtotal, shipCost, total, tax, remaining, reached, region, freeShipThreshold,
 
       openCart: () => setCartOpen(true),
       closeCart: () => setCartOpen(false),
@@ -146,7 +155,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       openArticle: (id) => setArticleId(id),
       closeArticle: () => setArticleId(null),
     }
-  }, [cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast])
+  }, [cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast, region])
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>
 }

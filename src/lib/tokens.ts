@@ -32,7 +32,7 @@ export const C = {
 export const FONT_SERIF = "'Cormorant Garamond', serif"
 export const FONT_SANS = "'Inter', sans-serif"
 
-export const FREE_SHIP_THRESHOLD = 75 // €
+export const FREE_SHIP_THRESHOLD = 80 // € — EU free-shipping threshold (US/UK ship free; see §13)
 export const BRAND_NAME = 'SizhuAtelier'
 
 export const ACCENT_CTA_SHADOW = '0 14px 28px -12px rgba(192,73,46,0.6)'

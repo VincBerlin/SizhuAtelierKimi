@@ -44,7 +44,7 @@ export default function CartDrawer() {
           <div style={{ padding: '16px 24px', background: C.surfaceWarm, borderBottom: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 13, color: '#4A4438', marginBottom: 9 }}>{shipMessage}</div>
             <div style={{ height: 7, background: '#E4DBC9', borderRadius: 999, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: shipPct, background: C.accent, borderRadius: 999, transition: 'width .4s ease' }} />
+              <div className={reached ? 'stardust-glow' : undefined} style={{ height: '100%', width: shipPct, background: C.accent, borderRadius: 999, transition: 'width .4s ease' }} />
             </div>
           </div>
         )}

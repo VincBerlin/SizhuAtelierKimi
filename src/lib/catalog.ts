@@ -221,7 +221,7 @@ export const shopFaqs: ShopFaq[] = [
   { q: 'Wie wird mein BaZi-Poster berechnet?', a: 'Aus Geburtsdatum, -zeit und -ort werden die vier Säulen (Jahr, Monat, Tag, Stunde) berechnet und gestalterisch aufs Poster gebracht.' },
   { q: 'Welche Daten brauche ich für die Bestellung?', a: 'Geburtsdatum, möglichst genaue Geburtszeit und Geburtsort. Optional ein Name fürs Poster.' },
   { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja. Ohne exakte Zeit kann die Stunden-Säule abweichen; gib an, was du weißt, wir wählen eine sinnvolle Annäherung.' },
-  { q: 'Wie lange dauern Produktion und Versand?', a: 'Handveredelte Produktion plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 75 €.' },
+  { q: 'Wie lange dauern Produktion und Versand?', a: 'Handveredelte Produktion plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
   { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
   { q: 'Auf welchem Papier wird gedruckt?', a: 'Premium-Papierdruck, handgefertigt in Deutschland.' },
   { q: 'Kann ich mein Poster vor dem Kauf sehen?', a: 'Ja, der Konfigurator zeigt eine Live-Vorschau mit deinen Daten, Rahmen und Hintergrund.' },

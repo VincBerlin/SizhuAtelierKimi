@@ -130,6 +130,18 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, stripe: !!stripe, db: !!pool, email: !!resend, publicUrl: PUBLIC_URL || null })
 })
 
+// ---- shipping region (server IP geolocation via CDN/host header) ------------
+const EU_COUNTRIES = new Set(['DE', 'AT', 'FR', 'NL', 'BE', 'LU', 'IT', 'ES', 'PT', 'IE', 'FI', 'EE', 'LV', 'LT', 'SK', 'SI', 'GR', 'CY', 'MT', 'HR', 'BG', 'RO', 'HU', 'PL', 'CZ', 'DK', 'SE'])
+app.get('/api/region', (req, res) => {
+  const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '').toUpperCase()
+  let region = (process.env.DEFAULT_REGION || 'eu').toLowerCase()
+  if (country === 'US') region = 'us'
+  else if (country === 'GB') region = 'uk'
+  else if (EU_COUNTRIES.has(country)) region = 'eu'
+  else if (country) region = 'other'
+  res.json({ region, country: country || null })
+})
+
 // ---- create checkout session ------------------------------------------------
 app.post('/api/checkout', async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Payment is not configured yet (missing STRIPE_SECRET_KEY).' })
