@@ -47,6 +47,15 @@ if (process.env.DATABASE_URL) {
     confirm_token TEXT,
     credits_reserved INTEGER NOT NULL DEFAULT 20
   )`).catch((e) => console.error('[db] newsletter init failed:', e.message))
+  await pool.query(`CREATE TABLE IF NOT EXISTS credits_ledger (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    email TEXT,
+    event_type TEXT NOT NULL,
+    points_delta INTEGER NOT NULL,
+    balance_after INTEGER,
+    order_id TEXT UNIQUE
+  )`).catch((e) => console.error('[db] credits init failed:', e.message))
   console.log('[db] Postgres connected')
 }
 
@@ -82,6 +91,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       const items = (full.line_items?.data || []).map((li) => ({ description: li.description, qty: li.quantity, amount: li.amount_total }))
       const personalization = readPersonalizationMetadata(session.metadata)
       await persistOrder(full, items, personalization)
+      await recordCreditsEarned(full, items)
       await sendEmails(full, items, personalization)
       console.log(`[order] ${full.id} · ${eur(full.amount_total)} · ${full.customer_details?.email}`)
     } catch (e) {
@@ -244,6 +254,31 @@ async function persistOrder(session, items, personalization) {
      VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (stripe_session) DO NOTHING`,
     [session.id, session.customer_details?.email || null, session.amount_total, session.currency, session.payment_status, JSON.stringify(items), JSON.stringify(personalization)],
   )
+}
+
+// Celestial Credits (REQ-045): earn 1 credit per net €/$ spent, excluding
+// shipping. Recorded to credits_ledger; order_id UNIQUE makes it idempotent so a
+// webhook retry never double-credits. Credits are loyalty-only and NEVER reduce
+// the checkout price (REQ-044) — this only ADDS an earned-credits ledger entry.
+async function recordCreditsEarned(session, items) {
+  if (!pool) return
+  const email = session.customer_details?.email || null
+  const netCents = (items || []).reduce((s, it) => s + (String(it.description) === 'Shipping' ? 0 : (it.amount || 0)), 0)
+  const credits = Math.floor(netCents / 100)
+  if (credits <= 0) return
+  try {
+    const prior = email
+      ? await pool.query('SELECT COALESCE(SUM(points_delta),0) AS bal FROM credits_ledger WHERE email = $1', [email])
+      : { rows: [{ bal: 0 }] }
+    const balanceAfter = Number(prior.rows[0].bal) + credits
+    await pool.query(
+      `INSERT INTO credits_ledger (email, event_type, points_delta, balance_after, order_id)
+       VALUES ($1,'purchase_earned',$2,$3,$4) ON CONFLICT (order_id) DO NOTHING`,
+      [email, credits, balanceAfter, session.id],
+    )
+  } catch (e) {
+    console.error('[credits] record failed:', e.message)
+  }
 }
 
 async function sendEmails(session, items, personalization) {

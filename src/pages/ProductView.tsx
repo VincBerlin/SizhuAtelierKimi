@@ -35,8 +35,8 @@ export default function ProductView() {
   const addToCart = () => {
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', frame: frameName, bg: bgName, size: size.label }
-    addItem({ title: t(`content.products.${prod.id}.title`), price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization })
+    const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', palette: bgName, frame: frameName, size: size.label }
+    addItem({ title: t(`content.products.${prod.id}.title`), price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice) })
     showToast(t('cart.toastAdded'))
   }
 
@@ -80,7 +80,8 @@ export default function ProductView() {
                   </>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 20 }}>{t('product.inclVat', { amount: euro(FREE_SHIP_THRESHOLD) })}</div>
+              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 8 }}>{t('product.inclVat', { amount: euro(FREE_SHIP_THRESHOLD) })}</div>
+              <div style={{ fontSize: 12.5, color: C.success, fontWeight: 600, marginBottom: 20 }}>✦ {t('cart.creditsEarn', { n: Math.round(livePrice) })}</div>
             </>
           )}
 
