@@ -1932,3 +1932,34 @@
 .trustbar-row::-webkit-scrollbar {
   display: none;
 }
+
+/* Home collection (§3.3): minimalist grid on desktop, horizontal swipe on mobile. */
+.carousel-track {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+@media (max-width: 1023px) {
+  .carousel-track {
+    display: flex;
+    grid-template-columns: none;
+    gap: 16px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    /* bleed to the section edges without causing page overflow */
+    margin: 0 -32px;
+    padding: 0 32px 4px;
+  }
+  .carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel-item {
+    flex: 0 0 82%;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+}

@@ -99,8 +99,9 @@ export const products: Product[] = [
   },
 ]
 
-// Featured lines shown in the slimmed "Die Kollektion" (Aufgabe 5).
-export const featuredIds = [1, 7, 8]
+// Featured lines on the home collection — a richer set so the mobile swipe
+// carousel has something to discover (personalizable + ready-to-ship mix).
+export const featuredIds = [1, 7, 8, 11, 3, 2]
 
 export const categories = ['Alle', 'TCM', 'Praxen', 'Wellness', 'Yoga']
 

@@ -50,6 +50,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     },
     vault: { eyebrow: 'The Celestial Vault', title: 'Unlock the Unbuyable.', copy: 'Every purchase expands your archive. Earn 1 Celestial Credit for every €1 spent. Accumulate credits to unlock exclusive, hidden colour palettes within our custom generator or trigger deep-dive personal chronicles — options that cannot be bought with money.', cta: 'Create Your Profile' },
     catalog: { title: 'The Collection', more: 'See the full collection →' },
+    carousel: { prev: 'Previous product', next: 'Next product', goto: 'Go to product', hint: 'Swipe to explore' },
     search: { placeholder: 'Search products, collections, posters…', hint: 'Try “BaZi”, “Birth Chart”, “Couple”, “Fire Horse”, “Gift”…', noResults: 'No matching results', error: 'Search is temporarily unavailable', products: 'Posters', collections: 'Collections', gifts: { wedding: 'Wedding Gift Ideas', birthday: 'Birthday Gift Ideas', anniversary: 'Anniversary Gift Ideas', baby: 'Baby Shower Gift Ideas', newbeginning: 'New Beginning Gifts', studio: 'Practice & Studio Gifts' } },
     auth: {
       account: 'Account', loginTitle: 'Welcome back', createTitle: 'Create your profile', forgotTitle: 'Reset your password', resetTitle: 'Set a new password',
@@ -280,6 +281,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     },
     vault: { eyebrow: 'Der Celestial Vault', title: 'Schalte das Unkäufliche frei.', copy: 'Jeder Kauf erweitert dein Archiv. Verdiene 1 Celestial Credit pro 1 € Umsatz. Sammle Credits, um exklusive, verborgene Farbpaletten in unserem Generator freizuschalten oder tiefgehende persönliche Chroniken auszulösen — Optionen, die man nicht mit Geld kaufen kann.', cta: 'Profil erstellen' },
     catalog: { title: 'Die Kollektion', more: 'Weiter zur Kollektion →' },
+    carousel: { prev: 'Vorheriges Produkt', next: 'Nächstes Produkt', goto: 'Zum Produkt', hint: 'Wischen zum Entdecken' },
     search: { placeholder: 'Produkte, Kollektionen, Poster suchen…', hint: 'Versuche „BaZi“, „Geburtschart“, „Paar“, „Feuerpferd“, „Geschenk“…', noResults: 'Keine passenden Ergebnisse', error: 'Suche momentan nicht verfügbar', products: 'Poster', collections: 'Kollektionen', gifts: { wedding: 'Hochzeits-Geschenkideen', birthday: 'Geburtstags-Geschenkideen', anniversary: 'Jahrestags-Geschenkideen', baby: 'Baby-Geschenkideen', newbeginning: 'Neuanfang-Geschenke', studio: 'Praxis- & Studio-Geschenke' } },
     auth: {
       account: 'Konto', loginTitle: 'Willkommen zurück', createTitle: 'Profil erstellen', forgotTitle: 'Passwort zurücksetzen', resetTitle: 'Neues Passwort festlegen',
@@ -510,6 +512,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     },
     vault: { eyebrow: 'Le Celestial Vault', title: 'Débloquez l’inachetable.', copy: 'Chaque achat enrichit votre archive. Gagnez 1 Celestial Credit pour chaque 1 € dépensé. Accumulez des crédits pour débloquer des palettes de couleurs exclusives et cachées dans notre générateur ou déclencher des chroniques personnelles approfondies — des options qu’aucun argent ne peut acheter.', cta: 'Créer votre profil' },
     catalog: { title: 'La Collection', more: 'Voir toute la collection →' },
+    carousel: { prev: 'Produit précédent', next: 'Produit suivant', goto: 'Aller au produit', hint: 'Glissez pour explorer' },
     search: { placeholder: 'Rechercher produits, collections, posters…', hint: 'Essayez « BaZi », « Carte du ciel », « Couple », « Cheval de Feu », « Cadeau »…', noResults: 'Aucun résultat correspondant', error: 'Recherche temporairement indisponible', products: 'Posters', collections: 'Collections', gifts: { wedding: 'Idées cadeaux mariage', birthday: 'Idées cadeaux anniversaire', anniversary: 'Idées cadeaux anniversaire de couple', baby: 'Idées cadeaux baby shower', newbeginning: 'Cadeaux nouveau départ', studio: 'Cadeaux cabinet & studio' } },
     auth: {
       account: 'Compte', loginTitle: 'Bon retour', createTitle: 'Créez votre profil', forgotTitle: 'Réinitialiser le mot de passe', resetTitle: 'Définir un nouveau mot de passe',

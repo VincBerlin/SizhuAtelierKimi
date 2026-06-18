@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { products, featuredIds } from '../../lib/catalog'
-import ProductCard from './ProductCard'
+import ProductCarousel from './ProductCarousel'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
 
@@ -23,11 +23,7 @@ export default function CatalogSection() {
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 28 }}>
-        {featured.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
+      <ProductCarousel products={featured} />
     </section>
   )
 }
