@@ -3,8 +3,10 @@ import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
 import InkWave from '../components/InkWave'
 import TrustBar from '../components/shop/TrustBar'
+import HowItWorksSection from '../components/shop/HowItWorksSection'
 import CatalogSection from '../components/shop/CatalogSection'
 import BundlesSection from '../components/shop/BundlesSection'
+import ApiTrustSection from '../components/shop/ApiTrustSection'
 import NewsletterSection from '../components/shop/NewsletterSection'
 import WissenSection from '../components/shop/WissenSection'
 import FaqSection from '../components/shop/FaqSection'
@@ -128,8 +130,10 @@ export default function Home() {
     <main>
       <HeroSection />
       <TrustBar />
+      <HowItWorksSection />
       <CatalogSection />
       <BundlesSection />
+      <ApiTrustSection />
       <WissenSection />
       <FaqSection />
       <NewsletterSection />
