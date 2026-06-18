@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
-import InkWave from '../components/InkWave'
+// Three.js hero is split into its own chunk and streamed in after the hero
+// text paints — keeps Three.js (~150KB gzip) off the critical path.
+const InkWave = lazy(() => import('../components/InkWave'))
 import PathToPoster from '../components/shop/PathToPoster'
 import CatalogSection from '../components/shop/CatalogSection'
 import BundlesSection from '../components/shop/BundlesSection'
@@ -14,7 +16,9 @@ function HeroSection() {
   const { t } = useT()
   return (
     <section id="hero" style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
-      <InkWave />
+      <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#E8E1D6' }} />}>
+        <InkWave />
+      </Suspense>
       <div
         style={{
           position: 'relative',

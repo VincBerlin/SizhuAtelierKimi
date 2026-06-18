@@ -7,17 +7,17 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
    into /personalize (CTA "Create a Personalized Gift"); non-personalizable ones
    route to their ready-to-ship Fire Horse / TCM product (CTA "Shop This Gift"). */
 const GIFTS = [
-  { key: 'wedding', img: '/images/gifts/wedding.jpg', to: '/personalize', personalizable: true },
-  { key: 'birthday', img: '/images/gifts/birthday.jpg', to: '/personalize', personalizable: true },
-  { key: 'anniversary', img: '/images/gifts/anniversary.jpg', to: '/personalize', personalizable: true },
-  { key: 'baby', img: '/images/gifts/baby.jpg', to: '/personalize', personalizable: true },
-  { key: 'newbeginning', img: '/images/posters/bazi-personal.jpg', to: '/personalize', personalizable: true },
-  { key: 'spiritual', img: '/images/posters/wuxing-wall.jpg', to: '/personalize', personalizable: true },
-  { key: 'couple', img: '/images/categories/bazi.jpg', to: '/personalize', personalizable: true },
-  { key: 'housewarming', img: '/images/posters/fire-horse.jpg', to: '/product/8', personalizable: false },
-  { key: 'wellness', img: '/images/posters/tcm-elements.jpg', to: '/product/13', personalizable: false },
-  { key: 'yoga', img: '/images/categories/tcm.jpg', to: '/product/14', personalizable: false },
-  { key: 'tcmpractice', img: '/images/categories/tcm.jpg', to: '/product/12', personalizable: false },
+  { key: 'wedding', img: '/images/gifts/wedding.webp', to: '/personalize', personalizable: true },
+  { key: 'birthday', img: '/images/gifts/birthday.webp', to: '/personalize', personalizable: true },
+  { key: 'anniversary', img: '/images/gifts/anniversary.webp', to: '/personalize', personalizable: true },
+  { key: 'baby', img: '/images/gifts/baby.webp', to: '/personalize', personalizable: true },
+  { key: 'newbeginning', img: '/images/posters/bazi-personal.webp', to: '/personalize', personalizable: true },
+  { key: 'spiritual', img: '/images/posters/wuxing-wall.webp', to: '/personalize', personalizable: true },
+  { key: 'couple', img: '/images/categories/bazi.webp', to: '/personalize', personalizable: true },
+  { key: 'housewarming', img: '/images/posters/fire-horse.webp', to: '/product/8', personalizable: false },
+  { key: 'wellness', img: '/images/posters/tcm-elements.webp', to: '/product/13', personalizable: false },
+  { key: 'yoga', img: '/images/categories/tcm.webp', to: '/product/14', personalizable: false },
+  { key: 'tcmpractice', img: '/images/categories/tcm.webp', to: '/product/12', personalizable: false },
 ] as const
 
 function GiftCard({ gkey, img, to, personalizable }: { gkey: string; img: string; to: string; personalizable: boolean }) {

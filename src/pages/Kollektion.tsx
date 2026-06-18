@@ -11,13 +11,13 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
    Each card links to the best available destination; the dedicated couple/gift
    flows deepen in later iterations. */
 const COLLECTIONS = [
-  { key: 'bazi', img: '/images/categories/bazi.jpg', to: '/product/1' },
-  { key: 'birthchart', img: '/images/posters/bazi-personal.jpg', to: '/personalize' },
-  { key: 'couple', img: '/images/gifts/wedding.jpg', to: '/personalize' },
-  { key: 'firehorse', img: '/images/posters/fire-horse.jpg', to: '/product/8' },
-  { key: 'digital', img: '/images/posters/tcm-elements.jpg', to: '/digital' },
-  { key: 'bundles', img: '/images/posters/wuxing-wall.jpg', to: '/bundles' },
-  { key: 'gifts', img: '/images/gifts/birthday.jpg', to: '/personalize' },
+  { key: 'bazi', img: '/images/categories/bazi.webp', to: '/product/1' },
+  { key: 'birthchart', img: '/images/posters/bazi-personal.webp', to: '/personalize' },
+  { key: 'couple', img: '/images/gifts/wedding.webp', to: '/personalize' },
+  { key: 'firehorse', img: '/images/posters/fire-horse.webp', to: '/product/8' },
+  { key: 'digital', img: '/images/posters/tcm-elements.webp', to: '/digital' },
+  { key: 'bundles', img: '/images/posters/wuxing-wall.webp', to: '/bundles' },
+  { key: 'gifts', img: '/images/gifts/birthday.webp', to: '/personalize' },
 ] as const
 
 function CollectionCard({ ckey, img, to }: { ckey: string; img: string; to: string }) {

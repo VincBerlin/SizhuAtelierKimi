@@ -1,6 +1,34 @@
-import { useRef, useMemo, Suspense } from 'react'
+import { useRef, useMemo, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+
+// Pause the (expensive) fragment shader whenever the hero is scrolled out of
+// view or the tab is hidden, so it never competes with scrolling for the GPU.
+function useHeroActive(ref: React.RefObject<HTMLDivElement | null>) {
+  const [active, setActive] = useState(true)
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      setActive(false)
+      return
+    }
+    const el = ref.current
+    if (!el) return
+    let onscreen = true
+    const sync = () => setActive(onscreen && document.visibilityState === 'visible')
+    const io = new IntersectionObserver(([entry]) => {
+      onscreen = entry.isIntersecting
+      sync()
+    }, { threshold: 0 })
+    io.observe(el)
+    document.addEventListener('visibilitychange', sync)
+    return () => {
+      io.disconnect()
+      document.removeEventListener('visibilitychange', sync)
+    }
+  }, [ref])
+  return active
+}
 
 const vertexShader = `
 varying vec2 vUv;
@@ -150,13 +178,19 @@ function InkPlane() {
 }
 
 export default function InkWave() {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const active = useHeroActive(wrapRef)
+
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+    <div ref={wrapRef} style={{ position: 'absolute', inset: 0, zIndex: 1, background: '#E8E1D6' }}>
       <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#E8E1D6' }} />}>
         <Canvas
           gl={{ alpha: true, antialias: false }}
           camera={{ position: [0, 0, 2.5], fov: 50 }}
           dpr={[1, 1.5]}
+          // 'always' only while the hero is on-screen and the tab is visible;
+          // 'demand' renders a single static frame otherwise (reduced-motion / offscreen).
+          frameloop={active ? 'always' : 'demand'}
           style={{ width: '100%', height: '100%' }}
         >
           <InkPlane />
