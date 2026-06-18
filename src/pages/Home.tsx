@@ -2,10 +2,9 @@ import { useEffect } from 'react'
 import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
 import InkWave from '../components/InkWave'
-import TrustBar from '../components/shop/TrustBar'
+import PathToPoster from '../components/shop/PathToPoster'
 import CatalogSection from '../components/shop/CatalogSection'
 import BundlesSection from '../components/shop/BundlesSection'
-import CelestialVault from '../components/shop/CelestialVault'
 import NewsletterSection from '../components/shop/NewsletterSection'
 import WissenSection from '../components/shop/WissenSection'
 import FaqSection from '../components/shop/FaqSection'
@@ -128,11 +127,10 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
-      <TrustBar />
+      <PathToPoster />
       <CatalogSection />
-      <BundlesSection />
-      <CelestialVault />
       <WissenSection />
+      <BundlesSection />
       <FaqSection home />
       <NewsletterSection />
     </main>

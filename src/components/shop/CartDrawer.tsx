@@ -135,8 +135,9 @@ export default function CartDrawer() {
 /** Compact per-line personalization summary in the cart (REQ-015): birth data,
  *  poster language, design and size, plus partner data for couple orders. */
 function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: (k: string, v?: Record<string, string | number>) => any }) {
-  const time = p.unknownTime === 'true' ? t('personalize.timeUnknown') : p.time
-  const timeB = p.unknownTime === 'true' ? t('personalize.timeUnknown') : p.timeB
+  const unknownTime = p.unknownTime === 'true'
+  const time = unknownTime ? t('personalize.timeUnknown') : p.time
+  const timeB = unknownTime ? t('personalize.timeUnknown') : p.timeB
   const line1 = [p.name, p.date, time, p.place].filter(Boolean).join(' · ')
   const partner = p.nameB ? [p.nameB, p.dateB, timeB, p.placeB].filter(Boolean).join(' · ') : ''
   const line2 = [p.language, p.palette, p.frame, p.size].filter(Boolean).join(' · ')
@@ -145,6 +146,7 @@ function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: (k: st
       {line1 && <div>{line1}</div>}
       {partner && <div>{t('personalize.partnerName')}: {partner}</div>}
       {line2 && <div>{line2}</div>}
+      {unknownTime && <div style={{ color: C.accent, marginTop: 3 }}>{t('cart.unknownTimeNotice')}</div>}
     </div>
   )
 }

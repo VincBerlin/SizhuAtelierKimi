@@ -7,22 +7,25 @@ import { useT, LANGS } from '../i18n/I18nProvider'
 import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
-// "Personalized Posters" dropdown — current MVP categories only (no Saju/Junishi).
+// "Personalized Posters" dropdown — personalizable products ONLY (§4.6). Fire
+// Horse, Bundles and the Gift Collection are NOT personalizable and live under
+// Shop/Collection + Gifts instead.
 const posterLinks = [
-  { key: 'bazi', href: '/product/1' },
+  { key: 'bazi', href: '/personalize' },
   { key: 'birthChart', href: '/personalize' },
   { key: 'couple', href: '/personalize' },
-  { key: 'fireHorse', href: '/product/8' },
   { key: 'digital', href: '/digital' },
-  { key: 'bundles', href: '/bundles' },
-  { key: 'gifts', href: '/collections' },
 ]
 const mainLinks = [
   { key: 'collections', href: '/collections' },
   { key: 'gifts', href: '/gifts' },
+  { key: 'wissen', href: '/blog' },
+  { key: 'faq', href: '/faq' },
   { key: 'about', href: '/about' },
   { key: 'contact', href: '/contact' },
 ]
+// ≥44px touch targets for header icon controls (§6.1 / §7.4).
+const HIT = { minWidth: 44, minHeight: 44 } as const
 
 function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: number; up?: boolean; align?: 'left' | 'right' }) {
   const { lang, setLang } = useT()
@@ -39,8 +42,8 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
-        className="flex items-center transition-colors hover:text-[#C0492E]"
-        style={{ gap: 5, background: 'none', border: `1px solid ${C.borderInput}`, borderRadius: 999, padding: '5px 11px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size, fontWeight: 600, color: C.ink }}
+        className="flex items-center justify-center transition-colors hover:text-[#C0492E]"
+        style={{ gap: 5, minHeight: 44, minWidth: 44, background: 'none', border: `1px solid ${C.borderInput}`, borderRadius: 999, padding: '5px 11px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size, fontWeight: 600, color: C.ink }}
       >
         {lang} <ChevronDown size={size + 2} style={{ transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
@@ -133,7 +136,7 @@ export default function Navbar() {
         }}
       >
         <div className="max-w-[1200px] mx-auto h-full flex items-center justify-between" style={{ padding: '0 24px', gap: 16 }}>
-          <button className="lg:hidden flex items-center justify-center" onClick={() => setMobileOpen(true)} aria-label={t('nav.open')} style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button className="lg:hidden flex items-center justify-center" onClick={() => setMobileOpen(true)} aria-label={t('nav.open')} style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
             <Menu size={24} strokeWidth={1.5} />
           </button>
 
@@ -165,18 +168,18 @@ export default function Navbar() {
             ))}
           </nav>
 
-          <div className="flex items-center" style={{ gap: 14, flexShrink: 0 }}>
+          <div className="flex items-center" style={{ gap: 4, flexShrink: 0 }}>
             {!searchOpen && (
-              <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
                 <Search size={19} strokeWidth={1.5} />
               </button>
             )}
             <div className="hidden sm:block"><LangDropdown /></div>
-            <Link to="/account" aria-label={t('auth.account')} className="flex items-center transition-colors hover:text-[#C0492E]" style={{ gap: 5, color: C.ink, textDecoration: 'none' }}>
+            <Link to="/account" aria-label={t('auth.account')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, gap: 5, color: C.ink, textDecoration: 'none' }}>
               {user && <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600 }}>{user.points} C.</span>}
               <User size={19} strokeWidth={1.5} />
             </Link>
-            <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>

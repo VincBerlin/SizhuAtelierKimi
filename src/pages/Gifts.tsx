@@ -3,15 +3,21 @@ import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
 
-/* Gift ideas by occasion (§8). Personalizable occasions route into /personalize;
-   the non-personalizable Practice & Studio card routes to the TCM posters. */
+/* Gift ideas by occasion (§8.2 — 11 occasions). Personalizable occasions route
+   into /personalize (CTA "Create a Personalized Gift"); non-personalizable ones
+   route to their ready-to-ship Fire Horse / TCM product (CTA "Shop This Gift"). */
 const GIFTS = [
   { key: 'wedding', img: '/images/gifts/wedding.jpg', to: '/personalize', personalizable: true },
   { key: 'birthday', img: '/images/gifts/birthday.jpg', to: '/personalize', personalizable: true },
   { key: 'anniversary', img: '/images/gifts/anniversary.jpg', to: '/personalize', personalizable: true },
   { key: 'baby', img: '/images/gifts/baby.jpg', to: '/personalize', personalizable: true },
-  { key: 'newbeginning', img: '/images/posters/fire-horse.jpg', to: '/personalize', personalizable: true },
-  { key: 'studio', img: '/images/categories/tcm.jpg', to: '/collections', personalizable: false },
+  { key: 'newbeginning', img: '/images/posters/bazi-personal.jpg', to: '/personalize', personalizable: true },
+  { key: 'spiritual', img: '/images/posters/wuxing-wall.jpg', to: '/personalize', personalizable: true },
+  { key: 'couple', img: '/images/categories/bazi.jpg', to: '/personalize', personalizable: true },
+  { key: 'housewarming', img: '/images/posters/fire-horse.jpg', to: '/product/8', personalizable: false },
+  { key: 'wellness', img: '/images/posters/tcm-elements.jpg', to: '/product/13', personalizable: false },
+  { key: 'yoga', img: '/images/categories/tcm.jpg', to: '/product/14', personalizable: false },
+  { key: 'tcmpractice', img: '/images/categories/tcm.jpg', to: '/product/12', personalizable: false },
 ] as const
 
 function GiftCard({ gkey, img, to, personalizable }: { gkey: string; img: string; to: string; personalizable: boolean }) {
@@ -27,7 +33,7 @@ function GiftCard({ gkey, img, to, personalizable }: { gkey: string; img: string
       <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
         <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 20, color: C.ink, margin: '0 0 7px', lineHeight: 1.2 }}>{t(`gifts.cards.${gkey}.title`)}</h3>
         <p style={{ fontSize: 13.5, color: C.textMuted, lineHeight: 1.5, margin: '0 0 14px', flex: 1 }}>{t(`gifts.cards.${gkey}.copy`)}</p>
-        <span className="transition-colors group-hover:text-[#A0341F]" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.accent }}>{t(`gifts.cards.${gkey}.cta`)} →</span>
+        <span className="transition-colors group-hover:text-[#A0341F]" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.accent }}>{t(personalizable ? 'gifts.ctaPersonalize' : 'gifts.ctaShop')} →</span>
       </div>
     </Link>
   )

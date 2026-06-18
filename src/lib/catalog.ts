@@ -74,23 +74,27 @@ export const products: Product[] = [
   // ── TCM educational lehrposter — non-personalizable, placeholder SKUs (replace
   //    images/prices/copy before launch). No birth data; plain Add to Cart. ──
   {
-    id: 11, category: 'TCM', title: 'TCM Five Elements — Educational', price: 39, rating: 4.9, reviews: 0, sold: 0,
-    bullets: [], personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.jpg',
+    id: 11, category: 'TCM', title: 'TCM Educational Poster', price: 39, rating: 4.9, reviews: 0, sold: 0,
+    bullets: ['Lehrtafel der Fünf Elemente — Holz, Feuer, Erde, Metall, Wasser', 'Klare Vektorgrafik für Unterricht & Veranschaulichung', 'Archiv-Pigmentdruck in Museumsqualität', 'Kein personalisiertes Motiv — direkt versandfertig'],
+    personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.jpg',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
   },
   {
     id: 12, category: 'Praxen', title: 'TCM Practice Poster', price: 49, rating: 4.9, reviews: 0, sold: 0,
-    bullets: [], personalizable: false, usage: 'practice', image: '/images/categories/tcm.jpg',
+    bullets: ['Lehrposter für TCM-Praxen & Behandlungsräume', 'Ruhige Fernwirkung, erdet den Raum', 'Abwischbares Museumsglas, hygienefreundlich', 'Standardprodukt — keine Geburtsdaten nötig'],
+    personalizable: false, usage: 'practice', image: '/images/categories/tcm.jpg',
     poster: mk('#1B1B1B', '#2C3A57', 'TCM', '1990-01-01'),
   },
   {
     id: 13, category: 'Wellness', title: 'TCM Wellness Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
-    bullets: [], personalizable: false, usage: 'wellness', image: '/images/posters/tcm-elements.jpg',
+    bullets: ['Lehrtafel für Wellness- & Ruheräume', 'Warmes Salbeigrün, beruhigende Wirkung', 'Erklärt die Fünf-Elemente-Balance', 'Direkt versandfertig — nicht personalisiert'],
+    personalizable: false, usage: 'wellness', image: '/images/posters/tcm-elements.jpg',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
   },
   {
     id: 14, category: 'Yoga', title: 'TCM Yoga Studio Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
-    bullets: [], personalizable: false, usage: 'yoga', image: '/images/categories/tcm.jpg',
+    bullets: ['Lehrposter für Yoga- & Studio-Wände', 'Erdiges Terracotta, passt zu Holz & Pflanzen', 'Kompaktes Format mit klarer Fernwirkung', 'Standardprodukt — direkt versandfertig'],
+    personalizable: false, usage: 'yoga', image: '/images/categories/tcm.jpg',
     poster: mk('#1B1B1B', '#BC7A5E', 'TCM', '1990-01-01'),
   },
 ]
