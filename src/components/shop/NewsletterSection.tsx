@@ -42,9 +42,9 @@ export default function NewsletterSection() {
             <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3vw,38px)', color: C.inkOnDark, margin: '0 0 14px', lineHeight: 1.15 }}>{t('newsletter.title')}</h2>
             <p style={{ fontFamily: FONT_SANS, fontSize: 15, lineHeight: 1.65, color: '#A9A091', margin: '0 0 18px', maxWidth: 520 }}>{t('newsletter.copy')}</p>
             {benefits.length > 0 && (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '8px 20px' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {benefits.map((bnf) => (
-                  <li key={bnf} style={{ display: 'flex', gap: 8, fontFamily: FONT_SANS, fontSize: 13, color: '#D7CFC2' }}>
+                  <li key={bnf} style={{ display: 'flex', gap: 9, fontFamily: FONT_SANS, fontSize: 13.5, color: '#D7CFC2' }}>
                     <span style={{ color: C.accent }}>✦</span><span>{bnf}</span>
                   </li>
                 ))}
@@ -52,8 +52,9 @@ export default function NewsletterSection() {
             )}
           </div>
 
-          {/* right — subscribe form */}
-          <div>
+          {/* right — subscribe form (vertically centred to the text via lg:items-center,
+              left-aligned and width-constrained so it stays on the left of its column) */}
+          <div style={{ maxWidth: 420, width: '100%' }}>
             {status === 'success' ? (
               <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: '#C9A28E', margin: 0, lineHeight: 1.6 }}>✦ {t('newsletter.success')}</p>
             ) : (

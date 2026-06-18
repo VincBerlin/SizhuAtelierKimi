@@ -38,7 +38,7 @@ export default function CartDrawer() {
   // dedup below misses and the customer is offered a product already in the cart.
   const crossSell: Cross[] = [
     { title: t('content.digital.title'), price: digitalProduct.price, meta: t('content.digital.subtitle') },
-    ...([8, 11].map((id) => { const p = getProduct(id); return p ? { title: t(`content.products.${id}.title`), price: p.price, meta: '', image: p.image } : null }).filter(Boolean) as Cross[]),
+    ...([8, 11, 12, 13, 14].map((id) => { const p = getProduct(id); return p ? { title: t(`content.products.${id}.title`), price: p.price, meta: '', image: p.image } : null }).filter(Boolean) as Cross[]),
   ].filter((x) => !inCart(x.title)).slice(0, 3)
   const addCross = (x: Cross) => {
     addItem({ title: x.title, price: x.price, qty: 1, poster: null, meta: x.meta, image: x.image })
