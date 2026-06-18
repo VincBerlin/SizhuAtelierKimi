@@ -46,7 +46,8 @@ export default function ProductView() {
     if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name.trim(), unknownTime: String(!cfg.time), palette: bgName, frame: frameName, size: size.label }
+    const noTime = !cfg.time
+    const personalization = { date: cfg.date, time: noTime ? '12:00' : cfg.time, timeDisplay: noTime ? '12:00 PM' : cfg.time, unknownTime: String(noTime), timeFallbackUsed: String(noTime), fallbackReason: noTime ? 'customer_unknown_birth_time' : '', place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
     addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice) })
     showToast(t('cart.toastAdded'))
   }

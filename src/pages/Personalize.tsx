@@ -31,6 +31,16 @@ const PDF_ADDON_PRICE = 30
 interface Person { name: string; date: string; time: string; place: string }
 const emptyPerson: Person = { name: '', date: '', time: '', place: '' }
 
+// "14:30" -> "2:30 PM" for human-readable storage/display.
+function to12h(t: string): string {
+  if (!t) return ''
+  const [h, m] = t.split(':').map(Number)
+  if (isNaN(h)) return t
+  const ampm = h < 12 ? 'AM' : 'PM'
+  const hh = h % 12 === 0 ? 12 : h % 12
+  return `${hh}:${String(m || 0).padStart(2, '0')} ${ampm}`
+}
+
 const inputStyle = {
   border: `1px solid ${C.borderInput}`, borderRadius: 9, padding: '11px 12px', fontSize: 14,
   fontFamily: FONT_SANS, color: C.ink, background: C.surfaceInput, width: '100%', minWidth: 0, boxSizing: 'border-box' as const,
@@ -76,7 +86,7 @@ export default function Personalize() {
   }, [def, size, pdfAddon])
   const credits = Math.round(price)
 
-  const chart = computeChart(a.date, unknownTime ? undefined : a.time)
+  const chart = computeChart(a.date, unknownTime ? '12:00' : a.time)
   const livePoster: PosterData = {
     frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
     element: chart.element, animal: chart.animal, pillars: chart.pillars,
@@ -99,14 +109,18 @@ export default function Personalize() {
       language: posterLang,
       name: a.name.trim(),
       date: a.date,
-      time: unknownTime ? '' : a.time,
+      time: unknownTime ? '12:00' : a.time,
+      timeDisplay: unknownTime ? '12:00 PM' : to12h(a.time),
       unknownTime: String(unknownTime),
+      timeFallbackUsed: String(unknownTime),
+      fallbackReason: unknownTime ? 'customer_unknown_birth_time' : '',
       place: a.place.trim(),
     }
     if (def.couple) {
       personalization.nameB = b.name.trim()
       personalization.dateB = b.date
-      personalization.timeB = unknownTime ? '' : b.time
+      personalization.timeB = unknownTime ? '12:00' : b.time
+      personalization.timeDisplayB = unknownTime ? '12:00 PM' : to12h(b.time)
       personalization.placeB = b.place.trim()
     }
     if (def.poster) {
