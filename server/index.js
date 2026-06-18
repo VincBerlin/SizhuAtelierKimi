@@ -122,6 +122,21 @@ app.disable('x-powered-by')
 
 const eur = (cents) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: CURRENCY.toUpperCase() })
 
+// ---- in-memory per-IP rate limiter (single instance; use Redis for a cluster) ---
+const rlBuckets = new Map()
+function clientIp(req) {
+  return String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown'
+}
+function rateLimited(req, name, max, windowMs) {
+  const key = `${name}:${clientIp(req)}`
+  const now = Date.now()
+  const b = rlBuckets.get(key)
+  if (!b || now > b.resetAt) { rlBuckets.set(key, { count: 1, resetAt: now + windowMs }); return false }
+  b.count += 1
+  return b.count > max
+}
+setInterval(() => { const now = Date.now(); for (const [k, b] of rlBuckets) if (now > b.resetAt) rlBuckets.delete(k) }, 600000).unref?.()
+
 // ---- Stripe webhook (must read the RAW body — mount before express.json) ---
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(503).send('webhook not configured')
@@ -235,6 +250,7 @@ app.post('/api/checkout', async (req, res) => {
 
 // ---- newsletter signup (lead capture, double-opt-in ready) -----------------
 app.post('/api/newsletter', async (req, res) => {
+  if (rateLimited(req, 'newsletter', 6, 600000)) return res.status(429).json({ error: 'rate_limited' })
   const { email, consent, language, source } = req.body || {}
   const e = String(email || '').trim().toLowerCase()
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || e.length > 200) return res.status(400).json({ error: 'invalid_email' })
@@ -330,6 +346,7 @@ function requireUser(req, res) {
 }
 
 app.post('/api/auth/signup', async (req, res) => {
+  if (rateLimited(req, 'signup', 8, 600000)) return res.status(429).json({ error: 'rate_limited' })
   if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
   const { email, password, marketingConsent, name } = req.body || {}
   const e = String(email || '').trim().toLowerCase()
@@ -359,6 +376,7 @@ app.post('/api/auth/signup', async (req, res) => {
 })
 
 app.post('/api/auth/login', async (req, res) => {
+  if (rateLimited(req, 'login', 10, 300000)) return res.status(429).json({ error: 'rate_limited' })
   if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
   const { email, password } = req.body || {}
   const e = String(email || '').trim().toLowerCase()
@@ -460,6 +478,7 @@ app.patch('/api/auth/profile', async (req, res) => {
 
 // Change password for a logged-in user (verifies the current password first).
 app.post('/api/auth/password', async (req, res) => {
+  if (rateLimited(req, 'password', 10, 300000)) return res.status(429).json({ error: 'rate_limited' })
   if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
   const uid = requireUser(req, res)
   if (!uid) return
@@ -478,6 +497,7 @@ app.post('/api/auth/password', async (req, res) => {
 })
 
 app.post('/api/auth/reset/request', async (req, res) => {
+  if (rateLimited(req, 'reset_req', 5, 900000)) return res.status(429).json({ error: 'rate_limited' })
   if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
   const e = String(req.body?.email || '').trim().toLowerCase()
   if (!EMAIL_RE.test(e)) return res.json({ ok: true }) // never reveal whether an email exists
@@ -500,6 +520,7 @@ app.post('/api/auth/reset/request', async (req, res) => {
 })
 
 app.post('/api/auth/reset/confirm', async (req, res) => {
+  if (rateLimited(req, 'reset_confirm', 12, 900000)) return res.status(429).json({ error: 'rate_limited' })
   if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
   const { token, password } = req.body || {}
   if (typeof password !== 'string' || password.length < 8 || password.length > 200) return res.status(400).json({ error: 'weak_password' })
