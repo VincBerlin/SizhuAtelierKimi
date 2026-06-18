@@ -28,7 +28,7 @@ export function cartHasIncompletePersonalization(cart: CartLine[]): boolean {
 
 // POSTs the cart to the backend, which creates a Stripe Checkout Session and
 // returns its hosted URL. On success the browser is redirected to Stripe.
-export async function startCheckout(cart: CartLine[], shipCost: number, locale: string): Promise<CheckoutResult> {
+export async function startCheckout(cart: CartLine[], shipCost: number, locale: string, email?: string): Promise<CheckoutResult> {
   if (!cart.length) return { ok: false, error: 'empty' }
   const items = cart.map((l) => ({
     title: l.title,
@@ -41,7 +41,10 @@ export async function startCheckout(cart: CartLine[], shipCost: number, locale: 
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items, shippingCents: Math.round(shipCost * 100), locale }),
+      // same-origin sends the session cookie so a logged-in buyer is matched to
+      // their Stripe customer (saved cards); email is the guest fallback.
+      credentials: 'same-origin',
+      body: JSON.stringify({ items, shippingCents: Math.round(shipCost * 100), locale, ...(email ? { email } : {}) }),
     })
     const data = await res.json().catch(() => ({}))
     if (!res.ok || !data.url) return { ok: false, error: data.error || 'Checkout failed' }

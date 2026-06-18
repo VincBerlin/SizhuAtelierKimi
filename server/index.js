@@ -76,8 +76,34 @@ if (process.env.DATABASE_URL) {
     unlocked_features JSONB NOT NULL DEFAULT '[]'::jsonb,
     achievements JSONB NOT NULL DEFAULT '[]'::jsonb,
     reset_token TEXT,
-    reset_expires TIMESTAMPTZ
+    reset_expires TIMESTAMPTZ,
+    name TEXT,
+    preferred_language TEXT,
+    default_shipping_address_id INTEGER,
+    default_billing_address_id INTEGER,
+    stripe_customer_id TEXT
   )`).catch((e) => console.error('[db] users init failed:', e.message))
+  // Idempotent migrations: add the full-account columns to pre-existing tables.
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT').catch(() => {})
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_language TEXT').catch(() => {})
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS default_shipping_address_id INTEGER').catch(() => {})
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS default_billing_address_id INTEGER').catch(() => {})
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT').catch(() => {})
+  await pool.query(`CREATE TABLE IF NOT EXISTS addresses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL DEFAULT 'shipping',
+    full_name TEXT,
+    line1 TEXT,
+    line2 TEXT,
+    postal_code TEXT,
+    city TEXT,
+    region TEXT,
+    country TEXT,
+    phone TEXT,
+    is_default BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  )`).catch((e) => console.error('[db] addresses init failed:', e.message))
   console.log('[db] Postgres connected')
 }
 
@@ -178,11 +204,21 @@ app.post('/api/checkout', async (req, res) => {
     // the customer's birth data is the whole product and must reach fulfilment.
     const metadata = buildPersonalizationMetadata(personalization)
 
+    // Attach a logged-in buyer to their Stripe customer so saved cards appear and
+    // future purchases reuse the same profile. Stripe rejects `customer` together
+    // with `customer_email`, so pass exactly one. A Stripe failure here must never
+    // block guest checkout — fall back to the email path on any error.
+    let customerId = null
+    const uid = verifySession(readCookie(req, SESSION_COOKIE))
+    if (uid && stripe) {
+      try { customerId = await ensureStripeCustomer(uid) } catch (err) { console.error('[checkout] ensure customer failed:', err.message) }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items,
       locale: ['en', 'de', 'fr'].includes((locale || '').toLowerCase()) ? locale.toLowerCase() : 'auto',
-      ...(email ? { customer_email: String(email).slice(0, 200) } : {}),
+      ...(customerId ? { customer: customerId } : (email ? { customer_email: String(email).slice(0, 200) } : {})),
       billing_address_collection: 'auto',
       shipping_address_collection: { allowed_countries: ['DE', 'AT', 'CH', 'FR', 'NL', 'BE', 'LU', 'IT', 'ES'] },
       phone_number_collection: { enabled: false },
@@ -285,19 +321,27 @@ function clearSessionCookie(res) {
   res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure ? '; Secure' : ''}`)
 }
 const authReady = () => !!(pool && SESSION_SECRET)
+// Resolves the session user for auth-gated routes. Responds 401 and returns null
+// when there is no valid session, so callers can `if (!uid) return`.
+function requireUser(req, res) {
+  const uid = verifySession(readCookie(req, SESSION_COOKIE))
+  if (!uid) { res.status(401).json({ error: 'unauthorized' }); return null }
+  return uid
+}
 
 app.post('/api/auth/signup', async (req, res) => {
   if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
-  const { email, password, marketingConsent } = req.body || {}
+  const { email, password, marketingConsent, name } = req.body || {}
   const e = String(email || '').trim().toLowerCase()
   if (!EMAIL_RE.test(e) || e.length > 200) return res.status(400).json({ error: 'invalid_email' })
   if (typeof password !== 'string' || password.length < 8 || password.length > 200) return res.status(400).json({ error: 'weak_password' })
+  const nm = typeof name === 'string' ? name.trim().slice(0, 120) : null
   try {
     const consent = marketingConsent === true
     const r = await pool.query(
-      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, points_balance, lifetime_points)
-       VALUES ($1,$2,$3,$4,$5,$6,$6) ON CONFLICT (email) DO NOTHING RETURNING id`,
-      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', WELCOME_CREDITS],
+      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, points_balance, lifetime_points, name)
+       VALUES ($1,$2,$3,$4,$5,$6,$6,$7) ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', WELCOME_CREDITS, nm || null],
     )
     if (!r.rows.length) return res.status(409).json({ error: 'email_taken' })
     // Grant the welcome credits as a ledger entry (idempotent via a synthetic order_id).
@@ -358,7 +402,8 @@ app.get('/api/auth/me', async (req, res) => {
   if (!uid) return res.json({ user: null })
   try {
     const r = await pool.query(
-      `SELECT email, points_balance, lifetime_points, marketing_consent, newsletter_status, unlocked_features, achievements, created_at
+      `SELECT email, points_balance, lifetime_points, marketing_consent, newsletter_status, unlocked_features, achievements, created_at,
+              name, preferred_language, stripe_customer_id, default_shipping_address_id, default_billing_address_id
        FROM users WHERE id = $1`, [uid])
     if (!r.rows.length) return res.json({ user: null })
     const u = r.rows[0]
@@ -366,6 +411,8 @@ app.get('/api/auth/me', async (req, res) => {
       email: u.email, points: u.points_balance, lifetime: u.lifetime_points,
       marketingConsent: u.marketing_consent, newsletterStatus: u.newsletter_status,
       unlockedFeatures: u.unlocked_features, achievements: u.achievements, createdAt: u.created_at,
+      name: u.name || '', preferredLanguage: u.preferred_language || '', hasPayment: !!u.stripe_customer_id,
+      defaultShippingAddressId: u.default_shipping_address_id || null, defaultBillingAddressId: u.default_billing_address_id || null,
     } })
   } catch (err) {
     console.error('[auth] me failed:', err.message)
@@ -384,6 +431,48 @@ app.post('/api/auth/preferences', async (req, res) => {
     return res.json({ ok: true })
   } catch (err) {
     console.error('[auth] preferences failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+// Update profile fields (name + preferred language). Only provided fields change.
+app.patch('/api/auth/profile', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  const { name, preferredLanguage } = req.body || {}
+  const sets = []
+  const params = []
+  if (typeof name === 'string') { params.push(name.trim().slice(0, 120)); sets.push(`name = $${params.length}`) }
+  if (typeof preferredLanguage === 'string' && ['en', 'de', 'fr'].includes(preferredLanguage.toLowerCase())) {
+    params.push(preferredLanguage.toLowerCase()); sets.push(`preferred_language = $${params.length}`)
+  }
+  if (!sets.length) return res.json({ ok: true })
+  try {
+    params.push(uid)
+    await pool.query(`UPDATE users SET ${sets.join(', ')} WHERE id = $${params.length}`, params)
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] profile failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+// Change password for a logged-in user (verifies the current password first).
+app.post('/api/auth/password', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  const { currentPassword, newPassword } = req.body || {}
+  if (typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 200) return res.status(400).json({ error: 'weak_password' })
+  try {
+    const r = await pool.query('SELECT password_hash FROM users WHERE id = $1', [uid])
+    if (!r.rows.length) return res.status(401).json({ error: 'unauthorized' })
+    if (!verifyPassword(String(currentPassword || ''), r.rows[0].password_hash)) return res.status(400).json({ error: 'wrong_password' })
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hashPassword(newPassword), uid])
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[auth] password change failed:', err.message)
     return res.status(500).json({ error: 'server_error' })
   }
 })
@@ -421,6 +510,156 @@ app.post('/api/auth/reset/confirm', async (req, res) => {
     return res.json({ ok: true })
   } catch (err) {
     console.error('[auth] reset confirm failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+// ---- account: saved addresses (all scoped to the session user) -------------
+const ADDRESS_TYPES = new Set(['shipping', 'billing'])
+// Trim + cap a free-text field to keep stored rows small and predictable.
+function capField(v, max) {
+  return typeof v === 'string' && v.length ? v.trim().slice(0, max) : null
+}
+// Promote one address to default for its type: clear the rest of that type for
+// the user, mark this one, and point the matching users.default_*_address_id at
+// it. Caller MUST have verified the address belongs to uid.
+async function setDefaultAddress(uid, addrId, type) {
+  await pool.query('UPDATE addresses SET is_default = false WHERE user_id = $1 AND type = $2', [uid, type])
+  await pool.query('UPDATE addresses SET is_default = true WHERE id = $1 AND user_id = $2', [addrId, uid])
+  const col = type === 'billing' ? 'default_billing_address_id' : 'default_shipping_address_id'
+  await pool.query(`UPDATE users SET ${col} = $1 WHERE id = $2`, [addrId, uid])
+}
+
+// GET mirrors /api/auth/orders: never 401 — return [] when unconfigured / no session.
+app.get('/api/account/addresses', async (req, res) => {
+  if (!authReady()) return res.json({ addresses: [] })
+  const uid = verifySession(readCookie(req, SESSION_COOKIE))
+  if (!uid) return res.json({ addresses: [] })
+  try {
+    const r = await pool.query(
+      `SELECT id, type, full_name, line1, line2, postal_code, city, region, country, phone, is_default, created_at
+       FROM addresses WHERE user_id = $1 ORDER BY is_default DESC, created_at`, [uid])
+    return res.json({ addresses: r.rows })
+  } catch (err) {
+    console.error('[account] addresses list failed:', err.message)
+    return res.json({ addresses: [] })
+  }
+})
+
+app.post('/api/account/addresses', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  const b = req.body || {}
+  const type = ADDRESS_TYPES.has(String(b.type || '').toLowerCase()) ? String(b.type).toLowerCase() : 'shipping'
+  const country = typeof b.country === 'string' && b.country.length ? b.country.trim().slice(0, 2).toUpperCase() : null
+  try {
+    const r = await pool.query(
+      `INSERT INTO addresses (user_id, type, full_name, line1, line2, postal_code, city, region, country, phone)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+      [uid, type, capField(b.full_name, 120), capField(b.line1, 120), capField(b.line2, 120), capField(b.postal_code, 120),
+        capField(b.city, 120), capField(b.region, 120), country, capField(b.phone, 40)],
+    )
+    const id = r.rows[0].id
+    // Become the default when explicitly asked, or when it is the first of its type.
+    let makeDefault = b.makeDefault === true
+    if (!makeDefault) {
+      const c = await pool.query('SELECT COUNT(*)::int AS n FROM addresses WHERE user_id = $1 AND type = $2', [uid, type])
+      if (c.rows[0].n === 1) makeDefault = true
+    }
+    if (makeDefault) await setDefaultAddress(uid, id, type)
+    return res.json({ ok: true, id })
+  } catch (err) {
+    console.error('[account] address create failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+app.patch('/api/account/addresses/:id', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  const id = parseInt(req.params.id, 10)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'not_found' })
+  const b = req.body || {}
+  const sets = []
+  const params = []
+  const add = (col, val) => { params.push(val); sets.push(`${col} = $${params.length}`) }
+  // type is immutable after creation — changing it would leave a stale
+  // users.default_*_address_id pointer (and is_default) on the wrong type.
+  if (typeof b.full_name === 'string') add('full_name', capField(b.full_name, 120))
+  if (typeof b.line1 === 'string') add('line1', capField(b.line1, 120))
+  if (typeof b.line2 === 'string') add('line2', capField(b.line2, 120))
+  if (typeof b.postal_code === 'string') add('postal_code', capField(b.postal_code, 120))
+  if (typeof b.city === 'string') add('city', capField(b.city, 120))
+  if (typeof b.region === 'string') add('region', capField(b.region, 120))
+  if (typeof b.country === 'string') add('country', b.country.length ? b.country.trim().slice(0, 2).toUpperCase() : null)
+  if (typeof b.phone === 'string') add('phone', capField(b.phone, 40))
+  if (!sets.length) return res.json({ ok: true })
+  try {
+    params.push(id, uid)
+    const r = await pool.query(
+      `UPDATE addresses SET ${sets.join(', ')} WHERE id = $${params.length - 1} AND user_id = $${params.length}`, params)
+    if (!r.rowCount) return res.status(404).json({ error: 'not_found' })
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[account] address update failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+app.delete('/api/account/addresses/:id', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  const id = parseInt(req.params.id, 10)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'not_found' })
+  try {
+    const r = await pool.query('DELETE FROM addresses WHERE id = $1 AND user_id = $2', [id, uid])
+    if (!r.rowCount) return res.status(404).json({ error: 'not_found' })
+    // If it was a stored default, clear the matching pointer on the user row.
+    await pool.query(
+      `UPDATE users SET default_shipping_address_id = CASE WHEN default_shipping_address_id = $1 THEN NULL ELSE default_shipping_address_id END,
+                        default_billing_address_id  = CASE WHEN default_billing_address_id  = $1 THEN NULL ELSE default_billing_address_id  END
+       WHERE id = $2`, [id, uid])
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[account] address delete failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+app.post('/api/account/addresses/:id/default', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  const id = parseInt(req.params.id, 10)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'not_found' })
+  try {
+    const r = await pool.query('SELECT type FROM addresses WHERE id = $1 AND user_id = $2', [id, uid])
+    if (!r.rows.length) return res.status(404).json({ error: 'not_found' })
+    await setDefaultAddress(uid, id, r.rows[0].type)
+    return res.json({ ok: true })
+  } catch (err) {
+    console.error('[account] address default failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+// ---- account: Stripe billing portal (manage saved cards) -------------------
+app.post('/api/account/billing-portal', async (req, res) => {
+  if (!authReady()) return res.status(503).json({ error: 'auth_unconfigured' })
+  const uid = requireUser(req, res)
+  if (!uid) return
+  if (!stripe) return res.status(503).json({ error: 'payment_unconfigured' })
+  try {
+    const customer = await ensureStripeCustomer(uid)
+    if (!customer) return res.status(503).json({ error: 'payment_unconfigured' })
+    const origin = PUBLIC_URL || (req.headers.origin || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '')
+    const session = await stripe.billingPortal.sessions.create({ customer, return_url: `${origin}/account` })
+    return res.json({ url: session.url })
+  } catch (err) {
+    console.error('[account] billing portal failed:', err.message)
     return res.status(500).json({ error: 'server_error' })
   }
 })
@@ -518,6 +757,20 @@ async function recordCreditsEarned(session, items) {
   } catch (e) {
     console.error('[credits] record failed:', e.message)
   }
+}
+
+// Resolve (and lazily create) the Stripe customer for a logged-in user, caching
+// the id on the user row. Returns null when Stripe/DB are unconfigured so callers
+// can fall back to guest behavior. We store ONLY the Stripe customer id — saved
+// cards live in Stripe and are managed via the billing portal (no raw PAN/CVC).
+async function ensureStripeCustomer(uid) {
+  if (!stripe || !pool) return null
+  const r = await pool.query('SELECT email, stripe_customer_id FROM users WHERE id = $1', [uid])
+  if (!r.rows.length) return null
+  if (r.rows[0].stripe_customer_id) return r.rows[0].stripe_customer_id
+  const customer = await stripe.customers.create({ email: r.rows[0].email || undefined, metadata: { uid: String(uid) } })
+  await pool.query('UPDATE users SET stripe_customer_id = $1 WHERE id = $2', [customer.id, uid])
+  return customer.id
 }
 
 async function sendEmails(session, items, personalization) {

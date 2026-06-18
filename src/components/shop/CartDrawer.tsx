@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router'
 import Poster from '../Poster'
 import { addons } from '../../lib/catalog'
 import { useShopStore } from '../../store/ShopStore'
+import { useAuth } from '../../store/AuthProvider'
 import { useT } from '../../i18n/I18nProvider'
 import { cartHasIncompletePersonalization } from '../../lib/checkout'
 import { euro } from '../../lib/format'
@@ -9,8 +10,10 @@ import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 
 export default function CartDrawer() {
   const { cart, cartOpen, closeCart, subtotal, shipCost, reached, remaining, setQty, removeLine, addItem, showToast } = useShopStore()
+  const { user } = useAuth()
   const { t } = useT()
   const navigate = useNavigate()
+  const goAccount = () => { closeCart(); navigate('/account'); window.scrollTo(0, 0) }
   const open = cartOpen
   const hasCart = cart.length > 0
   const shipPct = Math.min(100, (subtotal / FREE_SHIP_THRESHOLD) * 100) + '%'
@@ -116,6 +119,12 @@ export default function CartDrawer() {
             </div>
             <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{shipText} {t('cart.inclVat')}</div>
             {totalCredits > 0 && <div style={{ fontSize: 12.5, color: C.success, fontWeight: 600, marginBottom: 12 }}>✦ {t('cart.creditsEarn', { n: totalCredits })}</div>}
+            {!user && (
+              <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, marginBottom: 12 }}>
+                {totalCredits > 0 ? t('cart.saveCredits') : t('cart.signInPrompt')}{' '}
+                <button onClick={goAccount} className="underline transition-colors hover:text-[#A0341F]" style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.accent, fontWeight: 600, fontSize: 11.5, padding: 0 }}>{t('cart.signInCta')}</button>
+              </div>
+            )}
             <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
               <div style={{ fontWeight: 600, color: C.textMuted, marginBottom: 3 }}>{t('cart.reviewBirth')}</div>
               {t('cart.returnNotice')}

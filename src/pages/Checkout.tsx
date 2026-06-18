@@ -1,9 +1,11 @@
-import { useState, type CSSProperties } from 'react'
-import { useNavigate } from 'react-router'
+import { useState, useEffect, type CSSProperties } from 'react'
+import { useNavigate, Link } from 'react-router'
 import Poster from '../components/Poster'
 import { useShopStore } from '../store/ShopStore'
+import { useAuth } from '../store/AuthProvider'
 import { useT } from '../i18n/I18nProvider'
 import { startCheckout, cartHasIncompletePersonalization } from '../lib/checkout'
+import { apiAddresses } from '../lib/auth'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
@@ -20,10 +22,38 @@ const inputStyle: CSSProperties = {
 
 export default function Checkout() {
   const { cart, subtotal, shipCost, total, tax, openCart, showToast } = useShopStore()
+  const { user } = useAuth()
   const { t, lang } = useT()
   const navigate = useNavigate()
   const [placing, setPlacing] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
+  const [email, setEmail] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [street, setStreet] = useState('')
+  const [zip, setZip] = useState('')
+  const [city, setCity] = useState('')
+  const totalCredits = cart.reduce((s, i) => s + (i.creditsEarned || 0) * i.qty, 0)
+
+  // §5.3 — prefill contact + delivery from the logged-in customer's saved default
+  // shipping address (never overwrites a field the user already typed).
+  useEffect(() => {
+    if (!user) return
+    setEmail((e) => e || user.email)
+    let active = true
+    apiAddresses().then((all) => {
+      if (!active) return
+      const def = all.find((a) => a.type === 'shipping' && a.is_default) || all.find((a) => a.type === 'shipping')
+      if (!def) return
+      const parts = (def.full_name || '').trim().split(/\s+/).filter(Boolean)
+      setFirstName((v) => v || parts[0] || '')
+      setLastName((v) => v || parts.slice(1).join(' '))
+      setStreet((v) => v || [def.line1, def.line2].filter(Boolean).join(', '))
+      setZip((v) => v || def.postal_code || '')
+      setCity((v) => v || def.city || '')
+    })
+    return () => { active = false }
+  }, [user])
   // Personalized items: block until birth data is complete (REQ-016) AND the
   // correctness confirmation is ticked (REQ-017/042). Enforced HERE — the actual
   // order-placement boundary — so a direct /checkout URL cannot bypass the gate.
@@ -34,7 +64,7 @@ export default function Checkout() {
     if (cart.length === 0 || placing || !canPlace) return
     setPlacing(true)
     showToast(t('checkout.starting'))
-    const r = await startCheckout(cart, shipCost, lang.toLowerCase())
+    const r = await startCheckout(cart, shipCost, lang.toLowerCase(), email.trim() || undefined)
     if (!r.ok) {
       if (r.error && r.error !== 'empty' && r.error !== 'Checkout failed') console.error('[checkout]', r.error)
       showToast(t('checkout.payError'))
@@ -76,17 +106,29 @@ export default function Checkout() {
 
           {/* guest form */}
           <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {user ? (
+              <div style={{ fontSize: 12.5, color: C.textMuted, background: C.surfaceWarm, borderRadius: 8, padding: '9px 12px' }}>{t('checkout.signedInAs')} <strong style={{ color: C.ink }}>{user.email}</strong></div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.5 }}>
+                {t('checkout.signInPrompt')} <Link to="/account" className="underline transition-colors hover:text-[#A0341F]" style={{ color: C.accent, fontWeight: 600 }}>{t('checkout.signInCta')}</Link>
+              </div>
+            )}
             <div style={{ fontSize: 15, fontWeight: 600 }}>{t('checkout.contact')} <span style={{ fontWeight: 400, fontSize: 12, color: C.textMuted3 }}>{t('checkout.noAccount')}</span></div>
-            <input type="email" placeholder={t('checkout.email')} autoComplete="email" style={inputStyle} />
+            <input type="email" placeholder={t('checkout.email')} autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <input type="text" placeholder={t('checkout.firstName')} autoComplete="given-name" style={inputStyle} />
-              <input type="text" placeholder={t('checkout.lastName')} autoComplete="family-name" style={inputStyle} />
+              <input type="text" placeholder={t('checkout.firstName')} autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={inputStyle} />
+              <input type="text" placeholder={t('checkout.lastName')} autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={inputStyle} />
             </div>
-            <input type="text" placeholder={t('checkout.street')} autoComplete="street-address" style={inputStyle} />
+            <input type="text" placeholder={t('checkout.street')} autoComplete="street-address" value={street} onChange={(e) => setStreet(e.target.value)} style={inputStyle} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
-              <input type="text" placeholder={t('checkout.zip')} autoComplete="postal-code" style={inputStyle} />
-              <input type="text" placeholder={t('checkout.city')} autoComplete="address-level2" style={inputStyle} />
+              <input type="text" placeholder={t('checkout.zip')} autoComplete="postal-code" value={zip} onChange={(e) => setZip(e.target.value)} style={inputStyle} />
+              <input type="text" placeholder={t('checkout.city')} autoComplete="address-level2" value={city} onChange={(e) => setCity(e.target.value)} style={inputStyle} />
             </div>
+            {!user && totalCredits > 0 && (
+              <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '9px 12px' }}>
+                ✦ {t('checkout.saveCredits')} <Link to="/account" className="underline transition-colors hover:text-[#A0341F]" style={{ color: C.accent, fontWeight: 600 }}>{t('checkout.signInCta')}</Link>
+              </div>
+            )}
             {incomplete && <div style={{ fontSize: 12.5, color: C.accent }}>{t('cart.incompleteWarn')}</div>}
             <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px' }}>{t('cart.returnNotice')}</div>
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, cursor: 'pointer', fontSize: 12, color: C.textMuted, lineHeight: 1.5 }}>

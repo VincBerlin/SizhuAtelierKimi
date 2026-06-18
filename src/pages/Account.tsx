@@ -1,10 +1,12 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '../store/AuthProvider'
-import { apiLogin, apiSignup, apiLogout, apiUpdatePrefs, apiResetRequest, apiResetConfirm, apiOrders, type OrderRow } from '../lib/auth'
+import { apiLogin, apiSignup, apiLogout, apiUpdatePrefs, apiResetRequest, apiResetConfirm, apiOrders, apiBillingPortal, type OrderRow } from '../lib/auth'
 import { useT } from '../i18n/I18nProvider'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
+import PersonalDetails from '../components/account/PersonalDetails'
+import AddressBook from '../components/account/AddressBook'
 
 const inputStyle: CSSProperties = { border: `1px solid ${C.borderInput}`, borderRadius: 10, padding: '12px 14px', fontSize: 14, fontFamily: FONT_SANS, background: C.surfaceInput, color: C.ink, width: '100%', boxSizing: 'border-box' }
 const cardStyle: CSSProperties = { background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }
@@ -37,6 +39,7 @@ function AuthForms({ onAuthed }: { onAuthed: () => Promise<void> }) {
   const { t } = useT()
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login')
   const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [consent, setConsent] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -51,7 +54,7 @@ function AuthForms({ onAuthed }: { onAuthed: () => Promise<void> }) {
       await apiResetRequest(email.trim())
       setBusy(false); setNotice(t('auth.resetSent')); return
     }
-    const r = mode === 'login' ? await apiLogin(email.trim(), password) : await apiSignup(email.trim(), password, consent)
+    const r = mode === 'login' ? await apiLogin(email.trim(), password) : await apiSignup(email.trim(), password, consent, name.trim())
     setBusy(false)
     if (!r.ok) { setErr(errText(r.error)); return }
     await onAuthed()
@@ -64,6 +67,11 @@ function AuthForms({ onAuthed }: { onAuthed: () => Promise<void> }) {
         <p style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textMuted, margin: 0 }}>{t('auth.subtitle')}</p>
       </div>
       <form onSubmit={submit} style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {mode === 'signup' && (
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: C.textMuted2 }}>{t('account.name')}
+            <input type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('account.namePh')} maxLength={120} style={inputStyle} />
+          </label>
+        )}
         <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: C.textMuted2 }}>{t('auth.email')}
           <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
         </label>
@@ -131,10 +139,16 @@ function Dashboard() {
         </div>
         <div style={cardStyle}>
           <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.emailLabel')}</div>
+          {user.name && <div style={{ fontSize: 15, fontWeight: 600, color: C.ink, marginBottom: 2 }}>{user.name}</div>}
           <div style={{ fontSize: 15, color: C.ink, wordBreak: 'break-word' }}>{user.email}</div>
           <div style={{ fontSize: 12, color: C.textMuted3, marginTop: 8 }}>{t('auth.newsletterStatus')}: {user.newsletterStatus}</div>
         </div>
       </div>
+
+      <PersonalDetails />
+      <AddressBook type="shipping" onChange={refresh} />
+      <AddressBook type="billing" onChange={refresh} />
+      <PaymentSection />
 
       <div style={{ ...cardStyle, marginBottom: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, marginBottom: 12 }}>{t('auth.marketingPrefs')}</div>
@@ -160,6 +174,30 @@ function Dashboard() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+/* ---- payment methods (managed securely via the Stripe billing portal) ---- */
+function PaymentSection() {
+  const { user } = useAuth()
+  const { t } = useT()
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const manage = async () => {
+    setBusy(true); setErr('')
+    const r = await apiBillingPortal()
+    setBusy(false)
+    if (r.url) { window.location.href = r.url; return }
+    setErr(t(`auth.err.${r.error}`) !== `auth.err.${r.error}` ? t(`auth.err.${r.error}`) : t('account.paymentUnavailable'))
+  }
+  return (
+    <div style={{ ...cardStyle, marginBottom: 20 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, marginBottom: 8 }}>{t('account.paymentMethods')}</div>
+      <p style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.5, margin: '0 0 14px' }}>{t('account.paymentDesc')}</p>
+      {!user?.hasPayment && <p style={{ fontSize: 12.5, color: C.textMuted3, margin: '0 0 14px' }}>{t('account.paymentNone')}</p>}
+      <button onClick={manage} disabled={busy} className="transition-[filter] hover:brightness-110 disabled:opacity-50" style={{ ...primaryBtn, width: 'auto', padding: '12px 20px' }}>{busy ? '…' : t('account.managePayments')}</button>
+      {err && <p style={{ fontSize: 12.5, color: C.accent, margin: '10px 0 0' }}>{err}</p>}
     </div>
   )
 }
