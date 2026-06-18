@@ -17,7 +17,8 @@ export default function CartDrawer() {
   const open = cartOpen
   const hasCart = cart.length > 0
   const shipPct = Math.min(100, (subtotal / FREE_SHIP_THRESHOLD) * 100) + '%'
-  const shipMessage = reached ? t('cart.reached') : t('cart.remaining', { amount: euro(remaining) })
+  // 🚀 while still filling the bar (almost there), 🎉 once free shipping is reached.
+  const shipMessage = reached ? `🎉 ${t('cart.reached')}` : `🚀 ${t('cart.remaining', { amount: euro(remaining) })}`
   const shipText = shipCost === 0 ? t('cart.shipFree') : t('cart.ship', { amount: euro(shipCost) })
   const totalCredits = cart.reduce((sum, i) => sum + (i.creditsEarned || 0) * i.qty, 0)
   // Block checkout when a personalized line is missing required birth data (REQ-016).
@@ -33,9 +34,11 @@ export default function CartDrawer() {
   // analysis plus a couple of ready-to-ship posters not already in the cart.
   type Cross = { title: string; price: number; meta: string; image?: string }
   const inCart = (title: string) => cart.some((l) => l.title === title)
+  // Titles MUST match how lines are added to the cart (i18n keys), otherwise the
+  // dedup below misses and the customer is offered a product already in the cart.
   const crossSell: Cross[] = [
-    { title: digitalProduct.title, price: digitalProduct.price, meta: digitalProduct.subtitle },
-    ...([8, 11].map((id) => { const p = getProduct(id); return p ? { title: p.title, price: p.price, meta: '', image: p.image } : null }).filter(Boolean) as Cross[]),
+    { title: t('content.digital.title'), price: digitalProduct.price, meta: t('content.digital.subtitle') },
+    ...([8, 11].map((id) => { const p = getProduct(id); return p ? { title: t(`content.products.${id}.title`), price: p.price, meta: '', image: p.image } : null }).filter(Boolean) as Cross[]),
   ].filter((x) => !inCart(x.title)).slice(0, 3)
   const addCross = (x: Cross) => {
     addItem({ title: x.title, price: x.price, qty: 1, poster: null, meta: x.meta, image: x.image })
