@@ -1,50 +1,84 @@
 import { useState, type FormEvent } from 'react'
-import { useT } from '../../i18n/I18nProvider'
+import { Link } from 'react-router'
+import { useT, LANGS } from '../../i18n/I18nProvider'
+import { subscribeNewsletter } from '../../lib/newsletter'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 
+type Status = 'idle' | 'submitting' | 'success' | 'error'
+
 /**
- * Newsletter sign-up (replaces the old "Bald im Atelier" section).
- * NOTE: backend is a STUB — no real submission. Wire up MailerLite double
- * opt-in here; do not fake success.
+ * Newsletter / lead capture (REQ-032/033): "Start Your Cosmic Profile", 20
+ * Celestial Credits, benefits, consent + privacy link, language preference,
+ * success/error states. Persists to Postgres via /api/newsletter (double-opt-in
+ * ready) — no faked success.
  */
 export default function NewsletterSection() {
-  const { t } = useT()
+  const { t, lang } = useT()
   const [email, setEmail] = useState('')
-  const [noted, setNoted] = useState(false)
+  const [consent, setConsent] = useState(false)
+  const [prefLang, setPrefLang] = useState(lang)
+  const [status, setStatus] = useState<Status>('idle')
+  const [errKey, setErrKey] = useState<'newsletter.error' | 'newsletter.consentErr'>('newsletter.error')
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // TODO(newsletter): connect to MailerLite double-opt-in API.
-    // eslint-disable-next-line no-console
-    console.info('[newsletter] TODO — not yet connected. email:', email)
-    setNoted(true)
+    if (!consent) { setErrKey('newsletter.consentErr'); setStatus('error'); return }
+    setStatus('submitting')
+    const r = await subscribeNewsletter(email.trim(), consent, prefLang.toLowerCase())
+    if (r.ok) { setStatus('success'); return }
+    setErrKey(r.error === 'consent_required' ? 'newsletter.consentErr' : 'newsletter.error')
+    setStatus('error')
   }
+
+  const benefits = (t('newsletter.benefits') as string[]) || []
 
   return (
     <section style={{ background: C.ink, color: C.inkOnDark }}>
       <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '72px 32px', textAlign: 'center' }}>
         <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#C9A28E', marginBottom: 14 }}>{t('newsletter.eyebrow')}</div>
         <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(28px,3.5vw,40px)', color: C.inkOnDark, margin: '0 0 14px', lineHeight: 1.15 }}>{t('newsletter.title')}</h2>
-        <p style={{ fontFamily: FONT_SANS, fontSize: 16, lineHeight: 1.7, color: '#A9A091', maxWidth: 540, margin: '0 auto 28px' }}>{t('newsletter.copy')}</p>
+        <p style={{ fontFamily: FONT_SANS, fontSize: 16, lineHeight: 1.7, color: '#A9A091', maxWidth: 540, margin: '0 auto 22px' }}>{t('newsletter.copy')}</p>
 
-        <form onSubmit={submit} className="flex flex-col sm:flex-row" style={{ gap: 10, maxWidth: 480, margin: '0 auto', alignItems: 'stretch' }}>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={t('newsletter.placeholder')}
-            style={{ flex: 1, minWidth: 0, border: '1px solid #423c31', background: '#1f1b16', color: C.inkOnDark, borderRadius: 10, padding: '13px 14px', fontSize: 14, fontFamily: FONT_SANS, boxSizing: 'border-box' }}
-          />
-          <button type="submit" className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '13px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS, whiteSpace: 'nowrap' }}>
-            {t('newsletter.button')}
-          </button>
-        </form>
-
-        {noted && (
-          <p style={{ fontFamily: FONT_SANS, fontSize: 13.5, color: '#C9A28E', marginTop: 16 }}>{t('newsletter.note')}</p>
+        {benefits.length > 0 && (
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 auto 28px', maxWidth: 460, display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
+            {benefits.map((bnf) => (
+              <li key={bnf} style={{ display: 'flex', gap: 10, fontFamily: FONT_SANS, fontSize: 14, color: '#D7CFC2' }}>
+                <span style={{ color: C.accent }}>✦</span><span>{bnf}</span>
+              </li>
+            ))}
+          </ul>
         )}
-        <p style={{ fontFamily: FONT_SANS, fontSize: 11.5, color: '#7d756a', marginTop: 14 }}>{t('newsletter.fine')}</p>
+
+        {status === 'success' ? (
+          <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: '#C9A28E', maxWidth: 460, margin: '8px auto 0', lineHeight: 1.6 }}>✦ {t('newsletter.success')}</p>
+        ) : (
+          <form onSubmit={submit} style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex flex-col sm:flex-row" style={{ gap: 10, alignItems: 'stretch' }}>
+              <input
+                type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('newsletter.placeholder')}
+                style={{ flex: 1, minWidth: 0, border: '1px solid #423c31', background: '#1f1b16', color: C.inkOnDark, borderRadius: 10, padding: '13px 14px', fontSize: 14, fontFamily: FONT_SANS, boxSizing: 'border-box' }}
+              />
+              <button type="submit" disabled={status === 'submitting'} className="transition-[filter] hover:brightness-110 disabled:opacity-60" style={{ background: C.accent, color: '#fff', border: 'none', cursor: status === 'submitting' ? 'wait' : 'pointer', padding: '13px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS, whiteSpace: 'nowrap' }}>
+                {t('newsletter.button')}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#8f877b', flexWrap: 'wrap' }}>
+              <span>{t('newsletter.langPref')}:</span>
+              {LANGS.map((l) => (
+                <button key={l} type="button" onClick={() => setPrefLang(l)} style={{ background: l === prefLang ? '#423c31' : 'transparent', color: l === prefLang ? C.inkOnDark : '#8f877b', border: '1px solid #423c31', borderRadius: 6, padding: '3px 10px', fontSize: 12, fontFamily: FONT_SANS, cursor: 'pointer' }}>{l}</button>
+              ))}
+            </div>
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, cursor: 'pointer', fontSize: 12.5, color: '#A9A091', lineHeight: 1.5, textAlign: 'left' }}>
+              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.accent, flexShrink: 0 }} />
+              <span>{t('newsletter.consent')} <Link to="/privacy" className="underline transition-colors hover:text-[#C9A28E]" style={{ color: C.inkOnDark }}>{t('newsletter.privacy')}</Link>.</span>
+            </label>
+
+            {status === 'error' && <p style={{ fontFamily: FONT_SANS, fontSize: 13, color: '#E0A08C', margin: 0, textAlign: 'left' }}>{t(errKey)}</p>}
+          </form>
+        )}
+        <p style={{ fontFamily: FONT_SANS, fontSize: 11.5, color: '#7d756a', marginTop: 16 }}>{t('newsletter.fine')}</p>
       </div>
     </section>
   )

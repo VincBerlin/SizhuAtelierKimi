@@ -6,6 +6,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
+import { randomUUID } from 'node:crypto'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -36,6 +37,16 @@ if (process.env.DATABASE_URL) {
     items JSONB,
     personalization JSONB
   )`).catch((e) => console.error('[db] init failed:', e.message))
+  await pool.query(`CREATE TABLE IF NOT EXISTS newsletter_signups (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    email TEXT UNIQUE NOT NULL,
+    language TEXT,
+    consent BOOLEAN NOT NULL DEFAULT false,
+    status TEXT NOT NULL DEFAULT 'pending',
+    confirm_token TEXT,
+    credits_reserved INTEGER NOT NULL DEFAULT 20
+  )`).catch((e) => console.error('[db] newsletter init failed:', e.message))
   console.log('[db] Postgres connected')
 }
 
@@ -139,6 +150,31 @@ app.post('/api/checkout', async (req, res) => {
   } catch (e) {
     console.error('[checkout] failed:', e.message)
     res.status(500).json({ error: 'Could not start checkout.' })
+  }
+})
+
+// ---- newsletter signup (lead capture, double-opt-in ready) -----------------
+app.post('/api/newsletter', async (req, res) => {
+  const { email, consent, language } = req.body || {}
+  const e = String(email || '').trim().toLowerCase()
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || e.length > 200) return res.status(400).json({ error: 'invalid_email' })
+  if (consent !== true) return res.status(400).json({ error: 'consent_required' })
+  const lang = ['en', 'de', 'fr'].includes(String(language || '').toLowerCase()) ? String(language).toLowerCase() : 'en'
+  if (!pool) { console.log('[newsletter] (no DB) signup:', e, lang); return res.json({ ok: true, persisted: false }) }
+  try {
+    // Double-opt-in ready: store pending + a confirm token. A confirmation email
+    // would be sent here once an ESP is wired (no real send in this MVP).
+    const token = randomUUID()
+    await pool.query(
+      `INSERT INTO newsletter_signups (email, language, consent, status, confirm_token)
+       VALUES ($1,$2,$3,'pending',$4)
+       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent`,
+      [e, lang, true, token],
+    )
+    return res.json({ ok: true, persisted: true })
+  } catch (err) {
+    console.error('[newsletter] persist failed:', err.message)
+    return res.status(500).json({ error: 'server_error' })
   }
 })
 
