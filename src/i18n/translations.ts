@@ -8,7 +8,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   EN: {
     announce: { shipping: 'Free shipping over {amount}', personalized: 'Personalized from your birth data' },
     preview: { announce: 'Preview — our shop is launching soon ✦', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
-    nav: { tagline: 'Astrology · Art · Atelier', startPersonalizing: 'Start Personalizing', poster: 'Personalized Posters', collections: 'Collections', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'About', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart', posterMenu: { bazi: 'Personalized BaZi Posters', birthChart: 'Personalized Birth Chart Posters', couple: 'Personalized Couple Compatibility Posters', fireHorse: 'Fire Horse 2026 Edition', digital: 'Digital Analysis PDFs', bundles: 'Bundles', gifts: 'Gift Collection' } },
+    nav: { tagline: 'Astrology · Art · Atelier', startPersonalizing: 'Start Personalizing', poster: 'Personalized Posters', collections: 'Collections', gifts: 'Gifts', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'About', contact: 'Contact', menu: 'Menu', open: 'Open menu', close: 'Close', cart: 'Cart', posterMenu: { bazi: 'Personalized BaZi Posters', birthChart: 'Personalized Birth Chart Posters', couple: 'Personalized Couple Compatibility Posters', fireHorse: 'Fire Horse 2026 Edition', digital: 'Digital Analysis PDFs', bundles: 'Bundles', gifts: 'Gift Collection' } },
     hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections' },
     personalize: {
       eyebrow: 'Personalize', title: 'Create your personalized poster', intro: 'Enter your birth details, choose your design and we generate a premium poster made specifically for you.',
@@ -68,6 +68,24 @@ export const translations: Record<Lang, Record<string, any>> = {
     bundles: { eyebrow: 'Take more, pay less', title: 'Bundles', sub: 'Curated sets — posters and digital analysis combined, at a special price.', add: 'Add set to cart', save: 'Save' },
     newsletter: { eyebrow: 'Cosmic Profile', title: 'Start Your Cosmic Profile', copy: 'Join the Atelier list and receive 20 Celestial Credits toward your first personalized poster.', benefits: ['20 Celestial Credits toward your first poster', 'Early access to new personalized poster drops', 'Fire Horse 2026 early access', 'Exclusive design unlocks', 'Personalized launch offers'], placeholder: 'Your email address', langPref: 'Emails in', button: 'Claim 20 Credits', consent: 'I agree to receive emails and accept the', privacy: 'Privacy Policy', success: 'Welcome! Check your inbox to confirm and unlock your 20 Celestial Credits.', error: 'Something went wrong — please try again.', consentErr: 'Please accept the privacy terms to continue.', fine: 'Double opt-in · unsubscribe anytime' },
     wissen: { eyebrow: 'Knowledge', title: 'What lies behind BaZi', sub: 'Background for your consultations and for anyone who wants to understand their poster.', read: 'Read more →' },
+    gifts: {
+      eyebrow: 'Gift Ideas', title: 'Find a Personalized Gift With Meaning', sub: 'Created from real birth data — refined, intentional and made for one person. Or a ready-to-hang educational poster for a practice or studio.',
+      personalizedTag: 'Personalized', shopTag: 'Ready to ship',
+      cards: {
+        wedding: { title: 'Wedding Gifts', copy: 'A meaningful wedding gift created around two people, their connection and their shared symbolic story.', cta: 'Create a Couple Gift' },
+        birthday: { title: 'Birthday Gifts', copy: 'A personal gift created from birth data — designed to feel intentional, refined and made for one person.', cta: 'Create a Birthday Gift' },
+        anniversary: { title: 'Anniversary Gifts', copy: 'Celebrate a shared story with a visual piece based on personal birth data and symbolic compatibility.', cta: 'Create an Anniversary Gift' },
+        baby: { title: 'Baby Shower Gifts', copy: 'A refined keepsake for a new life chapter, created from the baby’s birth details. Birth time unknown? We use a 12:00 PM default.', cta: 'Create a Baby Gift' },
+        newbeginning: { title: 'New Beginning Gifts', copy: 'For a move, a new job, a new year or a personal reset — a symbolic visual reminder of direction and renewal.', cta: 'Explore New Beginning Gifts' },
+        studio: { title: 'Practice & Studio Gifts', copy: 'Educational wall art for treatment rooms, studios and teaching spaces — explaining TCM principles with clarity and visual calm.', cta: 'Shop Studio Posters' },
+      },
+      faqTitle: 'Gift FAQ',
+      faqs: [
+        { q: 'Which gifts are personalized?', a: 'BaZi, Birth Chart and Couple Compatibility posters are created from birth data. Fire Horse and TCM educational posters ship ready to hang and are not personalized.' },
+        { q: 'What if I don’t know the recipient’s birth time?', a: 'No problem — choose “I don’t know my birth time” and we use 12:00 PM (noon) as the default calculation time.' },
+        { q: 'Can I send it directly as a gift?', a: 'Add a personalized poster or an educational poster to your cart and check out as usual.' },
+      ],
+    },
     faq: { eyebrow: 'FAQ', title: 'Frequently asked questions' },
     apiTrust: {
       eyebrow: 'Precision', title: 'Why Your Poster Is Truly Personalized',
@@ -197,7 +215,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   DE: {
     announce: { shipping: 'Kostenloser Versand ab {amount}', personalized: 'Personalisiert aus deinen Geburtsdaten' },
     preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
-    nav: { tagline: 'Astrologie · Kunst · Atelier', startPersonalizing: 'Personalisierung starten', poster: 'Personalisierte Poster', collections: 'Kollektionen', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb', posterMenu: { bazi: 'Personalisierte BaZi-Poster', birthChart: 'Personalisierte Geburtschart-Poster', couple: 'Personalisierte Paar-Kompatibilitäts-Poster', fireHorse: 'Feuerpferd 2026 Edition', digital: 'Digitale Analyse-PDFs', bundles: 'Bundles', gifts: 'Geschenk-Kollektion' } },
+    nav: { tagline: 'Astrologie · Kunst · Atelier', startPersonalizing: 'Personalisierung starten', poster: 'Personalisierte Poster', collections: 'Kollektionen', gifts: 'Geschenke', tcm: 'TCM', bundles: 'Bundles', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Kontakt', menu: 'Menü', open: 'Menü öffnen', close: 'Schließen', cart: 'Warenkorb', posterMenu: { bazi: 'Personalisierte BaZi-Poster', birthChart: 'Personalisierte Geburtschart-Poster', couple: 'Personalisierte Paar-Kompatibilitäts-Poster', fireHorse: 'Feuerpferd 2026 Edition', digital: 'Digitale Analyse-PDFs', bundles: 'Bundles', gifts: 'Geschenk-Kollektion' } },
     hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken' },
     personalize: {
       eyebrow: 'Personalisieren', title: 'Gestalte dein personalisiertes Poster', intro: 'Gib deine Geburtsdaten ein, wähle dein Design und wir erstellen ein hochwertiges Poster, das eigens für dich gemacht ist.',
@@ -257,6 +275,24 @@ export const translations: Record<Lang, Record<string, any>> = {
     bundles: { eyebrow: 'Mehr nehmen, weniger zahlen', title: 'Bundles', sub: 'Abgestimmte Sets — Poster und digitale Analyse kombiniert, zum Vorteilspreis.', add: 'Set in den Warenkorb', save: 'Spare' },
     newsletter: { eyebrow: 'Kosmisches Profil', title: 'Starte dein kosmisches Profil', copy: 'Tritt der Atelier-Liste bei und erhalte 20 Celestial Credits für dein erstes personalisiertes Poster.', benefits: ['20 Celestial Credits für dein erstes Poster', 'Früher Zugang zu neuen personalisierten Poster-Drops', 'Feuerpferd 2026 früher Zugang', 'Exklusive Design-Freischaltungen', 'Personalisierte Launch-Angebote'], placeholder: 'Deine E-Mail-Adresse', langPref: 'E-Mails auf', button: '20 Credits sichern', consent: 'Ich stimme dem Erhalt von E-Mails zu und akzeptiere die', privacy: 'Datenschutzerklärung', success: 'Willkommen! Prüfe dein Postfach, um zu bestätigen und deine 20 Celestial Credits freizuschalten.', error: 'Etwas ist schiefgelaufen — bitte erneut versuchen.', consentErr: 'Bitte akzeptiere die Datenschutzbedingungen, um fortzufahren.', fine: 'Double-Opt-in · jederzeit abbestellbar' },
     wissen: { eyebrow: 'Wissen', title: 'Was hinter BaZi steckt', sub: 'Hintergründe für deine Beratung und für alle, die ihr Poster verstehen möchten.', read: 'Weiterlesen →' },
+    gifts: {
+      eyebrow: 'Geschenkideen', title: 'Finde ein personalisiertes Geschenk mit Bedeutung', sub: 'Aus echten Geburtsdaten erstellt — edel, bewusst und für einen Menschen gemacht. Oder ein fertig aufhängbares Lehrposter für Praxis oder Studio.',
+      personalizedTag: 'Personalisiert', shopTag: 'Sofort lieferbar',
+      cards: {
+        wedding: { title: 'Hochzeits-Geschenke', copy: 'Ein bedeutungsvolles Hochzeitsgeschenk rund um zwei Menschen, ihre Verbindung und ihre gemeinsame symbolische Geschichte.', cta: 'Paar-Geschenk erstellen' },
+        birthday: { title: 'Geburtstags-Geschenke', copy: 'Ein persönliches Geschenk aus Geburtsdaten — bewusst, edel und für einen Menschen gemacht.', cta: 'Geburtstagsgeschenk erstellen' },
+        anniversary: { title: 'Jahrestags-Geschenke', copy: 'Feiere eine gemeinsame Geschichte mit einem Werk auf Basis persönlicher Geburtsdaten und symbolischer Kompatibilität.', cta: 'Jahrestagsgeschenk erstellen' },
+        baby: { title: 'Baby-Geschenke', copy: 'Ein edles Andenken für ein neues Lebenskapitel, aus den Geburtsdaten des Babys erstellt. Geburtszeit unbekannt? Wir verwenden 12:00 Uhr mittags als Standard.', cta: 'Baby-Geschenk erstellen' },
+        newbeginning: { title: 'Neuanfang-Geschenke', copy: 'Für Umzug, neuen Job, neues Jahr oder einen persönlichen Neustart — ein symbolischer Anker für Richtung und Erneuerung.', cta: 'Neuanfang-Geschenke entdecken' },
+        studio: { title: 'Praxis- & Studio-Geschenke', copy: 'Lehr-Wandkunst für Behandlungsräume, Studios und Lehrräume — erklärt TCM-Prinzipien klar und visuell ruhig.', cta: 'Studio-Poster ansehen' },
+      },
+      faqTitle: 'Geschenk-FAQ',
+      faqs: [
+        { q: 'Welche Geschenke sind personalisiert?', a: 'BaZi-, Geburtschart- und Paar-Kompatibilitäts-Poster werden aus Geburtsdaten erstellt. Feuerpferd und TCM-Lehrposter werden fertig geliefert und sind nicht personalisiert.' },
+        { q: 'Was, wenn ich die Geburtszeit nicht kenne?', a: 'Kein Problem — wähle „Ich kenne meine Geburtszeit nicht“, und wir verwenden 12:00 Uhr mittags als Standard-Berechnungszeit.' },
+        { q: 'Kann ich es direkt verschenken?', a: 'Lege ein personalisiertes Poster oder ein Lehrposter in den Warenkorb und schließe wie gewohnt ab.' },
+      ],
+    },
     faq: { eyebrow: 'FAQ', title: 'Häufige Fragen' },
     apiTrust: {
       eyebrow: 'Präzision', title: 'Warum dein Poster wirklich personalisiert ist',
@@ -386,7 +422,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   FR: {
     announce: { shipping: 'Livraison offerte dès {amount}', personalized: 'Personnalisé à partir de vos données de naissance' },
     preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
-    nav: { tagline: 'Astrologie · Art · Atelier', startPersonalizing: 'Commencer la personnalisation', poster: 'Posters personnalisés', collections: 'Collections', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier', posterMenu: { bazi: 'Posters BaZi personnalisés', birthChart: 'Posters carte du ciel personnalisés', couple: 'Posters compatibilité de couple personnalisés', fireHorse: 'Édition Cheval de Feu 2026', digital: 'PDF d’analyse digitale', bundles: 'Coffrets', gifts: 'Collection cadeau' } },
+    nav: { tagline: 'Astrologie · Art · Atelier', startPersonalizing: 'Commencer la personnalisation', poster: 'Posters personnalisés', collections: 'Collections', gifts: 'Cadeaux', tcm: 'MTC', bundles: 'Coffrets', digital: 'Digital', blog: 'Blog', about: 'Atelier', contact: 'Contact', menu: 'Menu', open: 'Ouvrir le menu', close: 'Fermer', cart: 'Panier', posterMenu: { bazi: 'Posters BaZi personnalisés', birthChart: 'Posters carte du ciel personnalisés', couple: 'Posters compatibilité de couple personnalisés', fireHorse: 'Édition Cheval de Feu 2026', digital: 'PDF d’analyse digitale', bundles: 'Coffrets', gifts: 'Collection cadeau' } },
     hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections' },
     personalize: {
       eyebrow: 'Personnaliser', title: 'Créez votre poster personnalisé', intro: 'Saisissez vos données de naissance, choisissez votre design et nous générons un poster haut de gamme conçu spécialement pour vous.',
@@ -446,6 +482,24 @@ export const translations: Record<Lang, Record<string, any>> = {
     bundles: { eyebrow: 'Plus on prend, moins on paie', title: 'Coffrets', sub: 'Des ensembles assortis — posters et analyse digitale combinés, à prix avantageux.', add: 'Ajouter le coffret', save: 'Économisez' },
     newsletter: { eyebrow: 'Profil cosmique', title: 'Démarrez votre profil cosmique', copy: 'Rejoignez la liste de l’Atelier et recevez 20 Celestial Credits pour votre premier poster personnalisé.', benefits: ['20 Celestial Credits pour votre premier poster', 'Accès anticipé aux nouvelles sorties de posters personnalisés', 'Accès anticipé Cheval de Feu 2026', 'Déblocages de designs exclusifs', 'Offres de lancement personnalisées'], placeholder: 'Votre adresse e-mail', langPref: 'E-mails en', button: 'Obtenir 20 crédits', consent: 'J’accepte de recevoir des e-mails et j’accepte la', privacy: 'Politique de confidentialité', success: 'Bienvenue ! Vérifiez votre boîte mail pour confirmer et débloquer vos 20 Celestial Credits.', error: 'Une erreur est survenue — veuillez réessayer.', consentErr: 'Veuillez accepter les conditions de confidentialité pour continuer.', fine: 'Double opt-in · désinscription à tout moment' },
     wissen: { eyebrow: 'Savoir', title: 'Ce qui se cache derrière le BaZi', sub: 'Du contexte pour vos consultations et pour qui veut comprendre son poster.', read: 'Lire la suite →' },
+    gifts: {
+      eyebrow: 'Idées cadeaux', title: 'Trouvez un cadeau personnalisé porteur de sens', sub: 'Créé à partir de vraies données de naissance — raffiné, intentionnel et fait pour une personne. Ou un poster pédagogique prêt à accrocher pour un cabinet ou un studio.',
+      personalizedTag: 'Personnalisé', shopTag: 'Prêt à expédier',
+      cards: {
+        wedding: { title: 'Cadeaux de mariage', copy: 'Un cadeau de mariage porteur de sens autour de deux personnes, leur lien et leur histoire symbolique commune.', cta: 'Créer un cadeau de couple' },
+        birthday: { title: 'Cadeaux d’anniversaire', copy: 'Un cadeau personnel créé à partir des données de naissance — pensé pour être intentionnel, raffiné et fait pour une personne.', cta: 'Créer un cadeau d’anniversaire' },
+        anniversary: { title: 'Cadeaux d’anniversaire de couple', copy: 'Célébrez une histoire commune avec une œuvre basée sur les données de naissance et la compatibilité symbolique.', cta: 'Créer un cadeau d’anniversaire' },
+        baby: { title: 'Cadeaux baby shower', copy: 'Un souvenir raffiné pour un nouveau chapitre de vie, créé à partir des données de naissance du bébé. Heure inconnue ? Nous utilisons 12:00 PM par défaut.', cta: 'Créer un cadeau bébé' },
+        newbeginning: { title: 'Cadeaux nouveau départ', copy: 'Pour un déménagement, un nouveau travail, une nouvelle année ou une remise à zéro — un rappel visuel symbolique de direction et de renouveau.', cta: 'Découvrir les cadeaux nouveau départ' },
+        studio: { title: 'Cadeaux cabinet & studio', copy: 'Œuvre murale pédagogique pour salles de soin, studios et espaces d’enseignement — explique les principes de la MTC avec clarté.', cta: 'Voir les posters studio' },
+      },
+      faqTitle: 'FAQ cadeaux',
+      faqs: [
+        { q: 'Quels cadeaux sont personnalisés ?', a: 'Les posters BaZi, carte du ciel et compatibilité de couple sont créés à partir des données de naissance. Le Cheval de Feu et les posters pédagogiques TCM sont livrés prêts à accrocher et non personnalisés.' },
+        { q: 'Et si je ne connais pas l’heure de naissance ?', a: 'Pas de souci — choisissez « Je ne connais pas mon heure de naissance » et nous utilisons 12:00 PM (midi) par défaut.' },
+        { q: 'Puis-je l’offrir directement ?', a: 'Ajoutez un poster personnalisé ou un poster pédagogique au panier et commandez comme d’habitude.' },
+      ],
+    },
     faq: { eyebrow: 'FAQ', title: 'Questions fréquentes' },
     apiTrust: {
       eyebrow: 'Précision', title: 'Pourquoi votre poster est vraiment personnalisé',

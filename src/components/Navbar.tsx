@@ -19,6 +19,7 @@ const posterLinks = [
 ]
 const mainLinks = [
   { key: 'collections', href: '/collections' },
+  { key: 'gifts', href: '/gifts' },
   { key: 'about', href: '/about' },
   { key: 'contact', href: '/contact' },
 ]
