@@ -69,7 +69,7 @@ export const products: Product[] = [
     id: 8, category: 'Feuerpferd', title: 'Feuerpferd 2026 · Limited Edition', price: 65, anchor: 79, rating: 4.9, reviews: 88, sold: 210,
     bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'],
     poster: mk('#1B1B1B', '#BC7A5E', 'Feuer-Pferd', '2026-02-17'),
-    personalizable: false,
+    personalizable: false, image: '/images/posters/fire-horse.jpg',
   },
   // ── TCM educational lehrposter — non-personalizable, placeholder SKUs (replace
   //    images/prices/copy before launch). No birth data; plain Add to Cart. ──

@@ -24,7 +24,7 @@ export default function NewsletterSection() {
     e.preventDefault()
     if (!consent) { setErrKey('newsletter.consentErr'); setStatus('error'); return }
     setStatus('submitting')
-    const r = await subscribeNewsletter(email.trim(), consent, prefLang.toLowerCase())
+    const r = await subscribeNewsletter(email.trim(), consent, prefLang.toLowerCase(), 'newsletter_home_cosmic_pulse')
     if (r.ok) { setStatus('success'); return }
     setErrKey(r.error === 'consent_required' ? 'newsletter.consentErr' : 'newsletter.error')
     setStatus('error')

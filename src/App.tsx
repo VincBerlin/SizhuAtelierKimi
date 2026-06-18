@@ -8,6 +8,7 @@ import Legal from './pages/Legal'
 import Faq from './pages/Faq'
 import Account from './pages/Account'
 import Gifts from './pages/Gifts'
+import HowItWorks from './pages/HowItWorks'
 import Checkout from './pages/Checkout'
 import OrderResult from './pages/OrderResult'
 import Blog from './pages/Blog'
@@ -57,6 +58,7 @@ function AppShell() {
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/collections" element={<Kollektion />} />
           <Route path="/gifts" element={<Gifts />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tcm" element={<TcmOverview />} />
           <Route path="/bundles" element={<BundlesPage />} />
           <Route path="/digital" element={<DigitalPage />} />

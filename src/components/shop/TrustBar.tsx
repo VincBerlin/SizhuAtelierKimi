@@ -3,10 +3,10 @@ import { C, FONT_SANS, CONTAINER } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
 
 const items = [
-  { icon: Sparkles, key: 'personal' },
-  { icon: Palette, key: 'design' },
-  { icon: Truck, key: 'ship' },
-  { icon: ShieldCheck, key: 'pay' },
+  { icon: Sparkles, key: 'api' },
+  { icon: Truck, key: 'delivery' },
+  { icon: ShieldCheck, key: 'secure' },
+  { icon: Palette, key: 'art' },
 ]
 
 function PayChips() {
@@ -36,8 +36,8 @@ export default function TrustBar() {
               <it.icon size={16} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
               <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: 'rgba(243,238,227,0.66)', lineHeight: 1.3 }}>
                 <strong style={{ color: C.inkOnDark, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
-                {it.key === 'pay' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
-                {it.key === 'pay' && <PayChips />}
+                {it.key === 'secure' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
+                {it.key === 'secure' && <PayChips />}
               </span>
             </li>
           ))}

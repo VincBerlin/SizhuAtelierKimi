@@ -1,13 +1,16 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { useT } from '../../i18n/I18nProvider'
 import { C, FONT_SERIF, FONT_SANS } from '../../lib/tokens'
 
 interface Faq { q: string; a: string; placeholder?: boolean }
 
-export default function FaqSection() {
+/** FAQ. On the home page (home=true) it shows the 5 conversion questions (§4.7)
+ *  plus a "View full FAQ" link; elsewhere it renders the full shop FAQ. */
+export default function FaqSection({ home = false }: { home?: boolean }) {
   const { t } = useT()
   const [open, setOpen] = useState<number | null>(0)
-  const faqs = (t('content.shopFaqs') as Faq[]) || []
+  const faqs = ((home ? t('faqHome') : t('content.shopFaqs')) as Faq[]) || []
 
   return (
     <section style={{ background: C.bg }}>
@@ -37,6 +40,12 @@ export default function FaqSection() {
             )
           })}
         </div>
+
+        {home && (
+          <div style={{ marginTop: 20 }}>
+            <Link to="/faq" className="transition-colors hover:text-[#A0341F]" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.accent, textDecoration: 'none' }}>{t('faq.viewFull')} →</Link>
+          </div>
+        )}
       </div>
     </section>
   )

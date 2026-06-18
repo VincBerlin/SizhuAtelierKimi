@@ -4,6 +4,7 @@ import { C, FONT_SERIF, CONTAINER, BRAND_NAME } from '../../lib/tokens'
 
 // Footer links — all required legal + info pages (REQ-039).
 const footerLinks = [
+  { key: 'howItWorks', to: '/how-it-works' },
   { key: 'about', to: '/about' },
   { key: 'contact', to: '/contact' },
   { key: 'faq', to: '/faq' },

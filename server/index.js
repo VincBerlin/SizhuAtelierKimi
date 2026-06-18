@@ -47,8 +47,13 @@ if (process.env.DATABASE_URL) {
     consent BOOLEAN NOT NULL DEFAULT false,
     status TEXT NOT NULL DEFAULT 'pending',
     confirm_token TEXT,
-    credits_reserved INTEGER NOT NULL DEFAULT 20
+    credits_reserved INTEGER NOT NULL DEFAULT 20,
+    marketing_consent_at TIMESTAMPTZ,
+    source TEXT
   )`).catch((e) => console.error('[db] newsletter init failed:', e.message))
+  // Add the marketing-consent timestamp + source columns to pre-existing tables.
+  await pool.query('ALTER TABLE newsletter_signups ADD COLUMN IF NOT EXISTS marketing_consent_at TIMESTAMPTZ').catch(() => {})
+  await pool.query('ALTER TABLE newsletter_signups ADD COLUMN IF NOT EXISTS source TEXT').catch(() => {})
   await pool.query(`CREATE TABLE IF NOT EXISTS credits_ledger (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -182,21 +187,23 @@ app.post('/api/checkout', async (req, res) => {
 
 // ---- newsletter signup (lead capture, double-opt-in ready) -----------------
 app.post('/api/newsletter', async (req, res) => {
-  const { email, consent, language } = req.body || {}
+  const { email, consent, language, source } = req.body || {}
   const e = String(email || '').trim().toLowerCase()
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || e.length > 200) return res.status(400).json({ error: 'invalid_email' })
   if (consent !== true) return res.status(400).json({ error: 'consent_required' })
   const lang = ['en', 'de', 'fr'].includes(String(language || '').toLowerCase()) ? String(language).toLowerCase() : 'en'
-  if (!pool) { console.log('[newsletter] (no DB) signup:', e, lang); return res.json({ ok: true, persisted: false }) }
+  const src = typeof source === 'string' ? source.slice(0, 80) : 'newsletter'
+  if (!pool) { console.log('[newsletter] (no DB) signup:', e, lang, src); return res.json({ ok: true, persisted: false }) }
   try {
-    // Double-opt-in ready: store pending + a confirm token. A confirmation email
-    // would be sent here once an ESP is wired (no real send in this MVP).
+    // Double-opt-in ready: store pending + a confirm token + the marketing-consent
+    // timestamp + source tag. A confirmation email would be sent here once an ESP
+    // is wired (no real send in this MVP).
     const token = randomUUID()
     await pool.query(
-      `INSERT INTO newsletter_signups (email, language, consent, status, confirm_token)
-       VALUES ($1,$2,$3,'pending',$4)
-       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent`,
-      [e, lang, true, token],
+      `INSERT INTO newsletter_signups (email, language, consent, marketing_consent_at, source, status, confirm_token)
+       VALUES ($1,$2,$3,$4,$5,'pending',$6)
+       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent, marketing_consent_at = EXCLUDED.marketing_consent_at, source = EXCLUDED.source`,
+      [e, lang, true, new Date(), src, token],
     )
     return res.json({ ok: true, persisted: true })
   } catch (err) {
