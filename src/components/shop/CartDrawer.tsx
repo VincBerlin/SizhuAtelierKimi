@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
 import Poster from '../Poster'
-import { addons } from '../../lib/catalog'
+import { digitalProduct, getProduct } from '../../lib/catalog'
 import { useShopStore } from '../../store/ShopStore'
 import { useAuth } from '../../store/AuthProvider'
 import { useT } from '../../i18n/I18nProvider'
@@ -9,7 +9,7 @@ import { euro } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 
 export default function CartDrawer() {
-  const { cart, cartOpen, closeCart, subtotal, shipCost, reached, remaining, setQty, removeLine, addItem, showToast } = useShopStore()
+  const { cart, cartOpen, closeCart, subtotal, shipCost, reached, remaining, setQty, removeLine, addItem, clearCart, showToast } = useShopStore()
   const { user } = useAuth()
   const { t } = useT()
   const navigate = useNavigate()
@@ -29,18 +29,29 @@ export default function CartDrawer() {
   const goCheckout = () => { if (!canCheckout) return; closeCart(); navigate('/checkout'); window.scrollTo(0, 0) }
   const goShop = () => { closeCart(); navigate('/'); window.scrollTo(0, 0) }
   const editPersonalization = () => { closeCart(); navigate('/personalize'); window.scrollTo(0, 0) }
-  const addAddon = (a: (typeof addons)[number]) => {
-    addItem({ title: t(`content.addons.${a.id}.title`), price: a.price, qty: 1, poster: null, meta: t(`content.addons.${a.id}.note`) })
+  // Cross-sell REAL, purchasable products (not accessories): the digital BaZi
+  // analysis plus a couple of ready-to-ship posters not already in the cart.
+  type Cross = { title: string; price: number; meta: string; image?: string }
+  const inCart = (title: string) => cart.some((l) => l.title === title)
+  const crossSell: Cross[] = [
+    { title: digitalProduct.title, price: digitalProduct.price, meta: digitalProduct.subtitle },
+    ...([8, 11].map((id) => { const p = getProduct(id); return p ? { title: p.title, price: p.price, meta: '', image: p.image } : null }).filter(Boolean) as Cross[]),
+  ].filter((x) => !inCart(x.title)).slice(0, 3)
+  const addCross = (x: Cross) => {
+    addItem({ title: x.title, price: x.price, qty: 1, poster: null, meta: x.meta, image: x.image })
     showToast(t('cart.toastAdded'))
   }
 
   return (
     <>
-      <div onClick={closeCart} style={{ position: 'fixed', inset: 0, background: 'rgba(28,24,18,0.42)', zIndex: 50, opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
-      <aside style={{ position: 'fixed', top: 0, right: 0, height: '100%', width: 'min(440px, 100vw)', background: C.bg, zIndex: 51, boxShadow: '-20px 0 50px -20px rgba(28,24,18,0.4)', transform: `translateX(${open ? '0' : '100%'})`, transition: 'transform .4s cubic-bezier(0.4,0,0.2,1)', display: open ? 'flex' : 'none', flexDirection: 'column' }}>
+      <div onClick={closeCart} style={{ position: 'fixed', inset: 0, background: 'rgba(28,24,18,0.42)', zIndex: 65, opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
+      <aside style={{ position: 'fixed', top: 0, right: 0, height: '100%', width: 'min(440px, 100vw)', background: C.bg, zIndex: 70, boxShadow: '-20px 0 50px -20px rgba(28,24,18,0.4)', transform: `translateX(${open ? '0' : '100%'})`, transition: 'transform .4s cubic-bezier(0.4,0,0.2,1)', display: open ? 'flex' : 'none', flexDirection: 'column' }}>
         <div style={{ padding: '22px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontFamily: FONT_SERIF, fontSize: 24 }}>{t('cart.title')}</span>
-          <button onClick={closeCart} className="transition-colors hover:text-[#2A2620]" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: C.textMuted2, lineHeight: 1 }}>×</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {hasCart && <button onClick={clearCart} className="transition-colors hover:text-[#C0492E]" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, color: C.textMuted2, fontFamily: FONT_SANS, textDecoration: 'underline' }}>{t('cart.clear')}</button>}
+            <button onClick={closeCart} className="transition-colors hover:text-[#2A2620]" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: C.textMuted2, lineHeight: 1 }}>×</button>
+          </div>
         </div>
 
         {hasCart && (
@@ -91,19 +102,21 @@ export default function CartDrawer() {
             </div>
           ))}
 
-          {hasCart && (
+          {hasCart && crossSell.length > 0 && (
             <div style={{ padding: '18px 0 8px' }}>
               <div style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.textMuted3, marginBottom: 12 }}>{t('cart.alsoLike')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {addons.slice(0, 3).map((a) => (
-                  <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, border: `1px solid ${C.border}`, borderRadius: 10, background: '#fff' }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 8, background: '#F2ECE0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: C.accent }}>{a.icon}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>{t(`content.addons.${a.id}.title`)}</div>
-                      <div style={{ fontSize: 11, color: C.textMuted2 }}>{t(`content.addons.${a.id}.note`)}</div>
+                {crossSell.map((x) => (
+                  <div key={x.title} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, border: `1px solid ${C.border}`, borderRadius: 10, background: '#fff' }}>
+                    <div style={{ width: 38, height: 48, borderRadius: 6, background: '#F2ECE0', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: C.accent }}>
+                      {x.image ? <img src={x.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '✦'}
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{euro(a.price)}</span>
-                    <button onClick={() => addAddon(a)} className="transition-colors hover:bg-[#3a352c]" style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', width: 30, height: 30, borderRadius: 8, fontSize: 18, lineHeight: 1 }}>+</button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>{x.title}</div>
+                      {x.meta && <div style={{ fontSize: 11, color: C.textMuted2 }}>{x.meta}</div>}
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{euro(x.price)}</span>
+                    <button onClick={() => addCross(x)} aria-label={t('cart.toastAdded')} className="transition-colors hover:bg-[#3a352c]" style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', width: 30, height: 30, borderRadius: 8, fontSize: 18, lineHeight: 1, flexShrink: 0 }}>+</button>
                   </div>
                 ))}
               </div>

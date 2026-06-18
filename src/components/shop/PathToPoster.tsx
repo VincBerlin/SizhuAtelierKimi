@@ -31,21 +31,25 @@ export default function PathToPoster() {
   const steps = (t('path.steps') as { title: string; desc: string }[]) || []
   return (
     <section aria-label={t('path.title')} style={{ background: C.bg }}>
-      {/* Striking-but-minimal dark trust banner — sits directly ABOVE the heading (§3.2). */}
-      <div style={{ background: C.ink }}>
-        <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '0 24px' }}>
-          <ul className="trustbar-row" style={{ listStyle: 'none', margin: 0, padding: '11px 0', display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between', gap: 24, overflowX: 'auto' }}>
-            {trustItems.map((it) => (
-              <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, whiteSpace: 'nowrap' }}>
-                <it.icon size={16} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
-                <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: 'rgba(243,238,227,0.66)', lineHeight: 1.3 }}>
-                  <strong style={{ color: C.inkOnDark, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
-                  {it.key === 'secure' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
-                  {it.key === 'secure' && <PayChips />}
-                </span>
-              </li>
-            ))}
-          </ul>
+      {/* Striking-but-minimal dark trust banner — directly ABOVE the heading (§3.2),
+          a slow continuous marquee. Two identical groups → translateX(-50%) loops
+          seamlessly; pauses on hover and honours prefers-reduced-motion. */}
+      <div style={{ background: C.ink, overflow: 'hidden' }} aria-label={t('trust.payTitle')}>
+        <div className="trust-marquee" style={{ display: 'flex', width: 'max-content' }}>
+          {[0, 1].map((g) => (
+            <ul key={g} aria-hidden={g === 1} style={{ listStyle: 'none', margin: 0, padding: '11px 0', paddingRight: 48, display: 'flex', alignItems: 'center', gap: 48 }}>
+              {trustItems.map((it) => (
+                <li key={it.key} style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                  <it.icon size={16} strokeWidth={1.6} style={{ color: C.accent, flexShrink: 0 }} />
+                  <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: 'rgba(243,238,227,0.66)', lineHeight: 1.3 }}>
+                    <strong style={{ color: C.inkOnDark, fontWeight: 600 }}>{t('trust.' + it.key + 'Title')}</strong>
+                    {it.key === 'secure' ? ' · ' : <> · {t('trust.' + it.key + 'Sub')}</>}
+                    {it.key === 'secure' && <PayChips />}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ))}
         </div>
       </div>
 

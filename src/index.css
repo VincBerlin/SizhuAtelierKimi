@@ -1933,13 +1933,29 @@
   display: none;
 }
 
+/* Trust banner marquee (§3.2): two identical groups, slow continuous loop. */
+.trust-marquee {
+  animation: trust-marquee 32s linear infinite;
+  will-change: transform;
+}
+.trust-marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes trust-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-marquee { animation: none; }
+}
+
 /* Home collection (§3.3): minimalist grid on desktop, horizontal swipe on mobile. */
 .carousel-track {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 28px;
 }
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .carousel-track {
     display: flex;
     grid-template-columns: none;

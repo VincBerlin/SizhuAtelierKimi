@@ -17,6 +17,9 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
   const [canPrev, setCanPrev] = useState(false)
   const [canNext, setCanNext] = useState(false)
   const [active, setActive] = useState(0)
+  // Swipe UI is mobile-only — on desktop/tablet the track is a static grid you
+  // cannot swipe, so arrows/dots/hint must not appear there.
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches)
 
   const cardStep = () => {
     const el = ref.current
@@ -43,6 +46,14 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
     return () => { el.removeEventListener('scroll', update); window.removeEventListener('resize', update) }
   }, [update, products.length])
 
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const on = () => setIsMobile(mq.matches)
+    on()
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+
   const scrollByCard = (dir: number) => ref.current?.scrollBy({ left: dir * cardStep(), behavior: 'smooth' })
   const scrollToCard = (i: number) => ref.current?.scrollTo({ left: i * cardStep(), behavior: 'smooth' })
 
@@ -53,7 +64,6 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
       tabIndex={enabled ? 0 : -1}
       aria-hidden={!enabled}
       aria-label={t(side === 'prev' ? 'carousel.prev' : 'carousel.next')}
-      className="lg:hidden"
       style={{
         position: 'absolute', top: 'calc(50% - 60px)', [side === 'prev' ? 'left' : 'right']: 2, zIndex: 3,
         width: 44, height: 44, borderRadius: 999, border: `1px solid ${C.border}`,
@@ -69,8 +79,8 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
 
   return (
     <div style={{ position: 'relative' }}>
-      {arrow('prev', canPrev)}
-      {arrow('next', canNext)}
+      {isMobile && arrow('prev', canPrev)}
+      {isMobile && arrow('next', canNext)}
 
       <div ref={ref} className="carousel-track">
         {products.map((p) => (
@@ -81,7 +91,8 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
       </div>
 
       {/* dots + swipe hint — mobile only */}
-      <div className="lg:hidden" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 16 }}>
+      {isMobile && (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 16 }}>
         <div style={{ display: 'flex', gap: 6 }}>
           {products.map((_, i) => (
             <button
@@ -92,6 +103,7 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
         </div>
         <span style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: C.textMuted3 }}>{t('carousel.hint')}</span>
       </div>
+      )}
     </div>
   )
 }
