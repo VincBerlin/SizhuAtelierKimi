@@ -3,6 +3,7 @@ import Poster from '../Poster'
 import { addons } from '../../lib/catalog'
 import { useShopStore } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
+import { cartHasIncompletePersonalization } from '../../lib/checkout'
 import { euro } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 
@@ -15,8 +16,16 @@ export default function CartDrawer() {
   const shipPct = Math.min(100, (subtotal / FREE_SHIP_THRESHOLD) * 100) + '%'
   const shipMessage = reached ? t('cart.reached') : t('cart.remaining', { amount: euro(remaining) })
   const shipText = shipCost === 0 ? t('cart.shipFree') : t('cart.ship', { amount: euro(shipCost) })
-  const goCheckout = () => { closeCart(); navigate('/checkout'); window.scrollTo(0, 0) }
+  const totalCredits = cart.reduce((sum, i) => sum + (i.creditsEarned || 0) * i.qty, 0)
+  // Block checkout when a personalized line is missing required birth data (REQ-016).
+  // The personalization-correctness confirmation (REQ-017/042) is required on the
+  // Checkout page itself (the order-placement boundary), so a direct /checkout URL
+  // cannot bypass it.
+  const incomplete = cartHasIncompletePersonalization(cart)
+  const canCheckout = !incomplete
+  const goCheckout = () => { if (!canCheckout) return; closeCart(); navigate('/checkout'); window.scrollTo(0, 0) }
   const goShop = () => { closeCart(); navigate('/'); window.scrollTo(0, 0) }
+  const editPersonalization = () => { closeCart(); navigate('/personalize'); window.scrollTo(0, 0) }
   const addAddon = (a: (typeof addons)[number]) => {
     addItem({ title: t(`content.addons.${a.id}.title`), price: a.price, qty: 1, poster: null, meta: t(`content.addons.${a.id}.note`) })
     showToast(t('cart.toastAdded'))
@@ -59,15 +68,22 @@ export default function CartDrawer() {
                   <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{i.title}</div>
                   <button onClick={() => removeLine(i.key)} className="transition-colors hover:text-[#C0492E]" style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.strike, fontSize: 13, flexShrink: 0 }}>{t('cart.remove')}</button>
                 </div>
-                <div style={{ fontSize: 12, color: C.textMuted2, margin: '4px 0 10px' }}>{i.meta}</div>
+                <div style={{ fontSize: 12, color: C.textMuted2, margin: '4px 0 8px' }}>{i.meta}</div>
+                {i.personalization && <PersonalizationSummary p={i.personalization} t={t} />}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${C.borderInput}`, borderRadius: 8, overflow: 'hidden' }}>
                     <button onClick={() => setQty(i.key, -1)} style={{ background: '#fff', border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 16, color: C.textMuted }}>−</button>
                     <span style={{ width: 30, textAlign: 'center', fontSize: 13 }}>{i.qty}</span>
                     <button onClick={() => setQty(i.key, 1)} style={{ background: '#fff', border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 16, color: C.textMuted }}>+</button>
                   </div>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(i.price * i.qty)}</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(i.price * i.qty)}</span>
+                    {i.creditsEarned ? <div style={{ fontSize: 11, color: C.success }}>+{i.creditsEarned * i.qty} C.</div> : null}
+                  </div>
                 </div>
+                {i.personalization && (
+                  <button onClick={editPersonalization} className="transition-colors hover:text-[#C0492E]" style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.textMuted2, fontSize: 12, textDecoration: 'underline', padding: 0 }}>{t('cart.editPersonalization')}</button>
+                )}
               </div>
             </div>
           ))}
@@ -98,8 +114,14 @@ export default function CartDrawer() {
               <span style={{ fontSize: 14, color: C.textMuted }}>{t('cart.subtotal')}</span>
               <span style={{ fontSize: 20, fontWeight: 700 }}>{euro(subtotal)}</span>
             </div>
-            <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 14 }}>{shipText} {t('cart.inclVat')}</div>
-            <button onClick={goCheckout} className="transition-[filter] hover:brightness-110" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: '0 12px 24px -12px rgba(192,73,46,0.6)' }}>{t('cart.checkout')}</button>
+            <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{shipText} {t('cart.inclVat')}</div>
+            {totalCredits > 0 && <div style={{ fontSize: 12.5, color: C.success, fontWeight: 600, marginBottom: 12 }}>✦ {t('cart.creditsEarn', { n: totalCredits })}</div>}
+            <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+              <div style={{ fontWeight: 600, color: C.textMuted, marginBottom: 3 }}>{t('cart.reviewBirth')}</div>
+              {t('cart.returnNotice')}
+            </div>
+            {incomplete && <div style={{ fontSize: 12, color: C.accent, marginBottom: 12 }}>{t('cart.incompleteWarn')}</div>}
+            <button onClick={goCheckout} disabled={!canCheckout} className="transition-[filter] hover:brightness-110" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: canCheckout ? 'pointer' : 'not-allowed', opacity: canCheckout ? 1 : 0.5, padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: '0 12px 24px -12px rgba(192,73,46,0.6)' }}>{t('cart.checkout')}</button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 14, fontSize: 11, color: C.textMuted3 }}>
               <span style={{ fontWeight: 600, color: C.textMuted }}>PayPal</span><span style={{ fontWeight: 600, color: C.textMuted }}> Pay</span><span style={{ fontWeight: 600, color: C.textMuted }}>G Pay</span><span>{t('cart.ssl')}</span>
             </div>
@@ -107,5 +129,22 @@ export default function CartDrawer() {
         )}
       </aside>
     </>
+  )
+}
+
+/** Compact per-line personalization summary in the cart (REQ-015): birth data,
+ *  poster language, design and size, plus partner data for couple orders. */
+function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: (k: string, v?: Record<string, string | number>) => any }) {
+  const time = p.unknownTime === 'true' ? t('personalize.timeUnknown') : p.time
+  const timeB = p.unknownTime === 'true' ? t('personalize.timeUnknown') : p.timeB
+  const line1 = [p.name, p.date, time, p.place].filter(Boolean).join(' · ')
+  const partner = p.nameB ? [p.nameB, p.dateB, timeB, p.placeB].filter(Boolean).join(' · ') : ''
+  const line2 = [p.language, p.palette, p.frame, p.size].filter(Boolean).join(' · ')
+  return (
+    <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, margin: '0 0 8px', borderLeft: `2px solid ${C.border}`, paddingLeft: 8 }}>
+      {line1 && <div>{line1}</div>}
+      {partner && <div>{t('personalize.partnerName')}: {partner}</div>}
+      {line2 && <div>{line2}</div>}
+    </div>
   )
 }

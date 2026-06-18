@@ -5,6 +5,13 @@ export interface CheckoutResult {
   error?: string
 }
 
+// Single source of truth for the checkout completeness gate (REQ-016): true when
+// any personalized line is missing required birth data. Used by both the cart
+// drawer and the Checkout page so the two gates can never silently desync.
+export function cartHasIncompletePersonalization(cart: CartLine[]): boolean {
+  return cart.some((l) => l.personalization && (!l.personalization.name || !l.personalization.date || !l.personalization.place))
+}
+
 // POSTs the cart to the backend, which creates a Stripe Checkout Session and
 // returns its hosted URL. On success the browser is redirected to Stripe.
 export async function startCheckout(cart: CartLine[], shipCost: number, locale: string): Promise<CheckoutResult> {

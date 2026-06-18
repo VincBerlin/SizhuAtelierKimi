@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import Poster from '../components/Poster'
 import { useShopStore } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
-import { startCheckout } from '../lib/checkout'
+import { startCheckout, cartHasIncompletePersonalization } from '../lib/checkout'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
@@ -23,9 +23,15 @@ export default function Checkout() {
   const { t, lang } = useT()
   const navigate = useNavigate()
   const [placing, setPlacing] = useState(false)
+  const [confirmed, setConfirmed] = useState(false)
+  // Personalized items: block until birth data is complete (REQ-016) AND the
+  // correctness confirmation is ticked (REQ-017/042). Enforced HERE — the actual
+  // order-placement boundary — so a direct /checkout URL cannot bypass the gate.
+  const incomplete = cartHasIncompletePersonalization(cart)
+  const canPlace = confirmed && !incomplete
 
   const placeOrder = async () => {
-    if (cart.length === 0 || placing) return
+    if (cart.length === 0 || placing || !canPlace) return
     setPlacing(true)
     showToast(t('checkout.starting'))
     const r = await startCheckout(cart, shipCost, lang.toLowerCase())
@@ -58,10 +64,10 @@ export default function Checkout() {
           {/* express */}
           <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 22, marginBottom: 18 }}>
             <div style={{ fontSize: 13, color: C.textMuted2, textAlign: 'center', marginBottom: 14 }}>{t('checkout.expressHint')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-              <button onClick={placeOrder} style={{ background: '#FFC439', color: '#0a0a0a', border: 'none', cursor: 'pointer', padding: 14, borderRadius: 10, fontWeight: 600, fontFamily: FONT_SANS, fontSize: 14 }}>PayPal</button>
-              <button onClick={placeOrder} style={{ background: '#000', color: '#fff', border: 'none', cursor: 'pointer', padding: 14, borderRadius: 10, fontWeight: 500, fontFamily: FONT_SANS, fontSize: 15 }}> Pay</button>
-              <button onClick={placeOrder} style={{ background: '#fff', color: '#3c4043', border: '1px solid #dadce0', cursor: 'pointer', padding: 14, borderRadius: 10, fontWeight: 500, fontFamily: FONT_SANS, fontSize: 14 }}>G Pay</button>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, opacity: canPlace ? 1 : 0.5 }}>
+              <button onClick={placeOrder} disabled={!canPlace} style={{ background: '#FFC439', color: '#0a0a0a', border: 'none', cursor: canPlace ? 'pointer' : 'not-allowed', padding: 14, borderRadius: 10, fontWeight: 600, fontFamily: FONT_SANS, fontSize: 14 }}>PayPal</button>
+              <button onClick={placeOrder} disabled={!canPlace} style={{ background: '#000', color: '#fff', border: 'none', cursor: canPlace ? 'pointer' : 'not-allowed', padding: 14, borderRadius: 10, fontWeight: 500, fontFamily: FONT_SANS, fontSize: 15 }}> Pay</button>
+              <button onClick={placeOrder} disabled={!canPlace} style={{ background: '#fff', color: '#3c4043', border: '1px solid #dadce0', cursor: canPlace ? 'pointer' : 'not-allowed', padding: 14, borderRadius: 10, fontWeight: 500, fontFamily: FONT_SANS, fontSize: 14 }}>G Pay</button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0 4px', color: C.strike, fontSize: 12 }}>
               <span style={{ flex: 1, height: 1, background: C.border }} />{t('checkout.orGuest')}<span style={{ flex: 1, height: 1, background: C.border }} />
@@ -81,7 +87,13 @@ export default function Checkout() {
               <input type="text" placeholder={t('checkout.zip')} autoComplete="postal-code" style={inputStyle} />
               <input type="text" placeholder={t('checkout.city')} autoComplete="address-level2" style={inputStyle} />
             </div>
-            <button onClick={placeOrder} disabled={placing} className="transition-[filter] hover:brightness-110 disabled:cursor-wait disabled:opacity-70" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${euro(total)}`}</button>
+            {incomplete && <div style={{ fontSize: 12.5, color: C.accent }}>{t('cart.incompleteWarn')}</div>}
+            <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px' }}>{t('cart.returnNotice')}</div>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, cursor: 'pointer', fontSize: 12, color: C.textMuted, lineHeight: 1.5 }}>
+              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.accent, flexShrink: 0 }} />
+              <span>{t('cart.confirmLabel')}</span>
+            </label>
+            <button onClick={placeOrder} disabled={placing || !canPlace} className="transition-[filter] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${euro(total)}`}</button>
             <div style={{ fontSize: 12, color: C.textMuted2, textAlign: 'center' }}>{t('checkout.noHidden')}</div>
           </div>
         </div>
