@@ -136,6 +136,9 @@ function Dashboard() {
           <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.creditBalance')}</div>
           <div style={{ fontFamily: FONT_SERIF, fontSize: 34, color: C.accent }}>{user.points} C.</div>
           <div style={{ fontSize: 12, color: C.textMuted3, marginTop: 4 }}>{t('auth.lifetime')}: {user.lifetime} C.</div>
+          {user.unlockedFeatures && user.unlockedFeatures.length > 0 && (
+            <div style={{ fontSize: 11.5, color: C.textMuted2, marginTop: 8, lineHeight: 1.5 }}>✦ {user.unlockedFeatures.join(' · ')}</div>
+          )}
         </div>
         <div style={cardStyle}>
           <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.emailLabel')}</div>
@@ -168,7 +171,10 @@ function Dashboard() {
             {orders.map((o, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, borderBottom: i < orders.length - 1 ? `1px solid ${C.border}` : 'none', paddingBottom: 8 }}>
                 <span style={{ color: C.textMuted }}>{new Date(o.created_at).toLocaleDateString(lang.toLowerCase())} · {(o.items || []).map((it) => it.description).filter(Boolean).join(', ') || '—'}</span>
-                <span style={{ fontWeight: 600 }}>{euro((o.amount_total || 0) / 100)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                  {o.status && <span style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: C.textMuted2, border: `1px solid ${C.border}`, borderRadius: 999, padding: '2px 8px' }}>{o.status}</span>}
+                  <span style={{ fontWeight: 600 }}>{euro((o.amount_total || 0) / 100)}</span>
+                </div>
               </div>
             ))}
           </div>
