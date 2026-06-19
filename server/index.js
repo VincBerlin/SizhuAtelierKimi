@@ -2,6 +2,7 @@
 // Everything external is env-gated: the server boots and serves the shop even
 // with no keys; payment/persistence/email light up as their env vars appear.
 import express from 'express'
+import compression from 'compression'
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -119,6 +120,9 @@ const NOTIFY_EMAIL = process.env.ORDER_NOTIFY_EMAIL || ''
 
 const app = express()
 app.disable('x-powered-by')
+// gzip/deflate every text response (HTML, JS, CSS, JSON). Without this the
+// content-hashed bundles ship raw — ~3x larger over the wire on every visit.
+app.use(compression())
 
 const eur = (cents) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: CURRENCY.toUpperCase() })
 
@@ -697,9 +701,26 @@ app.get('/api/order/:id', async (req, res) => {
 })
 
 // ---- static SPA ------------------------------------------------------------
+const ASSET_DIR = `${path.sep}assets${path.sep}`
 if (fs.existsSync(DIST)) {
-  app.use(express.static(DIST, { index: false, maxAge: '1h' }))
-  app.get('*', (_req, res) => res.sendFile(path.join(DIST, 'index.html')))
+  app.use(express.static(DIST, {
+    index: false,
+    setHeaders: (res, filePath) => {
+      // Files in /assets are content-hashed by Vite → safe to cache forever.
+      // Everything else (images, favicon, manifest) keeps a short TTL since
+      // their filenames are stable and may change in place.
+      if (filePath.includes(ASSET_DIR)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=3600')
+      }
+    },
+  }))
+  // index.html must never be cached, so a new deploy is picked up immediately.
+  app.get('*', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache')
+    res.sendFile(path.join(DIST, 'index.html'))
+  })
 } else {
   app.get('*', (_req, res) => res.status(503).send('Build missing — run `npm run build`.'))
 }

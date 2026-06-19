@@ -59,7 +59,7 @@ export default function About() {
           </div>
           <div className="h-[40vh] lg:h-[60vh]">
             <img
-              src="/images/atelier/workspace.jpg"
+              src="/images/atelier/workspace.webp"
               alt="SizhuAtelier Workshop"
               className="w-full h-full object-cover"
               style={{ borderRadius: '4px 4px 0 0' }}
@@ -73,7 +73,7 @@ export default function About() {
         <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center" style={{ padding: '0 24px' }}>
           <div className="overflow-hidden rounded" style={{ aspectRatio: '3/2' }}>
             <img
-              src="/images/atelier/studio-process.jpg"
+              src="/images/atelier/studio-process.webp"
               alt="Studio process"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -192,7 +192,7 @@ export default function About() {
             </div>
             <div className="overflow-hidden rounded" style={{ aspectRatio: '3/2' }}>
               <img
-                src="/images/atelier/materials.jpg"
+                src="/images/atelier/materials.webp"
                 alt="Materials"
                 className="w-full h-full object-cover"
                 loading="lazy"

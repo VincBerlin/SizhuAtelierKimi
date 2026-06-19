@@ -69,32 +69,32 @@ export const products: Product[] = [
     id: 8, category: 'Feuerpferd', title: 'Feuerpferd 2026 · Limited Edition', price: 65, anchor: 79, rating: 4.9, reviews: 88, sold: 210,
     bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'],
     poster: mk('#1B1B1B', '#BC7A5E', 'Feuer-Pferd', '2026-02-17'),
-    personalizable: false, image: '/images/posters/fire-horse.jpg',
+    personalizable: false, image: '/images/posters/fire-horse.webp',
   },
   // ── TCM educational lehrposter — non-personalizable, placeholder SKUs (replace
   //    images/prices/copy before launch). No birth data; plain Add to Cart. ──
   {
     id: 11, category: 'TCM', title: 'TCM Educational Poster', price: 39, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrtafel der Fünf Elemente — Holz, Feuer, Erde, Metall, Wasser', 'Klare Vektorgrafik für Unterricht & Veranschaulichung', 'Archiv-Pigmentdruck in Museumsqualität', 'Kein personalisiertes Motiv — direkt versandfertig'],
-    personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.jpg',
+    personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.webp',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
   },
   {
     id: 12, category: 'Praxen', title: 'TCM Practice Poster', price: 49, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrposter für TCM-Praxen & Behandlungsräume', 'Ruhige Fernwirkung, erdet den Raum', 'Abwischbares Museumsglas, hygienefreundlich', 'Standardprodukt — keine Geburtsdaten nötig'],
-    personalizable: false, usage: 'practice', image: '/images/categories/tcm.jpg',
+    personalizable: false, usage: 'practice', image: '/images/categories/tcm.webp',
     poster: mk('#1B1B1B', '#2C3A57', 'TCM', '1990-01-01'),
   },
   {
     id: 13, category: 'Wellness', title: 'TCM Wellness Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrtafel für Wellness- & Ruheräume', 'Warmes Salbeigrün, beruhigende Wirkung', 'Erklärt die Fünf-Elemente-Balance', 'Direkt versandfertig — nicht personalisiert'],
-    personalizable: false, usage: 'wellness', image: '/images/posters/tcm-elements.jpg',
+    personalizable: false, usage: 'wellness', image: '/images/posters/tcm-elements.webp',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
   },
   {
     id: 14, category: 'Yoga', title: 'TCM Yoga Studio Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrposter für Yoga- & Studio-Wände', 'Erdiges Terracotta, passt zu Holz & Pflanzen', 'Kompaktes Format mit klarer Fernwirkung', 'Standardprodukt — direkt versandfertig'],
-    personalizable: false, usage: 'yoga', image: '/images/categories/tcm.jpg',
+    personalizable: false, usage: 'yoga', image: '/images/categories/tcm.webp',
     poster: mk('#1B1B1B', '#BC7A5E', 'TCM', '1990-01-01'),
   },
 ]

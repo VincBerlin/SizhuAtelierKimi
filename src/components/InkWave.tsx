@@ -1,6 +1,32 @@
-import { useRef, useMemo, Suspense } from 'react'
+import { useRef, useMemo, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+
+// Keep the shader rendering whenever the hero is — even partially — on screen,
+// so the WebGL canvas can never blank out while it is visible. It is only paused
+// once the hero is fully scrolled away (with a 300px margin so it resumes a beat
+// BEFORE re-entering view, avoiding any single-frame flash) or the tab is hidden.
+// NOTE: never freeze while visible — pausing an alpha canvas drops its backbuffer.
+function useHeroActive(ref: React.RefObject<HTMLDivElement | null>) {
+  const [active, setActive] = useState(true)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let onscreen = true
+    const sync = () => setActive(onscreen && document.visibilityState === 'visible')
+    const io = new IntersectionObserver(([entry]) => {
+      onscreen = entry.isIntersecting
+      sync()
+    }, { rootMargin: '300px' })
+    io.observe(el)
+    document.addEventListener('visibilitychange', sync)
+    return () => {
+      io.disconnect()
+      document.removeEventListener('visibilitychange', sync)
+    }
+  }, [ref])
+  return active
+}
 
 const vertexShader = `
 varying vec2 vUv;
@@ -59,7 +85,9 @@ float fbm(vec2 p) {
   float value = 0.0;
   float amplitude = 0.5;
   float frequency = 1.0;
-  for (int i = 0; i < 5; i++) {
+  // 3 octaves (was 5): warpedFbm calls fbm 5x per pixel, so each dropped octave
+  // removes 5 snoise() evaluations per fragment. Visually indistinguishable here.
+  for (int i = 0; i < 3; i++) {
     value += amplitude * snoise(p * frequency);
     frequency *= 2.0;
     amplitude *= 0.5;
@@ -100,11 +128,11 @@ void main() {
   vec2 distortedUv = uv + vec2(snoise(uv * 2.0 + t * 0.1) * 0.08, snoise(uv * 2.0 + t * 0.13 + 100.0) * 0.08);
   float warped = warpedFbm(distortedUv * 2.5, t);
   float ink = 0.0;
-  ink += smoothstep(0.35, 0.7, inkPool(distortedUv, t, 1.0)) * 0.6;
-  ink += smoothstep(0.3, 0.65, inkPool(distortedUv, t * 0.8 + 20.0, 2.5)) * 0.45;
-  ink += smoothstep(0.25, 0.6, inkPool(distortedUv, t * 1.2 + 40.0, 4.0)) * 0.3;
-  ink += smoothstep(0.2, 0.5, inkPool(distortedUv, t * 0.6 + 60.0, 6.0)) * 0.2;
-  ink += smoothstep(0.45, 0.8, warped) * 0.4;
+  // 2 ink pools (was 4): each inkPool is ~4 snoise() calls. The two dropped
+  // layers contributed only 0.3/0.2 weight; folded into the warped term below.
+  ink += smoothstep(0.35, 0.7, inkPool(distortedUv, t, 1.0)) * 0.65;
+  ink += smoothstep(0.3, 0.65, inkPool(distortedUv, t * 0.8 + 20.0, 2.5)) * 0.5;
+  ink += smoothstep(0.45, 0.8, warped) * 0.55;
   ink += diffusion(distortedUv, t);
   float fadeIn = smoothstep(0.0, 3.0, t);
   ink *= fadeIn;
@@ -150,13 +178,30 @@ function InkPlane() {
 }
 
 export default function InkWave() {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const active = useHeroActive(wrapRef)
+  // Reduced-motion users get the calm static backdrop — no animated canvas to
+  // mount and therefore nothing that could ever flicker or blank.
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (reduced) {
+    return <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: '#E8E1D6' }} />
+  }
+
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+    <div ref={wrapRef} style={{ position: 'absolute', inset: 0, zIndex: 1, background: '#E8E1D6' }}>
       <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#E8E1D6' }} />}>
         <Canvas
-          gl={{ alpha: true, antialias: false }}
+          // preserveDrawingBuffer keeps the last frame on the canvas whenever the
+          // render loop is paused (tab hidden / fully scrolled away), so the hero
+          // can never show a blank/cleared buffer. Backstops the always-render rule.
+          gl={{ alpha: true, antialias: false, preserveDrawingBuffer: true }}
           camera={{ position: [0, 0, 2.5], fov: 50 }}
-          dpr={[1, 1.5]}
+          dpr={1}
+          // 'always' whenever the hero is even partially visible; 'demand' only
+          // once it is fully off-screen (where it is not visible anyway).
+          frameloop={active ? 'always' : 'demand'}
           style={{ width: '100%', height: '100%' }}
         >
           <InkPlane />

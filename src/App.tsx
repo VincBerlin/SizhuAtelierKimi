@@ -1,22 +1,26 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router'
-import Home from './pages/Home'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import ProductView from './pages/ProductView'
-import Personalize from './pages/Personalize'
-import Legal from './pages/Legal'
-import Faq from './pages/Faq'
-import Account from './pages/Account'
-import Gifts from './pages/Gifts'
-import HowItWorks from './pages/HowItWorks'
-import Checkout from './pages/Checkout'
-import OrderResult from './pages/OrderResult'
-import Blog from './pages/Blog'
-import Article from './pages/Article'
-import TcmOverview from './pages/TcmOverview'
-import BundlesPage from './pages/BundlesPage'
-import DigitalPage from './pages/DigitalPage'
-import Kollektion from './pages/Kollektion'
+
+// Route-level code splitting: each page ships as its own chunk and is only
+// downloaded when the user navigates to it. Keeps the initial bundle small.
+const Home = lazy(() => import('./pages/Home'))
+const About = lazy(() => import('./pages/About'))
+const Contact = lazy(() => import('./pages/Contact'))
+const ProductView = lazy(() => import('./pages/ProductView'))
+const Personalize = lazy(() => import('./pages/Personalize'))
+const Legal = lazy(() => import('./pages/Legal'))
+const Faq = lazy(() => import('./pages/Faq'))
+const Account = lazy(() => import('./pages/Account'))
+const Gifts = lazy(() => import('./pages/Gifts'))
+const HowItWorks = lazy(() => import('./pages/HowItWorks'))
+const Checkout = lazy(() => import('./pages/Checkout'))
+const OrderResult = lazy(() => import('./pages/OrderResult'))
+const Blog = lazy(() => import('./pages/Blog'))
+const Article = lazy(() => import('./pages/Article'))
+const TcmOverview = lazy(() => import('./pages/TcmOverview'))
+const BundlesPage = lazy(() => import('./pages/BundlesPage'))
+const DigitalPage = lazy(() => import('./pages/DigitalPage'))
+const Kollektion = lazy(() => import('./pages/Kollektion'))
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
 import SiteFooter from './components/shop/SiteFooter'
@@ -46,6 +50,7 @@ function AppShell() {
       <AnnouncementBar />
       <Navbar />
       <div style={{ paddingTop: isHome ? 0 : ANNOUNCEMENT_HEIGHT + NAV_HEIGHT }}>
+        <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductView />} />
@@ -78,6 +83,7 @@ function AppShell() {
           <Route path="/atelier" element={<Navigate to="/about" replace />} />
           <Route path="/kontakt" element={<Navigate to="/contact" replace />} />
         </Routes>
+        </Suspense>
       </div>
       <SiteFooter />
       <CartDrawer />

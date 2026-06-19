@@ -144,7 +144,7 @@ export default function Navbar() {
           </button>
 
           <Link to="/" className="flex items-center gap-2" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <img src="/images/sizhu-chinese-mark.png" alt="" aria-hidden="true" style={{ width: 24, height: 30, objectFit: 'contain', display: 'block' }} />
+            <img src="/images/sizhu-chinese-mark.webp" alt="" aria-hidden="true" style={{ width: 24, height: 30, objectFit: 'contain', display: 'block' }} />
             <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
               <span style={{ fontFamily: FONT_SERIF, fontSize: 24, fontWeight: 500, letterSpacing: '0.02em', color: C.ink }}>SizhuAtelier</span>
               <span className="hidden sm:block" style={{ fontFamily: FONT_SANS, fontSize: 9, letterSpacing: '0.32em', textTransform: 'uppercase', color: C.textMuted3, marginTop: 3 }}>{t('nav.tagline')}</span>
