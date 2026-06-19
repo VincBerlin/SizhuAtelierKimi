@@ -2,42 +2,27 @@ import { useRef, useMemo, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-// Drive the (expensive) fragment shader only when it is worth it. The shader is
-// frozen while the hero is scrolled out of view, the tab is hidden, OR the user
-// is actively scrolling — that last case is what kills scroll jank: during a
-// scroll the GPU is needed for compositing, so we hold a static frame and resume
-// the animation ~200ms after scrolling settles (imperceptible for an ink blur).
+// Keep the shader rendering whenever the hero is — even partially — on screen,
+// so the WebGL canvas can never blank out while it is visible. It is only paused
+// once the hero is fully scrolled away (with a 300px margin so it resumes a beat
+// BEFORE re-entering view, avoiding any single-frame flash) or the tab is hidden.
+// NOTE: never freeze while visible — pausing an alpha canvas drops its backbuffer.
 function useHeroActive(ref: React.RefObject<HTMLDivElement | null>) {
   const [active, setActive] = useState(true)
   useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
-      setActive(false)
-      return
-    }
     const el = ref.current
     if (!el) return
     let onscreen = true
-    let scrolling = false
-    let timer: ReturnType<typeof setTimeout> | undefined
-    const sync = () => setActive(onscreen && !scrolling && document.visibilityState === 'visible')
+    const sync = () => setActive(onscreen && document.visibilityState === 'visible')
     const io = new IntersectionObserver(([entry]) => {
       onscreen = entry.isIntersecting
       sync()
-    }, { threshold: 0 })
+    }, { rootMargin: '300px' })
     io.observe(el)
-    const onScroll = () => {
-      if (!scrolling) { scrolling = true; sync() }
-      clearTimeout(timer)
-      timer = setTimeout(() => { scrolling = false; sync() }, 200)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
     document.addEventListener('visibilitychange', sync)
     return () => {
       io.disconnect()
-      window.removeEventListener('scroll', onScroll)
       document.removeEventListener('visibilitychange', sync)
-      clearTimeout(timer)
     }
   }, [ref])
   return active
@@ -195,16 +180,27 @@ function InkPlane() {
 export default function InkWave() {
   const wrapRef = useRef<HTMLDivElement>(null)
   const active = useHeroActive(wrapRef)
+  // Reduced-motion users get the calm static backdrop — no animated canvas to
+  // mount and therefore nothing that could ever flicker or blank.
+  const reduced = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (reduced) {
+    return <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: '#E8E1D6' }} />
+  }
 
   return (
     <div ref={wrapRef} style={{ position: 'absolute', inset: 0, zIndex: 1, background: '#E8E1D6' }}>
       <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#E8E1D6' }} />}>
         <Canvas
-          gl={{ alpha: true, antialias: false }}
+          // preserveDrawingBuffer keeps the last frame on the canvas whenever the
+          // render loop is paused (tab hidden / fully scrolled away), so the hero
+          // can never show a blank/cleared buffer. Backstops the always-render rule.
+          gl={{ alpha: true, antialias: false, preserveDrawingBuffer: true }}
           camera={{ position: [0, 0, 2.5], fov: 50 }}
           dpr={1}
-          // 'always' only while the hero is on-screen and the tab is visible;
-          // 'demand' renders a single static frame otherwise (reduced-motion / offscreen).
+          // 'always' whenever the hero is even partially visible; 'demand' only
+          // once it is fully off-screen (where it is not visible anyway).
           frameloop={active ? 'always' : 'demand'}
           style={{ width: '100%', height: '100%' }}
         >
