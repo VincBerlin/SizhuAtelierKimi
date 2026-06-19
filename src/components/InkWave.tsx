@@ -2,8 +2,11 @@ import { useRef, useMemo, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-// Pause the (expensive) fragment shader whenever the hero is scrolled out of
-// view or the tab is hidden, so it never competes with scrolling for the GPU.
+// Drive the (expensive) fragment shader only when it is worth it. The shader is
+// frozen while the hero is scrolled out of view, the tab is hidden, OR the user
+// is actively scrolling — that last case is what kills scroll jank: during a
+// scroll the GPU is needed for compositing, so we hold a static frame and resume
+// the animation ~200ms after scrolling settles (imperceptible for an ink blur).
 function useHeroActive(ref: React.RefObject<HTMLDivElement | null>) {
   const [active, setActive] = useState(true)
   useEffect(() => {
@@ -15,16 +18,26 @@ function useHeroActive(ref: React.RefObject<HTMLDivElement | null>) {
     const el = ref.current
     if (!el) return
     let onscreen = true
-    const sync = () => setActive(onscreen && document.visibilityState === 'visible')
+    let scrolling = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const sync = () => setActive(onscreen && !scrolling && document.visibilityState === 'visible')
     const io = new IntersectionObserver(([entry]) => {
       onscreen = entry.isIntersecting
       sync()
     }, { threshold: 0 })
     io.observe(el)
+    const onScroll = () => {
+      if (!scrolling) { scrolling = true; sync() }
+      clearTimeout(timer)
+      timer = setTimeout(() => { scrolling = false; sync() }, 200)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
     document.addEventListener('visibilitychange', sync)
     return () => {
       io.disconnect()
+      window.removeEventListener('scroll', onScroll)
       document.removeEventListener('visibilitychange', sync)
+      clearTimeout(timer)
     }
   }, [ref])
   return active
@@ -87,7 +100,9 @@ float fbm(vec2 p) {
   float value = 0.0;
   float amplitude = 0.5;
   float frequency = 1.0;
-  for (int i = 0; i < 5; i++) {
+  // 3 octaves (was 5): warpedFbm calls fbm 5x per pixel, so each dropped octave
+  // removes 5 snoise() evaluations per fragment. Visually indistinguishable here.
+  for (int i = 0; i < 3; i++) {
     value += amplitude * snoise(p * frequency);
     frequency *= 2.0;
     amplitude *= 0.5;
@@ -128,11 +143,11 @@ void main() {
   vec2 distortedUv = uv + vec2(snoise(uv * 2.0 + t * 0.1) * 0.08, snoise(uv * 2.0 + t * 0.13 + 100.0) * 0.08);
   float warped = warpedFbm(distortedUv * 2.5, t);
   float ink = 0.0;
-  ink += smoothstep(0.35, 0.7, inkPool(distortedUv, t, 1.0)) * 0.6;
-  ink += smoothstep(0.3, 0.65, inkPool(distortedUv, t * 0.8 + 20.0, 2.5)) * 0.45;
-  ink += smoothstep(0.25, 0.6, inkPool(distortedUv, t * 1.2 + 40.0, 4.0)) * 0.3;
-  ink += smoothstep(0.2, 0.5, inkPool(distortedUv, t * 0.6 + 60.0, 6.0)) * 0.2;
-  ink += smoothstep(0.45, 0.8, warped) * 0.4;
+  // 2 ink pools (was 4): each inkPool is ~4 snoise() calls. The two dropped
+  // layers contributed only 0.3/0.2 weight; folded into the warped term below.
+  ink += smoothstep(0.35, 0.7, inkPool(distortedUv, t, 1.0)) * 0.65;
+  ink += smoothstep(0.3, 0.65, inkPool(distortedUv, t * 0.8 + 20.0, 2.5)) * 0.5;
+  ink += smoothstep(0.45, 0.8, warped) * 0.55;
   ink += diffusion(distortedUv, t);
   float fadeIn = smoothstep(0.0, 3.0, t);
   ink *= fadeIn;
@@ -187,7 +202,7 @@ export default function InkWave() {
         <Canvas
           gl={{ alpha: true, antialias: false }}
           camera={{ position: [0, 0, 2.5], fov: 50 }}
-          dpr={[1, 1.5]}
+          dpr={1}
           // 'always' only while the hero is on-screen and the tab is visible;
           // 'demand' renders a single static frame otherwise (reduced-motion / offscreen).
           frameloop={active ? 'always' : 'demand'}
