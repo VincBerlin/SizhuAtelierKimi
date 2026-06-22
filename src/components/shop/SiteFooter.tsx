@@ -2,8 +2,11 @@ import { Link } from 'react-router'
 import { useT } from '../../i18n/I18nProvider'
 import { C, FONT_SERIF, CONTAINER, BRAND_NAME } from '../../lib/tokens'
 
-// Footer links — all required legal + info pages (REQ-039).
+// Footer links — all required legal + info pages (REQ-039). The Inspiration
+// gallery (REQ-011 / AT-011-4) is also surfaced here so /inspiration is reachable
+// from the persistent footer chrome, not only by typing the URL.
 const footerLinks = [
+  { key: 'inspiration', to: '/inspiration' },
   { key: 'howItWorks', to: '/how-it-works' },
   { key: 'about', to: '/about' },
   { key: 'contact', to: '/contact' },

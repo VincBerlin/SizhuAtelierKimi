@@ -1,0 +1,2 @@
+# Playwright E2E specs land in a LATER iteration (REQ-007/008/009/010/011/017/018, AT-NEG-SAJU, AT-021).
+# Config lives in playwright.config.ts. Browsers are intentionally NOT installed yet for T-01.

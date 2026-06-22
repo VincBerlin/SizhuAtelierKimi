@@ -4,7 +4,7 @@ import { digitalProduct, getProduct } from '../../lib/catalog'
 import { useShopStore } from '../../store/ShopStore'
 import { useAuth } from '../../store/AuthProvider'
 import { useT } from '../../i18n/I18nProvider'
-import { cartHasIncompletePersonalization } from '../../lib/checkout'
+import { cartHasIncompletePersonalization, posterProductId, digitalProductId } from '../../lib/checkout'
 import { euro } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 
@@ -32,16 +32,19 @@ export default function CartDrawer() {
   const editPersonalization = () => { closeCart(); navigate('/personalize'); window.scrollTo(0, 0) }
   // Cross-sell REAL, purchasable products (not accessories): the digital BaZi
   // analysis plus a couple of ready-to-ship posters not already in the cart.
-  type Cross = { title: string; price: number; meta: string; image?: string }
+  // Each cross-sell carries its server-pricing identity (ADR-001) so the line is
+  // re-priceable at checkout. The cross-sell posters (8,11–14) are all
+  // non-personalizable → no size axis (empty variantId).
+  type Cross = { title: string; price: number; meta: string; image?: string; productId: string; variantId: string }
   const inCart = (title: string) => cart.some((l) => l.title === title)
   // Titles MUST match how lines are added to the cart (i18n keys), otherwise the
   // dedup below misses and the customer is offered a product already in the cart.
   const crossSell: Cross[] = [
-    { title: t('content.digital.title'), price: digitalProduct.price, meta: t('content.digital.subtitle') },
-    ...([8, 11, 12, 13, 14].map((id) => { const p = getProduct(id); return p ? { title: t(`content.products.${id}.title`), price: p.price, meta: '', image: p.image } : null }).filter(Boolean) as Cross[]),
+    { title: t('content.digital.title'), price: digitalProduct.price, meta: t('content.digital.subtitle'), productId: digitalProductId(digitalProduct.id), variantId: '' },
+    ...([8, 11, 12, 13, 14].map((id) => { const p = getProduct(id); return p ? { title: t(`content.products.${id}.title`), price: p.price, meta: '', image: p.image, productId: posterProductId(id), variantId: '' } : null }).filter(Boolean) as Cross[]),
   ].filter((x) => !inCart(x.title)).slice(0, 3)
   const addCross = (x: Cross) => {
-    addItem({ title: x.title, price: x.price, qty: 1, poster: null, meta: x.meta, image: x.image })
+    addItem({ title: x.title, price: x.price, qty: 1, poster: null, meta: x.meta, image: x.image, productId: x.productId, variantId: x.variantId })
     showToast(t('cart.toastAdded'))
   }
 
@@ -171,7 +174,7 @@ function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: (k: st
       {line1 && <div>{line1}</div>}
       {partner && <div>{t('personalize.partnerName')}: {partner}</div>}
       {line2 && <div>{line2}</div>}
-      {unknownTime && <div style={{ color: C.accent, marginTop: 3 }}>{t('cart.unknownTimeNotice')}</div>}
+      {unknownTime && <div data-testid="cart-noon-fallback-notice" style={{ color: C.accent, marginTop: 3 }}>{t('cart.unknownTimeNotice')}</div>}
     </div>
   )
 }

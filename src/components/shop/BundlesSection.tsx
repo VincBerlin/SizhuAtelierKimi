@@ -4,6 +4,7 @@ import { bundles, digitalBundle } from '../../lib/catalog'
 import { useShopStore } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'
+import { bundleProductId } from '../../lib/checkout'
 import { euro } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 
@@ -12,11 +13,11 @@ export default function BundlesSection() {
   const { t } = useT()
 
   const addPosterBundle = (b: (typeof bundles)[number]) => {
-    addItem({ title: t(`content.bundles.${b.id}.title`), price: b.price, qty: 1, poster: b.p1, meta: t('content.bundleMeta3') })
+    addItem({ title: t(`content.bundles.${b.id}.title`), price: b.price, qty: 1, poster: b.p1, meta: t('content.bundleMeta3'), productId: bundleProductId(b.id), variantId: '' })
     showToast(t('cart.toastSet'))
   }
   const addDigital = () => {
-    addItem({ title: t('content.digitalBundle.title'), price: digitalBundle.price, qty: 1, poster: digitalBundle.poster, meta: t('content.bundleMeta') })
+    addItem({ title: t('content.digitalBundle.title'), price: digitalBundle.price, qty: 1, poster: digitalBundle.poster, meta: t('content.bundleMeta'), productId: bundleProductId(digitalBundle.id), variantId: '' })
     showToast(t('cart.toastSet'))
   }
 

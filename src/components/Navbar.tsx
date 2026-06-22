@@ -7,21 +7,63 @@ import { useT, LANGS } from '../i18n/I18nProvider'
 import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
-// "Collections" dropdown — the full shop (§4.4): all products, both
-// personalizable and ready-to-ship. (The old "Personalized Posters" item is
-// removed; everything now lives under Collections.)
-const shopLinks = [
-  { key: 'bazi', href: '/personalize' },
-  { key: 'birthChart', href: '/personalize' },
-  { key: 'couple', href: '/personalize' },
-  { key: 'fireHorse', href: '/product/8' },
-  { key: 'tcm', href: '/tcm' },
-  { key: 'digital', href: '/digital' },
-  { key: 'bundles', href: '/bundles' },
-  { key: 'gifts', href: '/gifts' },
+// REQ-009 — real grouped MEGA-MENU. Columns are organised by buy-intent
+// (product world / use-case / format) per PRD §6.1/§6.2; every item targets a
+// real REQ-010 /collections/* route (or a live entry route like /personalize),
+// never a dead link. The `testid` anchors back the real-boundary tests.
+interface MegaItem { i18nKey: string; href: string }
+interface MegaColumn { testid: string; titleKey: string; items: MegaItem[] }
+
+const MEGA_COLUMNS: MegaColumn[] = [
+  {
+    testid: 'mega-col-personalized',
+    titleKey: 'nav.mega.personalized.title',
+    items: [
+      { i18nKey: 'nav.mega.personalized.baziPosters', href: '/collections/bazi-posters' },
+      { i18nKey: 'nav.mega.personalized.personalizedPosters', href: '/collections/personalized-posters' },
+      { i18nKey: 'nav.mega.personalized.compatibility', href: '/collections/compatibility-posters' },
+      { i18nKey: 'nav.mega.personalized.startPersonalizing', href: '/personalize' },
+    ],
+  },
+  {
+    testid: 'mega-col-tcm',
+    titleKey: 'nav.mega.tcm.title',
+    items: [{ i18nKey: 'nav.mega.tcm.tcmPosters', href: '/collections/tcm-posters' }],
+  },
+  {
+    testid: 'mega-col-wuxing',
+    titleKey: 'nav.mega.wuxing.title',
+    items: [{ i18nKey: 'nav.mega.wuxing.wuxingPosters', href: '/collections/wuxing-posters' }],
+  },
+  {
+    testid: 'mega-col-analysis-pdfs',
+    titleKey: 'nav.mega.analysis.title',
+    items: [{ i18nKey: 'nav.mega.analysis.analysisPdfs', href: '/collections/analysis-pdfs' }],
+  },
+  {
+    testid: 'mega-col-bundles',
+    titleKey: 'nav.mega.bundles.title',
+    items: [{ i18nKey: 'nav.mega.bundles.bundles', href: '/collections/bundles' }],
+  },
+  {
+    testid: 'mega-col-featured',
+    titleKey: 'nav.mega.featured.title',
+    items: [
+      { i18nKey: 'nav.mega.featured.fireHorse', href: '/collections/fire-horse-2026' },
+      // REQ-011 / AT-011-4 — the curated /inspiration gallery wall is wired into
+      // production navigation here (Featured column). This entry also flows into
+      // the mobile drawer flat list (MEGA_COLUMNS.flatMap below), so the page is
+      // user-reachable on desktop AND mobile, not just by typing the URL.
+      { i18nKey: 'nav.mega.featured.inspiration', href: '/inspiration' },
+      { i18nKey: 'nav.mega.featured.allCollections', href: '/collections' },
+    ],
+  },
 ]
+// Top-level desktop nav budget (REQ-008 AK-3 / AT-008-3): Start-Personalizing +
+// Collections (mega-menu) + mainLinks ≤ 6 entries → mainLinks ≤ 4. "Gifts" is a
+// secondary destination (still reachable via the mobile drawer + footer + its
+// /gifts route), so it is dropped from the top-level bar to stay within budget.
 const mainLinks = [
-  { key: 'gifts', href: '/gifts' },
   { key: 'blog', href: '/blog' },
   { key: 'faq', href: '/faq' },
   { key: 'about', href: '/about' },
@@ -152,22 +194,76 @@ export default function Navbar() {
           </Link>
 
           {searchOpen && <HeaderSearch onClose={() => setSearchOpen(false)} />}
-          <nav className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
-            <Link to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
-            <div ref={posterRef} className="relative" onMouseEnter={() => setPosterOpen(true)} onMouseLeave={() => setPosterOpen(false)}>
-              <Link to="/collections" className="flex items-center gap-1 transition-colors hover:text-[#C0492E]" style={navLinkStyle(posterActive || isActive('/collections'))} aria-haspopup="true" aria-expanded={posterOpen}>
+          <nav data-testid="primary-nav" className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
+            <Link data-nav-top to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
+
+            {/* REQ-009 — real grouped mega-menu. Hover opens (desktop), the
+                trigger is a real button with aria-haspopup/aria-expanded, and
+                Escape/click-away close it. The panel groups buy-intent columns,
+                each linking to a real /collections/* route. */}
+            <div
+              data-nav-top
+              ref={posterRef}
+              className="relative"
+              onMouseEnter={() => setPosterOpen(true)}
+              onMouseLeave={() => setPosterOpen(false)}
+            >
+              <button
+                type="button"
+                data-testid="mega-menu-trigger"
+                onClick={() => setPosterOpen((o) => !o)}
+                aria-haspopup="true"
+                aria-expanded={posterOpen}
+                className="flex items-center gap-1 transition-colors hover:text-[#C0492E]"
+                style={{ ...navLinkStyle(posterActive || isActive('/collections') || location.pathname.startsWith('/collections')) }}
+              >
                 {t('nav.collections')} <ChevronDown size={14} style={{ transition: 'transform .2s', transform: posterOpen ? 'rotate(180deg)' : 'none' }} />
-              </Link>
-              {/* REQ-006: rectangular premium dropdown — radius 2px, calm ivory, subtle border */}
-              <div role="menu" style={{ position: 'absolute', top: 'calc(100% + 10px)', left: 0, minWidth: 264, background: '#FBF8F1', border: `1px solid ${C.border}`, borderRadius: 2, boxShadow: '0 16px 36px -18px rgba(28,24,18,0.4)', padding: 6, opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden', transform: posterOpen ? 'translateY(0)' : 'translateY(-6px)', transition: 'opacity .2s, transform .2s, visibility .2s' }}>
-                {shopLinks.map((l) => (
-                  <Link key={l.key} to={l.href} role="menuitem" className="block transition-colors hover:bg-[#F0E9DA]" style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.ink, textDecoration: 'none', padding: '10px 12px', borderRadius: 0 }}>{t('nav.posterMenu.' + l.key)}</Link>
+              </button>
+
+              {/* Mega-menu panel — rectangular premium surface (radius 2px). A
+                  navigation grouping of real links (not a menu widget), so items
+                  keep their native `link` role for assistive tech and routing. */}
+              <div
+                data-testid="mega-menu-panel"
+                aria-label={t('nav.collections')}
+                style={{
+                  position: 'absolute', top: 'calc(100% + 12px)', left: 0,
+                  width: 'min(760px, 88vw)',
+                  display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4,
+                  background: '#FBF8F1', border: `1px solid ${C.border}`, borderRadius: 2,
+                  boxShadow: '0 18px 44px -20px rgba(28,24,18,0.45)', padding: 18,
+                  opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden',
+                  transform: posterOpen ? 'translateY(0)' : 'translateY(-6px)',
+                  transition: 'opacity .2s, transform .2s, visibility .2s', zIndex: 70,
+                }}
+              >
+                {MEGA_COLUMNS.map((col) => (
+                  <div key={col.testid} data-testid={col.testid} style={{ padding: '4px 10px' }}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.accent, margin: '0 0 10px' }}>
+                      {t(col.titleKey)}
+                    </div>
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {col.items.map((it) => (
+                        <li key={it.href + it.i18nKey}>
+                          <Link
+                            to={it.href}
+                            tabIndex={posterOpen ? 0 : -1}
+                            onClick={() => setPosterOpen(false)}
+                            className="block transition-colors hover:bg-[#F0E9DA]"
+                            style={{ fontFamily: FONT_SANS, fontSize: 13.5, color: C.ink, textDecoration: 'none', padding: '8px 8px', borderRadius: 2 }}
+                          >
+                            {t(it.i18nKey)}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
               </div>
             </div>
 
             {mainLinks.map((l) => (
-              <Link key={l.href} to={l.href} className="transition-colors hover:text-[#C0492E]" style={navLinkStyle(isActive(l.href))}>{t('nav.' + l.key)}</Link>
+              <Link data-nav-top key={l.href} to={l.href} className="transition-colors hover:text-[#C0492E]" style={navLinkStyle(isActive(l.href))}>{t('nav.' + l.key)}</Link>
             ))}
           </nav>
 
@@ -201,14 +297,14 @@ export default function Navbar() {
           </div>
           <nav className="flex flex-col" style={{ padding: '14px 24px', gap: 2, overflowY: 'auto', flex: 1 }}>
             <Link to="/personalize" style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.accent, fontWeight: 600, textDecoration: 'none', padding: '12px 0' }}>{t('nav.startPersonalizing')}</Link>
-            <button onClick={() => setMPosterOpen((o) => !o)} aria-expanded={mPosterOpen} className="flex items-center justify-between" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '12px 0', fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textAlign: 'left' }}>
+            <button data-testid="mobile-collections-toggle" onClick={() => setMPosterOpen((o) => !o)} aria-expanded={mPosterOpen} aria-controls="mobile-collections-panel" className="flex items-center justify-between" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '12px 0', minHeight: 44, fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textAlign: 'left' }}>
               {t('nav.collections')} <ChevronDown size={20} style={{ transition: 'transform .2s', transform: mPosterOpen ? 'rotate(180deg)' : 'none' }} />
             </button>
             {mPosterOpen && (
-              <div className="flex flex-col" style={{ paddingLeft: 12, gap: 2, marginBottom: 4 }}>
-                <Link to="/collections" style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.ink, textDecoration: 'none', padding: '8px 0' }}>{t('coll.allPosters')}</Link>
-                {shopLinks.map((l) => (
-                  <Link key={l.key} to={l.href} style={{ fontFamily: FONT_SANS, fontSize: 16, color: C.textMuted, textDecoration: 'none', padding: '8px 0' }}>{t('nav.posterMenu.' + l.key)}</Link>
+              <div id="mobile-collections-panel" className="flex flex-col" style={{ paddingLeft: 12, gap: 2, marginBottom: 4 }}>
+                <Link data-testid="mobile-collection-link" to="/collections" style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.ink, textDecoration: 'none', padding: '8px 0', minHeight: 44, display: 'flex', alignItems: 'center' }}>{t('coll.allPosters')}</Link>
+                {MEGA_COLUMNS.flatMap((col) => col.items).map((it) => (
+                  <Link data-testid="mobile-collection-link" key={it.href + it.i18nKey} to={it.href} style={{ fontFamily: FONT_SANS, fontSize: 16, color: C.textMuted, textDecoration: 'none', padding: '8px 0', minHeight: 44, display: 'flex', alignItems: 'center' }}>{t(it.i18nKey)}</Link>
                 ))}
               </div>
             )}

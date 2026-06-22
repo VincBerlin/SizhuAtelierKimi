@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect, lazy, Suspense, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
 // Three.js hero is split into its own chunk and streamed in after the hero
@@ -6,10 +6,29 @@ import { useT } from '../i18n/I18nProvider'
 const InkWave = lazy(() => import('../components/InkWave'))
 import PathToPoster from '../components/shop/PathToPoster'
 import CatalogSection from '../components/shop/CatalogSection'
-import BundlesSection from '../components/shop/BundlesSection'
 import NewsletterSection from '../components/shop/NewsletterSection'
 import WissenSection from '../components/shop/WissenSection'
-import FaqSection from '../components/shop/FaqSection'
+import HowItWorksSection from '../components/shop/HowItWorksSection'
+import ShopByWorldSection from '../components/shop/ShopByWorldSection'
+import FeaturedCollectionSection from '../components/shop/FeaturedCollectionSection'
+import CompatibilitySection from '../components/shop/CompatibilitySection'
+import AnalysisPdfsSection from '../components/shop/AnalysisPdfsSection'
+import InspirationTeaserSection from '../components/shop/InspirationTeaserSection'
+import SeoTextSection from '../components/shop/SeoTextSection'
+
+/**
+ * Stable, machine-checkable module anchor for the V2 homepage order (REQ-008).
+ * Wraps each section with a `data-module="NN"` + `data-testid="home-module-NN"`
+ * so the DOM order is verifiable through the real App.tsx (acceptance-design
+ * AT-008-1) without coupling each reusable section component to its position.
+ */
+function ModuleAnchor({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <div data-module={id} data-testid={`home-module-${id}`}>
+      {children}
+    </div>
+  )
+}
 
 /* ===== HERO SECTION ===== */
 function HeroSection() {
@@ -128,15 +147,25 @@ export default function Home() {
     window.scrollTo(0, 0)
   }, [])
 
+  // V2 homepage module order 02→13 (REQ-008 AK-1). Module 01 (Utility Bar) lives
+  // in the App shell (AnnouncementBar). Module 13 (Newsletter + Footer): the
+  // SiteFooter is rendered globally by AppShell, so module 13 carries the
+  // Newsletter here. Hero stays module 02 — FIRST — and is untouched (NFR-1):
+  // the lazy InkWave chunk + Suspense boundary above is byte-equivalent.
   return (
     <main>
-      <HeroSection />
-      <PathToPoster />
-      <CatalogSection />
-      <WissenSection />
-      <BundlesSection />
-      <FaqSection home />
-      <NewsletterSection />
+      <ModuleAnchor id="02"><HeroSection /></ModuleAnchor>
+      <ModuleAnchor id="03"><ShopByWorldSection /></ModuleAnchor>
+      <ModuleAnchor id="04"><CatalogSection /></ModuleAnchor>
+      <ModuleAnchor id="05"><HowItWorksSection /></ModuleAnchor>
+      <ModuleAnchor id="06"><FeaturedCollectionSection /></ModuleAnchor>
+      <ModuleAnchor id="07"><CompatibilitySection /></ModuleAnchor>
+      <ModuleAnchor id="08"><AnalysisPdfsSection /></ModuleAnchor>
+      <ModuleAnchor id="09"><InspirationTeaserSection /></ModuleAnchor>
+      <ModuleAnchor id="10"><WissenSection /></ModuleAnchor>
+      <ModuleAnchor id="11"><PathToPoster /></ModuleAnchor>
+      <ModuleAnchor id="12"><SeoTextSection /></ModuleAnchor>
+      <ModuleAnchor id="13"><NewsletterSection /></ModuleAnchor>
     </main>
   )
 }

@@ -4,6 +4,26 @@ import { computeChart, type PosterData } from './bazi'
 import { euro } from './format'
 import { FREE_SHIP_THRESHOLD } from './tokens'
 
+// ── V2 product-model dimensions (REQ-013) — additive enums ───────────────────
+// These are the canonical filter axes the per-world collections build on
+// (REQ-010). They are ADDITIVE: no existing field (`category`, `personalizable`,
+// `usage`, `image`, `poster`, `price`, …) is changed or removed. `category`
+// stays because legacy code reads it; new filters use `product_world`, which is
+// consistent where `category` ('TCM' | 'Praxen' | 'Wuxing' | 'Feuerpferd' | …)
+// is free-text and inconsistent.
+
+/** Product world — the kuratierte browse/SEO axis (REQ-013 AK-1). */
+export const PRODUCT_WORLDS = ['bazi', 'tcm', 'wuxing', 'mixed'] as const
+export type ProductWorld = (typeof PRODUCT_WORLDS)[number]
+
+/** How personalized the product is (REQ-013 AK-1). */
+export const PERSONALIZATION_LEVELS = ['single', 'couple', 'yearly', 'none'] as const
+export type PersonalizationLevel = (typeof PERSONALIZATION_LEVELS)[number]
+
+/** Visual design family (REQ-013 AK-1). */
+export const DESIGN_FAMILIES = ['minimal', 'japandi', 'wabi_sabi', 'classic_ink'] as const
+export type DesignFamily = (typeof DESIGN_FAMILIES)[number]
+
 export interface Product {
   id: number
   category: string
@@ -22,6 +42,15 @@ export interface Product {
   image?: string
   /** Use case for non-personalizable TCM posters: educational/practice/wellness/yoga. */
   usage?: string
+  // ── V2 dimensions (REQ-013) — additive, required on every product ──────────
+  /** Which kuratierte product world this belongs to — the collection filter axis. */
+  product_world: ProductWorld
+  /** How personalized the SKU is (single/couple birth chart, yearly, or none). */
+  personalization_level: PersonalizationLevel
+  /** Short, human-readable primary use case (e.g. 'home', 'practice', 'gift'). */
+  use_case: string
+  /** Visual design family the artwork belongs to. */
+  design_family: DesignFamily
 }
 
 const mk = (frame: string, bg: string, name: string, date: string): PosterData => {
@@ -32,44 +61,52 @@ const mk = (frame: string, bg: string, name: string, date: string): PosterData =
 export const products: Product[] = [
   {
     id: 1, category: 'TCM', title: 'BaZi Geburtschart — Vier Säulen', price: 49, anchor: 59, rating: 4.9, reviews: 318, sold: 2140,
-    bullets: ['Aus deinen Geburtsdaten berechnet — kein Standardmotiv', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Massivholzrahmen mit entspiegeltem Glas', 'Produktion in 3 Werktagen, nummeriert'],
+    bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Massivholzrahmen mit entspiegeltem Glas', 'Produktion in 3 Werktagen, nummeriert'],
     poster: mk('#B98A5E', '#E9DFCB', 'Mara Lindqvist', '1990-07-21'),
+    product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'classic_ink',
   },
   {
     id: 2, category: 'Praxen', title: 'BaZi Praxis-Edition', price: 69, anchor: 79, rating: 4.8, reviews: 196, sold: 870,
     bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Abwischbares Museumsglas, hygienefreundlich', 'Optional mit Praxisname statt Personenname'],
     poster: mk('#1B1B1B', '#2C3A57', 'Praxis Anand', '1985-03-09'),
+    product_world: 'bazi', personalization_level: 'single', use_case: 'practice', design_family: 'minimal',
   },
   {
     id: 3, category: 'Wellness', title: 'BaZi Elemente-Poster', price: 45, anchor: 55, rating: 4.9, reviews: 241, sold: 1320,
     bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Nachhaltiges Recyclingpapier, FSC-zertifiziert', 'Auch als Gutschein-Geschenk beliebt'],
     poster: mk('#B98A5E', '#AFBCA6', 'Lina Sommer', '1992-11-02'),
+    product_world: 'bazi', personalization_level: 'single', use_case: 'wellness', design_family: 'japandi',
   },
   {
     id: 4, category: 'Yoga', title: 'BaZi Yoga-Flow Chart', price: 39, anchor: 49, rating: 4.7, reviews: 158, sold: 990,
     bullets: ['Erdiges Terracotta — passt zu Holz & Pflanzen', 'Kompaktes Format für Studio-Wände', 'Leichter Rahmen, einfache Wandmontage', 'Set-Rabatt für mehrere Studio-Räume'],
     poster: mk('#B98A5E', '#BC7A5E', 'Yara Khan', '1994-05-18'),
+    product_world: 'bazi', personalization_level: 'single', use_case: 'yoga', design_family: 'wabi_sabi',
   },
   {
     id: 5, category: 'Wellness', title: 'BaZi Mond & Sterne', price: 52, rating: 4.9, reviews: 134, sold: 640,
     bullets: ['Tiefes Anthrazit für eine elegante, ruhige Wirkung', 'Premium-Schwarzrahmen, matt', 'Goldfarbene Akzentschrift optional', 'Hochwertiges Geschenk zum Jahreswechsel'],
     poster: mk('#1B1B1B', '#2A2A2C', 'Noah Berger', '1988-12-30'),
+    product_world: 'bazi', personalization_level: 'single', use_case: 'gift', design_family: 'classic_ink',
   },
   {
     id: 6, category: 'TCM', title: 'BaZi Minimal', price: 42, anchor: 52, rating: 4.8, reviews: 205, sold: 1510,
     bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'],
     poster: mk('#1B1B1B', '#E9DFCB', 'Sofia Reuter', '1991-09-14'),
+    product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'minimal',
   },
   {
     id: 7, category: 'Wuxing', title: 'Wuxing Fünf-Elemente Poster', price: 49, anchor: 59, rating: 4.8, reviews: 142, sold: 760,
     bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Archiv-Pigmentdruck in Museumsqualität'],
     poster: mk('#B98A5E', '#AFBCA6', 'Fünf Elemente', '1990-03-21'),
+    product_world: 'wuxing', personalization_level: 'none', use_case: 'educational', design_family: 'japandi',
   },
   {
     id: 8, category: 'Feuerpferd', title: 'Feuerpferd 2026 · Limited Edition', price: 65, anchor: 79, rating: 4.9, reviews: 88, sold: 210,
     bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'],
     poster: mk('#1B1B1B', '#BC7A5E', 'Feuer-Pferd', '2026-02-17'),
     personalizable: false, image: '/images/posters/fire-horse.webp',
+    product_world: 'mixed', personalization_level: 'yearly', use_case: 'collector', design_family: 'classic_ink',
   },
   // ── TCM educational lehrposter — non-personalizable, placeholder SKUs (replace
   //    images/prices/copy before launch). No birth data; plain Add to Cart. ──
@@ -78,24 +115,28 @@ export const products: Product[] = [
     bullets: ['Lehrtafel der Fünf Elemente — Holz, Feuer, Erde, Metall, Wasser', 'Klare Vektorgrafik für Unterricht & Veranschaulichung', 'Archiv-Pigmentdruck in Museumsqualität', 'Kein personalisiertes Motiv — direkt versandfertig'],
     personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.webp',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
+    product_world: 'tcm', personalization_level: 'none', use_case: 'educational', design_family: 'minimal',
   },
   {
     id: 12, category: 'Praxen', title: 'TCM Practice Poster', price: 49, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrposter für TCM-Praxen & Behandlungsräume', 'Ruhige Fernwirkung, erdet den Raum', 'Abwischbares Museumsglas, hygienefreundlich', 'Standardprodukt — keine Geburtsdaten nötig'],
     personalizable: false, usage: 'practice', image: '/images/categories/tcm.webp',
     poster: mk('#1B1B1B', '#2C3A57', 'TCM', '1990-01-01'),
+    product_world: 'tcm', personalization_level: 'none', use_case: 'practice', design_family: 'minimal',
   },
   {
     id: 13, category: 'Wellness', title: 'TCM Wellness Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrtafel für Wellness- & Ruheräume', 'Warmes Salbeigrün, beruhigende Wirkung', 'Erklärt die Fünf-Elemente-Balance', 'Direkt versandfertig — nicht personalisiert'],
     personalizable: false, usage: 'wellness', image: '/images/posters/tcm-elements.webp',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
+    product_world: 'tcm', personalization_level: 'none', use_case: 'wellness', design_family: 'japandi',
   },
   {
     id: 14, category: 'Yoga', title: 'TCM Yoga Studio Poster', price: 45, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Lehrposter für Yoga- & Studio-Wände', 'Erdiges Terracotta, passt zu Holz & Pflanzen', 'Kompaktes Format mit klarer Fernwirkung', 'Standardprodukt — direkt versandfertig'],
     personalizable: false, usage: 'yoga', image: '/images/categories/tcm.webp',
     poster: mk('#1B1B1B', '#BC7A5E', 'TCM', '1990-01-01'),
+    product_world: 'tcm', personalization_level: 'none', use_case: 'yoga', design_family: 'wabi_sabi',
   },
 ]
 
@@ -120,6 +161,39 @@ export const digitalProduct = {
 
 export function getProduct(id: number): Product | undefined {
   return products.find((p) => p.id === id)
+}
+
+/**
+ * Filter products by their V2 `product_world` axis (REQ-013 AK-3) — the
+ * deterministic, total filter the per-world collections build on (REQ-010).
+ *
+ * - **Total:** for ANY input world (including a value outside the enum) it
+ *   returns an array, never throws — an unknown world yields `[]`.
+ * - **Deterministic:** preserves the catalog's source order, so two calls with
+ *   the same arguments return the same id sequence.
+ * - Filters strictly over `product_world`, NOT the inconsistent free-text
+ *   `category` field.
+ *
+ * @param list  the product collection to filter (defaults to the full catalog)
+ * @param world the product world to keep
+ */
+export function filterByWorld(
+  list: readonly Product[] = products,
+  world: ProductWorld,
+): Product[] {
+  // Defensive at the boundary: an unrecognised world is not an error, it is an
+  // empty result (totality). Keeps callers from having to pre-validate.
+  if (!PRODUCT_WORLDS.includes(world)) return []
+  return list.filter((p) => p.product_world === world)
+}
+
+/** Resolve a fixed, ordered list of products by id — used by curated
+ *  collections (fire horse / bundles / analysis PDFs) that span worlds.
+ *  Total: ids with no matching product are skipped (never throws). */
+export function productsByIds(ids: readonly number[]): Product[] {
+  return ids
+    .map((id) => products.find((p) => p.id === id))
+    .filter((p): p is Product => p != null)
 }
 
 export interface Bundle {
@@ -192,11 +266,11 @@ export const articles: Article[] = [
     ],
   },
   {
-    id: 'r3', tag: 'Für die Praxis', title: 'BaZi in der TCM-Praxis: Raum & Wirkung', meta: '4 Min. Lesezeit · Atelier-Journal',
+    id: 'r3', tag: 'Für die Praxis', title: 'BaZi in der TCM-Praxis: Raum & Atmosphäre', meta: '4 Min. Lesezeit · Atelier-Journal',
     excerpt: 'Wie ein persönliches Chart Vertrauen schafft und Behandlungsräume erdet.',
     body: [
       'Ein an der Wand sichtbares BaZi-Poster signalisiert Tiefe: Es zeigt Klient:innen, dass hier mit Tradition und Sorgfalt gearbeitet wird. Das senkt die Einstiegshürde für ein Gespräch.',
-      'In Behandlungsräumen wirken ruhige Töne wie Indigo oder Salbei nachweislich beruhigend. Ein großes Format mit klarer Fernwirkung erdet den Raum, ohne ihn zu überladen.',
+      'In Behandlungsräumen schaffen ruhige Töne wie Indigo oder Salbei eine ruhige, geerdete Atmosphäre. Ein großes Format mit klarer Fernwirkung erdet den Raum, ohne ihn zu überladen.',
       'Viele Praxen bieten personalisierte Charts als Geschenk oder Zusatzleistung an — ein hochwertiges, sinnstiftendes Mitbringsel, das die Bindung zur Praxis stärkt.',
     ],
   },
@@ -223,9 +297,9 @@ export interface ShopFaq {
   placeholder?: boolean
 }
 export const shopFaqs: ShopFaq[] = [
-  { q: 'Wie wird mein BaZi-Poster berechnet?', a: 'Aus Geburtsdatum, -zeit und -ort werden die vier Säulen (Jahr, Monat, Tag, Stunde) berechnet und gestalterisch aufs Poster gebracht.' },
+  { q: 'Wie entsteht mein BaZi-Poster?', a: 'Aus Geburtsdatum, -zeit und -ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Kunstwerk (Jahr, Monat, Tag, Stunde), das aufs Poster gebracht wird.' },
   { q: 'Welche Daten brauche ich für die Bestellung?', a: 'Geburtsdatum, möglichst genaue Geburtszeit und Geburtsort. Optional ein Name fürs Poster.' },
-  { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja. Ohne exakte Zeit kann die Stunden-Säule abweichen; gib an, was du weißt, wir wählen eine sinnvolle Annäherung.' },
+  { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja — wähle „Ich kenne meine Geburtszeit nicht“ und wir verwenden 12:00 Uhr (Mittag) als Standardannahme. Das kann das Ergebnis beeinflussen; dein Poster wird auf Grundlage dieses Ersatzwertes gestaltet.' },
   { q: 'Wie lange dauern Produktion und Versand?', a: 'Auftragsfertigung plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
   { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
   { q: 'Auf welchem Papier wird gedruckt?', a: 'Archiv-Pigmentdruck in Museumsqualität, gefertigt in Deutschland.' },
@@ -239,5 +313,5 @@ export const faqDefs: FaqDef[] = [
   { id: 'details', q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier nummeriert.' },
   { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
   { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie.' },
-  { id: 'bazi', q: 'Über deine Berechnung', a: 'Aus Datum, Uhrzeit und Ort berechnen wir deine vier Säulen mit Himmelsstämmen und Erdzweigen. Ohne Geburtszeit erstellen wir eine Tages-Näherung — die Uhrzeit präzisiert die Stundensäule.' },
+  { id: 'bazi', q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
 ]

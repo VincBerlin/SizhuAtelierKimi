@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { computeChart, defaultCfg, sizes, type CfgState, type PosterData } from '../lib/bazi'
+import { birthTimeMeta } from '../lib/personalization'
 import { getProduct, type Addon, type Bundle } from '../lib/catalog'
 import { FREE_SHIP_THRESHOLD } from '../lib/tokens'
 import { fetchRegion, type Region } from '../lib/region'
+import { posterProductId, buildVariantId, bundleProductId, addonProductId } from '../lib/checkout'
 
 export interface CartLine {
   key: string
@@ -16,6 +18,10 @@ export interface CartLine {
   creditsEarned?: number
   /** Static product image for non-personalizable lines (TCM / Fire Horse). */
   image?: string
+  /** Stable server-pricing identity (ADR-001): the server re-prices from these,
+   *  ignoring the client price. Optional so legacy persisted carts still load. */
+  productId?: string
+  variantId?: string
 }
 
 const CART_KEY = 'sizhu_cart'
@@ -132,17 +138,34 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
         const prod = getProduct(productId)
         if (!prod) return
         const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
-        const chart = computeChart(cfg.date, cfg.time)
+        // An empty time means the buyer did not provide a birth time → disclosed
+        // noon fallback (REQ-018). Thread place + the unknown flag through to the
+        // placeholder chart (accepted, not used to vary it) and the metadata.
+        const birthTimeUnknown = !cfg.time
+        const bt = birthTimeMeta(cfg.time, birthTimeUnknown)
+        const chart = computeChart(cfg.date, bt.time, cfg.place, birthTimeUnknown)
         const poster: PosterData = { frame: cfg.frameHex, bg: cfg.bgHex, name: cfg.name || 'Dein Name', element: chart.element, animal: chart.animal, pillars: chart.pillars }
-        const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', frame: cfg.frameName, bg: cfg.bgName, size: size.label }
-        addLine({ title: prod.title, price: prod.price + size.delta, qty: 1, poster, meta: `${cfg.frameName} · ${cfg.bgName} · ${size.label}`, personalization })
+        // place/date/time + the canonical birthTimeUnknown flag are carried so the
+        // planned calculation API can dock without data loss (REQ-004 AK-1).
+        const personalization = {
+          date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, place: cfg.place, name: cfg.name || '',
+          birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime,
+          timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason,
+          frame: cfg.frameName, bg: cfg.bgName, size: size.label,
+        }
+        addLine({
+          title: prod.title, price: prod.price + size.delta, qty: 1, poster,
+          meta: `${cfg.frameName} · ${cfg.bgName} · ${size.label}`, personalization,
+          productId: posterProductId(prod.id),
+          variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }),
+        })
         showToast('Zum Warenkorb hinzugefügt')
       },
       addBundle: (b) => {
-        addLine({ title: b.title, price: b.price, qty: 1, poster: b.p1, meta: '3-teiliges Set · Vorteilspreis' })
+        addLine({ title: b.title, price: b.price, qty: 1, poster: b.p1, meta: '3-teiliges Set · Vorteilspreis', productId: bundleProductId(b.id), variantId: '' })
         showToast('Set zum Warenkorb hinzugefügt')
       },
-      addAddon: (a) => addLine({ title: a.title, price: a.price, qty: 1, poster: null, meta: a.note }),
+      addAddon: (a) => addLine({ title: a.title, price: a.price, qty: 1, poster: null, meta: a.note, productId: addonProductId(a.id), variantId: '' }),
       addItem: (item) => addLine(item),
       // Decrementing below 1 removes the line (so the − button empties the item).
       setQty: (key, d) => setCart((s) => s.flatMap((i) => {

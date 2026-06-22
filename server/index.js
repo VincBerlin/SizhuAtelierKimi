@@ -8,6 +8,7 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
+import { priceLineItemCents, computeShippingCents, regionFromCountry } from './pricing.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -20,7 +21,10 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 // Railway-provided domain, then to the request origin at call time.
 const PUBLIC_URL = (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '')).replace(/\/$/, '')
 
-const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null
+// `let` (not `const`) so the `createApp({ stripe })` test factory can inject a
+// stubbed Stripe SDK and drive the REAL /api/checkout route without a live key
+// (REQ-015 AK-4). Production still derives it from STRIPE_SECRET_KEY below.
+let stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null
 // Secret for signing session cookies. Auth is disabled unless this is set.
 const SESSION_SECRET = process.env.SESSION_SECRET || ''
 
@@ -191,17 +195,24 @@ app.get('/api/region', (req, res) => {
 app.post('/api/checkout', async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Payment is not configured yet (missing STRIPE_SECRET_KEY).' })
   try {
-    const { items, shippingCents = 0, locale, email } = req.body || {}
+    const { items, locale, email } = req.body || {}
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Cart is empty.' })
 
-    // NOTE: amounts come from the client here. Before going live, validate each
-    // line against an authoritative server-side price list to prevent tampering.
+    // ── Server-authoritative re-pricing (ADR-001 / REQ-001) ──────────────────
+    // The client-supplied `it.unitAmount` and `shippingCents` are IGNORED. Each
+    // line's price is resolved from the server-owned price table by its stable
+    // (productId + variantId) identity. An unknown id → 4xx and Stripe is never
+    // called (no 1-cent checkout, no free-shipping tampering).
     const line_items = []
     const personalization = {}
+    let subtotalCents = 0
     for (const [i, it] of items.entries()) {
-      const cents = Math.round(Number(it.unitAmount))
       const qty = Math.max(1, Math.min(99, parseInt(it.qty, 10) || 1))
-      if (!Number.isInteger(cents) || cents <= 0) return res.status(400).json({ error: 'Invalid item amount.' })
+      const cents = priceLineItemCents(it.productId, it.variantId)
+      if (cents === null || !Number.isInteger(cents) || cents <= 0) {
+        return res.status(400).json({ error: 'Unknown product or variant.' })
+      }
+      subtotalCents += cents * qty
       line_items.push({
         quantity: qty,
         price_data: {
@@ -212,8 +223,15 @@ app.post('/api/checkout', async (req, res) => {
       })
       if (it.personalization) personalization[`line${i + 1}`] = it.personalization
     }
-    if (shippingCents > 0) {
-      line_items.push({ quantity: 1, price_data: { currency: CURRENCY, unit_amount: Math.round(shippingCents), product_data: { name: 'Shipping' } } })
+
+    // Shipping is computed server-side from region (CDN header) + subtotal,
+    // replicating the documented ShopStore rule (REQ-002). Client `shippingCents`
+    // is never trusted.
+    const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '')
+    const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
+    const shipCents = computeShippingCents(region, subtotalCents)
+    if (shipCents > 0) {
+      line_items.push({ quantity: 1, price_data: { currency: CURRENCY, unit_amount: shipCents, product_data: { name: 'Shipping' } } })
     }
 
     const origin = PUBLIC_URL || (req.headers.origin || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '')
@@ -725,9 +743,26 @@ if (fs.existsSync(DIST)) {
   app.get('*', (_req, res) => res.status(503).send('Build missing — run `npm run build`.'))
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`SizhuAtelier server on :${PORT} — stripe=${!!stripe} db=${!!pool} email=${!!resend}`)
-})
+// ── App factory + entrypoint guard ──────────────────────────────────────────
+// Tests import `createApp({ stripe })` to drive the REAL routes (incl. the
+// money-path /api/checkout) with a stubbed Stripe SDK and no live key — without
+// binding a port (REQ-015 / ADR-001). The route reads the module `stripe`/`pool`
+// bindings at request time, so injecting them here makes the real path testable
+// while production behaviour is unchanged.
+export function createApp(overrides = {}) {
+  if ('stripe' in overrides) stripe = overrides.stripe
+  if ('pool' in overrides) pool = overrides.pool
+  return app
+}
+
+// Only bind a port when this file is the process entrypoint (`npm start`/Railway).
+// Importing it from a test (supertest) must NOT start a listener.
+const isEntrypoint = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
+if (isEntrypoint) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`SizhuAtelier server on :${PORT} — stripe=${!!stripe} db=${!!pool} email=${!!resend}`)
+  })
+}
 
 // ---- helpers ---------------------------------------------------------------
 

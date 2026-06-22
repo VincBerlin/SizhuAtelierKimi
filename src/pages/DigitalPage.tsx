@@ -4,6 +4,7 @@ import { digitalProduct } from '../lib/catalog'
 import { useShopStore } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../lib/config'
+import { digitalProductId } from '../lib/checkout'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
@@ -21,7 +22,7 @@ export default function DigitalPage() {
   const bullets = (t('content.digital.bullets') as unknown as string[]) || []
 
   const add = () => {
-    addItem({ title, price: digitalProduct.price, qty: 1, poster: null, meta: subtitle })
+    addItem({ title, price: digitalProduct.price, qty: 1, poster: null, meta: subtitle, productId: digitalProductId(digitalProduct.id), variantId: '' })
     showToast(t('cart.toastAdded'))
   }
 

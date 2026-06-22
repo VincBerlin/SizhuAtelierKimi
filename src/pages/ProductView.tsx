@@ -6,9 +6,11 @@ import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
 import { getProduct, products, faqDefs } from '../lib/catalog'
 import { computeChart, sizes, type PosterData } from '../lib/bazi'
+import { birthTimeMeta } from '../lib/personalization'
 import { useShopStore } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../lib/config'
+import { posterProductId, buildVariantId } from '../lib/checkout'
 import { euro, de } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER } from '../lib/tokens'
 
@@ -23,7 +25,11 @@ export default function ProductView() {
 
   useEffect(() => { window.scrollTo(0, 0) }, [id])
 
-  const chart = computeChart(cfg.date, cfg.time)
+  // Empty time → disclosed noon fallback (REQ-018). place + the flag are threaded
+  // into the placeholder chart (accepted, not used to vary it — ADR-002 pt.3/4).
+  const birthTimeUnknown = !cfg.time
+  const bt = birthTimeMeta(cfg.time, birthTimeUnknown)
+  const chart = computeChart(cfg.date, bt.time, cfg.place, birthTimeUnknown)
   const livePoster: PosterData = { frame: cfg.frameHex, bg: cfg.bgHex, name: cfg.name || 'Dein Name', element: chart.element, animal: chart.animal, pillars: chart.pillars }
   const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
   const livePrice = personalizable ? prod.price + size.delta : prod.price
@@ -36,8 +42,9 @@ export default function ProductView() {
   const addToCart = () => {
     const title = t(`content.products.${prod.id}.title`)
     if (!personalizable) {
-      // Non-personalizable (Fire Horse / TCM lehrposter): plain line, no birth data.
-      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: prod.category, creditsEarned: Math.round(livePrice) })
+      // Non-personalizable (Fire Horse / TCM lehrposter): plain line, no birth data,
+      // no size axis → server prices at base (empty variantId).
+      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: prod.category, creditsEarned: Math.round(livePrice), productId: posterProductId(prod.id), variantId: '' })
       showToast(t('cart.toastAdded'))
       return
     }
@@ -46,9 +53,10 @@ export default function ProductView() {
     if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    const noTime = !cfg.time
-    const personalization = { date: cfg.date, time: noTime ? '12:00' : cfg.time, timeDisplay: noTime ? '12:00 PM' : cfg.time, unknownTime: String(noTime), timeFallbackUsed: String(noTime), fallbackReason: noTime ? 'customer_unknown_birth_time' : '', place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
-    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice) })
+    // place/date/time + the canonical birthTimeUnknown flag are carried so the
+    // planned calculation API can dock without loss (REQ-004 AK-1).
+    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
+    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice), productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }
 

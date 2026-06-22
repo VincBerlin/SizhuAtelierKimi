@@ -1979,3 +1979,14 @@
     scroll-snap-align: start;
   }
 }
+
+/* Inspiration gallery (REQ-011): single vertical column on mobile, 2-column
+   masonry from tablet up. CSS `columns` keeps tiles flowing and break-avoiding. */
+.inspiration-masonry {
+  column-count: 1;
+}
+@media (min-width: 768px) {
+  .inspiration-masonry {
+    column-count: 2;
+  }
+}

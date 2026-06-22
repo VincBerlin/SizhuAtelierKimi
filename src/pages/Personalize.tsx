@@ -1,45 +1,20 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import PosterScene from '../components/shop/PosterScene'
 import { computeChart, frames, backgrounds, sizes, type PosterData } from '../lib/bazi'
+import { birthTimeMeta } from '../lib/personalization'
 import { useShopStore } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
 import { COMMERCE_ENABLED } from '../lib/config'
+import { ptypeProductId, buildVariantId } from '../lib/checkout'
 import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
-
-/* ---- Product-type catalogue (current MVP only — no Saju/Junishi) ---- */
-type ProductTypeId = 'bazi' | 'birthchart' | 'couple' | 'digital' | 'bundle'
-interface PTDef {
-  id: ProductTypeId
-  basePrice: number
-  couple: boolean
-  /** physical poster → has frame/palette/size; false = digital-only */
-  poster: boolean
-  /** PDF is already included (bundle) → no separate add-on */
-  pdfIncluded: boolean
-}
-const PRODUCT_TYPES: PTDef[] = [
-  { id: 'bazi', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
-  { id: 'birthchart', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
-  { id: 'couple', basePrice: 69, couple: true, poster: true, pdfIncluded: false },
-  { id: 'digital', basePrice: 39, couple: false, poster: false, pdfIncluded: true },
-  { id: 'bundle', basePrice: 79, couple: false, poster: true, pdfIncluded: true },
-]
-const PDF_ADDON_PRICE = 30
+// Single client source of truth for product-type base prices + PDF add-on price.
+// server/pricing.js mirrors these 1:1; the parity test couples to this module.
+import { PRODUCT_TYPES, PDF_ADDON_PRICE, type ProductTypeId } from '../lib/productTypes'
 
 interface Person { name: string; date: string; time: string; place: string }
 const emptyPerson: Person = { name: '', date: '', time: '', place: '' }
-
-// "14:30" -> "2:30 PM" for human-readable storage/display.
-function to12h(t: string): string {
-  if (!t) return ''
-  const [h, m] = t.split(':').map(Number)
-  if (isNaN(h)) return t
-  const ampm = h < 12 ? 'AM' : 'PM'
-  const hh = h % 12 === 0 ? 12 : h % 12
-  return `${hh}:${String(m || 0).padStart(2, '0')} ${ampm}`
-}
 
 const inputStyle = {
   border: `1px solid ${C.borderInput}`, borderRadius: 9, padding: '11px 12px', fontSize: 14,
@@ -86,7 +61,10 @@ export default function Personalize() {
   }, [def, size, pdfAddon])
   const credits = Math.round(price)
 
-  const chart = computeChart(a.date, unknownTime ? '12:00' : a.time)
+  // Thread place + the unknown-time flag into the placeholder chart (accepted,
+  // not used to vary it — ADR-002 pt.3/4) and apply the disclosed noon fallback.
+  const btA = birthTimeMeta(a.time, unknownTime)
+  const chart = computeChart(a.date, btA.time, a.place, unknownTime)
   const livePoster: PosterData = {
     frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
     element: chart.element, animal: chart.animal, pillars: chart.pillars,
@@ -103,24 +81,36 @@ export default function Personalize() {
 
   const addToCart = () => {
     if (!valid) { setShowErrors(true); document.getElementById('personalize-birth')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return }
+    // place/date/time + the canonical birthTimeUnknown flag are captured and
+    // threaded through so the planned calculation API can dock without loss
+    // (REQ-004 AK-1); the disclosed noon fallback is applied when time is unknown.
     const personalization: Record<string, string> = {
       productType: typeId,
       productTypeLabel: t(`personalize.types.${typeId}.name`),
       language: posterLang,
       name: a.name.trim(),
       date: a.date,
-      time: unknownTime ? '12:00' : a.time,
-      timeDisplay: unknownTime ? '12:00 PM' : to12h(a.time),
-      unknownTime: String(unknownTime),
-      timeFallbackUsed: String(unknownTime),
-      fallbackReason: unknownTime ? 'customer_unknown_birth_time' : '',
+      time: btA.time,
+      timeDisplay: btA.timeDisplay,
+      birthTimeUnknown: btA.birthTimeUnknown,
+      unknownTime: btA.unknownTime,
+      timeFallbackUsed: btA.timeFallbackUsed,
+      fallbackReason: btA.fallbackReason,
       place: a.place.trim(),
     }
     if (def.couple) {
+      // Mirror the A-side fallback provenance for person B (REQ-004 AK-1 / REQ-018):
+      // the 2nd chart must carry the SAME canonical fields, derived from the SAME
+      // birthTimeMeta helper — never collect btB then drop its disclosure flags.
+      const btB = birthTimeMeta(b.time, unknownTime)
       personalization.nameB = b.name.trim()
       personalization.dateB = b.date
-      personalization.timeB = unknownTime ? '12:00' : b.time
-      personalization.timeDisplayB = unknownTime ? '12:00 PM' : to12h(b.time)
+      personalization.timeB = btB.time
+      personalization.timeDisplayB = btB.timeDisplay
+      personalization.birthTimeUnknownB = btB.birthTimeUnknown
+      personalization.unknownTimeB = btB.unknownTime
+      personalization.timeFallbackUsedB = btB.timeFallbackUsed
+      personalization.fallbackReasonB = btB.fallbackReason
       personalization.placeB = b.place.trim()
     }
     if (def.poster) {
@@ -130,6 +120,12 @@ export default function Personalize() {
       personalization.pdfAddon = String(!def.pdfIncluded && pdfAddon)
     }
     const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? size.label : null]
+    // Stable server-pricing identity (ADR-001): poster types carry size + frame +
+    // pdf-addon axes; digital-only types carry none. The server re-prices from
+    // these and ignores the client `price`.
+    const variantId = def.poster
+      ? buildVariantId({ size: size.id, frame: frameHex, pdf: !def.pdfIncluded && pdfAddon })
+      : ''
     addItem({
       title: t(`personalize.types.${typeId}.name`),
       price, qty: 1,
@@ -137,6 +133,8 @@ export default function Personalize() {
       meta: metaParts.filter(Boolean).join(' · '),
       personalization,
       creditsEarned: credits,
+      productId: ptypeProductId(typeId),
+      variantId,
     })
     showToast(t('cart.toastAdded'))
   }
@@ -198,6 +196,13 @@ export default function Personalize() {
               <input type="checkbox" checked={unknownTime} onChange={(e) => setUnknownTime(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
               <span>{t('personalize.unknownTime')}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.unknownTimeHint')}</span></span>
             </label>
+            {/* REQ-018 AK-2 — disclosed noon fallback at the birth-time field (no
+                silent default). Shown only when the buyer marks the time unknown. */}
+            {unknownTime && (
+              <div data-testid="noon-fallback-field-hint" role="note" style={{ marginTop: 12, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '10px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+                {t('noonFallback.fieldHint')}
+              </div>
+            )}
           </div>
 
           {/* Step 3 — poster language */}
@@ -283,6 +288,12 @@ export default function Personalize() {
               {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={euro(price)} strong />}
               <SumRow label={t('personalize.sumCredits')} value={`${credits} C.`} />
             </dl>
+            {/* REQ-018 AK-3 — disclosed noon fallback in the personalization summary. */}
+            {unknownTime && (
+              <div data-testid="noon-fallback-summary-notice" role="note" style={{ marginTop: 12, color: C.accent, fontSize: 12.5, lineHeight: 1.5 }}>
+                {t('noonFallback.summaryNotice')}
+              </div>
+            )}
           </div>
 
           {/* trust signals (REQ-027) */}

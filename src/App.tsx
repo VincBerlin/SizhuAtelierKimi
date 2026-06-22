@@ -21,6 +21,8 @@ const TcmOverview = lazy(() => import('./pages/TcmOverview'))
 const BundlesPage = lazy(() => import('./pages/BundlesPage'))
 const DigitalPage = lazy(() => import('./pages/DigitalPage'))
 const Kollektion = lazy(() => import('./pages/Kollektion'))
+const Collection = lazy(() => import('./pages/Collection'))
+const Inspiration = lazy(() => import('./pages/Inspiration'))
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
 import SiteFooter from './components/shop/SiteFooter'
@@ -62,6 +64,12 @@ function AppShell() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/collections" element={<Kollektion />} />
+          {/* Per-world MVP collection routes (REQ-010): one reusable template,
+              driven by lib/collections.ts. Unknown slugs redirect to the hub. */}
+          <Route path="/collections/:slug" element={<Collection />} />
+          {/* Inspiration / Gallery wall (REQ-011): curated tiles link to real
+              collection/product routes; placeholder imagery is clearly marked. */}
+          <Route path="/inspiration" element={<Inspiration />} />
           <Route path="/gifts" element={<Gifts />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tcm" element={<TcmOverview />} />
