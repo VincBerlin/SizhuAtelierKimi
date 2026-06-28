@@ -1,5 +1,32 @@
 export type Region = 'us' | 'uk' | 'eu' | 'other'
 
+// ISO-4217 currency codes the shop settles in. Kept as a small closed union so a
+// typo (or an un-mapped region) is a compile error, not a silent bad charge.
+export type CurrencyCode = 'USD' | 'GBP' | 'EUR'
+
+// REQ-016 / AT-016-7 / VIS-016 — DECLARATIVE region → currency mapping. This is
+// the single client-side source of truth the DISPLAY layer reads: `formatMoney`/
+// `moneyForRegion` in lib/format.ts resolve the symbol through `currencyForRegion`
+// below, and the `useMoney()` hook binds that to the live shipping region, so
+// every customer-facing price (ProductCard, PDP, cart, checkout, …) now renders
+// the region's currency instead of a hardcoded "€". The SERVER mirror in
+// server/pricing.js is the AUTHORITATIVE one that stamps Stripe line items at
+// checkout and is parity-checked against this map, so display and charge can never
+// silently diverge (FM-06). US settles in USD, UK in GBP, the EU market in EUR;
+// every other region falls back to EUR (primary settlement currency), not a guess.
+export const REGION_CURRENCY: Record<Region, CurrencyCode> = {
+  us: 'USD',
+  uk: 'GBP',
+  eu: 'EUR',
+  other: 'EUR',
+}
+
+// Pure region → ISO currency lookup. Unknown/empty input resolves to EUR so a
+// caller never receives `undefined` (which would crash a Stripe line-item build).
+export function currencyForRegion(region: Region): CurrencyCode {
+  return REGION_CURRENCY[region] ?? REGION_CURRENCY.eu
+}
+
 // REQ-021 / AT-016-6 — how the promo bar COMMUNICATES shipping per region. This is
 // client-side display logic only: it picks which message to show, never a price.
 // The SERVER-authoritative shipping calculation is Iteration 5 / T-502

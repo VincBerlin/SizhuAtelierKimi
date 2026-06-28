@@ -1,9 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { computeChart, defaultCfg, sizes, type CfgState, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { getProduct, type Addon, type Bundle } from '../lib/catalog'
 import { FREE_SHIP_THRESHOLD, POSTER_BG_PALETTE } from '../lib/tokens'
 import { fetchRegion, type Region } from '../lib/region'
+import { moneyForRegion } from '../lib/format'
 import { posterProductId, buildVariantId, bundleProductId, addonProductId } from '../lib/checkout'
 
 export interface CartLine {
@@ -199,4 +200,23 @@ export function useShopStore(): ShopValue {
   const ctx = useContext(ShopContext)
   if (!ctx) throw new Error('useShopStore must be used inside ShopStoreProvider')
   return ctx
+}
+
+/**
+ * Region-aware price formatter bound to the LIVE shipping region (REQ-016 /
+ * VIS-016). Every customer-facing price surface calls this instead of the
+ * EUR-only `euro()` so a US cart reads $, a UK cart £, and EU/other €. The
+ * region is the SAME store value the promo / announcement bar reads, so the
+ * symbol can never drift from the bar. DISPLAY ONLY — amounts stay the
+ * placeholder prototype numbers (OQ-002); only the currency symbol is
+ * region-correct (no FX conversion).
+ */
+export function useMoney(): (amount: number) => string {
+  // Read the region WITHOUT hard-requiring the provider: a price surface mounted
+  // in isolation (e.g. a ProductCard unit test) keeps working and falls back to
+  // the primary market (EUR) — byte-identical to its pre-region `euro()` output.
+  // Inside the app the ShopStoreProvider always supplies the live region.
+  const ctx = useContext(ShopContext)
+  const region: Region = ctx?.region ?? 'eu'
+  return useCallback((amount: number) => moneyForRegion(amount, region), [region])
 }

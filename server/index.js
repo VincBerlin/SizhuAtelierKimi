@@ -8,7 +8,7 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
-import { priceLineItemCents, computeShippingCents, regionFromCountry } from './pricing.js'
+import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -141,7 +141,17 @@ app.disable('x-powered-by')
 // content-hashed bundles ship raw — ~3x larger over the wire on every visit.
 app.use(compression())
 
-const eur = (cents) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: CURRENCY.toUpperCase() })
+// Human-readable money for order mail + logs. DISPLAY ONLY — the AUTHORITATIVE
+// charge currency is whatever Stripe settled (`session.currency`), which we mirror
+// here so a US order reads in $, a UK order in £, never a hardcoded €. Falls back
+// to the CURRENCY env only when no per-order currency is supplied; an unrecognised
+// code also falls back so `toLocaleString` can never throw on bad external data.
+export function money(cents, currency) {
+  const raw = String(currency || CURRENCY).toUpperCase()
+  const code = /^[A-Z]{3}$/.test(raw) ? raw : CURRENCY.toUpperCase()
+  const value = Number.isFinite(Number(cents)) ? Number(cents) / 100 : 0
+  return value.toLocaleString('de-DE', { style: 'currency', currency: code })
+}
 
 // ---- in-memory per-IP rate limiter (single instance; use Redis for a cluster) ---
 const rlBuckets = new Map()
@@ -176,7 +186,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       const personalization = readPersonalizationMetadata(session.metadata)
       await persistOrder(full, items, personalization)
       await sendEmails(full, items, personalization)
-      console.log(`[order] ${full.id} · ${eur(full.amount_total)} · ${full.customer_details?.email}`)
+      console.log(`[order] ${full.id} · ${money(full.amount_total, full.currency)} · ${full.customer_details?.email}`)
     } catch (e) {
       console.error('[webhook] handling failed:', e.message)
     }
@@ -192,14 +202,15 @@ app.get('/api/health', (_req, res) => {
 })
 
 // ---- shipping region (server IP geolocation via CDN/host header) ------------
-const EU_COUNTRIES = new Set(['DE', 'AT', 'FR', 'NL', 'BE', 'LU', 'IT', 'ES', 'PT', 'IE', 'FI', 'EE', 'LV', 'LT', 'SK', 'SI', 'GR', 'CY', 'MT', 'HR', 'BG', 'RO', 'HU', 'PL', 'CZ', 'DK', 'SE'])
+// Country→region classification lives in ONE place — `regionFromCountry` in
+// pricing.js. This DISPLAY route and the CHARGE route (/api/checkout) both derive
+// the region from that single function, so the currency a shopper SEES and the
+// currency they are CHARGED can never silently diverge on a one-sided country-set
+// edit (FM-06, one layer up). region-currency.test.ts pins this route's region to
+// `regionFromCountry` across a representative country sample.
 app.get('/api/region', (req, res) => {
   const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '').toUpperCase()
-  let region = (process.env.DEFAULT_REGION || 'eu').toLowerCase()
-  if (country === 'US') region = 'us'
-  else if (country === 'GB') region = 'uk'
-  else if (EU_COUNTRIES.has(country)) region = 'eu'
-  else if (country) region = 'other'
+  const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
   res.json({ region, country: country || null })
 })
 
@@ -209,6 +220,15 @@ app.post('/api/checkout', async (req, res) => {
   try {
     const { items, locale, email } = req.body || {}
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Cart is empty.' })
+
+    // ── Server-authoritative region + currency (REQ-016 / AT-016-7) ──────────
+    // Region is derived from the CDN/host country header; the line-item currency
+    // FOLLOWS the region via the declarative server map (us→USD, uk→GBP, eu→EUR).
+    // Any client-supplied currency is IGNORED, exactly like client `unitAmount` /
+    // `shippingCents` (FM-06). Stripe wants the ISO code lowercased.
+    const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '')
+    const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
+    const currency = currencyForRegion(region).toLowerCase()
 
     // ── Server-authoritative re-pricing (ADR-001 / REQ-001) ──────────────────
     // The client-supplied `it.unitAmount` and `shippingCents` are IGNORED. Each
@@ -228,7 +248,7 @@ app.post('/api/checkout', async (req, res) => {
       line_items.push({
         quantity: qty,
         price_data: {
-          currency: CURRENCY,
+          currency,
           unit_amount: cents,
           product_data: { name: String(it.title || 'Poster').slice(0, 120), ...(it.meta ? { description: String(it.meta).slice(0, 200) } : {}) },
         },
@@ -239,11 +259,9 @@ app.post('/api/checkout', async (req, res) => {
     // Shipping is computed server-side from region (CDN header) + subtotal,
     // replicating the documented ShopStore rule (REQ-002). Client `shippingCents`
     // is never trusted.
-    const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '')
-    const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
     const shipCents = computeShippingCents(region, subtotalCents)
     if (shipCents > 0) {
-      line_items.push({ quantity: 1, price_data: { currency: CURRENCY, unit_amount: shipCents, product_data: { name: 'Shipping' } } })
+      line_items.push({ quantity: 1, price_data: { currency, unit_amount: shipCents, product_data: { name: 'Shipping' } } })
     }
 
     const origin = PUBLIC_URL || (req.headers.origin || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '')
@@ -843,13 +861,25 @@ async function ensureStripeCustomer(uid) {
   return customer.id
 }
 
-async function sendEmails(session, items, personalization) {
-  const email = session.customer_details?.email
-  const lines = items.map((i) => `• ${i.qty}× ${i.description || 'Poster'} — ${eur(i.amount)}`).join('\n')
+// Pure builder for the customer-facing order strings (line items, total, the
+// personalization block). Every amount is formatted in `session.currency` — the
+// currency Stripe actually settled — so the confirmation a US/UK buyer receives
+// reads in $/£, not a hardcoded €. Display-only: it never touches what is charged.
+export function buildOrderSummary(session, items, personalization = {}) {
+  const currency = session?.currency
+  const lines = (items || [])
+    .map((i) => `• ${i.qty}× ${i.description || 'Poster'} — ${money(i.amount, currency)}`)
+    .join('\n')
+  const total = money(session?.amount_total, currency)
   const personalText = Object.keys(personalization).length
     ? '\n\nPersonalisierung:\n' + Object.entries(personalization).map(([k, v]) => `${k}: ${typeof v === 'object' ? Object.entries(v).map(([a, b]) => `${a}=${b}`).join(', ') : v}`).join('\n')
     : ''
-  const total = eur(session.amount_total)
+  return { lines, total, personalText }
+}
+
+async function sendEmails(session, items, personalization) {
+  const email = session.customer_details?.email
+  const { lines, total, personalText } = buildOrderSummary(session, items, personalization)
   if (!resend) { console.log('[mail] (no Resend) confirmation skipped for', email); return }
   try {
     if (email) {

@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { translations, type Lang } from './translations'
 
-export const LANGS: Lang[] = ['EN', 'DE', 'FR']
+// REQ-015 / T-501 — ES is the 4th shipped locale. Order is the picker order.
+export const LANGS: Lang[] = ['EN', 'DE', 'FR', 'ES']
 
 type Vars = Record<string, string | number>
 

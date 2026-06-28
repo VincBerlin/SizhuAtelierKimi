@@ -1,9 +1,8 @@
 import { type CSSProperties, type ReactNode } from 'react'
 import { frames, backgrounds, sizes } from '../../lib/bazi'
-import { useShopStore } from '../../store/ShopStore'
+import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'
-import { euro } from '../../lib/format'
 import { C, FONT_SANS, POSTER_BG_PALETTE } from '../../lib/tokens'
 
 const inputStyle: CSSProperties = {
@@ -30,6 +29,7 @@ function Label({ text, children }: { text: string; children: ReactNode }) {
 
 export default function Configurator() {
   const { cfg, setCfg, posterBgHex, setPosterBgHex } = useShopStore()
+  const money = useMoney()
   const { t } = useT()
   // REQ-018 / T-404 — poster background palette (EXACTLY the 5 frozen hex from
   // tokens.ts), coupled to the SINGLE store source (`posterBgHex`). The PDP live
@@ -100,7 +100,7 @@ export default function Configurator() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
             {sizes.map((z) => {
               const sel = z.id === cfg.size
-              const deltaText = z.delta > 0 ? '+ ' + euro(z.delta) : z.delta < 0 ? '− ' + euro(-z.delta) : t('configurator.inclusive')
+              const deltaText = z.delta > 0 ? '+ ' + money(z.delta) : z.delta < 0 ? '− ' + money(-z.delta) : t('configurator.inclusive')
               return (
                 <button key={z.id} onClick={() => setCfg({ size: z.id })} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>

@@ -8,17 +8,18 @@ import { getProduct, products, faqDefs, addons } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
 import { computeChart, sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
-import { useShopStore } from '../store/ShopStore'
+import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
 import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../lib/config'
 import { posterProductId, buildVariantId } from '../lib/checkout'
-import { euro, de } from '../lib/format'
+import { de } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER, posterBgName } from '../lib/tokens'
 
 export default function ProductView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { cfg, addItem, showToast, openFaqId, setOpenFaqId, posterBgHex } = useShopStore()
+  const money = useMoney()
   const { t, lang } = useT()
 
   const prod = getProduct(Number(id)) ?? products[0]
@@ -137,15 +138,15 @@ export default function ProductView() {
           {COMMERCE_ENABLED && (
             <>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
-                <span data-testid="pdp-price" style={{ fontSize: 30, fontWeight: 600, color: C.ink }}>{euro(livePrice)}</span>
+                <span data-testid="pdp-price" style={{ fontSize: 30, fontWeight: 600, color: C.ink }}>{money(livePrice)}</span>
                 {liveAnchor != null && (
                   <>
-                    <span style={{ fontSize: 18, color: C.strike, textDecoration: 'line-through' }}>{euro(liveAnchor)}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: C.accent, background: C.accentSoftBg, padding: '3px 9px', borderRadius: 5 }}>{t('product.save')} {euro(liveAnchor - livePrice)}</span>
+                    <span style={{ fontSize: 18, color: C.strike, textDecoration: 'line-through' }}>{money(liveAnchor)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: C.accent, background: C.accentSoftBg, padding: '3px 9px', borderRadius: 5 }}>{t('product.save')} {money(liveAnchor - livePrice)}</span>
                   </>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 20 }}>{t('product.inclVat', { amount: euro(FREE_SHIP_THRESHOLD) })}</div>
+              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 20 }}>{t('product.inclVat', { amount: money(FREE_SHIP_THRESHOLD) })}</div>
             </>
           )}
 
@@ -171,7 +172,7 @@ export default function ProductView() {
 
           {COMMERCE_ENABLED ? (
             <>
-              <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {euro(livePrice)}</button>
+              <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
                 <button onClick={() => showToast(t('product.express'))} className="transition-[filter] hover:brightness-95" style={{ background: '#FFC439', color: '#0a0a0a', border: 'none', cursor: 'pointer', padding: 13, borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS }}>PayPal</button>
                 <button onClick={() => showToast(t('product.express'))} className="transition-[filter] hover:brightness-125" style={{ background: '#000', color: '#fff', border: 'none', cursor: 'pointer', padding: 13, borderRadius: 10, fontSize: 15, fontWeight: 500, fontFamily: FONT_SANS }}> Pay</button>
@@ -193,7 +194,7 @@ export default function ProductView() {
               {addons.map((a) => (
                 <li key={a.id} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, fontSize: 13.5, color: '#4A4438' }}>
                   <span>{t(`content.addons.${a.id}.title`)} <span style={{ color: C.textMuted3 }}>· {t(`content.addons.${a.id}.note`)}</span></span>
-                  {COMMERCE_ENABLED && <span style={{ whiteSpace: 'nowrap', color: C.textMuted, fontWeight: 600 }}>+{euro(a.price)}</span>}
+                  {COMMERCE_ENABLED && <span style={{ whiteSpace: 'nowrap', color: C.textMuted, fontWeight: 600 }}>+{money(a.price)}</span>}
                 </li>
               ))}
             </ul>
@@ -225,7 +226,7 @@ export default function ProductView() {
             <Link key={r.id} data-testid="pdp-cross-sell-card" to={`/product/${r.id}`} onClick={() => window.scrollTo(0, 0)} style={{ display: 'block', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
               <div style={{ aspectRatio: '3/4', background: '#fff', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden' }}><Poster p={r.poster} scene="plain" /></div>
               <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 18, margin: '12px 0 4px' }}>{t(`content.products.${r.id}.title`)}</h3>
-              {COMMERCE_ENABLED ? <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(r.price)}</span> : <span style={{ fontSize: 12, color: C.textMuted3 }}>{t('preview.soon')}</span>}
+              {COMMERCE_ENABLED ? <span style={{ fontSize: 14, fontWeight: 600 }}>{money(r.price)}</span> : <span style={{ fontSize: 12, color: C.textMuted3 }}>{t('preview.soon')}</span>}
             </Link>
           ))}
         </div>

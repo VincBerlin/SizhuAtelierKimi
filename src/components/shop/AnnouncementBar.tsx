@@ -1,8 +1,7 @@
 import { C, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
-import { useShopStore } from '../../store/ShopStore'
+import { useShopStore, useMoney } from '../../store/ShopStore'
 import { COMMERCE_ENABLED } from '../../lib/config'
-import { euro } from '../../lib/format'
 import { regionAnnouncement } from '../../lib/region'
 
 export const ANNOUNCEMENT_HEIGHT = 34
@@ -19,6 +18,7 @@ export const ANNOUNCEMENT_HEIGHT = 34
 export default function AnnouncementBar() {
   const { t } = useT()
   const { region } = useShopStore()
+  const money = useMoney()
   const { mode } = regionAnnouncement(region)
   return (
     <div
@@ -47,7 +47,7 @@ export default function AnnouncementBar() {
             t('announce.fallback')
           ) : (
             <>
-              {t('announce.shipping', { amount: euro(FREE_SHIP_THRESHOLD) })}
+              {t('announce.shipping', { amount: money(FREE_SHIP_THRESHOLD) })}
               <span className="hidden sm:inline"> · {t('announce.personalized')}</span>
             </>
           )

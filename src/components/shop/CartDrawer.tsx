@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router'
 import Poster from '../Poster'
 import { digitalProduct, getProduct } from '../../lib/catalog'
-import { useShopStore } from '../../store/ShopStore'
+import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useAuth } from '../../store/AuthProvider'
 import { useT } from '../../i18n/I18nProvider'
 import { cartHasIncompletePersonalization, posterProductId, digitalProductId } from '../../lib/checkout'
-import { euro } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
 
 export default function CartDrawer() {
   const { cart, cartOpen, closeCart, subtotal, shipCost, reached, remaining, setQty, removeLine, addItem, clearCart, showToast } = useShopStore()
+  const money = useMoney()
   const { user } = useAuth()
   const { t } = useT()
   const navigate = useNavigate()
@@ -18,8 +18,8 @@ export default function CartDrawer() {
   const hasCart = cart.length > 0
   const shipPct = Math.min(100, (subtotal / FREE_SHIP_THRESHOLD) * 100) + '%'
   // 🚀 while still filling the bar (almost there), 🎉 once free shipping is reached.
-  const shipMessage = reached ? `🎉 ${t('cart.reached')}` : `🚀 ${t('cart.remaining', { amount: euro(remaining) })}`
-  const shipText = shipCost === 0 ? t('cart.shipFree') : t('cart.ship', { amount: euro(shipCost) })
+  const shipMessage = reached ? `🎉 ${t('cart.reached')}` : `🚀 ${t('cart.remaining', { amount: money(remaining) })}`
+  const shipText = shipCost === 0 ? t('cart.shipFree') : t('cart.ship', { amount: money(shipCost) })
   // Block checkout when a personalized line is missing required birth data (REQ-016).
   // The personalization-correctness confirmation (REQ-017/042) is required on the
   // Checkout page itself (the order-placement boundary), so a direct /checkout URL
@@ -112,7 +112,7 @@ export default function CartDrawer() {
                     <button onClick={() => setQty(i.key, 1)} style={{ background: '#fff', border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 16, color: C.textMuted }}>+</button>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(i.price * i.qty)}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{money(i.price * i.qty)}</span>
                   </div>
                 </div>
                 {personalized && (
@@ -136,7 +136,7 @@ export default function CartDrawer() {
                       <div style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>{x.title}</div>
                       {x.meta && <div style={{ fontSize: 11, color: C.textMuted2 }}>{x.meta}</div>}
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{euro(x.price)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{money(x.price)}</span>
                     <button onClick={() => addCross(x)} aria-label={t('cart.toastAdded')} className="transition-colors hover:bg-[#3a352c]" style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', width: 30, height: 30, borderRadius: 8, fontSize: 18, lineHeight: 1, flexShrink: 0 }}>+</button>
                   </div>
                 ))}
@@ -149,7 +149,7 @@ export default function CartDrawer() {
           <div style={{ borderTop: `1px solid ${C.border}`, padding: '18px 24px 22px', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
               <span style={{ fontSize: 14, color: C.textMuted }}>{t('cart.subtotal')}</span>
-              <span style={{ fontSize: 20, fontWeight: 700 }}>{euro(subtotal)}</span>
+              <span style={{ fontSize: 20, fontWeight: 700 }}>{money(subtotal)}</span>
             </div>
             <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{shipText} {t('cart.inclVat')}</div>
             {!user && (

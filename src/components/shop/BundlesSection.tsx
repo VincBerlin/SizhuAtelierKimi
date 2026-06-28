@@ -1,15 +1,15 @@
 import { FileText } from 'lucide-react'
 import Poster from '../Poster'
 import { bundles, digitalBundle } from '../../lib/catalog'
-import { useShopStore } from '../../store/ShopStore'
+import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'
 import { bundleProductId } from '../../lib/checkout'
-import { euro } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 
 export default function BundlesSection() {
   const { addItem, showToast } = useShopStore()
+  const money = useMoney()
   const { t } = useT()
 
   const addPosterBundle = (b: (typeof bundles)[number]) => {
@@ -46,9 +46,9 @@ export default function BundlesSection() {
                 {COMMERCE_ENABLED ? (
                   <>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, marginBottom: 14 }}>
-                      <span style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: '#fff' }}>{euro(b.price)}</span>
-                      <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: '#8f8576', textDecoration: 'line-through' }}>{euro(b.anchor)}</span>
-                      <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: '#E4B89F' }}>{t('bundles.save')} {euro(b.anchor - b.price)}</span>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: '#fff' }}>{money(b.price)}</span>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: '#8f8576', textDecoration: 'line-through' }}>{money(b.anchor)}</span>
+                      <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: '#E4B89F' }}>{t('bundles.save')} {money(b.anchor - b.price)}</span>
                     </div>
                     <button onClick={() => addPosterBundle(b)} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '11px 20px', borderRadius: 999, fontSize: 13, fontWeight: 500, fontFamily: FONT_SANS }}>{t('bundles.add')}</button>
                   </>
@@ -73,9 +73,9 @@ export default function BundlesSection() {
               {COMMERCE_ENABLED ? (
                 <>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, marginBottom: 14 }}>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: '#fff' }}>{euro(digitalBundle.price)}</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: '#8f8576', textDecoration: 'line-through' }}>{euro(digitalBundle.anchor)}</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: '#E4B89F' }}>{t('bundles.save')} {euro(digitalBundle.anchor - digitalBundle.price)}</span>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: '#fff' }}>{money(digitalBundle.price)}</span>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: '#8f8576', textDecoration: 'line-through' }}>{money(digitalBundle.anchor)}</span>
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: '#E4B89F' }}>{t('bundles.save')} {money(digitalBundle.anchor - digitalBundle.price)}</span>
                   </div>
                   <button onClick={addDigital} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '11px 20px', borderRadius: 999, fontSize: 13, fontWeight: 500, fontFamily: FONT_SANS }}>{t('bundles.add')}</button>
                 </>

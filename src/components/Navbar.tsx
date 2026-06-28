@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router'
 import { ShoppingBag, Menu, X, ChevronDown, Search, User } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
+import { type Lang } from '../i18n/translations'
 import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
 
@@ -123,6 +124,12 @@ const MEGA_COLUMNS: MegaColumn[] = [
 // ≥44px touch targets for header icon controls (§6.1 / §7.4).
 const HIT = { minWidth: 44, minHeight: 44 } as const
 
+// REQ-015 / AT-015-3 — flag emoji per locale. The flag is rendered to the RIGHT
+// of the (unchanged) abbreviation in every picker entry. EN maps to the UK flag
+// (the EN copy is en-GB spelling: colour/personalised). The abbreviation text is
+// never altered — only a trailing flag glyph is added.
+const LANG_FLAG: Record<Lang, string> = { EN: '🇬🇧', DE: '🇩🇪', FR: '🇫🇷', ES: '🇪🇸' }
+
 function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: number; up?: boolean; align?: 'left' | 'right' }) {
   const { lang, setLang } = useT()
   const [open, setOpen] = useState(false)
@@ -157,12 +164,15 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
       >
         {LANGS.map((l) => (
           <button
-            key={l} role="option" aria-selected={lang === l}
+            key={l} role="option" data-testid="lang-option" aria-selected={lang === l}
             onClick={() => { setLang(l); setOpen(false) }}
-            className="block w-full text-left transition-colors hover:bg-[#F5F0E6]"
-            style={{ background: lang === l ? '#F5F0E6' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', borderRadius: 7 }}
+            className="flex w-full items-center transition-colors hover:bg-[#F5F0E6]"
+            style={{ justifyContent: 'space-between', gap: 8, background: lang === l ? '#F5F0E6' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', borderRadius: 7, textAlign: 'left' }}
           >
-            {l}
+            {/* AT-015-3 — abbreviation unchanged (Kürzel), flag to its RIGHT
+                (DOM order: code BEFORE flag). */}
+            <span data-testid="lang-code">{l}</span>
+            <span data-testid="lang-flag" aria-hidden="true" style={{ fontSize: size + 3, lineHeight: 1 }}>{LANG_FLAG[l]}</span>
           </button>
         ))}
       </div>

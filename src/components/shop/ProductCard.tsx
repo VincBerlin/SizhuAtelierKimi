@@ -2,9 +2,10 @@ import type { ReactElement } from 'react'
 import { Link } from 'react-router'
 import PosterScene from './PosterScene'
 import StarRating from './StarRating'
-import { euro, de } from '../../lib/format'
+import { de } from '../../lib/format'
 import { C, FONT_SERIF, FONT_SANS } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
+import { useMoney } from '../../store/ShopStore'
 import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../../lib/config'
 import type { Product } from '../../lib/catalog'
 
@@ -34,6 +35,7 @@ import type { Product } from '../../lib/catalog'
  */
 export default function ProductCard({ product }: { product: Product }): ReactElement {
   const { t, lang } = useT()
+  const money = useMoney()
   const hasAnchor = product.anchor != null
   const showReviews = REVIEWS_ENABLED && product.reviews > 0
   const starPct = (product.rating / 5) * 100 + '%'
@@ -48,7 +50,7 @@ export default function ProductCard({ product }: { product: Product }): ReactEle
         data-testid="card-badge"
         style={{ position: 'absolute', top: 14, left: 14, background: C.accent, color: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', padding: '5px 10px', borderRadius: 4, zIndex: 2 }}
       >
-        −{euro((product.anchor as number) - product.price)}
+        −{money((product.anchor as number) - product.price)}
       </span>
     ) : null
 
@@ -93,8 +95,8 @@ export default function ProductCard({ product }: { product: Product }): ReactEle
         )}
         {COMMERCE_ENABLED ? (
           <div data-testid="card-price" style={{ display: 'flex', alignItems: 'baseline', gap: 9 }}>
-            <span style={{ fontSize: 17, fontWeight: 600, color: C.ink }}>{euro(product.price)}</span>
-            {hasAnchor && <span style={{ fontSize: 14, color: C.strike, textDecoration: 'line-through' }}>{euro(product.anchor as number)}</span>}
+            <span style={{ fontSize: 17, fontWeight: 600, color: C.ink }}>{money(product.price)}</span>
+            {hasAnchor && <span style={{ fontSize: 14, color: C.strike, textDecoration: 'line-through' }}>{money(product.anchor as number)}</span>}
           </div>
         ) : (
           <span data-testid="card-price" style={{ fontSize: 12, letterSpacing: '0.04em', color: C.textMuted3 }}>{t('preview.soon')}</span>

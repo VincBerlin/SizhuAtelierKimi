@@ -4,6 +4,16 @@ import { computeChart, type PosterData } from './bazi'
 import { euro } from './format'
 import { FREE_SHIP_THRESHOLD } from './tokens'
 
+// REQ-016 / AT-016-7 — re-export the DECLARATIVE region→currency mapping from
+// region.ts (us→USD, uk→GBP, eu→EUR) so consumers of the catalog reach the SAME
+// single source the display formatter reads. The price display itself now resolves
+// the symbol through that map (lib/format.ts `moneyForRegion` + the `useMoney()`
+// hook), so prices render the region's currency rather than a hardcoded "€". The
+// server-authoritative mirror used at checkout lives in server/pricing.js and is
+// parity-checked against this same map.
+export { REGION_CURRENCY, currencyForRegion } from './region'
+export type { CurrencyCode, Region } from './region'
+
 // ── V2 product-model dimensions (REQ-013) — additive enums ───────────────────
 // These are the canonical filter axes the per-world collections build on
 // (REQ-010). They are ADDITIVE: no existing field (`category`, `personalizable`,

@@ -31,6 +31,11 @@ export const LEGAL_REVIEW_BANNER: Record<Lang, string> = {
   EN: 'This page is a structural template. Items marked [MISSING — …] must be completed with the operator’s real legal details, and a professional legal review (plus localized DE/FR versions) is required before go-live.',
   DE: 'Diese Seite ist eine strukturelle Vorlage. Mit [MISSING — …] markierte Angaben müssen mit den echten rechtlichen Daten des Betreibers ergänzt werden; eine professionelle Rechtsprüfung (inkl. lokalisierter DE/FR-Fassungen) ist vor dem Go-live erforderlich.',
   FR: 'Cette page est un modèle structurel. Les éléments marqués [MISSING — …] doivent être complétés avec les données légales réelles de l’exploitant, et une révision juridique professionnelle (ainsi que les versions localisées DE/FR) est requise avant la mise en ligne.',
+  // REQ-015 / T-501 — the ES banner HONESTLY discloses that the ES legal pages
+  // still render the English structural template: legal prose is deliberately NOT
+  // machine-translated (a wrong legal translation is worse than the reviewed
+  // English source). A localized ES legal version is a launch-blocking TODO.
+  ES: 'Esta página es una plantilla estructural y, por ahora, se muestra en inglés. Los elementos marcados [MISSING — …] deben completarse con los datos legales reales del operador, y se requiere una revisión jurídica profesional (incluida una versión localizada en español) antes del lanzamiento.',
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -386,6 +391,12 @@ export const LEGAL_DOCS_BY_LANG: Record<Lang, Record<string, LegalDoc>> = {
   EN: { impressum: impressum_EN, privacy: privacy_EN, terms: terms_EN, returns: returns_EN, shipping: shipping_EN },
   DE: { impressum: impressum_DE, privacy: privacy_DE, terms: terms_DE, returns: returns_DE, shipping: shipping_DE },
   FR: { impressum: impressum_FR, privacy: privacy_FR, terms: terms_FR, returns: returns_FR, shipping: shipping_FR },
+  // REQ-015 / T-501 — ES intentionally reuses the EN structural template (see the
+  // ES LEGAL_REVIEW_BANNER): legal prose is NOT machine-translated. The ES banner
+  // discloses this; a localized ES legal version is a launch-blocking TODO. The
+  // UI i18n dictionary (translations.ES) IS fully localized — only legal prose is
+  // held back on purpose.
+  ES: { impressum: impressum_EN, privacy: privacy_EN, terms: terms_EN, returns: returns_EN, shipping: shipping_EN },
 }
 
 // Backward-compatible flat EN export. The i18n switch is now WIRED in Legal.tsx,

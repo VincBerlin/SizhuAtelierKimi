@@ -149,8 +149,10 @@ export function computeShippingCents(region, subtotalCents) {
   return subtotalCents >= FREE_SHIP_THRESHOLD_CENTS ? 0 : FLAT_SHIP_CENTS
 }
 
-// Map a CDN/host country header to a shipping region (mirror of /api/region and
-// the EU country set). Exposed so the checkout route shares one source of truth.
+// Map a CDN/host country header to a shipping region. This is the SINGLE source of
+// truth for country→region: the charge route (/api/checkout) AND the display route
+// (/api/region) both call it, so display and charge region can never diverge on a
+// one-sided edit (FM-06). The EU set is therefore defined here once, nowhere else.
 const EU_COUNTRIES = new Set(['DE', 'AT', 'FR', 'NL', 'BE', 'LU', 'IT', 'ES', 'PT', 'IE', 'FI', 'EE', 'LV', 'LT', 'SK', 'SI', 'GR', 'CY', 'MT', 'HR', 'BG', 'RO', 'HU', 'PL', 'CZ', 'DK', 'SE'])
 export function regionFromCountry(country, defaultRegion = 'eu') {
   const c = String(country || '').toUpperCase()
@@ -159,4 +161,21 @@ export function regionFromCountry(country, defaultRegion = 'eu') {
   if (EU_COUNTRIES.has(c)) return 'eu'
   if (c) return 'other'
   return String(defaultRegion || 'eu').toLowerCase()
+}
+
+// ── Server-AUTHORITATIVE region → ISO-4217 currency (REQ-016 / AT-016-7) ──────
+// The checkout route stamps EVERY Stripe line item (products + shipping) with the
+// currency for the request's region and IGNORES any client-supplied currency —
+// exactly as it ignores client `unitAmount` / `shippingCents` (FM-06). This is a
+// DECLARATIVE map (no currency literals scattered through the route): US→USD,
+// UK→GBP, EU→EUR; "other" settles in EUR (primary market currency). It mirrors the
+// client display map in src/lib/region.ts 1:1 and is parity-checked in the region
+// tests, so a one-sided edit turns the suite RED instead of mischarging silently.
+export const REGION_CURRENCY = Object.freeze({ us: 'USD', uk: 'GBP', eu: 'EUR', other: 'EUR' })
+
+// Pure region → ISO currency lookup. Unknown/empty region resolves to EUR so the
+// route never builds a Stripe line item with an `undefined` currency.
+export function currencyForRegion(region) {
+  const r = String(region || '').toLowerCase()
+  return REGION_CURRENCY[r] || REGION_CURRENCY.eu
 }

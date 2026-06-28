@@ -1,12 +1,11 @@
 import { useState, useEffect, type CSSProperties } from 'react'
 import { useNavigate, Link } from 'react-router'
 import Poster from '../components/Poster'
-import { useShopStore } from '../store/ShopStore'
+import { useShopStore, useMoney } from '../store/ShopStore'
 import { useAuth } from '../store/AuthProvider'
 import { useT } from '../i18n/I18nProvider'
 import { startCheckout, cartHasIncompletePersonalization } from '../lib/checkout'
 import { apiAddresses } from '../lib/auth'
-import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
 const inputStyle: CSSProperties = {
@@ -22,6 +21,7 @@ const inputStyle: CSSProperties = {
 
 export default function Checkout() {
   const { cart, subtotal, shipCost, total, tax, openCart, showToast } = useShopStore()
+  const money = useMoney()
   const { user } = useAuth()
   const { t, lang } = useT()
   const navigate = useNavigate()
@@ -81,7 +81,7 @@ export default function Checkout() {
     )
   }
 
-  const shipText = shipCost === 0 ? t('checkout.shipFree') : euro(shipCost)
+  const shipText = shipCost === 0 ? t('checkout.shipFree') : money(shipCost)
 
   return (
     <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 32px 80px' }}>
@@ -129,7 +129,7 @@ export default function Checkout() {
               <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.accent, flexShrink: 0 }} />
               <span>{t('cart.confirmLabel')}</span>
             </label>
-            <button onClick={placeOrder} disabled={placing || !canPlace} className="transition-[filter] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${euro(total)}`}</button>
+            <button onClick={placeOrder} disabled={placing || !canPlace} className="transition-[filter] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${money(total)}`}</button>
             <div style={{ fontSize: 12, color: C.textMuted2, textAlign: 'center' }}>{t('checkout.noHidden')}</div>
           </div>
         </div>
@@ -147,15 +147,15 @@ export default function Checkout() {
                   <div style={{ fontWeight: 500, color: C.ink }}>{i.title}</div>
                   <div style={{ color: C.textMuted2, fontSize: 12 }}>{i.meta}{i.qty > 1 ? ` · ×${i.qty}` : ''}</div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>{euro(i.price * i.qty)}</div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{money(i.price * i.qty)}</div>
               </div>
             ))}
           </div>
           <div style={{ borderTop: `1px solid ${C.borderInput}`, paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 9, fontSize: 14, color: '#4A4438' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('checkout.subtotal')}</span><span>{euro(subtotal)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('checkout.subtotal')}</span><span>{money(subtotal)}</span></div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('checkout.shipping')}</span><span>{shipText}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 17, color: C.ink, borderTop: `1px solid ${C.borderInput}`, paddingTop: 10, marginTop: 4 }}><span>{t('checkout.total')}</span><span>{euro(total)}</span></div>
-            <div style={{ fontSize: 11, color: C.textMuted2 }}>{t('checkout.vat', { amount: euro(tax) })}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 17, color: C.ink, borderTop: `1px solid ${C.borderInput}`, paddingTop: 10, marginTop: 4 }}><span>{t('checkout.total')}</span><span>{money(total)}</span></div>
+            <div style={{ fontSize: 11, color: C.textMuted2 }}>{t('checkout.vat', { amount: money(tax) })}</div>
           </div>
         </div>
       </div>

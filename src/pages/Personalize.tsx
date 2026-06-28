@@ -2,12 +2,11 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import PosterScene from '../components/shop/PosterScene'
 import { computeChart, frames, backgrounds, sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
-import { useShopStore } from '../store/ShopStore'
+import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
 import { COMMERCE_ENABLED } from '../lib/config'
 import { ptypeProductId, buildVariantId } from '../lib/checkout'
-import { euro } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW, POSTER_BG_PALETTE, posterBgName } from '../lib/tokens'
 import { searchCities } from '../lib/cities'
 // Single client source of truth for product-type base prices + PDF add-on price.
@@ -35,6 +34,7 @@ function Field({ label, error, children }: { label: string; error?: boolean; chi
 export default function Personalize() {
   const { t, lang } = useT()
   const { addItem, showToast } = useShopStore()
+  const money = useMoney()
 
   const [typeId, setTypeId] = useState<ProductTypeId>('bazi')
   const [a, setA] = useState<Person>(emptyPerson)
@@ -189,7 +189,7 @@ export default function Personalize() {
                   <button key={p.id} onClick={() => setTypeId(p.id)} style={{ position: 'relative', textAlign: 'left', border: `1px solid ${C.borderInput}`, background: sel ? C.accentSoftBg : C.surfaceInput, borderRadius: 10, padding: '12px 14px', cursor: 'pointer', fontFamily: FONT_SANS }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{t(`personalize.types.${p.id}.name`)}</div>
                     <div style={{ fontSize: 11, color: C.textMuted2, marginTop: 4, lineHeight: 1.35 }}>{t(`personalize.types.${p.id}.sub`)}</div>
-                    {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600, marginTop: 6 }}>{t('personalize.from')} {euro(p.basePrice)}</div>}
+                    {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600, marginTop: 6 }}>{t('personalize.from')} {money(p.basePrice)}</div>}
                     {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
                   </button>
                 )
@@ -283,7 +283,7 @@ export default function Personalize() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
                 {sizes.map((z) => {
                   const sel = z.id === sizeId
-                  const deltaText = z.delta > 0 ? '+ ' + euro(z.delta) : z.delta < 0 ? '− ' + euro(-z.delta) : t('configurator.inclusive')
+                  const deltaText = z.delta > 0 ? '+ ' + money(z.delta) : z.delta < 0 ? '− ' + money(-z.delta) : t('configurator.inclusive')
                   return (
                     <button key={z.id} onClick={() => setSizeId(z.id)} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
@@ -297,7 +297,7 @@ export default function Personalize() {
               {!def.pdfIncluded && (
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 18, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
                   <input type="checkbox" checked={pdfAddon} onChange={(e) => setPdfAddon(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
-                  <span>{t('personalize.pdfAddon')}{COMMERCE_ENABLED && <> (+ {euro(PDF_ADDON_PRICE)})</>}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.pdfNote')}</span></span>
+                  <span>{t('personalize.pdfAddon')}{COMMERCE_ENABLED && <> (+ {money(PDF_ADDON_PRICE)})</>}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.pdfNote')}</span></span>
                 </label>
               )}
             </div>
@@ -316,7 +316,7 @@ export default function Personalize() {
               <SumRow label={t('personalize.sumLang')} value={posterLangLabel} />
               {def.poster && <SumRow label={t('personalize.sumDesign')} value={designLabel} />}
               {def.poster && <SumRow label={t('personalize.sumSize')} value={size.label} />}
-              {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={euro(price)} strong />}
+              {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={money(price)} strong />}
             </dl>
             {/* REQ-018 AK-3 — disclosed noon fallback in the personalization summary. */}
             {unknownTime && (
@@ -339,7 +339,7 @@ export default function Personalize() {
           )}
 
           <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
-            {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {euro(price)}</>}
+            {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {money(price)}</>}
           </button>
         </div>
       </div>

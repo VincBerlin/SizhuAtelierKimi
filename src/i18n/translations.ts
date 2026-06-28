@@ -1,8 +1,8 @@
-// i18n dictionary. Primary language: EN. DE/FR are AI-provided — review with a
-// native speaker before launch. Structural data (prices, posters, ids) lives in
+// i18n dictionary. Primary language: EN. DE/FR/ES are machine-translated —
+// review with a native speaker before launch (ES: VR-ES-MACHINE-TRANSLATED). Structural data (prices, posters, ids) lives in
 // lib/catalog.ts; all user-facing text lives here.
 
-export type Lang = 'EN' | 'DE' | 'FR'
+export type Lang = 'EN' | 'DE' | 'FR' | 'ES'
 
 export const translations: Record<Lang, Record<string, any>> = {
   EN: {
@@ -946,5 +946,1165 @@ export const translations: Record<Lang, Record<string, any>> = {
         bazi: { q: 'À propos de votre personnalisation', a: 'À partir de la date, de l’heure et du lieu que vous saisissez, nous composons une mise en page symbolique des quatre piliers avec troncs célestes et branches terrestres. Si vous ne connaissez pas votre heure de naissance, nous utilisons 12 h (midi) par défaut — cela peut influencer le résultat.' },
       },
     },
+  },
+
+  // ES — machine-translated full locale (REQ-015 / T-501). Key parity with EN
+  // is guaranteed (AT-015-1); translation QUALITY is an open value-risk the user
+  // reviews (VR-ES-MACHINE-TRANSLATED). Not native-reviewed.
+  ES: {
+    announce: {
+      shipping: 'Envío gratis a partir de {amount}',
+      personalized: 'Personalizado a partir de tus datos de nacimiento',
+      freeActivated: '✓ Envío gratis activado ✦ Una obra simbólica inspirada en tus datos de nacimiento',
+      fallback: 'Impresiones personalizadas premium. Pago seguro. Producción local refinada.'
+    },
+    preview: {
+      announce: 'Vista previa — nuestra tienda se lanza muy pronto ✦',
+      notForSale: 'Vista previa — aún no disponible para la compra',
+      soon: 'Próximamente'
+    },
+    noonFallback: {
+      fieldHint: 'Si no conoces tu hora de nacimiento, usamos las 12:00 del mediodía — esto puede influir en el resultado.',
+      summaryNotice: 'Hora de nacimiento desconocida: compuesto usando las 12:00 del mediodía por defecto — esto puede influir en el resultado.'
+    },
+    nav: {
+      home: 'Inicio',
+      tagline: 'Astrología · Arte · Atelier',
+      startPersonalizing: 'Empieza a personalizar',
+      poster: 'Pósteres personalizados',
+      collections: 'Colecciones',
+      gifts: 'Regalos',
+      tcm: 'TCM',
+      bundles: 'Packs',
+      digital: 'Digital',
+      blog: 'Blog',
+      wissen: 'Conocimiento',
+      faq: 'FAQ',
+      about: 'Sobre nosotros',
+      contact: 'Contacto',
+      menu: 'Menú',
+      open: 'Abrir menú',
+      close: 'Cerrar',
+      cart: 'Cesta',
+      primary: {
+        bestseller: 'Más vendidos',
+        new: 'Novedades',
+        posters: 'Pósteres',
+        tcm: 'Pósteres TCM',
+        wuxing: 'Wuxing',
+        offers: 'Ofertas',
+        posterSets: 'Sets de pósteres',
+        inspiration: 'Inspiración'
+      },
+      posterMenu: {
+        bazi: 'Pósteres BaZi personalizados',
+        birthChart: 'Pósteres de carta natal personalizados',
+        couple: 'Pósteres de compatibilidad de pareja personalizados',
+        fireHorse: 'Edición Fire Horse 2026',
+        tcm: 'Pósteres educativos de TCM',
+        digital: 'PDFs de análisis digital',
+        bundles: 'Packs',
+        gifts: 'Colección de regalos'
+      },
+      mega: {
+        personalized: {
+          title: 'Pósteres personalizados',
+          baziPosters: 'Pósteres BaZi',
+          personalizedPosters: 'Todos los personalizados',
+          compatibility: 'Compatibilidad de pareja',
+          startPersonalizing: 'Empieza a personalizar'
+        },
+        tcm: {
+          title: 'Pósteres TCM',
+          tcmPosters: 'Pósteres educativos de TCM'
+        },
+        wuxing: {
+          title: 'Pósteres Wuxing',
+          wuxingPosters: 'Cinco elementos'
+        },
+        analysis: {
+          title: 'PDFs de análisis',
+          analysisPdfs: 'Análisis BaZi digital'
+        },
+        bundles: {
+          title: 'Packs',
+          bundles: 'Packs y sets'
+        },
+        featured: {
+          title: 'Destacados',
+          fireHorse: 'Fire Horse 2026',
+          inspiration: 'Galería de inspiración',
+          allCollections: 'Ver todas las colecciones'
+        },
+        tiles: {
+          ctaShop: 'Comprar ahora',
+          ctaExplore: 'Explorar',
+          ctaPersonalize: 'Personalizar',
+          posters: {
+            baziTitle: 'Pósteres BaZi personalizados',
+            baziCta: 'Personalizar',
+            personalizedTitle: 'Todos los pósteres personalizados',
+            personalizedCta: 'Explorar'
+          },
+          tcm: {
+            eduTitle: 'Pósteres educativos de TCM',
+            eduCta: 'Comprar ahora',
+            practiceTitle: 'Para consulta y estudio',
+            practiceCta: 'Explorar'
+          },
+          wuxing: {
+            fiveTitle: 'Póster de los cinco elementos',
+            fiveCta: 'Comprar ahora',
+            balanceTitle: 'Serie Equilibrio Wuxing',
+            balanceCta: 'Explorar'
+          }
+        }
+      }
+    },
+    offers: {
+      eyebrow: 'Ofertas',
+      title: 'Ofertas y ediciones',
+      intro: 'Un espacio cuidado con nuestros mundos — cada sección reúne una selección real que puedes comprar de inmediato. Sin cuentas atrás falsas, sin descuentos inventados: cada precio es el propio del producto.',
+      placeholderLabel: 'Marcador de posición — las imágenes de campaña llegarán pronto',
+      sections: {
+        bundles: {
+          eyebrow: 'Sets seleccionados',
+          title: 'Packs y sets',
+          text: 'Sets de pósteres coordinados para consulta, estudio y hogar — seleccionados para combinar bien entre sí.',
+          cta: 'Comprar todos los packs'
+        },
+        'fire-horse': {
+          eyebrow: 'Edición limitada',
+          title: 'Fire Horse 2026',
+          text: 'La edición numerada y firmada para el Año del Caballo de Fuego — hasta agotar existencias.',
+          cta: 'Ver la edición'
+        },
+        bazi: {
+          eyebrow: 'Personalizado',
+          title: 'Pósteres BaZi personalizados',
+          text: 'Obra simbólica de los Cuatro Pilares compuesta a partir de los datos de nacimiento que introduces — hecha por encargo.',
+          cta: 'Comprar pósteres BaZi'
+        },
+        tcm: {
+          eyebrow: 'Listo para enviar',
+          title: 'Pósteres de conocimiento TCM',
+          text: 'Láminas didácticas seleccionadas para consulta y hogar — productos estándar, sin datos de nacimiento, se envían de inmediato.',
+          cta: 'Comprar pósteres TCM'
+        }
+      }
+    },
+    hero: {
+      eyebrow: 'PÓSTERES DE ASTROLOGÍA PERSONALIZADOS',
+      title1: 'Tu',
+      title2: 'Carta natal',
+      subtitle: 'Introduce tus datos de nacimiento y crea un póster BaZi o de carta natal personalizado premium diseñado específicamente para ti.',
+      cta1: 'Empieza a personalizar',
+      cta2: 'Explorar colecciones'
+    },
+    personalize: {
+      eyebrow: 'Personalizar',
+      title: 'Crea tu póster personalizado',
+      intro: 'Introduce tus datos de nacimiento, elige tu diseño y generamos un póster premium hecho específicamente para ti.',
+      chooseType: '1 · Elige tu póster',
+      from: 'desde',
+      types: {
+        bazi: {
+          name: 'Póster BaZi personalizado',
+          sub: 'Tu carta de los Cuatro Pilares a partir de la fecha, hora y lugar de nacimiento.'
+        },
+        birthchart: {
+          name: 'Póster de carta natal personalizado',
+          sub: 'Tu carta estelar personal como refinado arte de pared.'
+        },
+        couple: {
+          name: 'Póster de compatibilidad de pareja',
+          sub: 'Dos cartas, una pieza compartida — para parejas.'
+        },
+        firehorse: {
+          name: 'Edición Fire Horse 2026',
+          sub: 'Edición limitada para el Año del Caballo de Fuego.'
+        },
+        digital: {
+          name: 'PDF de análisis digital',
+          sub: 'Análisis en PDF de 10–15 páginas de tu carta.'
+        },
+        bundle: {
+          name: 'Póster + análisis digital',
+          sub: 'Tu póster más el análisis completo en PDF.'
+        }
+      },
+      birthHeading: '2 · Tus datos de nacimiento',
+      birthHeadingA: '2 · Persona A — datos de nacimiento',
+      birthHeadingB: 'Persona B — datos de nacimiento',
+      unknownTime: 'No conozco mi hora de nacimiento',
+      unknownTimeHint: 'Si no conoces tu hora exacta de nacimiento, usamos las 12:00 del mediodía como suposición por defecto. Tu póster se compondrá a partir de ese valor de reserva.',
+      langHeading: '3 · Idioma del póster',
+      designHeading: '4 · Diseño',
+      frameWord: 'Color del marco',
+      paletteWord: 'Paleta de fondo',
+      posterBgHeading: 'Fondo del póster',
+      sizeHeading: 'Tamaño',
+      pdfAddon: 'Añade el análisis digital en PDF',
+      pdfNote: 'Un análisis personal de 10–15 páginas de tu carta, entregado como descarga.',
+      pdfBadge: 'PDF digital',
+      summaryHeading: '5 · Revisa tu personalización',
+      sumType: 'Producto',
+      partnerName: 'Pareja',
+      timeUnknown: 'Desconocida — 12:00 del mediodía por defecto',
+      sumLang: 'Idioma',
+      sumDesign: 'Diseño',
+      sumSize: 'Tamaño',
+      sumPrice: 'Precio',
+      previewCertainty: 'Lo que ves aquí es lo que se usará para tu pedido personalizado. Revisa tus datos con atención antes de pedir.',
+      trustData: 'Creado a partir de tus datos de nacimiento',
+      trustLogic: 'Compuesto en una obra simbólica',
+      trustPreview: 'Vista previa antes de pedir',
+      trustPremium: 'Calidad de impresión premium',
+      errFix: 'Por favor, completa los campos de datos de nacimiento resaltados antes de añadir a la cesta.',
+      addToCart: 'Añadir póster personalizado a la cesta'
+    },
+    trust: {
+      apiTitle: 'Hecho a partir de tus datos',
+      apiSub: 'Una obra simbólica inspirada en tus datos de nacimiento',
+      deliveryTitle: 'Entrega en 5–7 días',
+      deliverySub: 'En todo el mundo, con seguimiento',
+      secureTitle: 'Stripe Secure',
+      secureSub: 'Pago cifrado',
+      artTitle: 'Arte premium',
+      artSub: 'Impresión de archivo de calidad museo',
+      payTitle: 'Pago seguro'
+    },
+    path: {
+      eyebrow: 'Cómo funciona',
+      title: 'El camino hacia tu póster',
+      steps: [
+        {
+          title: 'Introduce tus datos de nacimiento',
+          desc: 'Tu fecha, hora y lugar de nacimiento — también los de tu pareja para una carta de pareja.'
+        },
+        {
+          title: 'Componemos tu obra',
+          desc: 'Tomamos tus datos de nacimiento y componemos una obra personal y simbólica inspirada en ellos.'
+        },
+        {
+          title: 'Vista previa y añadir a la cesta',
+          desc: 'Mira una vista previa en vivo y un resumen completo de cada detalle antes de pedir.'
+        },
+        {
+          title: 'Entrega en 5–7 días',
+          desc: 'Hecho por encargo y luego envío climáticamente neutro a todo el mundo en 5–7 días.'
+        }
+      ]
+    },
+    catalog: {
+      title: 'La colección',
+      more: 'Ver la colección completa →'
+    },
+    carousel: {
+      prev: 'Producto anterior',
+      next: 'Producto siguiente',
+      goto: 'Ir al producto',
+      hint: 'Desliza para explorar'
+    },
+    search: {
+      placeholder: 'Busca productos, colecciones, pósteres…',
+      hint: 'Prueba «BaZi», «Carta natal», «Pareja», «Fire Horse», «Regalo»…',
+      noResults: 'No hay resultados que coincidan',
+      error: 'La búsqueda no está disponible temporalmente',
+      products: 'Pósteres',
+      collections: 'Colecciones',
+      gifts: {
+        wedding: 'Ideas de regalo de boda',
+        birthday: 'Ideas de regalo de cumpleaños',
+        anniversary: 'Ideas de regalo de aniversario',
+        baby: 'Ideas de regalo para baby shower',
+        newbeginning: 'Regalos de nuevos comienzos',
+        studio: 'Regalos para consulta y estudio'
+      }
+    },
+    auth: {
+      account: 'Cuenta',
+      loginTitle: 'Bienvenido de nuevo',
+      createTitle: 'Crea tu perfil',
+      forgotTitle: 'Restablece tu contraseña',
+      resetTitle: 'Establece una nueva contraseña',
+      subtitle: 'Inicia sesión para ver tus pedidos y tu cuenta.',
+      email: 'Dirección de correo electrónico',
+      password: 'Contraseña',
+      newPassword: 'Nueva contraseña',
+      marketingConsent: 'Acepto recibir cartas energéticas semanales, novedades de productos, anuncios de lanzamientos y correos de marketing de SizhuAtelier. Puedo darme de baja en cualquier momento.',
+      loginCta: 'Iniciar sesión',
+      createCta: 'Crear perfil',
+      forgotCta: 'Enviar enlace de restablecimiento',
+      resetCta: 'Establecer nueva contraseña',
+      toSignup: 'Crear un perfil',
+      toLogin: 'Volver a iniciar sesión',
+      toForgot: '¿Olvidaste tu contraseña?',
+      resetSent: 'Si ese correo existe, te enviaremos un enlace de restablecimiento.',
+      resetDone: 'Tu contraseña se ha actualizado.',
+      dashboardTitle: 'Tu perfil',
+      logout: 'Cerrar sesión',
+      emailLabel: 'Correo electrónico',
+      newsletterStatus: 'Boletín',
+      marketingPrefs: 'Preferencias de marketing',
+      saved: 'Guardado ✦',
+      orderHistory: 'Historial de pedidos',
+      noOrders: 'Aún no hay pedidos.',
+      err: {
+        invalid_email: 'Por favor, introduce una dirección de correo electrónico válida.',
+        weak_password: 'La contraseña debe tener al menos 8 caracteres.',
+        email_taken: 'Ya existe una cuenta con este correo electrónico.',
+        invalid_credentials: 'Correo electrónico o contraseña incorrectos.',
+        auth_unconfigured: 'Las cuentas aún no están disponibles.',
+        invalid_token: 'Este enlace de restablecimiento no es válido o ha caducado.',
+        unauthorized: 'Por favor, inicia sesión de nuevo.',
+        wrong_password: 'Tu contraseña actual es incorrecta.',
+        payment_unconfigured: 'El pago aún no está configurado.',
+        rate_limited: 'Demasiados intentos — espera un momento y vuelve a intentarlo.',
+        server_error: 'Algo salió mal — por favor, inténtalo de nuevo.',
+        network_error: 'Error de red — por favor, inténtalo de nuevo.'
+      }
+    },
+    account: {
+      personalDetails: 'Datos personales',
+      name: 'Nombre',
+      namePh: 'Tu nombre',
+      language: 'Idioma preferido',
+      save: 'Guardar',
+      saved: 'Guardado ✦',
+      cancel: 'Cancelar',
+      edit: 'Editar',
+      delete: 'Eliminar',
+      status: 'Estado',
+      changePassword: 'Cambiar contraseña',
+      currentPassword: 'Contraseña actual',
+      newPassword: 'Nueva contraseña',
+      updatePassword: 'Actualizar contraseña',
+      passwordChanged: 'Contraseña actualizada ✦',
+      shippingAddresses: 'Direcciones de envío',
+      billingAddress: 'Dirección de facturación',
+      addAddress: 'Añadir dirección',
+      editAddress: 'Editar dirección',
+      setDefault: 'Establecer como predeterminada',
+      default: 'Predeterminada',
+      noAddresses: 'Aún no hay direcciones guardadas.',
+      sameAsShipping: 'Dirección de facturación igual que la de envío',
+      fullName: 'Nombre completo',
+      line1: 'Línea de dirección 1',
+      line2: 'Línea de dirección 2 (opcional)',
+      postalCode: 'Código postal',
+      city: 'Ciudad',
+      region: 'Provincia / región (opcional)',
+      country: 'País (2 letras, p. ej. DE)',
+      phone: 'Teléfono (opcional)',
+      paymentMethods: 'Métodos de pago',
+      paymentDesc: 'Tus tarjetas guardadas se gestionan de forma segura mediante Stripe. Nunca almacenamos números de tarjeta.',
+      managePayments: 'Gestionar métodos de pago',
+      paymentNone: 'Aún no hay métodos de pago guardados — añade uno al pagar.',
+      paymentUnavailable: 'La gestión de pagos aún no está disponible.',
+      preferences: 'Preferencias'
+    },
+    card: {
+      bought: 'comprados',
+      reviews: 'reseñas',
+      sold: 'vendidos',
+      personalize: 'Personalizar',
+      personalLine: 'Creado a partir de tu fecha, hora y lugar de nacimiento.',
+      shop: 'Comprar este póster'
+    },
+    coll: {
+      allPosters: 'Todos los pósteres personalizados',
+      cards: {
+        bazi: {
+          title: 'Pósteres BaZi personalizados',
+          desc: 'Convierte tu carta de los Cuatro Pilares en una impresión de pared personalizada premium.',
+          cta: 'Empieza a personalizar'
+        },
+        birthchart: {
+          title: 'Pósteres de carta natal personalizados',
+          desc: 'Tu carta estelar personal, diseñada como refinado arte de pared.',
+          cta: 'Empieza a personalizar'
+        },
+        couple: {
+          title: 'Pósteres de compatibilidad de pareja',
+          desc: 'Dos cartas, una pieza compartida — hecha para parejas.',
+          cta: 'Empieza a personalizar'
+        },
+        firehorse: {
+          title: 'Edición Fire Horse 2026',
+          desc: 'Una edición de coleccionista limitada para el Año del Caballo de Fuego — se envía lista para colgar.',
+          cta: 'Comprar este póster'
+        },
+        digital: {
+          title: 'PDFs de análisis digital',
+          desc: 'Un análisis personal de 10–15 páginas de tu carta, como descarga.',
+          cta: 'Explorar'
+        },
+        bundles: {
+          title: 'Packs',
+          desc: 'Póster + análisis digital, combinados a un precio especial.',
+          cta: 'Explorar'
+        },
+        gifts: {
+          title: 'Colección de regalos',
+          desc: 'Un póster personalizado con significado — hecho para alguien a quien quieres.',
+          cta: 'Empieza a personalizar'
+        }
+      }
+    },
+    bundles: {
+      eyebrow: 'Llévate más, paga menos',
+      title: 'Packs',
+      sub: 'Sets seleccionados — pósteres y análisis digital combinados, a un precio especial.',
+      add: 'Añadir set a la cesta',
+      save: 'Ahorra'
+    },
+    newsletter: {
+      eyebrow: 'El Círculo del Atelier',
+      title: 'El Pulso Cósmico — Tus cartas energéticas semanales',
+      copy: 'Alinea tus días con la inspiración celeste. Suscríbete para recibir nuestras cartas energéticas semanales directamente en tu bandeja de entrada — una lectura astrológica reflexiva de los cambios cósmicos actuales, que te ofrece una perspectiva energética semanal para los días por venir. También serás el primero en recibir nuestras novedades de marketing — lanzamientos de nuevos productos, colecciones y ofertas exclusivas. ✨ Sin spam, solo ideas relevantes.',
+      benefits: [
+        'Cartas energéticas semanales en tu bandeja de entrada',
+        'Lanzamientos de nuevos productos y colecciones',
+        'Campañas de ideas de regalo de temporada'
+      ],
+      placeholder: 'Tu dirección de correo electrónico',
+      langPref: 'Correos en',
+      button: 'Suscribirse',
+      consent: 'Acepto recibir cartas energéticas semanales, novedades de productos, anuncios de lanzamientos y correos de marketing de SizhuAtelier. Puedo darme de baja en cualquier momento. Consulta nuestra',
+      privacy: 'Política de privacidad',
+      success: 'Bienvenido al Círculo del Atelier — revisa tu bandeja de entrada para confirmar tu suscripción.',
+      error: 'Algo salió mal — por favor, inténtalo de nuevo.',
+      consentErr: 'Por favor, acepta los términos para continuar.',
+      fine: 'Doble confirmación · cancela cuando quieras'
+    },
+    wissen: {
+      eyebrow: 'Blog',
+      title: 'Lo que hay detrás del BaZi',
+      sub: 'Información de fondo para tus consultas y para quien quiera entender su póster.',
+      read: 'Leer más →'
+    },
+    gifts: {
+      eyebrow: 'Ideas de regalo',
+      title: 'Encuentra un regalo personalizado con significado',
+      sub: 'Creado a partir de datos de nacimiento reales — refinado, intencional y hecho para una sola persona. O un póster educativo listo para colgar para una consulta o estudio.',
+      personalizedTag: 'Personalizado',
+      shopTag: 'Listo para enviar',
+      ctaPersonalize: 'Crea un regalo personalizado',
+      ctaShop: 'Comprar este regalo',
+      cards: {
+        wedding: {
+          title: 'Regalos de boda',
+          copy: 'Un regalo de boda con significado creado en torno a dos personas, su conexión y su historia simbólica compartida.'
+        },
+        birthday: {
+          title: 'Regalos de cumpleaños',
+          copy: 'Un regalo personal creado a partir de datos de nacimiento — diseñado para sentirse intencional, refinado y hecho para una sola persona.'
+        },
+        anniversary: {
+          title: 'Regalos de aniversario',
+          copy: 'Celebra una historia compartida con una pieza visual basada en datos de nacimiento personales y compatibilidad simbólica.'
+        },
+        baby: {
+          title: 'Regalos para baby shower',
+          copy: 'Un recuerdo refinado para un nuevo capítulo de la vida, creado a partir de los datos de nacimiento del bebé. ¿Hora de nacimiento desconocida? Usamos las 12:00 del mediodía por defecto.'
+        },
+        newbeginning: {
+          title: 'Regalos de nuevos comienzos',
+          copy: 'Para una mudanza, un nuevo trabajo, un nuevo año o un nuevo comienzo personal — un recordatorio visual simbólico de rumbo y renovación.'
+        },
+        spiritual: {
+          title: 'Regalos espirituales',
+          copy: 'Una pieza contemplativa de los cinco elementos creada a partir de datos de nacimiento personales — para rincones de meditación y espacios de calma.'
+        },
+        couple: {
+          title: 'Regalos de pareja',
+          copy: 'Dos cartas en una obra compartida — un póster de compatibilidad hecho para parejas a partir de los datos de nacimiento de ambos.'
+        },
+        housewarming: {
+          title: 'Regalos de inauguración de hogar',
+          copy: 'La edición limitada Fire Horse 2026 — una pieza llamativa, lista para colgar, para marcar un nuevo hogar. Se envía lista para enmarcar.'
+        },
+        wellness: {
+          title: 'Regalos para estudios de bienestar',
+          copy: 'Arte de pared educativo y relajante para salas de tratamiento y descanso — que explica los cinco elementos con claridad visual. Listo para enviar.'
+        },
+        yoga: {
+          title: 'Regalos para estudios de yoga',
+          copy: 'Pósteres didácticos que aportan calma para las paredes del estudio — terrosos, claros y listos para colgar. No personalizados.'
+        },
+        tcmpractice: {
+          title: 'Regalos para consultas de TCM',
+          copy: 'Pósteres educativos para consultas de TCM y salas de tratamiento — serenos, profesionales y listos para enmarcar.'
+        }
+      },
+      faqTitle: 'Preguntas frecuentes sobre regalos',
+      faqs: [
+        {
+          q: '¿Qué regalos son personalizados?',
+          a: 'Los pósteres BaZi, de carta natal y de compatibilidad de pareja se crean a partir de datos de nacimiento. Los pósteres educativos Fire Horse y TCM se envían listos para colgar y no son personalizados.'
+        },
+        {
+          q: '¿Y si no conozco la hora de nacimiento del destinatario?',
+          a: 'Sin problema — elige «No conozco mi hora de nacimiento» y usamos las 12:00 del mediodía como suposición por defecto.'
+        },
+        {
+          q: '¿Puedo enviarlo directamente como regalo?',
+          a: 'Añade un póster personalizado o un póster educativo a tu cesta y paga como de costumbre.'
+        }
+      ]
+    },
+    faq: {
+      eyebrow: 'FAQ',
+      title: 'Preguntas frecuentes',
+      viewFull: 'Ver todas las preguntas frecuentes'
+    },
+    faqHome: [
+      {
+        q: '¿Cómo se personaliza mi póster?',
+        a: 'Tomamos la fecha, hora y lugar de nacimiento que introduces y los usamos para componer una obra personal y simbólica — una composición visual estructurada inspirada en tus datos de nacimiento y hecha específicamente para ti.'
+      },
+      {
+        q: '¿Y si no conozco mi hora de nacimiento?',
+        a: 'Sin problema — elige «No conozco mi hora de nacimiento» y usamos las 12:00 del mediodía como suposición por defecto. Tu póster se compone a partir de ese valor de reserva.'
+      },
+      {
+        q: '¿Veré una vista previa o un resumen antes de pedir?',
+        a: 'Sí — el proceso de personalización muestra una vista previa en vivo y un resumen completo de cada detalle antes de añadir a la cesta.'
+      },
+      {
+        q: '¿Cuánto tarda el envío?',
+        a: 'La producción tarda unos días laborables y luego el envío climáticamente neutro (DE 1–2 días), a todo el mundo.'
+      },
+      {
+        q: '¿Puedo devolver un póster personalizado?',
+        a: 'Los artículos personalizados se hacen por encargo y no se pueden devolver una vez iniciada la producción. Tus derechos legales se mantienen para artículos dañados, defectuosos o incorrectos.'
+      }
+    ],
+    home: {
+      world: {
+        eyebrow: 'Compra por mundo',
+        title: 'Encuentra tu mundo de producto',
+        sub: 'Cuatro mundos seleccionados — desde arte de carta natal personalizado hasta pósteres didácticos listos para colgar.',
+        cards: {
+          bazi: {
+            title: 'Pósteres BaZi',
+            desc: 'Obra de los Cuatro Pilares personalizada, inspirada en tus datos de nacimiento.'
+          },
+          tcm: {
+            title: 'Pósteres TCM',
+            desc: 'Láminas didácticas seleccionadas de los cinco elementos — listas para enviar.'
+          },
+          wuxing: {
+            title: 'Pósteres Wuxing',
+            desc: 'El ciclo de los cinco elementos como una impresión serena y atmosférica.'
+          },
+          personalized: {
+            title: 'Pósteres personalizados',
+            desc: 'Cada motivo que componemos a partir de tus datos de nacimiento — hecho para ti.'
+          }
+        },
+        cta: 'Explorar mundo'
+      },
+      firehorse: {
+        eyebrow: 'Edición limitada · Destacado',
+        title: 'Fire Horse 2026',
+        copy: 'La edición limitada para el Año del Caballo de Fuego 2026 — numerada y firmada, hasta agotar existencias. Una llamativa pieza de coleccionista, lista para colgar.',
+        cta: 'Descubre Fire Horse 2026'
+      },
+      compatibility: {
+        eyebrow: 'Para parejas',
+        title: 'Pósteres de compatibilidad para dos',
+        copy: 'Dos cartas natales reunidas en una obra serena y simbólica — inspirada en vuestros datos de nacimiento compartidos. Un regalo personal para bodas, aniversarios y nuevos hogares.',
+        ctaCollection: 'Ver pósteres de pareja',
+        ctaPersonalize: 'Empezar un póster de pareja'
+      },
+      analysis: {
+        eyebrow: 'Digital',
+        title: 'Análisis BaZi digital en PDF',
+        copy: 'Un PDF personal de 10–15 páginas que recoge tus cuatro pilares y el equilibrio de los cinco elementos — una lectura registrada de tus datos, disponible por separado o con descuento junto a un póster.',
+        cta: 'Explorar los PDFs de análisis'
+      },
+      inspiration: {
+        eyebrow: 'Inspiración',
+        title: 'Mira los pósteres en contexto',
+        copy: 'Explora nuestro muro de inspiración seleccionado — montajes de interiores e ideas de regalo que enlazan directamente con las colecciones y productos correspondientes.',
+        cta: 'Abrir la galería de inspiración'
+      },
+      seo: {
+        title: 'Pósteres de astrología personalizados, arte de pared TCM y Wuxing',
+        intro: 'SizhuAtelier compone arte de pared premium a partir de tus datos de nacimiento y selecciona pósteres educativos en torno al simbolismo del Este asiático. Cada motivo personalizado es una obra simbólica inspirada en tus datos de nacimiento — no es una herramienta de adivinación ni un consejo médico.',
+        sections: [
+          {
+            heading: 'Pósteres BaZi personalizados online',
+            body: 'Un póster BaZi presenta los cuatro pilares — año, mes, día y hora de tu nacimiento — como un diagrama personal y sereno, inspirado en los datos que introduces.',
+            linkLabel: 'Comprar pósteres BaZi',
+            to: '/collections/bazi-posters'
+          },
+          {
+            heading: 'Pósteres TCM para consulta, conocimiento y hogar',
+            body: 'Nuestros pósteres TCM son láminas didácticas seleccionadas de los cinco elementos — diseñadas para salas de tratamiento, estudios y hogar. Explican y decoran; no prometen ningún beneficio para la salud.',
+            linkLabel: 'Comprar pósteres TCM',
+            to: '/collections/tcm-posters'
+          },
+          {
+            heading: 'Wuxing y los cinco elementos',
+            body: 'El póster Wuxing muestra cómo los cinco elementos se nutren y se controlan entre sí — una lámina de conocimiento serena y atmosférica para consulta y hogar.',
+            linkLabel: 'Comprar pósteres Wuxing',
+            to: '/collections/wuxing-posters'
+          },
+          {
+            heading: 'Pósteres de pareja y compatibilidad',
+            body: 'Reúne dos cartas natales en una obra simbólica — un regalo personal inspirado en vuestros datos de nacimiento compartidos.',
+            linkLabel: 'Comprar pósteres de compatibilidad',
+            to: '/collections/compatibility-posters'
+          }
+        ],
+        knowledgeLabel: 'Mira los pósteres en contexto',
+        knowledgeTo: '/inspiration',
+        keywordTodo: 'TAREA de contenido (OQ-007): finaliza el conjunto de palabras clave SEO con una revisión SEO en idioma nativo antes del lanzamiento; la estructura de H2 y los enlaces internos ya están en su sitio.'
+      }
+    },
+    apiTrust: {
+      eyebrow: 'Personal',
+      title: 'Por qué tu póster es verdaderamente personalizado',
+      copy: 'Cada póster de SizhuAtelier se compone a partir de los datos de nacimiento que proporcionas. Convertimos tus datos en una base visual estructurada — una obra simbólica inspirada en tus datos de nacimiento, para que tu pieza no sea genérica sino hecha específicamente para ti.',
+      badges: [
+        'Creado a partir de datos de nacimiento',
+        'Obra simbólica, hecha para ti',
+        'Vista previa personalizada',
+        'Calidad de impresión premium',
+        'Hecho solo para ti'
+      ]
+    },
+    howItWorks: {
+      eyebrow: 'Cómo funciona',
+      title: 'De tus datos de nacimiento al arte de pared',
+      cta: 'Empieza a personalizar',
+      steps: [
+        {
+          title: 'Introduce tus datos de nacimiento',
+          desc: 'Tu fecha, hora y lugar de nacimiento — también los de tu pareja para una carta de pareja.'
+        },
+        {
+          title: 'Componemos tu obra',
+          desc: 'Convertimos tus datos de nacimiento en una base visual estructurada — una obra simbólica inspirada en ellos.'
+        },
+        {
+          title: 'Elige tu diseño',
+          desc: 'Elige tu paleta, marco, tamaño e idioma del póster — con una vista previa en vivo.'
+        },
+        {
+          title: 'Vista previa y luego imprimimos',
+          desc: 'Confirma lo que ves y producimos tu arte de pared personalizado premium.'
+        }
+      ]
+    },
+    footer: {
+      inspiration: 'Inspiración',
+      howItWorks: 'Cómo funciona',
+      about: 'Sobre nosotros',
+      contact: 'Contacto',
+      faq: 'FAQ',
+      shipping: 'Envío',
+      returns: 'Devoluciones y desistimiento',
+      terms: 'Términos',
+      privacy: 'Privacidad',
+      impressum: 'Aviso legal',
+      claim: 'Personalizado a partir de tus datos de nacimiento · envío climáticamente neutro'
+    },
+    cart: {
+      title: 'Cesta',
+      remaining: '¡Solo te faltan {amount} para el envío gratis!',
+      reached: '¡Envío gratis activado!',
+      empty: 'Vacía',
+      emptyHint: 'Diseña tu primer póster BaZi.',
+      toCollection: 'A la colección',
+      alsoLike: 'También te puede gustar',
+      clear: 'Vaciar la cesta',
+      remove: 'Quitar',
+      subtotal: 'Subtotal',
+      shipFree: 'Envío gratis',
+      ship: 'Envío {amount}',
+      inclVat: '· IVA incl.',
+      checkout: 'Pagar',
+      ssl: '· protegido con SSL',
+      toastAdded: 'Añadido a la cesta',
+      toastSet: 'Set añadido a la cesta',
+      editPersonalization: 'Editar personalización',
+      unknownTimeNotice: 'Hora de nacimiento: Desconocida — compuesto con las 12:00 del mediodía como suposición por defecto',
+      reviewBirth: 'Revisa tus datos de nacimiento de arriba antes de pagar.',
+      confirmLabel: 'Confirmo que los datos de mi personalización son correctos. Si mi hora de nacimiento es desconocida, entiendo que se usarán las 12:00 del mediodía como suposición por defecto.',
+      returnNotice: 'Los artículos personalizados se hacen por encargo y no se pueden devolver ni cancelar una vez iniciada la producción. Esto no afecta a tus derechos legales si un artículo llega dañado, defectuoso, incorrecto o no conforme a lo descrito.',
+      incompleteWarn: 'A algunos artículos les faltan datos de personalización obligatorios — por favor, complétalos antes de pagar.',
+      signInPrompt: 'Inicia sesión para usar tu dirección y método de pago guardados.',
+      signInCta: 'Iniciar sesión'
+    },
+    checkout: {
+      back: '← Volver a la cesta',
+      title: 'Pagar',
+      expressHint: 'Pago exprés — paga en segundos',
+      orGuest: 'o paga como invitado',
+      contact: 'Contacto y entrega',
+      noAccount: '— no necesitas cuenta',
+      email: 'Dirección de correo electrónico',
+      firstName: 'Nombre',
+      lastName: 'Apellidos',
+      street: 'Calle y número',
+      zip: 'Código postal',
+      city: 'Ciudad',
+      placeOrder: 'Realizar pedido ahora',
+      noHidden: '🔒 Sin costes ocultos · envío e impuestos mostrados abajo',
+      summary: 'Tu pedido',
+      subtotal: 'Subtotal',
+      shipping: 'Envío',
+      shipFree: 'Envío gratis',
+      total: 'Total',
+      vat: 'IVA {amount} incl. (19%)',
+      emptyTitle: 'Tu cesta está vacía',
+      toShop: 'A la tienda',
+      orderToast: 'Pedido confirmado — ¡gracias! ✦',
+      starting: 'Redirigiendo al pago seguro…',
+      payError: 'No se pudo iniciar el pago. Por favor, inténtalo de nuevo.',
+      successTitle: 'Gracias — tu pedido está confirmado ✦',
+      successBody: 'Te hemos enviado la confirmación por correo. Tu póster se hace por encargo y se envía en 5–7 días laborables.',
+      successHome: 'Volver a la tienda',
+      successOrder: 'Referencia del pedido',
+      cancelTitle: 'Pago cancelado',
+      cancelBody: 'No se realizó ningún cargo — tu cesta sigue aquí cuando estés listo.',
+      cancelRetry: 'Volver a la cesta',
+      signInPrompt: 'Inicia sesión para usar tu dirección y método de pago guardados.',
+      signInCta: 'Iniciar sesión',
+      signedInAs: 'Sesión iniciada como'
+    },
+    product: {
+      back: '← Volver a la colección',
+      reviews: 'reseñas',
+      sold: 'vendidos',
+      inclVat: 'IVA incl. · envío gratis a partir de {amount}',
+      save: 'Ahorra',
+      addToCart: 'Añadir al carrito',
+      secure: '🔒 Pago seguro',
+      returns: '↺ Reemplazo si está defectuoso',
+      climate: '✺ Climáticamente neutro',
+      related: 'Comprados juntos habitualmente',
+      accessories: 'Marco y accesorios',
+      inspirationTitle: 'Míralo en contexto',
+      inspirationCta: 'Explora la galería de inspiración',
+      caption: 'Vista previa en vivo — el marco, el fondo y tus datos se aplican al instante.',
+      detail: 'Detalle<br/>Macro del marco',
+      lifestyle: 'Ambiente<br/>Montaje de consulta',
+      personalNotice: 'Esta obra se crea específicamente a partir de los datos de nacimiento que has enviado y de tus elecciones de diseño. Por favor, revisa tus datos con atención antes de pagar.',
+      express: 'Redirigiendo al pago exprés…'
+    },
+    configurator: {
+      step1: '1 · Datos de nacimiento para tu composición',
+      date: 'Fecha de nacimiento',
+      time: 'Hora de nacimiento',
+      place: 'Lugar de nacimiento',
+      placePh: 'p. ej. Múnich',
+      name: 'Nombre en el póster',
+      namePh: 'p. ej. Mara',
+      step2: '2 · Color del marco',
+      step3: '3 · Color de fondo',
+      step4: '4 · Formato',
+      inclusive: 'incl.'
+    },
+    options: {
+      frames: {
+        '#B98A5E': 'Roble natural',
+        '#1B1B1B': 'Negro mate'
+      },
+      backgrounds: {
+        '#E9DFCB': 'Arenisca',
+        '#AFBCA6': 'Salvia',
+        '#BC7A5E': 'Terracota',
+        '#2C3A57': 'Índigo',
+        '#2A2A2C': 'Antracita'
+      },
+      sizes: {
+        A3: 'para rincones y estanterías',
+        A2: 'el estándar versátil',
+        A1: 'gran presencia'
+      }
+    },
+    pages: {
+      tcmEyebrow: 'TCM · Consulta · Estudio',
+      tcmTitle: 'Pósteres para consulta, yoga y bienestar',
+      tcmIntro: 'Pósteres serenos de elementos y BaZi para salas de tratamiento, estudios y salas de espera — dan equilibrio a la sala e inician conversaciones.',
+      bundlesEyebrow: 'Sets · precio especial',
+      bundlesTitle: 'Packs',
+      bundlesIntro: 'Sets seleccionados — pósteres y análisis digital combinados, a un precio especial.',
+      kollEyebrow: 'Todos los pósteres',
+      kollTitle: 'La colección',
+      kollIntro: 'BaZi, Wuxing, la edición limitada Fire Horse y nuestros pósteres de consulta y estudio — todos los motivos de un vistazo.',
+      blogEyebrow: 'Diario',
+      blogTitle: 'Blog',
+      blogIntro: 'Información de fondo sobre BaZi, astrología china y TCM — para tus consultas y para quien quiera entender su póster.',
+      blogRead: 'Leer más →',
+      articleBack: '← Diario',
+      articleCta: '¿Listo para tu propia carta?',
+      articleCtaBtn: 'Diseña tu póster →',
+      digitalEyebrow: 'Digital · PDF',
+      digitalHeroTitle: 'BaZi · Análisis personal',
+      digitalAdd: 'Añadir al carrito',
+      digitalSecure: 'Pago seguro · descarga inmediata cuando esté listo',
+      notFound: 'No encontrado',
+      toJournal: '← Al diario',
+      productNotFound: 'Producto no encontrado',
+      toShop: 'Volver a la tienda →',
+      about: {
+        eyebrow: 'EL ATELIER',
+        title1: 'Donde la astrología',
+        title2: 'se convierte en arte',
+        heroIntro: 'SizhuAtelier es un estudio de arte suizo que traduce la sabiduría de la astrología del Este asiático en arte de pared atemporal y personalizado.',
+        philTitle: 'Nuestra filosofía',
+        philP1: 'Creamos SizhuAtelier porque la mayoría de los pósteres de astrología son genéricos. Pueden parecer decorativos, pero no reflejan de verdad a la persona que hay detrás.',
+        philP2: 'Nuestro enfoque es distinto: cada póster parte de datos de nacimiento personales. Hemos creado nuestro propio sistema de diseño para transformar esos datos en una obra visual refinada y simbólica.',
+        philP3: 'El resultado es un póster personalizado que se siente intencional, refinado y hecho específicamente para una persona.',
+        processTitle: 'El camino hacia tu póster',
+        steps: [
+          {
+            num: '01',
+            title: 'Introduce tus datos de nacimiento',
+            desc: 'Comparte la fecha, hora y lugar de tu nacimiento. Para cartas de pareja, también los datos de tu pareja.'
+          },
+          {
+            num: '02',
+            title: 'Compón tu obra',
+            desc: 'Convertimos tus datos de nacimiento en una composición visual simbólica basada en los motivos tradicionales de los Cuatro Pilares.'
+          },
+          {
+            num: '03',
+            title: 'Elige un diseño',
+            desc: 'Elige entre distintos estilos de diseño, paletas de color y composiciones que encajen con tu energía personal.'
+          },
+          {
+            num: '04',
+            title: 'Imprime en el atelier',
+            desc: 'Tu póster se imprime en papel Hahnemühle premium con tintas de archivo y se embala con cuidado.'
+          }
+        ],
+        materialsTitle: 'Materiales con significado',
+        materialsIntro: 'Usamos solo materiales de la máxima calidad. Cada detalle se elige con cuidado para garantizar tanto la calidad estética como la energética de tu póster.',
+        materials: [
+          {
+            title: 'Papel Hahnemühle',
+            desc: '100% algodón, 308 g/m², calidad museo. Sin ácido para una durabilidad de más de 100 años.'
+          },
+          {
+            title: 'Tintas de archivo',
+            desc: 'Tintas a base de pigmentos con resistencia UV. Colores que no se desvanecen.'
+          },
+          {
+            title: 'Marcos de madera maciza',
+            desc: 'Marcos de madera maciza de silvicultura sostenible. Disponibles en roble, nogal y negro.'
+          }
+        ],
+        ctaTitle: '¿Listo para tu obra personal?',
+        ctaBtn1: 'Diseñar póster',
+        ctaBtn2: 'Contacto'
+      },
+      contact: {
+        heroTitle: 'Saluda',
+        heroIntro: 'Esperamos tu mensaje — ya sea una pregunta, una petición especial o una visita al atelier.',
+        name: 'Nombre',
+        email: 'Correo electrónico',
+        subject: 'Asunto',
+        message: 'Mensaje',
+        send: 'Enviar',
+        subjectGeneral: 'Consulta general',
+        subjectOrder: 'Pedido',
+        subjectCustom: 'Trabajo personalizado',
+        subjectVisit: 'Visita al atelier',
+        directTitle: 'Contacto directo',
+        emailLabel: 'Correo electrónico',
+        instagramLabel: 'Instagram',
+        atelierLabel: 'Atelier',
+        atelierValue: 'SizhuAtelier|Suiza',
+        responseLabel: 'Tiempo de respuesta',
+        responseValue: 'Respondemos en menos de 24 horas.',
+        faqTitle: 'Preguntas frecuentes',
+        faqIntro: 'Respuestas a las preguntas más importantes sobre nuestros pósteres y el proceso de pedido.',
+        faqs: [
+          {
+            q: '¿Cómo solicito una pieza?',
+            a: 'Simplemente elige tu formato de póster preferido de nuestra colección, introduce tus datos de nacimiento y creamos tu póster de carta personalizado. Para trabajos personalizados, contáctanos a través del formulario.'
+          },
+          {
+            q: '¿El atelier acepta encargos?',
+            a: 'Sí, nos encanta crear encargos individuales. Ya sea para bodas, eventos corporativos, estudios de bienestar o como un regalo especial — ponte en contacto y encontraremos juntos la solución perfecta.'
+          },
+          {
+            q: '¿Qué formatos están disponibles?',
+            a: 'Nuestros pósteres estándar vienen en A4, A3, A2 y 50×70 cm. Se pueden añadir marcos en roble, nogal o negro. Formatos especiales bajo petición.'
+          },
+          {
+            q: '¿Cómo funciona el proceso?',
+            a: 'Tras tu pedido, tus datos de nacimiento se integran en una obra simbólica y creamos una propuesta de diseño. Cuando la apruebas, imprimimos tu póster en el atelier y lo enviamos en 5–7 días laborables.'
+          },
+          {
+            q: '¿Cómo puedo ponerme en contacto?',
+            a: 'Contáctanos por correo en hello@sizhuatelier.shop, a través del formulario de contacto de esta página o directamente en Instagram @sizhuatelier. Respondemos en menos de 24 horas.'
+          },
+          {
+            q: '¿Puedo devolver mi póster?',
+            a: 'Como cada póster es personalizado, por lo general no podemos aceptar devoluciones. En caso de entrega dañada o errores de impresión, por supuesto lo reemplazamos sin coste.'
+          }
+        ]
+      }
+    },
+    content: {
+      digital: {
+        title: 'Análisis digital de la carta BaZi',
+        subtitle: 'PDF de 10–15 páginas',
+        desc: [
+          'Un análisis personal y detallado en PDF de tu carta BaZi: los cuatro pilares, tu maestro del día, el equilibrio de los cinco elementos y lo que significan para ti.',
+          'Entregado como descarga cuando esté listo — por separado o con descuento en un pack con un póster.'
+        ],
+        bullets: [
+          'Cuatro pilares y maestro del día, explicados con claridad',
+          'Equilibrio de los cinco elementos — fortalezas y patrones',
+          '10–15 páginas, en PDF descargable',
+          'Por separado o con descuento en un pack'
+        ]
+      },
+      digitalBundle: {
+        title: 'Póster BaZi + análisis digital',
+        sub: 'Tu póster personalizado más el análisis en PDF de 10–15 páginas de tu carta.'
+      },
+      bundles: {
+        b1: {
+          title: 'Set de inicio para consulta',
+          sub: '3 pósteres para tratamiento, recepción y sala de espera'
+        },
+        b2: {
+          title: 'Trío de bienestar',
+          sub: 'Calma coherente para estudio, pasillo y sala de descanso'
+        }
+      },
+      bundleMeta: 'Póster + análisis en PDF · precio especial',
+      bundleMeta3: 'Set de 3 piezas · precio especial',
+      addons: {
+        a1: {
+          title: 'Passepartout premium',
+          note: 'Cartón de museo sin ácido'
+        },
+        a2: {
+          title: 'Envoltorio de regalo',
+          note: 'Reciclado, con una cinta'
+        },
+        a3: {
+          title: 'Kit de colgado',
+          note: 'Incl. clavo y nivel'
+        },
+        a4: {
+          title: 'Paño de limpieza para cristal',
+          note: 'Microfibra, reutilizable'
+        }
+      },
+      products: {
+        1: {
+          title: 'Carta natal BaZi — Cuatro Pilares',
+          bullets: [
+            'Compuesto a partir de tus datos de nacimiento en una obra simbólica — sin motivo genérico',
+            'Impresión en papel natural de grano fino, sin ácido y resistente a la luz',
+            'Marco de madera maciza con cristal antirreflejos',
+            'Producido en 3 días laborables, numerado'
+          ]
+        },
+        2: {
+          title: 'BaZi Edición Consulta',
+          bullets: [
+            'Índigo sereno para salas de tratamiento y espera',
+            'Gran formato con claro impacto a distancia',
+            'Cristal de museo lavable, higiénico',
+            'Opcionalmente con el nombre de la consulta en lugar de una persona'
+          ]
+        },
+        3: {
+          title: 'Póster BaZi de elementos',
+          bullets: [
+            'Verde salvia cálido — reconfortante para salas tranquilas',
+            'Resalta el equilibrio de los cinco elementos',
+            'Papel reciclado sostenible, certificado FSC',
+            'También popular como regalo con vale'
+          ]
+        },
+        4: {
+          title: 'Carta BaZi Yoga-Flow',
+          bullets: [
+            'Terracota terroso — combina con madera y plantas',
+            'Formato compacto para las paredes del estudio',
+            'Marco ligero, fácil de montar en la pared',
+            'Descuento por set para varias salas del estudio'
+          ]
+        },
+        5: {
+          title: 'BaZi Luna y Estrellas',
+          bullets: [
+            'Antracita profundo para un efecto elegante y sereno',
+            'Marco negro mate premium',
+            'Letras con acento dorado opcionales',
+            'Un regalo premium para el cambio de año'
+          ]
+        },
+        6: {
+          title: 'BaZi Minimal',
+          bullets: [
+            'Arenisca reducido — sobrio y atemporal',
+            'Marco negro, línea limpia',
+            'Encaja en cualquier consulta y espacio de vida',
+            'Más vendido para quienes compran por primera vez'
+          ]
+        },
+        7: {
+          title: 'Póster Wuxing de los cinco elementos',
+          bullets: [
+            'Madera, fuego, tierra, metal y agua en equilibrio',
+            'Verde salvia sereno, reconfortante para cualquier sala',
+            'Educativo para consulta y hogar',
+            'Impresión de pigmentos de archivo de calidad museo'
+          ]
+        },
+        8: {
+          title: 'Fire Horse 2026 · Edición limitada',
+          bullets: [
+            'Edición limitada para el Año del Caballo de Fuego 2026',
+            'Terracota intenso, numerado y firmado',
+            'Una pieza de coleccionista con carácter',
+            'Hasta agotar existencias'
+          ]
+        },
+        11: {
+          title: 'TCM Cinco Elementos — Póster educativo',
+          bullets: [
+            'Madera, Fuego, Tierra, Metal y Agua y sus relaciones',
+            'Un recurso didáctico claro para salas de tratamiento y estudios',
+            'Impresión de archivo de calidad museo — no personalizado'
+          ]
+        },
+        12: {
+          title: 'Póster de consulta TCM',
+          bullets: [
+            'Arte de pared educativo y refinado para consultas de TCM',
+            'Explica los sistemas elementales y energéticos con serena claridad',
+            'Impresión de archivo premium — no personalizado'
+          ]
+        },
+        13: {
+          title: 'Póster de bienestar TCM',
+          bullets: [
+            'Póster educativo sereno para espacios de bienestar y tratamiento',
+            'Visualiza los principios fundamentales de la TCM',
+            'Impresión de archivo premium — no personalizado'
+          ]
+        },
+        14: {
+          title: 'Póster de estudio de yoga TCM',
+          bullets: [
+            'Póster educativo para paredes de yoga y estudio',
+            'Las relaciones elementales de un vistazo',
+            'Impresión de archivo premium — no personalizado'
+          ]
+        }
+      },
+      articles: {
+        r1: {
+          tag: 'Conceptos básicos',
+          title: '¿Qué es el BaZi? Los cuatro pilares del destino',
+          meta: '6 min de lectura · Diario del Atelier',
+          excerpt: 'El año, el mes, el día y la hora de tu nacimiento forman cuatro «pilares» — el mapa de tu energía.',
+          body: [
+            'El BaZi (chino 八字, «ocho caracteres») lee tu momento de nacimiento como cuatro pilares: año, mes, día y hora. Cada pilar lleva un tronco celeste y una rama terrestre — ocho caracteres que describen tu constitución.',
+            'El pilar del día se considera tu núcleo, el «maestro del día». A partir de él, observas cómo los demás pilares te apoyan o te desafían. Esto dibuja un retrato de fortalezas, patrones y momentos favorables — no es adivinación, sino una herramienta de autorreflexión.',
+            'Tu póster recoge exactamente estos ocho caracteres: un diagrama personal y sereno que inicia conversaciones en la consulta y el estudio, y un compañero tranquilo en casa.'
+          ]
+        },
+        r2: {
+          tag: 'Teoría',
+          title: 'Los cinco elementos y su equilibrio',
+          meta: '5 min de lectura · Diario del Atelier',
+          excerpt: 'Madera, fuego, tierra, metal, agua — cómo su interacción matiza tus pilares.',
+          body: [
+            'Cada uno de los ocho caracteres pertenece a uno de los cinco elementos. Se nutren y se controlan entre sí en un ciclo: la madera alimenta el fuego, el fuego crea la tierra, la tierra produce el metal, el metal reúne el agua, el agua nutre la madera.',
+            'Una carta BaZi muestra qué elementos abundan y cuáles faltan. Este equilibrio está en el centro de muchas consultas de TCM y bienestar — desde la nutrición hasta el diseño de interiores.',
+            'Los cinco colores de fondo de nuestros pósteres reflejan este lenguaje: arenisca para la tierra, salvia para la madera, terracota para el fuego, índigo para el agua, antracita para el metal.'
+          ]
+        },
+        r3: {
+          tag: 'Para la consulta',
+          title: 'El BaZi en la consulta de TCM: sala y ambiente',
+          meta: '4 min de lectura · Diario del Atelier',
+          excerpt: 'Cómo una carta personal genera confianza y da equilibrio a las salas de tratamiento.',
+          body: [
+            'Un póster BaZi visible en la pared transmite profundidad: muestra a los clientes que aquí se trabaja con tradición y cuidado. Eso reduce la barrera para iniciar una conversación.',
+            'En las salas de tratamiento, tonos serenos como el índigo o la salvia crean un ambiente tranquilo y equilibrado. Un gran formato con claro impacto a distancia ancla la sala sin recargarla.',
+            'Muchas consultas ofrecen cartas personalizadas como regalo o complemento — un recuerdo de alta calidad y con significado que refuerza el vínculo con la consulta.'
+          ]
+        }
+      },
+      shopFaqs: [
+        {
+          q: '¿Cómo se crea mi póster BaZi?',
+          a: 'Tomamos la fecha, hora y lugar de nacimiento que introduces y los usamos para componer una obra simbólica de los Cuatro Pilares (año, mes, día, hora) dispuesta en el póster.'
+        },
+        {
+          q: '¿Qué datos necesito para pedir?',
+          a: 'Fecha de nacimiento, la hora de nacimiento más precisa posible y lugar de nacimiento. Opcionalmente, un nombre para el póster.'
+        },
+        {
+          q: 'No conozco mi hora exacta de nacimiento — ¿pasa algo?',
+          a: 'Sí — solo marca «No conozco mi hora de nacimiento» y usamos las 12:00 del mediodía como suposición por defecto. Tu póster se compone a partir de ese valor de reserva.'
+        },
+        {
+          q: '¿Cuánto tardan la producción y el envío?',
+          a: 'Producción por encargo más 5–7 días laborables de envío, a todo el mundo. Envío gratis a partir de 80 €.'
+        },
+        {
+          q: '¿Qué formatos, marcos y colores están disponibles?',
+          a: 'Varios formatos, colores de marco y paletas de fondo; todo seleccionable en el configurador con una vista previa en vivo.'
+        },
+        {
+          q: '¿En qué papel imprimís?',
+          a: 'Impresión de pigmentos de archivo de calidad museo, hecha en Alemania.'
+        },
+        {
+          q: '¿Puedo ver mi póster antes de comprar?',
+          a: 'Sí, el configurador muestra una vista previa en vivo con tus datos, marco y fondo.'
+        },
+        {
+          q: '¿Qué es el análisis digital de la carta BaZi?',
+          a: 'Un análisis personal en PDF de 10–15 páginas de tu carta, disponible por separado o como pack.'
+        },
+        {
+          q: '¿Qué seguridad tiene el pago?',
+          a: 'Pago cifrado mediante PayPal, Apple Pay y Google Pay.'
+        },
+        {
+          q: '¿Devoluciones y cambios?',
+          a: 'MARCADOR DE POSICIÓN — adapta esto a tu política real de devolución/desistimiento; los artículos personalizados pueden quedar excluidos del desistimiento.',
+          placeholder: true
+        }
+      ],
+      faqDefs: {
+        details: {
+          q: 'Detalles y material',
+          a: 'Impresión de bellas artes de grano fino en papel natural de 250 g/m² sin ácido, resistente a la luz durante décadas. Marco de madera maciza con cristal real antirreflejos. Cada póster se numera en el atelier.'
+        },
+        size: {
+          q: 'Guía de tamaños',
+          a: 'A3 (30×42 cm) para rincones y estanterías, A2 (42×59 cm) el estándar versátil para las paredes de la consulta, A1 (59×84 cm) para gran impacto a distancia en recepción o salas de espera.'
+        },
+        ship: {
+          q: 'Envío y producción',
+          a: 'Producción en 3 días laborables y luego envío climáticamente neutro (DE 1–2 días). Envío gratis a partir de 80 €. Los artículos personalizados se hacen por encargo — consulta nuestra Política de devoluciones; tus derechos legales se aplican a los artículos defectuosos.'
+        },
+        bazi: {
+          q: 'Sobre tu personalización',
+          a: 'A partir de la fecha, hora y lugar que introduces, componemos una composición simbólica de los Cuatro Pilares con troncos celestes y ramas terrestres. Si no conoces tu hora de nacimiento, usamos las 12:00 del mediodía como suposición por defecto — esto puede influir en el resultado.'
+        }
+      }
+    }
   },
 }
