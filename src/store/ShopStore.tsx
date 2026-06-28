@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { computeChart, defaultCfg, sizes, type CfgState, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { getProduct, type Addon, type Bundle } from '../lib/catalog'
-import { FREE_SHIP_THRESHOLD } from '../lib/tokens'
+import { FREE_SHIP_THRESHOLD, POSTER_BG_PALETTE } from '../lib/tokens'
 import { fetchRegion, type Region } from '../lib/region'
 import { posterProductId, buildVariantId, bundleProductId, addonProductId } from '../lib/checkout'
 
@@ -38,6 +38,12 @@ interface ShopValue {
   cart: CartLine[]
   cartOpen: boolean
   cfg: CfgState
+  /** Selected poster-background hex (REQ-018 / T-404). The single source of truth
+   *  for the 5-swatch poster background, shared by the PDP configurator (control)
+   *  and ProductView (live preview + order assembly) so the choice can never be a
+   *  dead local control again (FM-15). The matching label is resolved via
+   *  `posterBgName` at order-assembly time. */
+  posterBgHex: string
   openFaqId: string
   newsletterDone: Record<string, boolean>
   newsletterEmail: Record<string, string>
@@ -64,6 +70,7 @@ interface ShopValue {
   removeLine: (key: string) => void
   clearCart: () => void
   setCfg: (patch: Partial<CfgState>) => void
+  setPosterBgHex: (hex: string) => void
   showToast: (msg: string) => void
   setOpenFaqId: (id: string) => void
   submitNewsletter: (id: string) => void
@@ -78,6 +85,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>(loadCart)
   const [cartOpen, setCartOpen] = useState(false)
   const [cfg, setCfgState] = useState<CfgState>(defaultCfg)
+  const [posterBgHex, setPosterBgHex] = useState<string>(POSTER_BG_PALETTE[0].hex)
   const [openFaqId, setOpenFaqId] = useState('details')
   const [newsletterDone, setNewsletterDone] = useState<Record<string, boolean>>({})
   const [newsletterEmail, setNewsletterEmail] = useState<Record<string, string>>({})
@@ -126,7 +134,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
     }
 
     return {
-      cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast,
+      cart, cartOpen, cfg, posterBgHex, openFaqId, newsletterDone, newsletterEmail, articleId, toast,
       cartCount, subtotal, shipCost, total, tax, remaining, reached, region, freeShipThreshold,
 
       openCart: () => setCartOpen(true),
@@ -174,6 +182,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       removeLine: (key) => setCart((s) => s.filter((i) => i.key !== key)),
       clearCart: () => setCart([]),
       setCfg: (patch) => setCfgState((s) => ({ ...s, ...patch })),
+      setPosterBgHex,
       showToast,
       setOpenFaqId,
       submitNewsletter: (id) => setNewsletterDone((s) => ({ ...s, [id]: true })),
@@ -181,7 +190,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       openArticle: (id) => setArticleId(id),
       closeArticle: () => setArticleId(null),
     }
-  }, [cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast, region])
+  }, [cart, cartOpen, cfg, posterBgHex, openFaqId, newsletterDone, newsletterEmail, articleId, toast, region])
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>
 }

@@ -8,7 +8,8 @@ import { type Lang } from '../i18n/translations'
 import { COMMERCE_ENABLED } from '../lib/config'
 import { ptypeProductId, buildVariantId } from '../lib/checkout'
 import { euro } from '../lib/format'
-import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
+import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW, POSTER_BG_PALETTE, posterBgName } from '../lib/tokens'
+import { searchCities } from '../lib/cities'
 // Single client source of truth for product-type base prices + PDF add-on price.
 // server/pricing.js mirrors these 1:1; the parity test couples to this module.
 import { PRODUCT_TYPES, PDF_ADDON_PRICE, type ProductTypeId } from '../lib/productTypes'
@@ -42,6 +43,10 @@ export default function Personalize() {
   const [posterLang, setPosterLang] = useState<Lang>(lang)
   const [frameHex, setFrameHex] = useState(frames[0].hex)
   const [bgHex, setBgHex] = useState(backgrounds[0].hex)
+  // REQ-018 / T-404 — poster background palette (5 frozen hex from tokens.ts).
+  // Drives the live preview's surrounding background so a swatch selection is
+  // traceable (AT-018-3). Distinct from `bgHex` (the poster-art design palette).
+  const [posterBgHex, setPosterBgHex] = useState(POSTER_BG_PALETTE[0].hex)
   const [sizeId, setSizeId] = useState('A2')
   const [pdfAddon, setPdfAddon] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
@@ -115,10 +120,13 @@ export default function Personalize() {
     if (def.poster) {
       personalization.frame = frame.name
       personalization.palette = bg.name
+      // REQ-018 poster background (the 5-hex palette) is a real product attribute —
+      // carry the chosen swatch into the order line (no silent drop, FM-15).
+      personalization.posterBg = posterBgName(posterBgHex)
       personalization.size = size.label
       personalization.pdfAddon = String(!def.pdfIncluded && pdfAddon)
     }
-    const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? size.label : null]
+    const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? posterBgName(posterBgHex) : null, def.poster ? size.label : null]
     // Stable server-pricing identity (ADR-001): poster types carry size + frame +
     // pdf-addon axes; digital-only types carry none. The server re-prices from
     // these and ignores the client `price`.
@@ -146,10 +154,19 @@ export default function Personalize() {
       </div>
 
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        {/* ---- LEFT: live preview (sticky) ---- */}
-        <div className="lg:sticky lg:top-24">
+        {/* ---- LEFT: live preview (sticky) ----
+            REQ-012 / T-402: the preview is `position: sticky` with a bounded
+            `maxHeight` so on a narrow mobile viewport it pins above the inputs
+            WITHOUT growing tall enough to cover an input field (RISK-002). The
+            real no-overlap proof at 360px is Playwright [REAL-BROWSER-PLANNED]. */}
+        <div
+          data-testid="poster-preview-sticky"
+          data-bg-hex={posterBgHex}
+          className="lg:top-24"
+          style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: posterBgHex, borderRadius: 6, padding: 8 }}
+        >
           {def.poster ? (
-            <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
+            <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={posterBgHex} />
           ) : (
             <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 40 }}>◇</div>
@@ -183,7 +200,7 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
-            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} />
+            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary />
             {def.couple && (
               <>
                 <div style={{ ...headingStyle, marginTop: 22 }}>{t('personalize.birthHeadingB')}</div>
@@ -243,6 +260,22 @@ export default function Personalize() {
                     <button key={x.hex} onClick={() => setBgHex(x.hex)} title={t(`options.backgrounds.${x.hex}`)} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: x.hex, cursor: 'pointer' }}>
                       {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
                     </button>
+                  )
+                })}
+              </div>
+              {/* REQ-018 / T-404 — poster background palette: EXACTLY the 5 frozen
+                  hex from tokens.ts. Selecting a swatch updates the live preview
+                  background (see poster-preview-sticky data-bg-hex). */}
+              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{t('personalize.posterBgHeading')}</div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+                {POSTER_BG_PALETTE.map((p) => {
+                  const sel = p.hex === posterBgHex
+                  return (
+                    <span key={p.hex} data-testid="poster-bg-swatch" data-hex={p.hex}>
+                      <button type="button" onClick={() => setPosterBgHex(p.hex)} title={p.name} aria-label={p.name} aria-pressed={sel} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.12)', background: p.hex, cursor: 'pointer' }}>
+                        {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
+                      </button>
+                    </span>
                   )
                 })}
               </div>
@@ -314,14 +347,59 @@ export default function Personalize() {
   )
 }
 
-function PersonFields({ person, setPerson, unknownTime, err, showErrors, t }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any }) {
+function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any; primary?: boolean }) {
   const e = (cond: boolean) => showErrors && cond
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
       <Field label={t('configurator.name')} error={e(err.name)}><input type="text" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
-      <Field label={t('configurator.place')} error={e(err.place)}><input type="text" value={person.place} onChange={(ev) => setPerson({ ...person, place: ev.target.value })} placeholder={t('configurator.placePh')} style={inputStyle} /></Field>
+      {/* REQ-013 / T-403 — Place-of-Birth autocomplete from the bundled cities
+          list (src/lib/cities.ts). NEVER calls a public geocoder per keystroke. */}
+      <Field label={t('configurator.place')} error={e(err.place)}>
+        <PlaceAutocomplete value={person.place} onChange={(v) => setPerson({ ...person, place: v })} placeholder={t('configurator.placePh')} primary={primary} />
+      </Field>
       <Field label={t('configurator.date')} error={e(err.date)}><input type="date" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
       <Field label={t('configurator.time')} error={e(err.time)}><input type="time" value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
+    </div>
+  )
+}
+
+/** Place-of-Birth combobox backed ONLY by the bundled cities list (REQ-013 /
+ *  T-403). Suggestions are pure string matches over src/lib/cities.ts — no fetch,
+ *  no XHR, no public geocoder (policy-guard AT-013-3). `primary` tags the first
+ *  person's field with stable test anchors. */
+function PlaceAutocomplete({ value, onChange, placeholder, primary }: { value: string; onChange: (v: string) => void; placeholder: string; primary?: boolean }) {
+  const [open, setOpen] = useState(false)
+  const suggestions = useMemo(() => searchCities(value), [value])
+  const show = open && suggestions.length > 0
+
+  const pick = (city: string) => { onChange(city); setOpen(false) }
+
+  return (
+    <div style={{ position: 'relative', minWidth: 0 }}>
+      <input
+        type="text"
+        role="combobox"
+        aria-expanded={show}
+        aria-autocomplete="list"
+        data-testid={primary ? 'place-of-birth-input' : undefined}
+        value={value}
+        onChange={(ev) => { onChange(ev.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+        placeholder={placeholder}
+        style={inputStyle}
+      />
+      {show && (
+        <ul data-testid={primary ? 'place-suggestions' : undefined} role="listbox" style={{ position: 'absolute', zIndex: 5, top: 'calc(100% + 4px)', left: 0, right: 0, listStyle: 'none', margin: 0, padding: 4, maxHeight: 220, overflowY: 'auto', background: '#fff', border: `1px solid ${C.borderInput}`, borderRadius: 9, boxShadow: '0 12px 24px -14px rgba(0,0,0,0.3)' }}>
+          {suggestions.map((city) => (
+            <li key={city} role="option" aria-selected={city === value}>
+              <button type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => pick(city)} style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', background: 'transparent', cursor: 'pointer', padding: '8px 10px', borderRadius: 6, fontFamily: FONT_SANS, fontSize: 13, color: C.ink }}>
+                {city}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

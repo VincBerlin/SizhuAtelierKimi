@@ -231,7 +231,11 @@ export default function Navbar() {
         }}
       >
         <div className="max-w-[1200px] mx-auto h-full flex items-center justify-between" style={{ padding: '0 24px', gap: 16 }}>
-          <button className="lg:hidden flex items-center justify-center" onClick={() => setMobileOpen(true)} aria-label={t('nav.open')} style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+          {/* REQ-011 / T-401 — mobile hamburger / drawer trigger. Stable
+              `data-testid` anchors the mobile-header presence + operability test
+              (AT-011-1); `lg:hidden` keeps it mobile-only on the real viewport
+              (the no-clip proof at 360/390/430 is Playwright, BLK-CHROMIUM). */}
+          <button data-testid="mobile-menu-trigger" className="lg:hidden flex items-center justify-center" onClick={() => setMobileOpen(true)} aria-label={t('nav.open')} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="mobile-menu" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
             <Menu size={24} strokeWidth={1.5} />
           </button>
 
@@ -377,15 +381,24 @@ export default function Navbar() {
             </Link>
             <button data-testid="header-cart" onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
+              {/* REQ-011 / T-401 — cart badge. Gated on cartCount > 0 so it only
+                  renders with an item present (AT-011-2). It is a flex element
+                  (never display:none while shown); the stable `data-testid`
+                  anchors the visibility assertion. */}
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
+                <span data-testid="cart-badge" className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
               )}
             </button>
           </div>
         </div>
       </header>
 
-      <div className="fixed inset-0 z-[100] transition-opacity duration-300" style={{ display: mobileOpen ? 'block' : 'none', opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? 'auto' : 'none', overflow: 'hidden' }}>
+      {/* REQ-011 / T-401 — mobile drawer. `data-testid="mobile-menu"` + matching
+          `id` (the hamburger's aria-controls) anchor the operability test: the
+          hamburger opens this panel, which carries a reachable language access
+          (mobile Sprachzugang, AT-011-1). The real no-clip proof at 360/390/430
+          stays Playwright-only (BLK-CHROMIUM / VR-MOBILE-UNVERIFIED). */}
+      <div data-testid="mobile-menu" id="mobile-menu" role="dialog" aria-modal={mobileOpen} aria-label={t('nav.menu')} className="fixed inset-0 z-[100] transition-opacity duration-300" style={{ display: mobileOpen ? 'block' : 'none', opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? 'auto' : 'none', overflow: 'hidden' }}>
         <div className="absolute inset-0" style={{ background: 'rgba(28,24,18,0.42)' }} onClick={() => setMobileOpen(false)} />
         <div className="absolute top-0 right-0 h-full w-full max-w-md" style={{ background: C.bg, transform: mobileOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform .4s ease-out', display: 'flex', flexDirection: 'column' }}>
           <div className="flex items-center justify-between" style={{ padding: '20px 24px', borderBottom: `1px solid ${C.border}` }}>
@@ -412,7 +425,13 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="flex items-center" style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, gap: 10 }}>
-            <LangDropdown size={14} up align="left" />
+            {/* REQ-011 / REQ-022 — mobile language / country access. The desktop
+                `header-lang` surface is hidden at xs (`hidden sm:block`), so the
+                mobile Sprachzugang lives here in the drawer. It shares the
+                `header-lang` test handle (so the language access is counted on
+                mobile, AT-011-1) and adds a drawer-scoped `mobile-menu-lang`
+                anchor for the operability assertion. */}
+            <div data-testid="mobile-menu-lang"><span data-testid="header-lang"><LangDropdown size={14} up align="left" /></span></div>
             <span style={{ marginLeft: 'auto', fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted2 }}>hello@sizhuatelier.shop</span>
           </div>
         </div>

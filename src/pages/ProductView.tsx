@@ -13,12 +13,12 @@ import { useT } from '../i18n/I18nProvider'
 import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../lib/config'
 import { posterProductId, buildVariantId } from '../lib/checkout'
 import { euro, de } from '../lib/format'
-import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER } from '../lib/tokens'
+import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER, posterBgName } from '../lib/tokens'
 
 export default function ProductView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { cfg, addItem, showToast, openFaqId, setOpenFaqId } = useShopStore()
+  const { cfg, addItem, showToast, openFaqId, setOpenFaqId, posterBgHex } = useShopStore()
   const { t, lang } = useT()
 
   const prod = getProduct(Number(id)) ?? products[0]
@@ -67,10 +67,16 @@ export default function ProductView() {
     if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
+    // REQ-018 poster background (the 5-hex palette) is a real product attribute:
+    // carry the chosen swatch into the order line so the selection is never a
+    // silent drop (FM-15). Like `palette`, it is descriptive-only and stays OUT of
+    // the variantId — the server prices solely from size + frame (money path
+    // unchanged).
+    const posterBg = posterBgName(posterBgHex)
     // place/date/time + the canonical birthTimeUnknown flag are carried so the
     // planned calculation API can dock without loss (REQ-004 AK-1).
-    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
-    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
+    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, posterBg, frame: frameName, size: size.label }
+    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${posterBg} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }
 
@@ -95,8 +101,8 @@ export default function ProductView() {
         <div className="lg:sticky lg:top-24">
           {personalizable ? (
             <div data-testid="pdp-gallery">
-              <div data-testid="pdp-chart-preview">
-                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
+              <div data-testid="pdp-chart-preview" data-bg-hex={posterBgHex}>
+                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={posterBgHex} />
                 <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
                   <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
                   {placeholderThumb(t('product.detail'))}
