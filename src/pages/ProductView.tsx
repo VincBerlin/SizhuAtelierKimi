@@ -5,11 +5,12 @@ import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
 import { getProduct, products, faqDefs } from '../lib/catalog'
+import { isPersonalizable, productKind } from '../lib/productTypes'
 import { computeChart, sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { useShopStore } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
-import { COMMERCE_ENABLED } from '../lib/config'
+import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../lib/config'
 import { posterProductId, buildVariantId } from '../lib/checkout'
 import { euro, de } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER } from '../lib/tokens'
@@ -21,7 +22,16 @@ export default function ProductView() {
   const { t, lang } = useT()
 
   const prod = getProduct(Number(id)) ?? products[0]
-  const personalizable = prod.personalizable !== false
+  // SINGLE source of truth for the personalization gate (REQ-007 / REQ-025):
+  // reads ONLY the explicit `personalizable` flag, never `personalization_level`
+  // — the FM-04 trap is treating Fire Horse's 'yearly' tier as personalizable.
+  const personalizable = isPersonalizable(prod)
+  const kind = productKind(prod)
+  // Review-gate (REQ-008 / AT-008-3, OQ-004 RED-carry): a review block may only
+  // render when reviews are globally enabled AND this product has a real,
+  // non-zero review count. Until then NO stars / review summary are shown — the
+  // catalog's placeholder `rating`/`reviews` are never surfaced as social proof.
+  const showReviews = REVIEWS_ENABLED && prod.reviews > 0
 
   useEffect(() => { window.scrollTo(0, 0) }, [id])
 
@@ -44,7 +54,7 @@ export default function ProductView() {
     if (!personalizable) {
       // Non-personalizable (Fire Horse / TCM lehrposter): plain line, no birth data,
       // no size axis → server prices at base (empty variantId).
-      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: prod.category, creditsEarned: Math.round(livePrice), productId: posterProductId(prod.id), variantId: '' })
+      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: prod.category, productId: posterProductId(prod.id), variantId: '' })
       showToast(t('cart.toastAdded'))
       return
     }
@@ -56,7 +66,7 @@ export default function ProductView() {
     // place/date/time + the canonical birthTimeUnknown flag are carried so the
     // planned calculation API can dock without loss (REQ-004 AK-1).
     const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
-    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, creditsEarned: Math.round(livePrice), productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
+    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }
 
@@ -67,13 +77,13 @@ export default function ProductView() {
   )
 
   return (
-    <main style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 64px' }}>
+    <main data-testid="pdp" data-personalizable={personalizable} data-product-kind={kind} style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 64px' }}>
       <button onClick={() => { navigate('/'); window.scrollTo(0, 0) }} className="transition-colors hover:text-[#2A2620]" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: C.textMuted2, padding: '8px 0', fontFamily: FONT_SANS }}>{t('product.back')}</button>
 
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]" style={{ marginTop: 8 }}>
         <div className="lg:sticky lg:top-24">
           {personalizable ? (
-            <>
+            <div data-testid="pdp-chart-preview">
               <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
               <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
                 <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
@@ -81,7 +91,7 @@ export default function ProductView() {
                 {placeholderThumb(t('product.lifestyle'))}
               </div>
               <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('product.caption')}</p>
-            </>
+            </div>
           ) : (
             <div style={{ aspectRatio: '4 / 5', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm }}>
               {prod.image && <img src={prod.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
@@ -92,10 +102,15 @@ export default function ProductView() {
         <div>
           <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.textMuted4, marginBottom: 8 }}>{prod.category}</div>
           <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 36, lineHeight: 1.1, margin: '0 0 14px' }}>{t(`content.products.${prod.id}.title`)}</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 18, flexWrap: 'wrap' }}>
-            <StarRating pct={starPct} size={15} />
-            <span style={{ fontSize: 13, color: C.textMuted }}>{ratingTxt} · {de(prod.reviews)} {t('product.reviews')} · <strong style={{ color: C.ink, fontWeight: 600 }}>{de(prod.sold)}×</strong> {t('product.sold')}</span>
-          </div>
+          {/* Review block is gated (REQ-008 / AT-008-3, OQ-004): no stars and no
+              review/sold summary until real reviews exist — placeholder numbers
+              must never read as social proof. */}
+          {showReviews && (
+            <div data-testid="pdp-reviews" style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 18, flexWrap: 'wrap' }}>
+              <StarRating pct={starPct} size={15} />
+              <span style={{ fontSize: 13, color: C.textMuted }}>{ratingTxt} · {de(prod.reviews)} {t('product.reviews')} · <strong style={{ color: C.ink, fontWeight: 600 }}>{de(prod.sold)}×</strong> {t('product.sold')}</span>
+            </div>
+          )}
 
           {COMMERCE_ENABLED && (
             <>
@@ -108,8 +123,7 @@ export default function ProductView() {
                   </>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 8 }}>{t('product.inclVat', { amount: euro(FREE_SHIP_THRESHOLD) })}</div>
-              <div style={{ fontSize: 12.5, color: C.success, fontWeight: 600, marginBottom: 20 }}>✦ {t('cart.creditsEarn', { n: Math.round(livePrice) })}</div>
+              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 20 }}>{t('product.inclVat', { amount: euro(FREE_SHIP_THRESHOLD) })}</div>
             </>
           )}
 
@@ -119,13 +133,19 @@ export default function ProductView() {
             ))}
           </ul>
 
-          {personalizable && <Configurator />}
+          {/* Personalization configurator — BaZi only (REQ-007 / AT-007-1). The
+              stable anchor lets the gating test assert presence/absence. */}
+          {personalizable && (
+            <div data-testid="pdp-configurator">
+              <Configurator />
+            </div>
+          )}
 
           {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
 
           {COMMERCE_ENABLED ? (
             <>
-              <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {euro(livePrice)}</button>
+              <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {euro(livePrice)}</button>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
                 <button onClick={() => showToast(t('product.express'))} className="transition-[filter] hover:brightness-95" style={{ background: '#FFC439', color: '#0a0a0a', border: 'none', cursor: 'pointer', padding: 13, borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS }}>PayPal</button>
                 <button onClick={() => showToast(t('product.express'))} className="transition-[filter] hover:brightness-125" style={{ background: '#000', color: '#fff', border: 'none', cursor: 'pointer', padding: 13, borderRadius: 10, fontSize: 15, fontWeight: 500, fontFamily: FONT_SANS }}> Pay</button>

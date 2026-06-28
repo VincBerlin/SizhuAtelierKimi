@@ -68,15 +68,6 @@ export default function Kollektion() {
         </div>
       </section>
 
-      {/* Patron Vault — coming soon (REQ-021 #9) */}
-      <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '32px 32px 8px' }}>
-        <div style={{ border: `1px solid ${C.border}`, borderRadius: 4, background: C.surfaceWarm, padding: '28px 28px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.accent }}>{t('coll.patron.eyebrow')}</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 26, color: C.ink }}>{t('coll.patron.title')}</div>
-          <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.6, margin: 0, maxWidth: 620 }}>{t('coll.patron.desc')}</p>
-        </div>
-      </section>
-
       {/* FAQ + Newsletter (REQ-021 #10, #11) */}
       <FaqSection />
       <NewsletterSection />

@@ -6,21 +6,33 @@ import ProductCard from '../components/shop/ProductCard'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
 
 /**
- * Reusable per-world collection template (REQ-010 / T-15).
+ * Reusable per-world collection template (REQ-009 / REQ-006-render / T-303).
  *
  * One component renders all eight MVP collection routes, driven entirely by the
  * declarative config in `lib/collections.ts`. The product grid is always real
  * catalog data filtered over `product_world` (REQ-013 AK-3) or a curated id list
  * for cross-world collections — never an invented assortment, never empty.
  *
- * Renders, top to bottom: breadcrumb, H1, intro, hero/category visual slot,
- * toolbar (filter + sort), product grid, SEO text block (H2 + paragraphs), FAQ,
- * and a trust block. Stable `data-testid` anchors back the real-boundary tests.
+ * Full inventory (AT-009-1), top to bottom: breadcrumb, back-nav, eyebrow, H1,
+ * intro, hero/category visual slot, toolbar (filter + sort), product count,
+ * product grid, pagination / show-more, SEO text block (H2 + paragraphs), FAQ,
+ * trust block. The persistent <SiteFooter> chrome (App.tsx) completes the footer
+ * slot. Stable `data-testid` anchors back the real-boundary tests.
+ *
+ * AT-009-2: the visible count and the pagination control are derived from the
+ * SAME `visible` slice the grid maps — the count is never a dummy literal, it is
+ * `visible.length`, so it cannot drift from the rendered cards.
+ *
+ * AT-009-4: the personalizable filter and the price sort are real refinements —
+ * they recompute the slice and the grid re-renders fewer / re-ordered cards.
  *
  * An unknown slug redirects to the /collections hub (no thin 404 page).
  */
 
 type SortKey = 'featured' | 'price-asc' | 'price-desc'
+
+/** How many cards a collection shows before the "show more" control appears. */
+const PAGE_SIZE = 4
 
 /** Resolve the product grid for a config — curated ids win, else world filter. */
 function resolveProducts(cfg: CollectionConfig): Product[] {
@@ -41,16 +53,22 @@ export default function Collection() {
 
   const [personalizableOnly, setPersonalizableOnly] = useState(false)
   const [sort, setSort] = useState<SortKey>('featured')
+  // How many cards are revealed (pagination / show-more). Reset whenever the
+  // collection or the filter changes so the count never carries over stale state.
+  const [shownCount, setShownCount] = useState(PAGE_SIZE)
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    setShownCount(PAGE_SIZE)
+    setPersonalizableOnly(false)
+    setSort('featured')
   }, [slug])
 
   // Resolve + filter + sort. Always ≥1 in the base set per config (REQ-010 AK-3);
   // the personalizable toggle is purely a display refinement that we guard so the
   // grid can still show the base set rather than ever rendering empty.
   const base = useMemo(() => (cfg ? resolveProducts(cfg) : []), [cfg])
-  const grid = useMemo(() => {
+  const sorted = useMemo(() => {
     const filtered = personalizableOnly
       ? base.filter((p) => p.personalizable !== false)
       : base
@@ -58,6 +76,18 @@ export default function Collection() {
     const shown = filtered.length > 0 ? filtered : base
     return sortProducts(shown, sort)
   }, [base, personalizableOnly, sort])
+
+  // The visible slice the grid maps. Count + pagination derive from THIS, so the
+  // displayed number can never drift from the rendered cards (AT-009-2).
+  const visible = useMemo(() => sorted.slice(0, shownCount), [sorted, shownCount])
+  const hasMore = sorted.length > visible.length
+
+  // Toggling the filter must not strand the user on a higher page than the new
+  // (smaller) result set has — snap back to the first page.
+  function onToggleFilter(checked: boolean): void {
+    setPersonalizableOnly(checked)
+    setShownCount(PAGE_SIZE)
+  }
 
   // Unknown slug → back to the hub (no empty/thin collection page).
   if (!cfg) return <Navigate to="/collections" replace />
@@ -77,6 +107,16 @@ export default function Collection() {
           <span aria-hidden style={{ margin: '0 8px', color: C.textMuted4 }}>/</span>
           <span style={{ color: C.ink }}>{cfg.title}</span>
         </nav>
+
+        {/* Back-nav — a distinct "return to all collections" affordance, separate
+            from the breadcrumb (AT-009-1). */}
+        <Link
+          to="/collections"
+          data-testid="collection-back"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: FONT_SANS, fontSize: 13, color: C.accent, textDecoration: 'none', marginBottom: 16 }}
+        >
+          <span aria-hidden>←</span> Zurück zu allen Kollektionen
+        </Link>
 
         {/* Eyebrow + H1 + intro */}
         <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: C.accent, marginBottom: 12 }}>{cfg.eyebrow}</div>
@@ -103,8 +143,9 @@ export default function Collection() {
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: FONT_SANS, fontSize: 13.5, color: C.textMuted, cursor: 'pointer' }}>
             <input
               type="checkbox"
+              data-testid="collection-filter"
               checked={personalizableOnly}
-              onChange={(e) => setPersonalizableOnly(e.target.checked)}
+              onChange={(e) => onToggleFilter(e.target.checked)}
               aria-label="Nur personalisierbare anzeigen"
             />
             Nur personalisierbare
@@ -113,6 +154,7 @@ export default function Collection() {
             Sortieren
             <select
               value={sort}
+              data-testid="collection-sort"
               onChange={(e) => setSort(e.target.value as SortKey)}
               aria-label="Sortieren"
               style={{ fontFamily: FONT_SANS, fontSize: 13.5, color: C.ink, padding: '6px 8px', border: `1px solid ${C.borderInput}`, borderRadius: 4, background: C.surface }}
@@ -125,17 +167,50 @@ export default function Collection() {
         </div>
       </section>
 
+      {/* Product count — derived from the same `visible` slice the grid maps,
+          so it can never drift from the rendered cards (AT-009-2). */}
+      <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '20px 32px 0' }}>
+        <p
+          data-testid="collection-count"
+          aria-live="polite"
+          style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted2, margin: 0 }}
+        >
+          {visible.length} {visible.length === 1 ? 'Produkt' : 'Produkte'}
+        </p>
+      </section>
+
       {/* Product grid (≥1, real catalog) */}
-      <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '28px 32px 16px' }}>
+      <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '14px 32px 16px' }}>
         <div
           data-testid="collection-grid"
           style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 28 }}
         >
-          {grid.map((p) => (
-            <div data-testid="collection-product-card" key={p.id}>
+          {visible.map((p) => (
+            <div data-testid="collection-product-card" data-product-id={p.id} key={p.id}>
               <ProductCard product={p} />
             </div>
           ))}
+        </div>
+
+        {/* Pagination / show-more — reveals the next page; when nothing remains
+            it states the full set is shown (the anchor is always present). */}
+        <div
+          data-testid="collection-pagination"
+          style={{ display: 'flex', justifyContent: 'center', padding: '28px 0 0' }}
+        >
+          {hasMore ? (
+            <button
+              type="button"
+              onClick={() => setShownCount((n) => n + PAGE_SIZE)}
+              style={{ fontFamily: FONT_SANS, fontSize: 13.5, fontWeight: 600, color: C.ink, background: C.surface, border: `1px solid ${C.borderInput}`, borderRadius: 4, padding: '11px 24px', cursor: 'pointer' }}
+            >
+              Mehr anzeigen ({sorted.length - visible.length})
+            </button>
+          ) : (
+            <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted4 }}>
+              Alle {sorted.length} {sorted.length === 1 ? 'Produkt' : 'Produkte'} angezeigt
+            </span>
+          )}
         </div>
       </section>
 

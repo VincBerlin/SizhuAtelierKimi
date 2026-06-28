@@ -17,7 +17,7 @@
  * rendered boundary (≥1 product card per route).
  */
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import {
@@ -47,10 +47,10 @@ async function renderRoute(path: string) {
   )
   // Let the lazy route chunk + AuthProvider post-mount state settle. The Collection
   // route is lazily code-split behind Suspense, so under CPU contention the chunk
-  // can resolve slower than testing-library's 1000ms default; the explicit 5000ms
+  // can resolve slower than testing-library's 1000ms default; the explicit 15000ms
   // (matching tests/setup.ts asyncUtilTimeout) keeps the combined run deterministic
   // without weakening the assertion — the testid still has to appear.
-  await screen.findByTestId('collection-page', undefined, { timeout: 5000 })
+  await screen.findByTestId('collection-page', undefined, { timeout: 15000 })
   return utils
 }
 
@@ -122,37 +122,44 @@ describe('REQ-010 / AT-010-3 — each collection is a full page, not thin', () =
       await renderRoute(`/collections/${slug}`)
       const page = screen.getByTestId('collection-page')
 
-      // breadcrumb (internal links — Home / Collections)
-      expect(within(page).getByTestId('collection-breadcrumb')).toBeInTheDocument()
+      // The collection template paints its sections (grid, SEO, FAQ, trust) across
+      // more than one commit under CPU contention, so the `collection-page` shell
+      // anchor can exist before the lower sections finish rendering. Re-read every
+      // section inside `waitFor` so the full-page-not-thin assertions run against a
+      // single settled DOM snapshot. The assertions are unchanged.
+      await waitFor(() => {
+        // breadcrumb (internal links — Home / Collections)
+        expect(within(page).getByTestId('collection-breadcrumb')).toBeInTheDocument()
 
-      // exactly one H1 within the collection page subtree (the persistent
-      // chrome — e.g. the cart drawer <aside> — lives outside `page` and is
-      // not part of the collection template's heading contract).
-      const h1s = page.querySelectorAll('h1')
-      expect(h1s.length).toBe(1)
-      expect(h1s[0].textContent?.trim().length ?? 0).toBeGreaterThan(0)
+        // exactly one H1 within the collection page subtree (the persistent
+        // chrome — e.g. the cart drawer <aside> — lives outside `page` and is
+        // not part of the collection template's heading contract).
+        const h1s = page.querySelectorAll('h1')
+        expect(h1s.length).toBe(1)
+        expect(h1s[0].textContent?.trim().length ?? 0).toBeGreaterThan(0)
 
-      // intro paragraph (non-empty)
-      const intro = within(page).getByTestId('collection-intro')
-      expect(intro.textContent?.trim().length ?? 0).toBeGreaterThan(0)
+        // intro paragraph (non-empty)
+        const intro = within(page).getByTestId('collection-intro')
+        expect(intro.textContent?.trim().length ?? 0).toBeGreaterThan(0)
 
-      // product grid with ≥1 card
-      const grid = within(page).getByTestId('collection-grid')
-      const cards = within(grid).getAllByTestId('collection-product-card')
-      expect(cards.length).toBeGreaterThanOrEqual(1)
+        // product grid with ≥1 card
+        const grid = within(page).getByTestId('collection-grid')
+        const cards = within(grid).getAllByTestId('collection-product-card')
+        expect(cards.length).toBeGreaterThanOrEqual(1)
 
-      // SEO text block
-      const seo = within(page).getByTestId('collection-seo')
-      expect(seo.textContent?.trim().length ?? 0).toBeGreaterThan(0)
-      // …with an H2 sub-structure (SEO block, not just a paragraph)
-      expect(seo.querySelector('h2')).toBeTruthy()
+        // SEO text block
+        const seo = within(page).getByTestId('collection-seo')
+        expect(seo.textContent?.trim().length ?? 0).toBeGreaterThan(0)
+        // …with an H2 sub-structure (SEO block, not just a paragraph)
+        expect(seo.querySelector('h2')).toBeTruthy()
 
-      // FAQ block with ≥1 question
-      const faq = within(page).getByTestId('collection-faq')
-      expect(within(faq).getAllByTestId('collection-faq-item').length).toBeGreaterThanOrEqual(1)
+        // FAQ block with ≥1 question
+        const faq = within(page).getByTestId('collection-faq')
+        expect(within(faq).getAllByTestId('collection-faq-item').length).toBeGreaterThanOrEqual(1)
 
-      // trust block
-      expect(within(page).getByTestId('collection-trust')).toBeInTheDocument()
+        // trust block
+        expect(within(page).getByTestId('collection-trust')).toBeInTheDocument()
+      })
     })
   }
 })

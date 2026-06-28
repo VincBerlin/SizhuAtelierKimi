@@ -33,7 +33,6 @@ export default function Checkout() {
   const [street, setStreet] = useState('')
   const [zip, setZip] = useState('')
   const [city, setCity] = useState('')
-  const totalCredits = cart.reduce((s, i) => s + (i.creditsEarned || 0) * i.qty, 0)
 
   // §5.3 — prefill contact + delivery from the logged-in customer's saved default
   // shipping address (never overwrites a field the user already typed).
@@ -124,11 +123,6 @@ export default function Checkout() {
               <input type="text" placeholder={t('checkout.zip')} autoComplete="postal-code" value={zip} onChange={(e) => setZip(e.target.value)} style={inputStyle} />
               <input type="text" placeholder={t('checkout.city')} autoComplete="address-level2" value={city} onChange={(e) => setCity(e.target.value)} style={inputStyle} />
             </div>
-            {!user && totalCredits > 0 && (
-              <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '9px 12px' }}>
-                ✦ {t('checkout.saveCredits')} <Link to="/account" className="underline transition-colors hover:text-[#A0341F]" style={{ color: C.accent, fontWeight: 600 }}>{t('checkout.signInCta')}</Link>
-              </div>
-            )}
             {incomplete && <div style={{ fontSize: 12.5, color: C.accent }}>{t('cart.incompleteWarn')}</div>}
             <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px' }}>{t('cart.returnNotice')}</div>
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, cursor: 'pointer', fontSize: 12, color: C.textMuted, lineHeight: 1.5 }}>

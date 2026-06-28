@@ -21,7 +21,16 @@ import { configure } from '@testing-library/dom'
 // rerun, and the isolated projects pass clean). Raising the async-utility timeout
 // makes the combined run deterministic without weakening a single assertion: the
 // query still has to succeed, it just gets honest headroom to do so.
-configure({ asyncUtilTimeout: 5000 })
+//
+// The headroom is deliberately tracked to the jsdom project's 20000ms `testTimeout`
+// (vitest.config.ts): under heavy parallelism (every isolated worker cold-mounting
+// the Three.js/InkWave hero + code-split chunks at once) the first-paint `findBy*`
+// occasionally needed >5s while the test still had ~15s of unused budget, so a 5s
+// cap turned a slow-but-correct mount into a spurious "Unable to find" failure. A
+// 15000ms async-utility timeout (comfortably under the 20000ms test budget) closes
+// that gap. It never lets a genuinely broken render pass — a missing element still
+// fails, it just no longer races a wall that the test budget itself does not impose.
+configure({ asyncUtilTimeout: 15000 })
 
 // Deterministic network boundary for jsdom component tests.
 // The real composition root mounts AuthProvider, which fires apiMe() ->

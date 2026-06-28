@@ -1,0 +1,76 @@
+# AgileTeam Run State — `sizhuatelier-desenio-delta-architecture`
+
+- **Mode:** CORE-manual (PRIL CLIs absent in repo; `.active-feature` marker NOT armed — would re-trigger the unprovisioned PRIL Stop-hook. Gates run as disciplined manual process + reported honestly.)
+- **Model:** Opus 4.8 — GBrain-class real-boundary safety net covered.
+- **Branch:** `feat/desenio-delta` (isolated; Production stays on V2 via `feat/personalization-first-mvp`; **NO auto-deploy** from this branch).
+- **Builds on:** deployed V2 (commit `6b0882e`) — this is a DELTA, not a rebuild. InkWave hero unchanged. Test infra (vitest+playwright) already present from V2.
+- **Commit policy:** NO mid-run commits — user reviews+tests the final result, then commits.
+
+## Gate ledger
+| Gate / Phase | Status | Note |
+|---|---|---|
+| 0.15 Product Canvas | **CLEARED** | user-confirmed → amended (council) → RE-CONFIRMED 2026-06-27 |
+| 0.16 Council challenge | **CLEARED** | unanimous; REQ-002 verdict `incremental`; user adopted split + asset-light |
+| A1–A10 ASSUMPTIONs | **CLEARED** | all user-confirmed 2026-06-27 |
+| 0.4 Product Vision | **CLEARED** | user-confirmed |
+| 0.7 Spec-Sanity | **CLEARED** | spec-auditor PASS (no blocker); spec FROZEN |
+| USER-GATE | **CLEARED** | 2026-06-27: REQ-002 incremental ACCEPTED + GO |
+| 1 TDD & QA setup | **CLEARED** | acceptance design `docs/tests/desenio-acceptance-design.md` (25 REQs, AT-/FM-Verträge) + plan `docs/plans/2026-06-27-desenio-delta.md`; **M = 8** Iterationen, 22 Tasks |
+| 2 Dev/review loop — Milestone 1 | **REMEDIATED · Watcher PASS · user GO M2** | coderA+coderB RED→GREEN; HIGH-Fix (ProductCard Fake-Proof gegated) + Sweep allGated + Review approve + QA **327/327 grün**, Mutation tötet 5/7 bei reintroduziertem Fake, Datei wiederhergestellt. Governance: Canvas Header==Body `user-confirmed`, PRD bleibt `ready-for-user-confirmation`, Reality-Ledger (13 Z., 0 production-verified), Scope umbenannt. CONTRA-DELTA-001 aufgelöst. Flag-on-Härtung + M2 freigegeben. |
+| 2 Dev/review loop — Milestone 2 | **COMPLETE · Watcher review-required (nur PRIL-Absenz) · CONTRA-DELTA-002 RESOLVED** | Nav&Header (8er-Nav, asset-light Mega-Menü, Promo-Bar, Offers-Stub) + **voller Trust-Cleanup**: alle gerenderten Credits/Vault/Patron/Coming-Soon-Flächen entfernt (Patron-Fold, Cart/Checkout/PDP/Personalize/Account, **Header-Badge, Auth-Subtitle, Datenschutz-Klausel** — alle 3 Sprachen, sweep/governance/watcher unabhängig verifiziert). Test-Gap (main-only → header/auth/Legal) UND Sprach-Gap (EN-only → EN/DE/FR-Mutationswächter) geschlossen. **`npm test` 393/393 grün, deterministisch** (jsdom-Timeout-Fix). Governance ehrlich (Watcher fing 1× verfrühtes „resolved" → korrigiert), TR-010 nachgezogen, 0 production-verified, PRD unberührt. **Watcher review-required** — einziger Nicht-pass-Grund: PRIL-CLIs fehlen (CORE-manual, von Anfang akzeptiert). Kein Commit. |
+| Backend-Credits-Rückbau (REQ-010 Rest) | **DONE** | Welcome-Credits + earn-on-order + `/api/auth/me`-Felder + `auth.ts`-Felder raus; 0 aktive Credits-Writes; Geld-Pfad unberührt (18 Repricing-Tests grün); `npm test` **400/400**; Review **approve**. Prod-DB dormant (kein DROP — DB-Drop-Migration als Folge-Task). REQ-010 vollständig (UI+Backend). |
+| 2 Dev/review loop — Milestone 3a (Cards/Collection/Hub) | **CODE GREEN · Watcher BLOCKED · vor M3b gestoppt** | T-302/303/305 alle ATs grün, `npm test` **441/441**, Sweep allClean, M2-Invarianten intakt, asset-light ehrlich. **ABER:** Review changes-required (HIGH: REQ-009 `count==cards`-Test **flaky** — sync getByTestId rast partielles Lazy-Render; + MED stale /offers-Kommentare; 2 LOW). **Watcher BLOCKED (Stand bei Befund):** PRIL-Gates existieren doch (`~/.claude/bin/`) + laufen → context-check FAIL (PRD unbestätigt), reality-check FAIL (JSONL-Schema: `req`≠`requirement_id`, fehlende feature/evidence_ref/verified_by), scope-check FAIL (54 kumulative Dateien wegen no-commits). Doku: `server/index.js` (Backend-Rückbau, user-autorisiert) im Diff, aber CONTRA-DELTA-002 nannte Backend noch „separat unangetastet". **NACHGEZOGEN 2026-06-27 (context-keeper):** PRD user-confirmed → **context-check GRÜN (exit 0)**; Reality-JSONL PRIL-konform (feature/requirement_id/evidence_ref/verified_by je Zeile, valide evidence_class, kein verbotenes Token) → **reality-check `--min-evidence integration` GRÜN (exit 0)**, production_verified_count=0; CONTRA-DELTA-002-Backend-Notiz auf „user-autorisiert+erledigt, nur DB-DROP offen" aktualisiert. **scope-check bleibt erwartbar ROT** (54 kumulative Dateien bis Baseline-Commit — no-commits-Policy, kein Substanzproblem). |
+| STRUKTUR-Entscheidungen | **GEKLÄRT 2026-06-27** | (1) **PRD user-confirmed** (Nutzer-Phrase 2026-06-27 → PRD-Status geflippt; `docs/prd/...prd.md` Z.3 `Status: user-confirmed`). **Product-Context-Tripel jetzt konsistent: Canvas + Vision + PRD alle `user-confirmed`.** Traceability-Header + Gate-Control Track 1 nachgezogen (PRD-Confirmation gespiegelt, Honesty-Caveat: keine Zeile production-verified). **PRIL `plumbline-context-check` jetzt GRÜN (exit 0).** (2) **Per-Milestone-Commits** (Commit-Memory aktualisiert): nach Remediation Baseline-Commit M1+M2+Backend+M3a (nach User-Review), dann je Milestone eigener Commit. |
+| M3a-Remediation (Welle 1, Run wf_8c362576-325) | **TEILWEISE · gestoppt — Rest in Welle 2 erledigt** | **DONE (alle weiterhin gültig, von Welle 2 nicht regressiert):** Reality-JSONL-Schema PRIL-konform (4 Pflichtfelder, reality-check exit 0, pv-count 0) · CONTRA-002-Backend-Notiz nachgezogen · PRD-Confirmation gespiegelt (context-check exit 0) · **stale `/offers`-Kommentare bereinigt = DONE** · **toter CSS/i18n entfernt = DONE** · collection-count-Test race-free. **ABER (Review HIGH, jetzt in Welle 2 vollständig gefixt):** der Flake-Fix war ZU ENG — nur 1 Test gefixt; der kanonische `npm test` floatete weiter **438–439/441** (gleiche Race-Klasse in `home-module-order`/`home-seo-block`/`delta-card-review-gating`/`delta-collections-hub-trust-cleanup` u. a.). „441/441" war überzeichnet (galt nur unter `--isolate=false`). → **Welle 2 hat die GESAMTE Race-Klasse suite-weit gefixt (8/8 grüne kanonische Voll-Läufe unter CPU-Last, 0 Flake) — siehe Zeile darunter.** |
+| M3a-Remediation (Welle 2 — Flake-Rootfix, Run wf_effa1fd5-49f) | **DONE · suite-weit race-free** | Wurzel-Fix für ALLE racy Tests derselben Klasse: jeder synchrone `getByTestId`/`getAllByTestId`/`querySelector`, der NACH einem `findBy*`-Anker ein ANDERES (später gerendertes) Lazy-Modul/Sektion las, ist jetzt in `waitFor` gekapselt und re-queryt IM Retry (wie der collection-count-Fix) — `home-module-order` (alle 12 Modul-Anker + Hero-H1 + die 5 Modul-Link-Tests), `home-seo-block` (H2-Struktur + interne Links), `delta-card-review-gating` (Collection-Grid + Home-Carousel + TCM-Overview), `delta-collections-hub-trust-cleanup` (Hub-Integrität H1/All-Posters/FAQ/Newsletter), `delta-product-card-asset-light` (Grid-Cards), `delta-pdp-personalization-gating` (BaZi-Konfigurator + Birth-Fields), `delta-offers-hub` (Sektionen + Slider + CTAs), `collections-routes` (Full-Page-Inventar), `inspiration-page` (Gallery-Tiles), `inspiration-nav-reachability` (Footer/Global-Anker). Per-Call-Override `{timeout:5000}` existierte nicht mehr (bereits auf 15000 = global `asyncUtilTimeout` in `tests/setup.ts` angeglichen); `tests/setup.ts` unverändert auf 15000 (passt unter das jsdom-`testTimeout=20000`). **KEINE Assertion abgeschwächt** (jede positive Prüfung muss weiterhin das echte Element/den echten href/die echte Zahl finden — nur mit ehrlichem Re-Query-Headroom statt synchronem Race). **Beweis: kanonischer `npm test` 8/8 konsekutiv grün = 441/441 (Test Files 31/31), JEDER Lauf unter künstlicher 6-Worker-CPU-Last (8 Kerne) — kein Lauf 438/439; + 2 Zusatzläufe `--isolate=false` 441/441.** `tsc --noEmit` exit 0. Die frühere „441/441 nur unter --isolate=false / kanonisch floatet 438–439"-Aussage ist damit aufgehoben: jetzt suite-weit deterministisch im kanonischen Default. **CORE-manual, KEIN Commit, 0 production-verified.** |
+| M3a-Remediation — Verifikation & Restbefund | **DONE** | Review **approve** (assertionsIntact), QA **5/5** (441/441, zeroFlakes), Watcher **review-required** (einziger Nicht-pass: scope-check exit 2 wegen 64 kumulativer Dateien + CAN-029-Prosa → durch Baseline-Commit gelöst; context/reality/redact alle exit 0). **Latenter Restbefund (Review MEDIUM) GESCHLOSSEN:** AT-009-1 in `delta-collection-template-inventory.test.tsx` (sync Reads nach findBy) jetzt in `waitFor` gekapselt wie AT-009-2 — Orchestrator-Edit + verifiziert (isoliert 23/23). **Orchestrator-Gegenprobe: 3× volle Suite `node vitest run` = 441/441 (31/31 Files), 0 Flakes.** Gesamt 25+ unabhängige grüne Läufe. |
+| Baseline-Commit | **READY · awaiting user GO** | M1+M2+Backend+M3a verifiziert grün (441/441 stabil, PRIL context/reality grün, 0 production-verified, PRD user-confirmed). User reviewt kumulativen Diff (35 getrackte + 29 neue Dateien) → Commit auf explizites Wort. |
+| 2 Dev/review loop — Milestone 3b | **HELD** | T-304 PDP-Inventar · T-306 SEO · T-301-Lock. Erst nach Baseline-Commit. |
+| 3 Verify/security/validation/judgment | PENDING | — |
+| 4–7 QA / prod-val / PO / acceptance | PENDING | — |
+
+## REQ-002 (special gate)
+accepted-incremental · `value-risk` retained · build-allowed · **merge-gated**: above-fold re-order (Hero → Bestseller → category banners) may only merge after (a) real-browser Playwright green + (b) event read-out instrumented. Full 13-module resequence DEFERRED to a later run.
+
+## Scope this run
+24 signal-backed deltas under the current home + REQ-002 incremental. Image surfaces ASSET-LIGHT (REQ-004/006/023/024) until OQ-001. Place-of-birth autocomplete = bundled cities-JSON / policy-compliant (NOT public Nominatim per keystroke).
+
+## Iterationsplan (M = 8, Quelle: `docs/plans/2026-06-27-desenio-delta.md`)
+| It. | Milestone | REQs | Tasks |
+|---|---|---|---|
+| 1 | Produktlogik & Daten (Fundament) | 005·006·007·008·014·025 | T-101…T-105 |
+| 2 | Navigation & Header | 003·004·021·022 | T-201…T-204 |
+| 3 | Trust-Bereinigung & Templates | 006·008·009·010·019·023·024 | T-301…T-306 |
+| 4 | Mobile UX | 011·012·013·018·022 | T-401…T-404 |
+| 5 | International & Pricing | 015·016 | T-501·T-502 |
+| 6 | Farb-Tokens | 017 | T-601 |
+| 7 | **REQ-002 inkrementell (Above-Fold) — value-risk · merge-gated** | 001·002 | T-701 (Event-Readout) · T-702 (Re-Order) |
+| 8 | FINALIZE (QA-/Reality-Ledger-Meta + Evidenz) | 001·002·011·012·013·020 | T-801·T-802 |
+
+## Build-Blocker (aus Phase 1, vor/in Phase 2 zu lösen)
+- **BLK-DELTA-DATA** — Coder muss die Delta-Anker wiren, bevor die [REAL-BOUNDARY-jsdom]-Tests grün werden (absichtlich vorab RED): Above-Fold-Band-Anker (`data-band='above-fold'`, Bestseller VOR Kategorie-Banner), Sale-Hub-Route, exakte 8er-Primaer-Nav (FAQ/About/Contact/Blog raus), Terracotta-Token, 5er-Hintergrundpalette, asset-light `data-placeholder`.
+- **BLK-ES-CONTENT** — ES fehlt komplett (Ist: Lang = EN|DE|FR). Vollständige ES-Übersetzung mit Key-Parität nötig; ES-Qualität bleibt value-risk (maschinell, User reviewt).
+- **BLK-OQ003-AUTOCOMPLETE-SOURCE** — Place-of-Birth-Autocomplete = gebündelte Cities-JSON / policy-konform, NICHT Public-Nominatim per Keystroke (code-blocking).
+- **BLK-CHROMIUM** — alle Real-Browser-Playwright-Specs laufen PLANNED (kein Chromium im Sandbox) = REQ-002-Merge-Gate (a).
+- **BLK-EVENT-READOUT** — Basis-Event-Readout nicht instrumentiert = REQ-002-Merge-Gate (b).
+
+## Milestone-1-Gate-Befunde — REMEDIATION ABGESCHLOSSEN (2026-06-27)
+- **REV-M1-HIGH → RESOLVED:** `ProductCard.tsx` gated jetzt Sterne+Rating+„N× bought" hinter `REVIEWS_ENABLED && product.reviews > 0` (Z.19/47-52) — byte-identisch zum PDP-Ausdruck, EINE Quelle der Wahrheit. Sweep (unabhängig): genau 2 Render-Pfade (Card+PDP), beide gegated, keine offene Lücke. Review: **approve**. Tests AT-008-4/AT-010-4 grün; Mutation tötet 5/7 bei reintroduziertem Fake. Default OFF → keine Social-Proof-UI im Auslieferungszustand.
+  - **Rest-LOW (offen, optional):** Die `reviews > 0`-Hälfte des Gates wird von keinem Test geübt (REVIEWS_ENABLED ist beim Import false → Short-Circuit). Flag-on-Test (`vi.stubEnv('VITE_REVIEWS_ENABLED','true')`: reviews>0 zeigt / reviews===0 versteckt) würde die „flag alone never invents proof"-Garantie voll zertifizieren.
+- **CONTRA-DELTA-001 → RESOLVED:** Canvas Header (Z.3/6) UND Body (Z.132/151/156) zeigen jetzt konsistent `user-confirmed` (amendierte Fassung, RE-CONFIRMED 2026-06-27). Beleg: Nutzer tippte die exakte Bestätigungsphrase ein ZWEITES Mal NACH den Council-Amendments (Transkript L1522, nach Amendment-Anwendung L1492-L1501). „steht aus/reicht NICHT" steht nur noch in ausdrücklich als veraltet markierten Notizen. Audit-Eintrag: `docs/contradictions/sizhuatelier-desenio-delta-architecture.contradictions.md`.
+- **PRD korrekt NICHT geflippt:** bleibt `ready-for-user-confirmation` (Nutzer bestätigte nur Canvas + Vision). Delta-Reality-Ledger angelegt (13 Z., 0 production-verified). Scope-Sektion → „Allowed change scope".
+- **Watcher-Recheck: PASS** (contraResolved · prdCorrectlyUnflipped · realityLedgerOk · honestyGapClosed · scopeRenamed). „pass" autorisiert **NICHT** Milestone 2 — das entscheidet der Nutzer separat — und zertifiziert NICHT funktionale Korrektheit (Gates A-C).
+
+## Offene Punkte (Audit / vor echtem Completion-Gate)
+- **PRIL-CLIs fehlen im Dateisystem** (CORE-manual): context-/scope-/reality-/redact-check wurden by-substance manuell geprüft; vor jedem echten Completion-/Done-Gate müssen sie wiederhergestellt + gelaufen sein.
+- **Traceability-Drift:** `docs/traceability.md` sagt noch „Wired-in-Prod = no / not-started" für die Delta-REQs, während das Reality-Ledger M1 als `test-verified` (uncommitted, wired_in_prod=no) führt — Reality-Spalten nachziehen.
+- **Alles in-sandbox**, jsdom via `--isolate=false`; `wired_in_prod=no` überall; Produktions-Verifikation steht aus. Nutzer sollte `npm test` in echter Umgebung laufen lassen.
+- **REQ-002** bleibt value-risk + merge-gated (Real-Browser-Playwright + Event-Readout offen) — nicht Teil dieser Remediation.
+
+## Reality Ledger (RED — keep visible in every report)
+- `bazi-chart`: placeholder (RED for ACCURACY) — sticky preview shows placeholder; never report as computed.
+- product images (OQ-001): placeholder → asset-light; operator-owned; launch-blocking, NOT code-blocking.
+- region prices (OQ-002): placeholder figures; mechanism built+tested; real numbers operator-owned; launch-blocking.
+- `checkout` Stripe: integration-fake (BLK-STRIPE-REAL) — never production-verified.
+- mobile/LCP: real-browser Playwright NOT yet run (chromium absent in sandbox) → REQ-002 merge-gate + mobile claims stay PLANNED until run on a real browser.
+- Nothing is production-verified.

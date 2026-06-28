@@ -70,18 +70,28 @@ describe('REQ-011 / AT-011-4 — /inspiration is wired into production navigatio
   it('the site footer links to /inspiration', async () => {
     renderApp()
     const footer = await screen.findByRole('contentinfo')
-    const hrefs = within(footer)
-      .getAllByRole('link')
-      .map((a) => a.getAttribute('href') ?? '')
-    expect(hrefs).toContain('/inspiration')
+    // The footer chrome can paint its link list a commit after the <footer>
+    // element appears under load, so re-read the hrefs inside `waitFor`. The
+    // membership assertion is unchanged.
+    await waitFor(() => {
+      const hrefs = within(footer)
+        .getAllByRole('link')
+        .map((a) => a.getAttribute('href') ?? '')
+      expect(hrefs).toContain('/inspiration')
+    })
   })
 
   it('at least one persistent-chrome anchor targets /inspiration (globally reachable)', async () => {
     renderApp()
     await screen.findAllByRole('navigation')
-    const anchors = Array.from(
-      document.querySelectorAll('a[href="/inspiration"]'),
-    )
-    expect(anchors.length).toBeGreaterThanOrEqual(1)
+    // The persistent-chrome anchors (nav + footer) can finish painting a commit
+    // after the navigation landmark appears under load, so poll for the
+    // /inspiration anchor inside `waitFor`. The ≥1 assertion is unchanged.
+    await waitFor(() => {
+      const anchors = Array.from(
+        document.querySelectorAll('a[href="/inspiration"]'),
+      )
+      expect(anchors.length).toBeGreaterThanOrEqual(1)
+    })
   })
 })

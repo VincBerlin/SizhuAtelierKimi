@@ -14,8 +14,6 @@ export interface CartLine {
   poster: PosterData | null
   meta: string
   personalization?: Record<string, string>
-  /** Celestial Credits earned by this line (1 per net €/$ spent). Display-only in MVP. */
-  creditsEarned?: number
   /** Static product image for non-personalizable lines (TCM / Fire Horse). */
   image?: string
   /** Stable server-pricing identity (ADR-001): the server re-prices from these,

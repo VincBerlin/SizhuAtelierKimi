@@ -133,14 +133,6 @@ function Dashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px,1fr))', gap: 16, marginBottom: 20 }}>
         <div style={cardStyle}>
-          <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.creditBalance')}</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 34, color: C.accent }}>{user.points} C.</div>
-          <div style={{ fontSize: 12, color: C.textMuted3, marginTop: 4 }}>{t('auth.lifetime')}: {user.lifetime} C.</div>
-          {user.unlockedFeatures && user.unlockedFeatures.length > 0 && (
-            <div style={{ fontSize: 11.5, color: C.textMuted2, marginTop: 8, lineHeight: 1.5 }}>✦ {user.unlockedFeatures.join(' · ')}</div>
-          )}
-        </div>
-        <div style={cardStyle}>
           <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.emailLabel')}</div>
           {user.name && <div style={{ fontSize: 15, fontWeight: 600, color: C.ink, marginBottom: 2 }}>{user.name}</div>}
           <div style={{ fontSize: 15, color: C.ink, wordBreak: 'break-word' }}>{user.email}</div>

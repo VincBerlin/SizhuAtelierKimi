@@ -977,47 +977,22 @@
   outline-offset: 3px;
 }
 
-.category-coming-soon {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 2;
-  padding: 7px 10px;
-  background: #9A7D5A;
-  color: #FFFDF9;
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 #kollektionen .overflow-hidden {
   position: relative;
 }
 
-/* ===== COMING SOON / BLOG ===== */
-.coming-soon-section,
+/* ===== BLOG ===== */
 .blog-preview-section {
   background: #F5F2ED;
   padding: clamp(72px, 8vw, 112px) 0;
 }
 
-.coming-soon-inner,
 .blog-preview-inner,
 .blog-page-list {
   width: min(100% - 48px, 1320px);
   margin: 0 auto;
 }
 
-.coming-soon-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
-  gap: clamp(36px, 6vw, 92px);
-  align-items: start;
-}
-
-.coming-soon-inner h2,
 .blog-preview-head h2,
 .blog-page-hero h1 {
   margin: 0;
@@ -1028,19 +1003,6 @@
   line-height: 1;
 }
 
-.coming-soon-panel {
-  border-top: 1px solid #D5C9B7;
-}
-
-.coming-soon-list article {
-  display: grid;
-  grid-template-columns: minmax(0, 0.48fr) minmax(0, 0.72fr) minmax(0, 1fr);
-  gap: 24px;
-  padding: 24px 0;
-  border-bottom: 1px solid #D5C9B7;
-}
-
-.coming-soon-list span,
 .blog-preview-grid span,
 .blog-page-list span,
 .blog-page-list time {
@@ -1052,7 +1014,6 @@
   text-transform: uppercase;
 }
 
-.coming-soon-list h3,
 .blog-preview-grid h3,
 .blog-page-list h2 {
   margin: 0;
@@ -1063,7 +1024,6 @@
   line-height: 1.05;
 }
 
-.coming-soon-list p,
 .blog-preview-grid p,
 .blog-page-list p,
 .blog-page-hero p {
@@ -1072,55 +1032,6 @@
   font-family: 'Inter', sans-serif;
   font-size: 15px;
   line-height: 1.7;
-}
-
-.coming-soon-signup {
-  margin-top: 32px;
-  padding: 28px;
-  background: #2A2420;
-  color: #F5F2ED;
-}
-
-.coming-soon-signup label {
-  display: block;
-  margin-bottom: 14px;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.coming-soon-signup div {
-  display: flex;
-  gap: 0;
-}
-
-.coming-soon-signup input {
-  flex: 1;
-  min-width: 0;
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-right: 0;
-  background: rgba(255, 255, 255, 0.06);
-  color: #F5F2ED;
-  outline: 0;
-}
-
-.coming-soon-signup button {
-  padding: 14px 20px;
-  border: 1px solid #F5F2ED;
-  background: #F5F2ED;
-  color: #2A2420;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.coming-soon-signup p {
-  margin-top: 12px;
-  color: rgba(245, 242, 237, 0.72);
 }
 
 .blog-preview-head {
@@ -1576,8 +1487,7 @@
 }
 
 .btn-primary-lg,
-.btn-outline-lg,
-.coming-soon-form button {
+.btn-outline-lg {
   display: inline-flex;
   min-height: 54px;
   align-items: center;
@@ -1599,36 +1509,6 @@
 
 .btn-outline-lg {
   color: #2A2420;
-}
-
-.coming-soon-form {
-  margin-top: 28px;
-  padding: 24px;
-  background: #2A2420;
-  color: #F5F0E8;
-}
-
-.coming-soon-form div {
-  display: flex;
-  gap: 0;
-}
-
-.coming-soon-form .form-input {
-  border-color: rgba(255, 255, 255, 0.16);
-  border-right: 0;
-  background: rgba(255, 255, 255, 0.06);
-  color: #F5F0E8;
-}
-
-.coming-soon-form button {
-  border-color: #F5F0E8;
-  background: #F5F0E8;
-  color: #2A2420;
-}
-
-.coming-soon-form p {
-  margin-top: 12px;
-  color: rgba(245, 240, 232, 0.72);
 }
 
 .product-modal-meta {
@@ -1795,7 +1675,6 @@
     width: min(58%, 300px);
   }
 
-  .coming-soon-inner,
   .product-modal-grid {
     grid-template-columns: 1fr;
   }
@@ -1843,34 +1722,24 @@
     aspect-ratio: 0.86;
   }
 
-  .coming-soon-inner,
   .blog-preview-inner,
   .blog-page-list,
   .blog-page-hero {
     width: min(100% - 32px, 1320px);
   }
 
-  .coming-soon-list article,
   .blog-preview-grid {
     grid-template-columns: 1fr;
   }
 
-  .coming-soon-signup,
   .blog-preview-grid a {
     padding: 22px;
   }
 
-  .coming-soon-signup div,
-  .coming-soon-form div,
   .product-add-row,
   .form-input-row {
     grid-template-columns: 1fr;
     flex-direction: column;
-  }
-
-  .coming-soon-signup input,
-  .coming-soon-form .form-input {
-    border-right: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   .blog-preview-head {

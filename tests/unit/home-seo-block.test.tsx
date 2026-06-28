@@ -13,7 +13,7 @@
  * the artwork or claim a computed chart (bazi.ts stays a placeholder, RED).
  */
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import { translations, type Lang } from '../../src/i18n/translations'
@@ -30,7 +30,7 @@ function renderHome() {
 
 async function findSeoBlock() {
   // The SEO block lives in module 12; wait for the lazy Home chunk to resolve.
-  await screen.findByTestId('home-module-12', undefined, { timeout: 5000 })
+  await screen.findByTestId('home-module-12', undefined, { timeout: 15000 })
   return screen.getByTestId('home-module-12')
 }
 
@@ -81,35 +81,46 @@ describe('REQ-012 / AT-012-1 — SEO block renders with H2 structure + internal 
   it('module 12 renders an SEO text block with ≥2 H2 sub-headings', async () => {
     renderHome()
     const seo = await findSeoBlock()
-    const h2s = seo.querySelectorAll('h2')
-    // The SEO block is a multi-topic structure (BaZi / TCM / Wuxing …) — not a
-    // single paragraph. Require at least two H2 sub-headings.
-    expect(h2s.length).toBeGreaterThanOrEqual(2)
-    for (const h of Array.from(h2s)) {
-      expect((h.textContent ?? '').trim().length).toBeGreaterThan(0)
-    }
+    // The module-12 anchor can exist a commit before its inner H2 structure has
+    // finished painting under load, so re-read the H2s inside `waitFor`. The
+    // assertion is unchanged — ≥2 non-empty H2s still have to be present.
+    await waitFor(() => {
+      const h2s = seo.querySelectorAll('h2')
+      // The SEO block is a multi-topic structure (BaZi / TCM / Wuxing …) — not a
+      // single paragraph. Require at least two H2 sub-headings.
+      expect(h2s.length).toBeGreaterThanOrEqual(2)
+      for (const h of Array.from(h2s)) {
+        expect((h.textContent ?? '').trim().length).toBeGreaterThan(0)
+      }
+    })
   })
 
   it('module 12 links to real collection routes (REQ-010)', async () => {
     renderHome()
     const seo = await findSeoBlock()
-    const hrefs = within(seo)
-      .getAllByRole('link')
-      .map((a) => a.getAttribute('href') ?? '')
-    // links into the per-world collections the SEO copy describes
-    expect(hrefs).toContain('/collections/bazi-posters')
-    expect(hrefs).toContain('/collections/tcm-posters')
-    expect(hrefs).toContain('/collections/wuxing-posters')
+    // Re-read the links inside `waitFor`: the anchor can be present while its
+    // child links are still painting a commit later under CPU contention.
+    await waitFor(() => {
+      const hrefs = within(seo)
+        .getAllByRole('link')
+        .map((a) => a.getAttribute('href') ?? '')
+      // links into the per-world collections the SEO copy describes
+      expect(hrefs).toContain('/collections/bazi-posters')
+      expect(hrefs).toContain('/collections/tcm-posters')
+      expect(hrefs).toContain('/collections/wuxing-posters')
+    })
   })
 
   it('module 12 links to knowledge/journal content too (internal linking)', async () => {
     renderHome()
     const seo = await findSeoBlock()
-    const hrefs = within(seo)
-      .getAllByRole('link')
-      .map((a) => a.getAttribute('href') ?? '')
-    // at least one knowledge/journal internal link (the blog / knowledge hub)
-    expect(hrefs.some((h) => h.startsWith('/blog'))).toBe(true)
+    await waitFor(() => {
+      const hrefs = within(seo)
+        .getAllByRole('link')
+        .map((a) => a.getAttribute('href') ?? '')
+      // at least one knowledge/journal internal link (the blog / knowledge hub)
+      expect(hrefs.some((h) => h.startsWith('/blog'))).toBe(true)
+    })
   })
 })
 

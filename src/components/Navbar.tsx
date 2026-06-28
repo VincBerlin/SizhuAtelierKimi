@@ -2,10 +2,67 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router'
 import { ShoppingBag, Menu, X, ChevronDown, Search, User } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
-import { useAuth } from '../store/AuthProvider'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
+
+// REQ-003 / T-201 — shop-oriented PRIMARY navigation. Exactly these 8 entries in
+// spec order: Bestseller, Neuheiten, Poster, TCM Poster, Wuxing, Angebote,
+// Poster Sets, Inspiration. FAQ/About/Contact/Blog are intentionally NOT here
+// (FM-03: the V2 `mainLinks` shipped blog/faq/about/contact — removed). Every
+// `href` targets an existing route (no dead link, AT-003-3): collection slugs,
+// /inspiration, and the full curated /offers hub (REQ-024 / T-305 — ≥2 curated
+// sections live, AT-024-4). The `data-nav-primary` anchor backs the
+// real-boundary REQ-003 tests; it is distinct from `data-nav-top` (the utility/
+// mega-trigger budget the REQ-009 menu test counts).
+export interface PrimaryNavEntry { i18nKey: string; href: string }
+
+export const PRIMARY_NAV: PrimaryNavEntry[] = [
+  { i18nKey: 'nav.primary.bestseller', href: '/collections/bazi-posters' },
+  { i18nKey: 'nav.primary.new', href: '/collections/fire-horse-2026' },
+  { i18nKey: 'nav.primary.posters', href: '/collections' },
+  { i18nKey: 'nav.primary.tcm', href: '/collections/tcm-posters' },
+  { i18nKey: 'nav.primary.wuxing', href: '/collections/wuxing-posters' },
+  { i18nKey: 'nav.primary.offers', href: '/offers' },
+  { i18nKey: 'nav.primary.posterSets', href: '/collections/bundles' },
+  { i18nKey: 'nav.primary.inspiration', href: '/inspiration' },
+]
+
+// REQ-004 / T-203 — asset-light MEGA-MENU promo tiles. The relevant buy-intent
+// columns (Poster / TCM / Wuxing) each carry ≥2 text-forward tiles. Each tile is
+// a real link (title + CTA + live /collections|/personalize|/offers href) whose
+// image field is a GENERIC placeholder (`data-placeholder`) — never a real
+// /images/*.webp product photo (FM-11 / CAN-014 / RISK-001). Real imagery lands
+// only after OQ-001 (RL-IMAGES stays RED until then).
+interface MegaTile { titleKey: string; ctaKey: string; href: string; tint: string }
+interface MegaTileColumn { testid: string; titleKey: string; tiles: MegaTile[] }
+
+const MEGA_TILE_COLUMNS: MegaTileColumn[] = [
+  {
+    testid: 'mega-tiles-posters',
+    titleKey: 'nav.mega.personalized.title',
+    tiles: [
+      { titleKey: 'nav.mega.tiles.posters.baziTitle', ctaKey: 'nav.mega.tiles.posters.baziCta', href: '/collections/bazi-posters', tint: '#E2DACB' },
+      { titleKey: 'nav.mega.tiles.posters.personalizedTitle', ctaKey: 'nav.mega.tiles.posters.personalizedCta', href: '/collections/personalized-posters', tint: '#D8C3B4' },
+    ],
+  },
+  {
+    testid: 'mega-tiles-tcm',
+    titleKey: 'nav.mega.tcm.title',
+    tiles: [
+      { titleKey: 'nav.mega.tiles.tcm.eduTitle', ctaKey: 'nav.mega.tiles.tcm.eduCta', href: '/collections/tcm-posters', tint: '#AFBCA6' },
+      { titleKey: 'nav.mega.tiles.tcm.practiceTitle', ctaKey: 'nav.mega.tiles.tcm.practiceCta', href: '/collections/tcm-posters', tint: '#C8B89A' },
+    ],
+  },
+  {
+    testid: 'mega-tiles-wuxing',
+    titleKey: 'nav.mega.wuxing.title',
+    tiles: [
+      { titleKey: 'nav.mega.tiles.wuxing.fiveTitle', ctaKey: 'nav.mega.tiles.wuxing.fiveCta', href: '/collections/wuxing-posters', tint: '#CFC4B2' },
+      { titleKey: 'nav.mega.tiles.wuxing.balanceTitle', ctaKey: 'nav.mega.tiles.wuxing.balanceCta', href: '/collections/wuxing-posters', tint: '#D9D0C1' },
+    ],
+  },
+]
 
 // REQ-009 — real grouped MEGA-MENU. Columns are organised by buy-intent
 // (product world / use-case / format) per PRD §6.1/§6.2; every item targets a
@@ -59,16 +116,10 @@ const MEGA_COLUMNS: MegaColumn[] = [
     ],
   },
 ]
-// Top-level desktop nav budget (REQ-008 AK-3 / AT-008-3): Start-Personalizing +
-// Collections (mega-menu) + mainLinks ≤ 6 entries → mainLinks ≤ 4. "Gifts" is a
-// secondary destination (still reachable via the mobile drawer + footer + its
-// /gifts route), so it is dropped from the top-level bar to stay within budget.
-const mainLinks = [
-  { key: 'blog', href: '/blog' },
-  { key: 'faq', href: '/faq' },
-  { key: 'about', href: '/about' },
-  { key: 'contact', href: '/contact' },
-]
+// REQ-003 / FM-03 — the V2 `mainLinks` (blog/faq/about/contact) are REMOVED from
+// the primary nav. Those destinations remain reachable from the footer/secondary
+// nav; they MUST NOT appear in the shop-oriented primary bar.
+
 // ≥44px touch targets for header icon controls (§6.1 / §7.4).
 const HIT = { minWidth: 44, minHeight: 44 } as const
 
@@ -127,7 +178,6 @@ export default function Navbar() {
   const [mPosterOpen, setMPosterOpen] = useState(false)
   const location = useLocation()
   const { cartCount, openCart } = useShopStore()
-  const { user } = useAuth()
   const { t } = useT()
   const posterRef = useRef<HTMLDivElement>(null)
 
@@ -185,7 +235,7 @@ export default function Navbar() {
             <Menu size={24} strokeWidth={1.5} />
           </button>
 
-          <Link to="/" className="flex items-center gap-2" style={{ textDecoration: 'none', flexShrink: 0 }}>
+          <Link data-testid="header-logo" to="/" className="flex items-center gap-2" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <img src="/images/sizhu-chinese-mark.webp" alt="" aria-hidden="true" style={{ width: 24, height: 30, objectFit: 'contain', display: 'block' }} />
             <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
               <span style={{ fontFamily: FONT_SERIF, fontSize: 24, fontWeight: 500, letterSpacing: '0.02em', color: C.ink }}>SizhuAtelier</span>
@@ -259,26 +309,73 @@ export default function Navbar() {
                     </ul>
                   </div>
                 ))}
+
+                {/* REQ-004 / T-203 — asset-light promo tiles. Spans all 3 columns
+                    under the text links. Each relevant column (Poster/TCM/Wuxing)
+                    carries ≥2 text-forward tiles; the image field is a generic
+                    placeholder (data-placeholder), never a real product photo. */}
+                <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginTop: 6, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+                  {MEGA_TILE_COLUMNS.map((col) => (
+                    <div key={col.testid} data-testid={col.testid} style={{ padding: '0 10px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {col.tiles.map((tile, i) => (
+                        <Link
+                          key={col.testid + i}
+                          data-testid="mega-tile"
+                          to={tile.href}
+                          tabIndex={posterOpen ? 0 : -1}
+                          onClick={() => setPosterOpen(false)}
+                          className="block transition-colors hover:bg-[#F0E9DA]"
+                          style={{ display: 'flex', gap: 10, alignItems: 'center', textDecoration: 'none', padding: 6, borderRadius: 2 }}
+                        >
+                          {/* generic asset-light placeholder — no <img>, no real
+                              /images/*.webp; a tinted swatch with a hatch pattern
+                              that reads as a placeholder, not a product photo. */}
+                          <span
+                            data-testid="mega-tile-image"
+                            data-placeholder="true"
+                            aria-hidden="true"
+                            style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 2, border: `1px dashed ${C.borderInput}`, background: `repeating-linear-gradient(45deg, ${tile.tint} 0 6px, transparent 6px 12px)` }}
+                          />
+                          <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                            <span data-testid="mega-tile-title" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{t(tile.titleKey)}</span>
+                            <span data-testid="mega-tile-cta" style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.accent, fontWeight: 600 }}>{t(tile.ctaKey)} →</span>
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {mainLinks.map((l) => (
-              <Link data-nav-top key={l.href} to={l.href} className="transition-colors hover:text-[#C0492E]" style={navLinkStyle(isActive(l.href))}>{t('nav.' + l.key)}</Link>
+            {/* REQ-003 / T-201 — the 8 shop-oriented primary entries (data-nav-primary,
+                distinct from the data-nav-top utility/mega budget). */}
+            {PRIMARY_NAV.map((entry) => (
+              <Link
+                data-nav-primary
+                key={entry.href + entry.i18nKey}
+                to={entry.href}
+                className="transition-colors hover:text-[#C0492E]"
+                style={navLinkStyle(isActive(entry.href))}
+              >
+                {t(entry.i18nKey)}
+              </Link>
             ))}
           </nav>
 
           <div className="flex items-center" style={{ gap: 4, flexShrink: 0 }}>
             {!searchOpen && (
-              <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button data-testid="header-search" onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
                 <Search size={19} strokeWidth={1.5} />
               </button>
             )}
-            <div className="hidden sm:block"><LangDropdown /></div>
-            <Link to="/account" aria-label={t('auth.account')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, gap: 5, color: C.ink, textDecoration: 'none' }}>
-              {user && <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600 }}>{user.points} C.</span>}
+            {/* Language / country selector — mandatory header surface (REQ-022). */}
+            <div data-testid="header-lang" className="hidden sm:block"><LangDropdown /></div>
+            {/* Account is an OPTIONAL surface (REQ-022 / AT-011-4). */}
+            <Link data-testid="header-account" to="/account" aria-label={t('auth.account')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, gap: 5, color: C.ink, textDecoration: 'none' }}>
               <User size={19} strokeWidth={1.5} />
             </Link>
-            <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button data-testid="header-cart" onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
@@ -308,8 +405,10 @@ export default function Navbar() {
                 ))}
               </div>
             )}
-            {mainLinks.map((l) => (
-              <Link key={l.href} to={l.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{t('nav.' + l.key)}</Link>
+            {/* REQ-003 / T-201 — the shop-oriented primary entries in the mobile
+                drawer too (FAQ/About/Contact/Blog removed from the primary nav). */}
+            {PRIMARY_NAV.map((entry) => (
+              <Link data-testid="mobile-primary-link" key={entry.href + entry.i18nKey} to={entry.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{t(entry.i18nKey)}</Link>
             ))}
           </nav>
           <div className="flex items-center" style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, gap: 10 }}>

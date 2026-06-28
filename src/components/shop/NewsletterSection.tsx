@@ -10,7 +10,9 @@ type Status = 'idle' | 'submitting' | 'success' | 'error'
  * Cosmic Pulse newsletter (§4.8): weekly Energy Charts + marketing opt-in with
  * benefits, consent + privacy link, language preference, success/error states.
  * Persists to Postgres via /api/newsletter (double-opt-in ready) — no faked
- * success. The 20-credit welcome bonus now lives in the profile / Celestial Vault.
+ * success. No credits/welcome-bonus affordance is offered: the credits/vault
+ * feature was removed from the visible UI (REQ-010), so this form makes no such
+ * promise.
  */
 export default function NewsletterSection() {
   const { t, lang } = useT()

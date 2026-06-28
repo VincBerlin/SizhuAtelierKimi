@@ -242,7 +242,10 @@ export const COLLECTION_CONFIGS: CollectionConfig[] = [
     title: 'Bundles & Sets',
     intro:
       'Stimmige Poster-Sets für Praxis, Studio und Zuhause — kuratiert und vergünstigt zusammengestellt.',
-    productIds: [1, 2, 5, 3, 4],
+    // A curated, intentionally mixed set: personalisierbare BaZi-Poster plus die
+    // versandfertige Wuxing-Lehrgrafik (#7, personalizable:false), so a set can
+    // pair a personal motif with a ready-to-ship knowledge poster.
+    productIds: [1, 2, 5, 3, 4, 7],
     heroLabel: 'Bundles',
     seo: {
       heading: 'Poster-Bundles und Sets',
@@ -264,3 +267,49 @@ export const COLLECTION_CONFIGS: CollectionConfig[] = [
 export function getCollectionConfig(slug: string): CollectionConfig | undefined {
   return COLLECTION_CONFIGS.find((c) => c.slug === slug)
 }
+
+// ── Offers / Sale / Campaign hub (REQ-024 / T-305) ───────────────────────────
+//
+// The hub holds SEVERAL curated sections (short text + product slider + CTA),
+// so no single promo balloons into its own overloaded landing page (REQ-024
+// THESE). Each section is declarative and HONEST:
+//   - `productIds` curates a REAL catalog slice (never an invented assortment);
+//   - `ctaSlug` points at an EXISTING collection route (no dead link, AT-024-2/4);
+//   - copy lives in i18n under `offers.sections.<id>` (eyebrow/title/text/cta).
+//
+// RED-line discipline: NO invented discounts, NO countdowns, NO "Coming Soon"
+// fake. A section's value is "curated for X" — the real per-product anchor/price
+// shown on each card is the only price signal, and final figures stay
+// operator-owned (OQ-002, RL-PRICES RED). Hub campaign imagery is asset-light
+// until OQ-001 (RL-IMAGES RED) — the page renders marked placeholders, never a
+// real /images/*.webp visual.
+
+export interface OffersSection {
+  /** Stable section id — i18n namespace (`offers.sections.<id>`) + DOM anchor. */
+  id: string
+  /**
+   * Curated, ordered catalog ids that fill this section's product slider.
+   * Order is display order; ids with no matching product are skipped downstream
+   * (productsByIds is total), so the slider is always real catalog data.
+   */
+  productIds: number[]
+  /** Where the section CTA leads — an EXISTING collection slug (live route). */
+  ctaSlug: CollectionSlug
+}
+
+/**
+ * The curated hub sections (≥2, REQ-024 AC). Each pairs a real catalog slice
+ * with a live collection CTA. Kept terse — this is the campaign skeleton; final
+ * copy/pricing/imagery are operator/launch-owned (see RED-line note above).
+ */
+export const OFFERS_SECTIONS: OffersSection[] = [
+  // Sets first: the strongest curated "value" framing without inventing a number
+  // (each bundle SKU already carries its own honest anchor → price on the card).
+  { id: 'bundles', productIds: [1, 2, 5, 3, 4, 7], ctaSlug: 'bundles' },
+  // The limited annual edition — a real, time-bound product (no fake countdown).
+  { id: 'fire-horse', productIds: [8], ctaSlug: 'fire-horse-2026' },
+  // Personalized BaZi — the core personalizable world, surfaced as a slider.
+  { id: 'bazi', productIds: [1, 6, 3, 2], ctaSlug: 'bazi-posters' },
+  // Ready-to-ship TCM knowledge posters — non-personalized, ships immediately.
+  { id: 'tcm', productIds: [11, 12, 13, 14], ctaSlug: 'tcm-posters' },
+]

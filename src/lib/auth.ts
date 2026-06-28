@@ -1,20 +1,19 @@
-// Auth + account API client (profile, addresses, Celestial Credits). Talks to
-// /api/auth/* and /api/account/* on the same origin; the session is an HttpOnly
-// cookie set by the server.
+// Auth + account API client (profile, addresses, orders). Talks to /api/auth/*
+// and /api/account/* on the same origin; the session is an HttpOnly cookie set by
+// the server.
 
 export interface AuthUser {
   email: string
   name: string
   preferredLanguage: string
-  points: number
-  lifetime: number
+  // The Celestial-Credits machinery was decommissioned (REQ-010): the server no
+  // longer returns points / lifetime / unlockedFeatures / achievements, so they
+  // are no longer part of the auth contract. Do NOT re-add a credits surface.
   marketingConsent: boolean
   newsletterStatus: string
   hasPayment: boolean
   defaultShippingAddressId: number | null
   defaultBillingAddressId: number | null
-  unlockedFeatures: string[]
-  achievements: string[]
   createdAt: string
 }
 

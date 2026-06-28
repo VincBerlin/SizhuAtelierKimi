@@ -98,6 +98,9 @@ export const products: Product[] = [
   {
     id: 7, category: 'Wuxing', title: 'Wuxing Fünf-Elemente Poster', price: 49, anchor: 59, rating: 4.8, reviews: 142, sold: 760,
     bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Archiv-Pigmentdruck in Museumsqualität'],
+    // Wuxing is a curated knowledge graphic, NOT personalized (REQ-007/REQ-025) —
+    // explicit opt-out so it never shows birth-data UI (was missing pre-delta).
+    personalizable: false,
     poster: mk('#B98A5E', '#AFBCA6', 'Fünf Elemente', '1990-03-21'),
     product_world: 'wuxing', personalization_level: 'none', use_case: 'educational', design_family: 'japandi',
   },

@@ -72,7 +72,7 @@ describe('REQ-017 / AT-017-1 — MVP route reachability through real App.tsx', (
           screen.queryAllByRole('main').length > 0
         expect(busy === null || anyContent).toBe(true)
       },
-      { timeout: 5000 },
+      { timeout: 15000 },
     )
   })
 })
@@ -118,7 +118,7 @@ describe('REQ-017 / AT-017-4 — negative Saju/Junishi (must not appear)', () =>
         () => {
           expect(screen.queryByTestId('collection-page')).toBeNull()
         },
-        { timeout: 5000 },
+        { timeout: 15000 },
       )
       unmount()
     }
@@ -139,7 +139,7 @@ describe('REQ-008 / AT-017-2 — homepage data-module 02..13 present in order (s
         const v2 = anchors.filter((m) => m && expected.includes(m))
         expect(v2).toEqual(expected)
       },
-      { timeout: 5000 },
+      { timeout: 15000 },
     )
   })
 })

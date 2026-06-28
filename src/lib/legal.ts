@@ -77,7 +77,7 @@ const privacy_EN: LegalDoc = {
     ] },
     { heading: 'Why we process it (purposes & legal bases)', body: [
       'To produce your personalized order and provide customer service (performance of a contract).',
-      'To send the newsletter and reserve Celestial Credits (your consent — withdrawable at any time).',
+      'To send the newsletter (your consent — withdrawable at any time).',
       'To operate, secure and improve the shop (legitimate interest).',
     ] },
     { heading: 'Processors & third parties', body: [
@@ -193,7 +193,7 @@ const privacy_DE: LegalDoc = {
     ] },
     { heading: 'Warum wir sie verarbeiten (Zwecke & Rechtsgrundlagen)', body: [
       'Zur Herstellung deiner personalisierten Bestellung und zur Kundenbetreuung (Vertragserfüllung).',
-      'Zum Versand des Newsletters und zur Gutschrift von Celestial Credits (deine Einwilligung — jederzeit widerrufbar).',
+      'Zum Versand des Newsletters (deine Einwilligung — jederzeit widerrufbar).',
       'Zum Betrieb, zur Sicherung und Verbesserung des Shops (berechtigtes Interesse).',
     ] },
     { heading: 'Auftragsverarbeiter & Dritte', body: [
@@ -309,7 +309,7 @@ const privacy_FR: LegalDoc = {
     ] },
     { heading: 'Pourquoi nous les traitons (finalités & bases légales)', body: [
       'Pour produire votre commande personnalisée et assurer le service client (exécution d’un contrat).',
-      'Pour envoyer la newsletter et créditer les Celestial Credits (votre consentement — révocable à tout moment).',
+      'Pour envoyer la newsletter (votre consentement — révocable à tout moment).',
       'Pour exploiter, sécuriser et améliorer la boutique (intérêt légitime).',
     ] },
     { heading: 'Sous-traitants & tiers', body: [

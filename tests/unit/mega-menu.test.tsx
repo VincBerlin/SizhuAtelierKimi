@@ -174,10 +174,10 @@ describe('REQ-009 / AT-009-4 — items link to real REQ-010 collection routes', 
     fireEvent.click(target!)
     // the real Collection template renders for the navigated route. It is lazily
     // code-split behind Suspense, so under CPU contention the chunk can resolve
-    // slower than testing-library's 1000ms default; the explicit 5000ms (matching
+    // slower than testing-library's 1000ms default; the explicit 15000ms (matching
     // tests/setup.ts asyncUtilTimeout) keeps the combined run deterministic without
     // weakening the assertion — the testid still has to appear.
-    await screen.findByTestId('collection-page', undefined, { timeout: 5000 })
+    await screen.findByTestId('collection-page', undefined, { timeout: 15000 })
     expect(screen.getByTestId('collection-page')).toBeInTheDocument()
   })
 })

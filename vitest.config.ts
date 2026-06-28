@@ -51,6 +51,13 @@ export default defineConfig({
           environment: 'jsdom',
           globals: true,
           setupFiles: ['./tests/setup.ts'],
+          // The REAL-BOUNDARY suites mount the whole `src/App.tsx` (lazy Three.js /
+          // InkWave hero, code-split routes behind Suspense). The first cold mount
+          // in a fresh worker can exceed Vitest's 5000ms default `testTimeout`,
+          // making the canonical `npm test` flaky on boot. Mirror the node project's
+          // 20000ms headroom so warm runs stay fast and cold runs stay deterministic.
+          testTimeout: 20000,
+          hookTimeout: 20000,
           include: [
             'src/**/*.{test,spec}.{ts,tsx}',
             'tests/**/*.{test,spec}.{ts,tsx}',

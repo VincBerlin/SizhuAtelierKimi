@@ -17,7 +17,7 @@
  * the same real App.tsx is the runnable green evidence now.
  */
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import { COLLECTION_SLUGS } from '../../src/lib/collections'
@@ -29,8 +29,26 @@ async function renderInspiration() {
       <App />
     </MemoryRouter>,
   )
-  await screen.findByTestId('inspiration-page')
+  // The Inspiration route is lazily code-split behind Suspense; the explicit
+  // 15000ms (matching tests/setup.ts asyncUtilTimeout) keeps the combined run
+  // deterministic under CPU contention.
+  await screen.findByTestId('inspiration-page', undefined, { timeout: 15000 })
   return utils
+}
+
+/**
+ * Resolve the gallery tiles once the page has settled. The `inspiration-page`
+ * shell can paint a commit before the gallery wall finishes rendering under
+ * load, so wait (re-querying inside the retry) until ≥1 tile is present, then
+ * return the tiles from that settled snapshot. Race-free without weakening.
+ */
+async function findTiles(page: HTMLElement): Promise<HTMLElement[]> {
+  let tiles: HTMLElement[] = []
+  await waitFor(() => {
+    tiles = within(page).getAllByTestId('inspiration-tile')
+    expect(tiles.length).toBeGreaterThanOrEqual(1)
+  })
+  return tiles
 }
 
 beforeEach(() => {
@@ -45,17 +63,22 @@ describe('REQ-011 / AT-011-1 — /inspiration is reachable through the real App.
     const page = screen.getByTestId('inspiration-page')
     expect(page).toBeInTheDocument()
 
-    // exactly one H1 within the page subtree (persistent chrome lives outside)
-    const h1s = page.querySelectorAll('h1')
-    expect(h1s.length).toBe(1)
-    expect(h1s[0].textContent?.trim().length ?? 0).toBeGreaterThan(0)
+    // The page shell can paint a commit before the H1 + gallery wall finish
+    // rendering under load, so re-read them inside `waitFor`. The assertions are
+    // unchanged (exactly one non-empty H1, ≥1 curated tile).
+    await waitFor(() => {
+      // exactly one H1 within the page subtree (persistent chrome lives outside)
+      const h1s = page.querySelectorAll('h1')
+      expect(h1s.length).toBe(1)
+      expect(h1s[0].textContent?.trim().length ?? 0).toBeGreaterThan(0)
 
-    // the gallery wall with ≥1 tile
-    const gallery = within(page).getByTestId('inspiration-gallery')
-    const tiles = within(gallery).getAllByTestId('inspiration-tile')
-    expect(tiles.length).toBeGreaterThanOrEqual(1)
-    // not an overloaded wall — keep it curated (≤ a sane upper bound)
-    expect(tiles.length).toBeLessThanOrEqual(24)
+      // the gallery wall with ≥1 tile
+      const gallery = within(page).getByTestId('inspiration-gallery')
+      const tiles = within(gallery).getAllByTestId('inspiration-tile')
+      expect(tiles.length).toBeGreaterThanOrEqual(1)
+      // not an overloaded wall — keep it curated (≤ a sane upper bound)
+      expect(tiles.length).toBeLessThanOrEqual(24)
+    })
   })
 })
 
@@ -72,8 +95,7 @@ describe('REQ-011 / AT-011-2 — tiles link to real collection/product routes', 
     ])
     const validProductIds = new Set<number>(products.map((p) => p.id))
 
-    const tiles = within(page).getAllByTestId('inspiration-tile')
-    expect(tiles.length).toBeGreaterThanOrEqual(1)
+    const tiles = await findTiles(page)
 
     for (const tile of tiles) {
       const link = within(tile).getByRole('link')
@@ -90,8 +112,8 @@ describe('REQ-011 / AT-011-2 — tiles link to real collection/product routes', 
     const page = screen.getByTestId('inspiration-page')
 
     // find a tile that targets a collection route (deterministic destination)
-    const collectionTile = within(page)
-      .getAllByTestId('inspiration-tile')
+    const tiles = await findTiles(page)
+    const collectionTile = tiles
       .map((t) => within(t).getByRole('link'))
       .find((a) => (a.getAttribute('href') ?? '').startsWith('/collections/'))
     expect(collectionTile).toBeTruthy()
@@ -110,7 +132,7 @@ describe('REQ-011 / AT-011-3 — placeholder tiles are marked, no invented examp
     await renderInspiration()
     const page = screen.getByTestId('inspiration-page')
 
-    const tiles = within(page).getAllByTestId('inspiration-tile')
+    const tiles = await findTiles(page)
     // every tile backed by placeholder imagery must expose a placeholder badge
     const placeholderTiles = tiles.filter(
       (t) => t.getAttribute('data-placeholder') === 'true',

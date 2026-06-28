@@ -59,7 +59,6 @@ export default function Personalize() {
     if (def.poster && !def.pdfIncluded && pdfAddon) p += PDF_ADDON_PRICE
     return p
   }, [def, size, pdfAddon])
-  const credits = Math.round(price)
 
   // Thread place + the unknown-time flag into the placeholder chart (accepted,
   // not used to vary it — ADR-002 pt.3/4) and apply the disclosed noon fallback.
@@ -132,7 +131,6 @@ export default function Personalize() {
       poster: def.poster ? livePoster : null,
       meta: metaParts.filter(Boolean).join(' · '),
       personalization,
-      creditsEarned: credits,
       productId: ptypeProductId(typeId),
       variantId,
     })
@@ -286,7 +284,6 @@ export default function Personalize() {
               {def.poster && <SumRow label={t('personalize.sumDesign')} value={designLabel} />}
               {def.poster && <SumRow label={t('personalize.sumSize')} value={size.label} />}
               {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={euro(price)} strong />}
-              <SumRow label={t('personalize.sumCredits')} value={`${credits} C.`} />
             </dl>
             {/* REQ-018 AK-3 — disclosed noon fallback in the personalization summary. */}
             {unknownTime && (
@@ -311,7 +308,6 @@ export default function Personalize() {
           <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
             {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {euro(price)}</>}
           </button>
-          {COMMERCE_ENABLED && <div style={{ textAlign: 'center', fontSize: 12, color: C.textMuted2, marginTop: 10 }}>{t('personalize.creditsLine', { n: credits })}</div>}
         </div>
       </div>
     </main>

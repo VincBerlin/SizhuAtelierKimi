@@ -52,6 +52,9 @@ if (process.env.DATABASE_URL) {
     consent BOOLEAN NOT NULL DEFAULT false,
     status TEXT NOT NULL DEFAULT 'pending',
     confirm_token TEXT,
+    -- DORMANT (REQ-010): credits_reserved is a Celestial-Credits carry-over with
+    -- no readers/writers; left in place (DEFAULT 20) so the production column is
+    -- not dropped. Scheduled for the separate credits DROP migration.
     credits_reserved INTEGER NOT NULL DEFAULT 20,
     marketing_consent_at TIMESTAMPTZ,
     source TEXT
@@ -59,6 +62,12 @@ if (process.env.DATABASE_URL) {
   // Add the marketing-consent timestamp + source columns to pre-existing tables.
   await pool.query('ALTER TABLE newsletter_signups ADD COLUMN IF NOT EXISTS marketing_consent_at TIMESTAMPTZ').catch(() => {})
   await pool.query('ALTER TABLE newsletter_signups ADD COLUMN IF NOT EXISTS source TEXT').catch(() => {})
+  // DORMANT / DECOMMISSIONED (REQ-010): the Celestial-Credits machinery was
+  // retired. No code reads or writes credits_ledger anymore (the sole writer,
+  // recordCreditsEarned, was removed). This CREATE IF NOT EXISTS is kept ONLY so
+  // a pre-existing production table is not implicitly dropped; it is scheduled
+  // for removal via a separate, explicit DROP migration (FOLLOW-UP: db-drop
+  // credits decommission). Do NOT add new readers/writers.
   await pool.query(`CREATE TABLE IF NOT EXISTS credits_ledger (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -73,11 +82,15 @@ if (process.env.DATABASE_URL) {
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    -- DORMANT (REQ-010): Celestial-Credits columns. No code reads or writes
+    -- them anymore; kept here only so a pre-existing production table is not
+    -- dropped. Scheduled for removal via the separate credits DROP migration.
     points_balance INTEGER NOT NULL DEFAULT 0,
     lifetime_points INTEGER NOT NULL DEFAULT 0,
     marketing_consent BOOLEAN NOT NULL DEFAULT false,
     marketing_consent_at TIMESTAMPTZ,
     newsletter_status TEXT NOT NULL DEFAULT 'none',
+    -- DORMANT (REQ-010): gamification carry-overs, no readers/writers remain.
     unlocked_features JSONB NOT NULL DEFAULT '[]'::jsonb,
     achievements JSONB NOT NULL DEFAULT '[]'::jsonb,
     reset_token TEXT,
@@ -162,7 +175,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       const items = (full.line_items?.data || []).map((li) => ({ description: li.description, qty: li.quantity, amount: li.amount_total }))
       const personalization = readPersonalizationMetadata(session.metadata)
       await persistOrder(full, items, personalization)
-      await recordCreditsEarned(full, items)
       await sendEmails(full, items, personalization)
       console.log(`[order] ${full.id} · ${eur(full.amount_total)} · ${full.customer_details?.email}`)
     } catch (e) {
@@ -298,12 +310,14 @@ app.post('/api/newsletter', async (req, res) => {
   }
 })
 
-// ---- auth (profile + Celestial Credits accounts) ---------------------------
+// ---- auth (profile accounts) -----------------------------------------------
 // Stateless sessions: an HMAC-signed cookie carrying the user id + expiry (no
 // session table; tampering fails the HMAC check). Passwords are scrypt-hashed.
+// NOTE: the Celestial-Credits machinery was decommissioned (REQ-010). No
+// welcome credits are granted and no credits are read/written anywhere below;
+// the underlying DB columns/table are left DORMANT (see schema notes above).
 const SESSION_COOKIE = 'sizhu_session'
 const SESSION_DAYS = 30
-const WELCOME_CREDITS = 20 // granted on profile creation — the relocated lead magnet
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 function hashPassword(pw) {
@@ -377,18 +391,15 @@ app.post('/api/auth/signup', async (req, res) => {
   const nm = typeof name === 'string' ? name.trim().slice(0, 120) : null
   try {
     const consent = marketingConsent === true
+    // Celestial Credits decommissioned (REQ-010): no welcome credits are granted.
+    // points_balance / lifetime_points are left out of the INSERT — their column
+    // DEFAULT (0/0) applies — and no credits_ledger welcome row is written.
     const r = await pool.query(
-      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, points_balance, lifetime_points, name)
-       VALUES ($1,$2,$3,$4,$5,$6,$6,$7) ON CONFLICT (email) DO NOTHING RETURNING id`,
-      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', WELCOME_CREDITS, nm || null],
+      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, name)
+       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', nm || null],
     )
     if (!r.rows.length) return res.status(409).json({ error: 'email_taken' })
-    // Grant the welcome credits as a ledger entry (idempotent via a synthetic order_id).
-    await pool.query(
-      `INSERT INTO credits_ledger (email, event_type, points_delta, balance_after, order_id)
-       VALUES ($1,'signup_bonus',$2,$2,$3) ON CONFLICT (order_id) DO NOTHING`,
-      [e, WELCOME_CREDITS, `signup-${r.rows[0].id}`],
-    ).catch((err) => console.error('[auth] welcome credits failed:', err.message))
     setSessionCookie(res, signSession(r.rows[0].id))
     return res.json({ ok: true })
   } catch (err) {
@@ -441,16 +452,18 @@ app.get('/api/auth/me', async (req, res) => {
   const uid = verifySession(readCookie(req, SESSION_COOKIE))
   if (!uid) return res.json({ user: null })
   try {
+    // Celestial Credits decommissioned (REQ-010): the dormant points_balance /
+    // lifetime_points / unlocked_features / achievements columns are no longer
+    // selected or returned. The user response carries only the live profile.
     const r = await pool.query(
-      `SELECT email, points_balance, lifetime_points, marketing_consent, newsletter_status, unlocked_features, achievements, created_at,
+      `SELECT email, marketing_consent, newsletter_status, created_at,
               name, preferred_language, stripe_customer_id, default_shipping_address_id, default_billing_address_id
        FROM users WHERE id = $1`, [uid])
     if (!r.rows.length) return res.json({ user: null })
     const u = r.rows[0]
     return res.json({ user: {
-      email: u.email, points: u.points_balance, lifetime: u.lifetime_points,
-      marketingConsent: u.marketing_consent, newsletterStatus: u.newsletter_status,
-      unlockedFeatures: u.unlocked_features, achievements: u.achievements, createdAt: u.created_at,
+      email: u.email,
+      marketingConsent: u.marketing_consent, newsletterStatus: u.newsletter_status, createdAt: u.created_at,
       name: u.name || '', preferredLanguage: u.preferred_language || '', hasPayment: !!u.stripe_customer_id,
       defaultShippingAddressId: u.default_shipping_address_id || null, defaultBillingAddressId: u.default_billing_address_id || null,
     } })
@@ -809,32 +822,12 @@ async function persistOrder(session, items, personalization) {
   )
 }
 
-// Celestial Credits (REQ-045): earn 1 credit per net €/$ spent, excluding
-// shipping. Recorded to credits_ledger; order_id UNIQUE makes it idempotent so a
-// webhook retry never double-credits. Credits are loyalty-only and NEVER reduce
-// the checkout price (REQ-044) — this only ADDS an earned-credits ledger entry.
-async function recordCreditsEarned(session, items) {
-  if (!pool) return
-  const email = session.customer_details?.email || null
-  const netCents = (items || []).reduce((s, it) => s + (String(it.description) === 'Shipping' ? 0 : (it.amount || 0)), 0)
-  const credits = Math.floor(netCents / 100)
-  if (credits <= 0) return
-  try {
-    const prior = email
-      ? await pool.query('SELECT COALESCE(SUM(points_delta),0) AS bal FROM credits_ledger WHERE email = $1', [email])
-      : { rows: [{ bal: 0 }] }
-    const balanceAfter = Number(prior.rows[0].bal) + credits
-    await pool.query(
-      `INSERT INTO credits_ledger (email, event_type, points_delta, balance_after, order_id)
-       VALUES ($1,'purchase_earned',$2,$3,$4) ON CONFLICT (order_id) DO NOTHING`,
-      [email, credits, balanceAfter, session.id],
-    )
-    // If the buyer has an account, reflect the earned credits on their profile.
-    if (email) await pool.query('UPDATE users SET points_balance = points_balance + $1, lifetime_points = lifetime_points + $1 WHERE email = $2', [credits, email])
-  } catch (e) {
-    console.error('[credits] record failed:', e.message)
-  }
-}
+// Celestial Credits earning (REQ-045) was DECOMMISSIONED (REQ-010): the
+// `recordCreditsEarned` writer — the only code that wrote to credits_ledger and
+// the users points columns — has been removed. The order-completion path no
+// longer calls it; order persistence, emails and the price/shipping/VAT
+// computation are untouched. The credits_ledger table and the points columns are
+// left DORMANT (no reader/writer remains) pending a separate DROP migration.
 
 // Resolve (and lazily create) the Stripe customer for a logged-in user, caching
 // the id on the user row. Returns null when Stripe/DB are unconfigured so callers

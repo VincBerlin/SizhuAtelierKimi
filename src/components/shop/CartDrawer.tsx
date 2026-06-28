@@ -20,13 +20,16 @@ export default function CartDrawer() {
   // 🚀 while still filling the bar (almost there), 🎉 once free shipping is reached.
   const shipMessage = reached ? `🎉 ${t('cart.reached')}` : `🚀 ${t('cart.remaining', { amount: euro(remaining) })}`
   const shipText = shipCost === 0 ? t('cart.shipFree') : t('cart.ship', { amount: euro(shipCost) })
-  const totalCredits = cart.reduce((sum, i) => sum + (i.creditsEarned || 0) * i.qty, 0)
   // Block checkout when a personalized line is missing required birth data (REQ-016).
   // The personalization-correctness confirmation (REQ-017/042) is required on the
   // Checkout page itself (the order-placement boundary), so a direct /checkout URL
   // cannot bypass it.
   const incomplete = cartHasIncompletePersonalization(cart)
   const canCheckout = !incomplete
+  // Does the cart contain any personalized (BaZi) line? The made-to-order return
+  // notice is only relevant when it does (REQ-014): a TCM/Fire-Horse-only cart is
+  // standard stock and gets no birth-data / made-to-order messaging.
+  const hasPersonalizedLine = cart.some((l) => l.personalization != null)
   const goCheckout = () => { if (!canCheckout) return; closeCart(); navigate('/checkout'); window.scrollTo(0, 0) }
   const goShop = () => { closeCart(); navigate('/'); window.scrollTo(0, 0) }
   const editPersonalization = () => { closeCart(); navigate('/personalize'); window.scrollTo(0, 0) }
@@ -78,8 +81,15 @@ export default function CartDrawer() {
             </div>
           )}
 
-          {cart.map((i) => (
-            <div key={i.key} style={{ display: 'flex', gap: 14, padding: '18px 0', borderBottom: `1px solid ${C.border}` }}>
+          {cart.map((i) => {
+            // Line-precise personalization gate (REQ-014 / AT-014): a line is
+            // personalized iff it carries a `personalization` object. The
+            // birth-data review notice is shown ONLY on such lines — never on
+            // Fire-Horse/TCM lines, and never as a single global cart notice
+            // (FM-05: gating on `personalization`, not product_world/title).
+            const personalized = i.personalization != null
+            return (
+            <div key={i.key} data-testid="cart-line" data-personalized={personalized} style={{ display: 'flex', gap: 14, padding: '18px 0', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ width: 60, height: 78, flexShrink: 0, border: `1px solid ${C.borderInput}`, position: 'relative', overflow: 'hidden', background: '#fff' }}>
                 {i.image ? <img src={i.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : i.poster && <Poster p={i.poster} scene="plain" />}
               </div>
@@ -89,7 +99,12 @@ export default function CartDrawer() {
                   <button onClick={() => removeLine(i.key)} className="transition-colors hover:text-[#C0492E]" style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.strike, fontSize: 13, flexShrink: 0 }}>{t('cart.remove')}</button>
                 </div>
                 <div style={{ fontSize: 12, color: C.textMuted2, margin: '4px 0 8px' }}>{i.meta}</div>
-                {i.personalization && <PersonalizationSummary p={i.personalization} t={t} />}
+                {personalized && <PersonalizationSummary p={i.personalization!} t={t} />}
+                {personalized && (
+                  <div data-testid="cart-line-birth-review" style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '8px 10px', margin: '0 0 8px' }}>
+                    <span style={{ fontWeight: 600, color: C.textMuted }}>{t('cart.reviewBirth')}</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${C.borderInput}`, borderRadius: 8, overflow: 'hidden' }}>
                     <button onClick={() => setQty(i.key, -1)} style={{ background: '#fff', border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 16, color: C.textMuted }}>−</button>
@@ -98,15 +113,15 @@ export default function CartDrawer() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(i.price * i.qty)}</span>
-                    {i.creditsEarned ? <div style={{ fontSize: 11, color: C.success }}>+{i.creditsEarned * i.qty} C.</div> : null}
                   </div>
                 </div>
-                {i.personalization && (
+                {personalized && (
                   <button onClick={editPersonalization} className="transition-colors hover:text-[#C0492E]" style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', color: C.textMuted2, fontSize: 12, textDecoration: 'underline', padding: 0 }}>{t('cart.editPersonalization')}</button>
                 )}
               </div>
             </div>
-          ))}
+            )
+          })}
 
           {hasCart && crossSell.length > 0 && (
             <div style={{ padding: '18px 0 8px' }}>
@@ -137,17 +152,21 @@ export default function CartDrawer() {
               <span style={{ fontSize: 20, fontWeight: 700 }}>{euro(subtotal)}</span>
             </div>
             <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{shipText} {t('cart.inclVat')}</div>
-            {totalCredits > 0 && <div style={{ fontSize: 12.5, color: C.success, fontWeight: 600, marginBottom: 12 }}>✦ {t('cart.creditsEarn', { n: totalCredits })}</div>}
             {!user && (
               <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, marginBottom: 12 }}>
-                {totalCredits > 0 ? t('cart.saveCredits') : t('cart.signInPrompt')}{' '}
+                {t('cart.signInPrompt')}{' '}
                 <button onClick={goAccount} className="underline transition-colors hover:text-[#A0341F]" style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.accent, fontWeight: 600, fontSize: 11.5, padding: 0 }}>{t('cart.signInCta')}</button>
               </div>
             )}
-            <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
-              <div style={{ fontWeight: 600, color: C.textMuted, marginBottom: 3 }}>{t('cart.reviewBirth')}</div>
-              {t('cart.returnNotice')}
-            </div>
+            {/* Made-to-order return policy — only for carts with a personalized
+                line (REQ-014). The birth-data REVIEW prompt is NOT global; it is
+                rendered per personalized line above (data-testid
+                `cart-line-birth-review`). */}
+            {hasPersonalizedLine && (
+              <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+                {t('cart.returnNotice')}
+              </div>
+            )}
             {incomplete && <div style={{ fontSize: 12, color: C.accent, marginBottom: 12 }}>{t('cart.incompleteWarn')}</div>}
             <button onClick={goCheckout} disabled={!canCheckout} className="transition-[filter] hover:brightness-110" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: canCheckout ? 'pointer' : 'not-allowed', opacity: canCheckout ? 1 : 0.5, padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: '0 12px 24px -12px rgba(192,73,46,0.6)' }}>{t('cart.checkout')}</button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 14, fontSize: 11, color: C.textMuted3 }}>

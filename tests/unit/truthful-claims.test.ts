@@ -97,6 +97,18 @@ const HEALING_FORBIDDEN: string[] = [
   'guérit', 'guérir', 'soigne', 'traite', 'cliniquement prouvé', 'effet apaisant démontré',
 ]
 
+// ── REQ-010 / VIS-021 / CAN-014 / CAN-017 / CAN-018 — Celestial-Credits / Vault
+//    brand phrases forbidden in EVERY language (EN/DE/FR). The credits/vault
+//    affordance was removed from the visible shop; the brand phrases are the same
+//    untranslated tokens in all three locales, so a re-introduction in ANY language
+//    must turn this guard RED — closing the same language-axis hole as the earlier
+//    header leak (which was only caught in EN render). ─────────────────────────
+const CREDITS_VAULT_FORBIDDEN: string[] = [
+  'celestial credit', // matches "Celestial Credit" and "Celestial Credits" (substring)
+  'celestial credits',
+  'celestial vault',
+]
+
 // ── REQ-005 AT-005-1 — precision/API scan over translations[EN|DE|FR] ───────
 
 describe('REQ-005 / AT-005-1 — no precision/exact-engine/API claims in i18n', () => {
@@ -318,6 +330,40 @@ describe('REQ-007 / AT-007-4 — legal review banner available per language', ()
         FR: /révision juridique|MISSING/i,
       }
       expect(banner).toMatch(expected[lang])
+    })
+  }
+})
+
+// ── REQ-010 — source-level all-language Credits/Vault guard (EN/DE/FR) ───────
+// The rendered guard (delta-celestial-credits-removed.test.tsx) proves ABSENCE on
+// the shipped surfaces; this is the complementary SOURCE-LEVEL sweep that fails
+// the moment a Credits/Vault brand phrase re-enters the data the app renders — in
+// ANY language. It scans (a) the whole translations[lang] tree via collectStrings
+// and (b) the legal-doc bodies per language (LEGAL_DOCS_BY_LANG[lang]), so a
+// re-introduction in EN, DE OR FR is caught at the data boundary, not only in the
+// EN render path that the original header leak slipped through.
+
+describe('REQ-010 — no Celestial-Credits/Vault brand phrase in any language (source sweep)', () => {
+  for (const lang of LANGS) {
+    it(`translations[${lang}] contains no Credits/Vault brand phrase`, () => {
+      const strings = collectStrings(translations[lang])
+      const hits = scan(strings, CREDITS_VAULT_FORBIDDEN)
+      expect(
+        hits,
+        `Forbidden Credits/Vault phrases in translations[${lang}]:\n` +
+          hits.map((h) => `  • "${h.phrase}" → ${h.sample}`).join('\n'),
+      ).toEqual([])
+    })
+
+    it(`LEGAL_DOCS_BY_LANG[${lang}] bodies contain no Credits/Vault brand phrase`, () => {
+      const keys = ['impressum', 'privacy', 'terms', 'returns', 'shipping']
+      const strings = keys.flatMap((k) => collectStrings(LEGAL_DOCS_BY_LANG[lang][k]))
+      const hits = scan(strings, CREDITS_VAULT_FORBIDDEN)
+      expect(
+        hits,
+        `Forbidden Credits/Vault phrases in LEGAL_DOCS_BY_LANG[${lang}]:\n` +
+          hits.map((h) => `  • "${h.phrase}" → ${h.sample}`).join('\n'),
+      ).toEqual([])
     })
   }
 })
