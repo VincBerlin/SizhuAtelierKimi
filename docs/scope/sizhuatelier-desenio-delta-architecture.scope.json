@@ -1,0 +1,31 @@
+{
+  "feature": "sizhuatelier-desenio-delta-architecture",
+  "description": "Machine-parsable Allowed change scope for the Desenio delta (mirrors Canvas CAN-029). Protected surfaces are deliberately EXCLUDED so a change to them is flagged out-of-scope: src/components/InkWave.tsx (hero, VIS-023), src/lib/bazi.ts (placeholder, VIS-025), server/pricing.js (server-authoritative money-path, ADR-001).",
+  "allowed_change_scope": [
+    "src/pages/**",
+    "src/components/Navbar.tsx",
+    "src/components/shop/**",
+    "src/components/account/**",
+    "src/lib/catalog.ts",
+    "src/lib/collections.ts",
+    "src/lib/productTypes.ts",
+    "src/lib/region.ts",
+    "src/lib/config.ts",
+    "src/lib/legal.ts",
+    "src/lib/auth.ts",
+    "src/lib/format.ts",
+    "src/lib/tokens.ts",
+    "src/lib/personalization.ts",
+    "src/lib/checkout.ts",
+    "src/lib/newsletter.ts",
+    "src/i18n/**",
+    "src/store/**",
+    "src/App.tsx",
+    "src/index.css",
+    "server/index.js",
+    "tests/**",
+    "docs/**",
+    "vitest.config.ts",
+    "scripts/**"
+  ]
+}

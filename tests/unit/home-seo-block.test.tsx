@@ -111,15 +111,18 @@ describe('REQ-012 / AT-012-1 — SEO block renders with H2 structure + internal 
     })
   })
 
-  it('module 12 links to knowledge/journal content too (internal linking)', async () => {
+  it('module 12 carries an internal "in context" link but NOT a /blog buy-path link (REQ-019 / T-306)', async () => {
     renderHome()
     const seo = await findSeoBlock()
     await waitFor(() => {
       const hrefs = within(seo)
         .getAllByRole('link')
         .map((a) => a.getAttribute('href') ?? '')
-      // at least one knowledge/journal internal link (the blog / knowledge hub)
-      expect(hrefs.some((h) => h.startsWith('/blog'))).toBe(true)
+      // REQ-019 (T-306): the offer-summary SEO band must NOT carry a /blog link;
+      // the internal "knowledge" affordance now points at the Inspiration context.
+      // (Blog stays reachable from Inspiration/Footer chrome, not the buy-path band.)
+      expect(hrefs.some((h) => h.startsWith('/blog'))).toBe(false)
+      expect(hrefs).toContain('/inspiration')
     })
   })
 })

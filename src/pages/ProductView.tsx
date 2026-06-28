@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
-import { getProduct, products, faqDefs } from '../lib/catalog'
+import { getProduct, products, faqDefs, addons } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
 import { computeChart, sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
@@ -46,6 +46,10 @@ export default function ProductView() {
   const liveAnchor = prod.anchor != null ? prod.anchor + (personalizable ? size.delta : 0) : null
   const starPct = (prod.rating / 5) * 100 + '%'
   const related = products.filter((p) => p.id !== prod.id).slice(0, 3)
+  // Breadcrumb trail: Home → the product's world collection → this product. The
+  // world→slug map points only at EXISTING /collections routes (no dead link).
+  const worldSlug: Record<string, string> = { bazi: 'bazi-posters', tcm: 'tcm-posters', wuxing: 'wuxing-posters' }
+  const collectionSlug = kind === 'fire-horse' ? 'fire-horse-2026' : worldSlug[prod.product_world] ?? 'bazi-posters'
   const ratingTxt = lang === 'EN' ? prod.rating.toFixed(1) : prod.rating.toFixed(1).replace('.', ',')
   const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
 
@@ -78,30 +82,42 @@ export default function ProductView() {
 
   return (
     <main data-testid="pdp" data-personalizable={personalizable} data-product-kind={kind} style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 64px' }}>
+      <nav data-testid="pdp-breadcrumb" aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', fontSize: 12.5, color: C.textMuted2, fontFamily: FONT_SANS, padding: '4px 0' }}>
+        <Link to="/" style={{ color: C.textMuted2, textDecoration: 'none' }}>{t('nav.home')}</Link>
+        <span aria-hidden="true">/</span>
+        <Link to={`/collections/${collectionSlug}`} style={{ color: C.textMuted2, textDecoration: 'none' }}>{prod.category}</Link>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" style={{ color: C.ink }}>{t(`content.products.${prod.id}.title`)}</span>
+      </nav>
       <button onClick={() => { navigate('/'); window.scrollTo(0, 0) }} className="transition-colors hover:text-[#2A2620]" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: C.textMuted2, padding: '8px 0', fontFamily: FONT_SANS }}>{t('product.back')}</button>
 
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]" style={{ marginTop: 8 }}>
         <div className="lg:sticky lg:top-24">
           {personalizable ? (
-            <div data-testid="pdp-chart-preview">
-              <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
-              <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
-                <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
-                {placeholderThumb(t('product.detail'))}
-                {placeholderThumb(t('product.lifestyle'))}
+            <div data-testid="pdp-gallery">
+              <div data-testid="pdp-chart-preview">
+                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
+                <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
+                  <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
+                  {placeholderThumb(t('product.detail'))}
+                  {placeholderThumb(t('product.lifestyle'))}
+                </div>
+                <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('product.caption')}</p>
               </div>
-              <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('product.caption')}</p>
             </div>
           ) : (
-            <div style={{ aspectRatio: '4 / 5', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm }}>
-              {prod.image && <img src={prod.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+            // Asset-light gallery for ready-to-ship SKUs (FM-11 / RISK-001 /
+            // RL-IMAGES RED): a marked generic placeholder, never a real
+            // /images/*.webp photo that would read as the finished product.
+            <div data-testid="pdp-gallery" data-placeholder="true" style={{ aspectRatio: '4 / 5', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 16 }}>{prod.category}</span>
             </div>
           )}
         </div>
 
         <div>
           <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.textMuted4, marginBottom: 8 }}>{prod.category}</div>
-          <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 36, lineHeight: 1.1, margin: '0 0 14px' }}>{t(`content.products.${prod.id}.title`)}</h1>
+          <h1 data-testid="pdp-name" style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 36, lineHeight: 1.1, margin: '0 0 14px' }}>{t(`content.products.${prod.id}.title`)}</h1>
           {/* Review block is gated (REQ-008 / AT-008-3, OQ-004): no stars and no
               review/sold summary until real reviews exist — placeholder numbers
               must never read as social proof. */}
@@ -115,7 +131,7 @@ export default function ProductView() {
           {COMMERCE_ENABLED && (
             <>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 30, fontWeight: 600, color: C.ink }}>{euro(livePrice)}</span>
+                <span data-testid="pdp-price" style={{ fontSize: 30, fontWeight: 600, color: C.ink }}>{euro(livePrice)}</span>
                 {liveAnchor != null && (
                   <>
                     <span style={{ fontSize: 18, color: C.strike, textDecoration: 'line-through' }}>{euro(liveAnchor)}</span>
@@ -127,17 +143,21 @@ export default function ProductView() {
             </>
           )}
 
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+          <ul data-testid="pdp-description" style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: 9 }}>
             {bullets.map((b) => (
               <li key={b} style={{ display: 'flex', gap: 10, fontSize: 14, lineHeight: 1.5, color: '#4A4438' }}><span style={{ color: C.accent }}>—</span><span>{b}</span></li>
             ))}
           </ul>
 
           {/* Personalization configurator — BaZi only (REQ-007 / AT-007-1). The
-              stable anchor lets the gating test assert presence/absence. */}
+              size / frame / background colour axes ARE the product variants
+              (REQ-008 AT-008-1). The stable anchors let the gating test assert
+              presence/absence and the inventory test assert the variants block. */}
           {personalizable && (
-            <div data-testid="pdp-configurator">
-              <Configurator />
+            <div data-testid="pdp-variants">
+              <div data-testid="pdp-configurator">
+                <Configurator />
+              </div>
             </div>
           )}
 
@@ -154,8 +174,23 @@ export default function ProductView() {
           ) : (
             <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginTop: 16, fontSize: 12, color: C.textMuted2, flexWrap: 'wrap' }}>
+          <div data-testid="pdp-trust" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginTop: 16, fontSize: 12, color: C.textMuted2, flexWrap: 'wrap' }}>
             <span>{t('product.secure')}</span><span>{t('product.returns')}</span><span>{t('product.climate')}</span>
+          </div>
+
+          {/* Frame & accessory options (REQ-008 AT-008-1). Honest framing: the
+              frame finishes are the poster's real frame choices; the accessories
+              are the catalog add-ons with their list prices. No invented bundle. */}
+          <div data-testid="pdp-accessories" style={{ marginTop: 24 }}>
+            <h2 style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 12px' }}>{t('product.accessories')}</h2>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {addons.map((a) => (
+                <li key={a.id} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, fontSize: 13.5, color: '#4A4438' }}>
+                  <span>{t(`content.addons.${a.id}.title`)} <span style={{ color: C.textMuted3 }}>· {t(`content.addons.${a.id}.note`)}</span></span>
+                  {COMMERCE_ENABLED && <span style={{ whiteSpace: 'nowrap', color: C.textMuted, fontWeight: 600 }}>+{euro(a.price)}</span>}
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div style={{ marginTop: 24, borderTop: `1px solid ${C.border}` }}>
@@ -174,17 +209,30 @@ export default function ProductView() {
         </div>
       </div>
 
-      <section style={{ marginTop: 64, borderTop: `1px solid ${C.border}`, paddingTop: 40 }}>
+      {/* Cross-sells — "frequently bought together" (REQ-008 AT-008-1). Each card
+          is a REAL in-app <Link> to /product/:id, so the inventory test's
+          dead-link guard passes and keyboard navigation works. */}
+      <section data-testid="pdp-cross-sells" style={{ marginTop: 64, borderTop: `1px solid ${C.border}`, paddingTop: 40 }}>
         <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 28, margin: '0 0 24px' }}>{t('product.related')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px,1fr))', gap: 24 }}>
           {related.map((r) => (
-            <div key={r.id} onClick={() => { navigate(`/product/${r.id}`); window.scrollTo(0, 0) }} style={{ cursor: 'pointer' }}>
+            <Link key={r.id} data-testid="pdp-cross-sell-card" to={`/product/${r.id}`} onClick={() => window.scrollTo(0, 0)} style={{ display: 'block', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
               <div style={{ aspectRatio: '3/4', background: '#fff', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden' }}><Poster p={r.poster} scene="plain" /></div>
               <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 18, margin: '12px 0 4px' }}>{t(`content.products.${r.id}.title`)}</h3>
               {COMMERCE_ENABLED ? <span style={{ fontSize: 14, fontWeight: 600 }}>{euro(r.price)}</span> : <span style={{ fontSize: 12, color: C.textMuted3 }}>{t('preview.soon')}</span>}
-            </div>
+            </Link>
           ))}
         </div>
+      </section>
+
+      {/* Inspiration context (REQ-008 AT-008-1) — a quiet pointer to the real
+          /inspiration gallery so the customer can see posters in a room. */}
+      <section data-testid="pdp-inspiration" style={{ marginTop: 48, borderTop: `1px solid ${C.border}`, paddingTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 22, margin: '0 0 6px' }}>{t('product.inspirationTitle')}</h2>
+          <p style={{ fontSize: 13.5, color: C.textMuted, margin: 0, maxWidth: 460, lineHeight: 1.55 }}>{t('home.inspiration.copy')}</p>
+        </div>
+        <Link to="/inspiration" onClick={() => window.scrollTo(0, 0)} style={{ whiteSpace: 'nowrap', fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.accent, textDecoration: 'none' }}>{t('product.inspirationCta')} →</Link>
       </section>
     </main>
   )

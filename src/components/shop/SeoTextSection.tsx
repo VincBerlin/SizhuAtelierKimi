@@ -10,9 +10,12 @@ interface SeoSection {
 }
 
 // V2 homepage module 12 — SEO text block (REQ-012). Machine-readable, H2-structured
-// copy with internal links to the real collection routes (REQ-010) and the
-// knowledge journal. Honest framing only — the truthful-claims scan (REQ-005/006)
-// applies here too; the final keyword set is a marked content TODO (OQ-007).
+// copy with internal links to the real collection routes (REQ-010). Per REQ-019
+// (T-306) the buy-path band carries NO /blog link: the internal "knowledge" link
+// now points at /inspiration (its own context). Blog stays reachable from the
+// Inspiration/Footer chrome, not from under the offer summaries. Honest framing
+// only — the truthful-claims scan (REQ-005/006) applies here too; the final
+// keyword set is a marked content TODO (OQ-007).
 export default function SeoTextSection() {
   const { t } = useT()
   const sections = (t('home.seo.sections') as SeoSection[]) || []

@@ -69,7 +69,7 @@ test.describe('REQ-008 / AT-008-1 — homepage renders V2 modules in DOM order 0
 })
 
 test.describe('REQ-012 / AT-012-1 — module 12 SEO block renders with H2 + internal links', () => {
-  test('module 12 has ≥2 H2 sub-headings and links to collections + knowledge', async ({ page }) => {
+  test('module 12 has ≥2 H2 sub-headings, links to collections, and carries NO /blog buy-path link (REQ-019 / T-306)', async ({ page }) => {
     await page.goto('/')
     const seo = page.getByTestId('home-module-12')
     await expect(seo).toBeVisible()
@@ -84,7 +84,10 @@ test.describe('REQ-012 / AT-012-1 — module 12 SEO block renders with H2 + inte
         '/collections/wuxing-posters',
       ]),
     )
-    expect(hrefs.some((h) => h.startsWith('/blog'))).toBe(true)
+    // REQ-019 (T-306): the offer-summary SEO band carries no /blog link; the
+    // internal "knowledge" affordance now points at the Inspiration context.
+    expect(hrefs.some((h) => h.startsWith('/blog'))).toBe(false)
+    expect(hrefs).toContain('/inspiration')
   })
 })
 

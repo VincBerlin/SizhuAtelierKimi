@@ -66,13 +66,47 @@ export default defineConfig({
           // `tests/e2e/**` are Playwright `.spec.ts` files run by Playwright, not
           // Vitest — collecting them here makes `vitest run` fail (no Playwright
           // test runner in this env), so exclude them from the jsdom project too.
+          //
+          // `delta-review-gate-flag-on` is owned by the `jsdom-isolated` project
+          // below: it stubs `VITE_REVIEWS_ENABLED` and calls `vi.resetModules()`,
+          // which empties the SHARED module registry under `--isolate=false`. Run
+          // here it would leak a reset/duplicated module graph into whichever
+          // sibling file the scheduler placed next (a latent, order-dependent
+          // failure). Excluding it here + pinning it to a force-isolated project
+          // keeps `vi.resetModules()` inside its own worker, so the leak is
+          // structurally impossible regardless of file order or the CLI
+          // `--isolate=false` flag.
           exclude: [
             'tests/integration/**',
             'tests/server/**',
             'tests/e2e/**',
+            'tests/unit/delta-review-gate-flag-on.test.tsx',
             'node_modules/**',
             'dist/**',
           ],
+        },
+      },
+      {
+        plugins: [react()],
+        resolve: { alias },
+        test: {
+          // Dedicated jsdom context for the module-registry-mutating review-gate
+          // flag-on certification. `isolate: true` is set EXPLICITLY (not inherited)
+          // so a global `--isolate=false` cannot fold this file back into the shared
+          // worker: per Vitest's task scheduler, files are grouped by their project's
+          // own `isolate` flag, so this one always runs in a fresh, torn-down worker.
+          // That makes its `vi.stubEnv` + `vi.resetModules()` strictly file-local —
+          // the flag-on test keeps its full assertive power (both gate halves under
+          // the flag) while it can no longer pollute any sibling suite.
+          name: 'jsdom-isolated',
+          environment: 'jsdom',
+          globals: true,
+          isolate: true,
+          setupFiles: ['./tests/setup.ts'],
+          testTimeout: 20000,
+          hookTimeout: 20000,
+          include: ['tests/unit/delta-review-gate-flag-on.test.tsx'],
+          exclude: ['node_modules/**', 'dist/**'],
         },
       },
       {
