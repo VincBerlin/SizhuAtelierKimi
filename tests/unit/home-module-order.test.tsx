@@ -37,13 +37,22 @@ function renderHome() {
   )
 }
 
-// The exact V2 module sequence that must render on the homepage (module 01 is the
-// global Utility Bar in the App shell, not a homepage <main> section; modules
-// 02–13 are the homepage sections in order).
+// The exact homepage module sequence that must render (module 01 is the global
+// Utility Bar in the App shell, not a homepage <main> section; modules 02–13 are
+// the homepage sections in order).
+//
+// REQ-002 / T-702 — the ABOVE-FOLD band is re-ordered to
+// [Hero(02) → Bestseller slider(04) → Kategorie-Banner(03)]. The data-module
+// NUMBERS are stable identities (04 = bestseller carousel, 03 = shop-by-world);
+// they are NOT renumbered, only the DOM order changes. REQ-002 deliberately
+// supersedes the V2 above-fold ORDER (not the inventory/integrity): every module
+// 02–13 still has to be present, hero still FIRST, the module-03 shop-by-world
+// hrefs + module-06/07/08/09 wiring + no-Saju + lazy-InkWave assertions all
+// stand. The lower band 05→13 keeps the V2 order (no 13-module resequence).
 const EXPECTED_MODULES = [
-  '02', // Hero / InkWave (FIRST, untouched)
-  '03', // Shop by product world
-  '04', // Bestseller / Featured slider
+  '02', // Hero / InkWave (FIRST, DOM-index-0, untouched)
+  '04', // Bestseller / Featured slider (above-fold, now before the banner)
+  '03', // Shop by product world — Kategorie-Banner (above-fold, now after slider)
   '05', // How it works
   '06', // Featured Collection — Fire Horse 2026
   '07', // Couples / Compatibility
@@ -85,7 +94,7 @@ async function findHomeModules() {
   return nodes
 }
 
-describe('REQ-008 / AT-008-1 — homepage renders V2 modules in order 02→13', () => {
+describe('REQ-008 / AT-008-1 (+ REQ-002 above-fold re-order) — homepage modules in exact DOM sequence', () => {
   it('renders every module anchor 02..13 (no module missing)', async () => {
     renderHome()
     const nodes = await findHomeModules()
@@ -95,14 +104,14 @@ describe('REQ-008 / AT-008-1 — homepage renders V2 modules in order 02→13', 
     }
   })
 
-  it('renders the modules in the exact V2 DOM sequence 02→13', async () => {
+  it('renders the modules in the exact DOM sequence (above-fold re-ordered to 02→04→03)', async () => {
     renderHome()
     const nodes = await findHomeModules()
     const found = nodes.map((n) => n.getAttribute('data-module'))
     expect(found).toEqual(EXPECTED_MODULES)
   })
 
-  it('each module anchor is a top-level section under <main> (stable, machine-checkable)', async () => {
+  it('renders every module anchor in order within <main> (stable, machine-checkable)', async () => {
     renderHome()
     await findHomeModules()
     const main = document.querySelector('main')

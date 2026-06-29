@@ -6,6 +6,7 @@ import { FREE_SHIP_THRESHOLD, POSTER_BG_PALETTE } from '../lib/tokens'
 import { fetchRegion, type Region } from '../lib/region'
 import { moneyForRegion } from '../lib/format'
 import { posterProductId, buildVariantId, bundleProductId, addonProductId } from '../lib/checkout'
+import { track, EVENTS } from '../lib/analytics'
 
 export interface CartLine {
   key: string
@@ -124,6 +125,10 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
     const nextKey = () => `${Date.now()}-${keyRef.current++}`
 
     const addLine = (line: Omit<CartLine, 'key'>) => {
+      // Add-to-cart funnel event (T-701, instrumentation only — RL-EVENT RED):
+      // every add path (addCurrent / addBundle / addAddon / addItem) flows
+      // through here, so this is the single, non-duplicated readout point.
+      track(EVENTS.addToCart, { title: line.title, price: line.price, productId: line.productId ?? null })
       setCart((s) => [...s, { ...line, key: nextKey() }])
       setCartOpen(true)
     }

@@ -1,6 +1,6 @@
 {
   "feature": "sizhuatelier-desenio-delta-architecture",
-  "description": "Machine-parsable Allowed change scope for the Desenio delta (mirrors Canvas CAN-029). Protected surfaces deliberately EXCLUDED so a change is flagged out-of-scope: src/components/InkWave.tsx (hero, VIS-023), src/lib/bazi.ts (placeholder, VIS-025). NOTE: server/pricing.js is IN scope ONLY for REQ-016 region currency (USD/GBP/EUR) — a confirmed PRD requirement (T-502); the existing shipping math (US/UK free, EU threshold) + the 18 checkout.repricing money-path tests MUST stay green. NOTE: tailwind.config.js is IN scope ONLY for REQ-017 color tokens (T-601) — the Tailwind `terracotta` colour utility was part of the FM-09 sienna naming-lie (#A0522D) and is unified to the canonical Terracotta #C0492E; reverting it would reintroduce a real sienna chrome accent.",
+  "description": "Machine-parsable Allowed change scope for the Desenio delta (mirrors Canvas CAN-029). Protected surfaces deliberately EXCLUDED so a change is flagged out-of-scope: src/components/InkWave.tsx (hero, VIS-023), src/lib/bazi.ts (placeholder, VIS-025). NOTE: server/pricing.js is IN scope ONLY for REQ-016 region currency (USD/GBP/EUR) — a confirmed PRD requirement (T-502); the existing shipping math (US/UK free, EU threshold) + the 18 checkout.repricing money-path tests MUST stay green. NOTE: tailwind.config.js is IN scope ONLY for REQ-017 color tokens (T-601) — the Tailwind `terracotta` colour utility was part of the FM-09 sienna naming-lie (#A0522D) and is unified to the canonical Terracotta #C0492E; reverting it would reintroduce a real sienna chrome accent. NOTE: src/lib/analytics.ts is IN scope ONLY for REQ-002 merge-gate (b) event-readout (T-701) — a NEW fake-only in-memory event sink (no real backend); RL-EVENT stays RED until it reads real data. Listed as a specific file (no src/lib/* glob) so src/lib/bazi.ts stays protected/out-of-scope.",
   "allowed_change_scope": [
     "src/pages/**",
     "src/components/Navbar.tsx",
@@ -20,6 +20,7 @@
     "src/lib/newsletter.ts",
     "src/lib/cities.ts",
     "src/lib/region-pricing.ts",
+    "src/lib/analytics.ts",
     "src/data/**",
     "src/i18n/**",
     "src/store/**",

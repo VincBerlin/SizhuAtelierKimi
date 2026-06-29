@@ -1,15 +1,23 @@
 /**
- * Homepage module order 1–13 + hero/LCP integrity — RENDERED [REAL-BOUNDARY] —
- * REQ-008 (AT-008-1/2/4), coupled to AT-017-2 and the perf guard AT-021.
+ * Homepage module order + hero/LCP integrity — RENDERED [REAL-BOUNDARY] —
+ * REQ-008 (AT-008-1/2/4) + REQ-002 (AT-002-1/3/4 above-fold re-order), coupled to
+ * AT-017-2 and the perf guard AT-021.
  *
  * Beat-0 Gegenthese (Vision §7.4 + §7.6): modules are added but (a) the order is
  * wrong / a module is not wired into the App.tsx render, or (b) the order is
  * reached by REGRESSING the hero (the lazy Three.js split / reduced-motion
  * fallback lost) — spec-fidelity must NOT trade away performance (NFR-1). So this
  * runs over the REAL composition root (`App.tsx` via the dev server) and asserts
- * the rendered DOM order of the `data-module` anchors is the exact V2 sequence
- * 02→13 with the hero FIRST, the hero stays code-split, reduced-motion renders a
- * static fallback, and there is no Saju/Junishi in the rendered DOM.
+ * the rendered DOM order of the `data-module` anchors is the exact sequence with
+ * the hero FIRST, the hero stays code-split, reduced-motion renders a static
+ * fallback, and there is no Saju/Junishi in the rendered DOM.
+ *
+ * REQ-002 / T-702 — the ABOVE-FOLD band is re-ordered to
+ * [Hero(02) → Bestseller slider(04) → Kategorie-Banner(03)]; the data-module
+ * numbers stay stable identities (only the DOM order changes). The lower band
+ * 05→13 keeps the V2 order. REQ-002 stays value-risk / merge-gate-held — this
+ * real-browser proof is UNRUN here (BLK-CHROMIUM) and RL-EVENT reads no real
+ * event data, so nothing marks REQ-002 aligned/done.
  *
  * STATUS: PLANNED — NOT EXECUTED in this sandbox. Playwright's chromium build is
  * missing here, so `npx playwright test` cannot run this spec; it is authored to
@@ -28,13 +36,16 @@
 import { test, expect } from '@playwright/test'
 
 // Module 01 (Utility Bar) is global App-shell chrome; modules 02–13 are the
-// homepage <main> sections in order.
+// homepage <main> sections in order. REQ-002 / T-702 re-orders the above-fold
+// band to [Hero(02) → Bestseller(04) → Kategorie-Banner(03)]; the lower band
+// 05→13 keeps the V2 order. Identity-preserving: numbers are stable, only the
+// DOM order changes.
 const EXPECTED_MODULES = [
-  '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
+  '02', '04', '03', '05', '06', '07', '08', '09', '10', '11', '12', '13',
 ]
 
-test.describe('REQ-008 / AT-008-1 — homepage renders V2 modules in DOM order 02→13', () => {
-  test('every module anchor 02..13 is present in the exact V2 sequence', async ({ page }) => {
+test.describe('REQ-008 / AT-008-1 (+ REQ-002 above-fold re-order) — homepage modules in exact DOM order', () => {
+  test('every module anchor 02..13 is present in the exact sequence (above-fold 02→04→03)', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByTestId('home-module-02')).toBeVisible()
 
@@ -42,6 +53,27 @@ test.describe('REQ-008 / AT-008-1 — homepage renders V2 modules in DOM order 0
       nodes.map((n) => n.getAttribute('data-module')),
     )
     expect(order).toEqual(EXPECTED_MODULES)
+  })
+
+  // REQ-002 / AT-002-1 — the above-fold band renders exactly
+  // [Hero(02), Bestseller(04), Kategorie-Banner(03)] in that DOM order.
+  test('the above-fold band is [Hero(02) → Bestseller(04) → Kategorie-Banner(03)]', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByTestId('home-module-02')).toBeVisible()
+    const aboveFold = await page.$$eval('[data-band="above-fold"] [data-module]', (nodes) =>
+      nodes.map((n) => n.getAttribute('data-module')),
+    )
+    expect(aboveFold).toEqual(['02', '04', '03'])
+  })
+
+  // REQ-002 / AT-002-2 — the lower band keeps the V2 order (no full resequence).
+  test('the below-fold band keeps the V2 order 05→13', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByTestId('home-module-05')).toBeVisible()
+    const belowFold = await page.$$eval('[data-band="below-fold"] [data-module]', (nodes) =>
+      nodes.map((n) => n.getAttribute('data-module')),
+    )
+    expect(belowFold).toEqual(['05', '06', '07', '08', '09', '10', '11', '12', '13'])
   })
 
   test('the new modules link to the real production routes', async ({ page }) => {

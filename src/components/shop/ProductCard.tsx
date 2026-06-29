@@ -33,7 +33,7 @@ import type { Product } from '../../lib/catalog'
  * NO stars / rating / bought-count are shown — placeholder `rating`/`sold`
  * numbers are never surfaced as invented social proof. Do NOT soften this.
  */
-export default function ProductCard({ product }: { product: Product }): ReactElement {
+export default function ProductCard({ product, onClick }: { product: Product; onClick?: () => void }): ReactElement {
   const { t, lang } = useT()
   const money = useMoney()
   const hasAnchor = product.anchor != null
@@ -58,7 +58,10 @@ export default function ProductCard({ product }: { product: Product }): ReactEle
     <Link
       to={`/product/${product.id}`}
       data-testid="card-cta"
-      onClick={() => window.scrollTo(0, 0)}
+      // Optional surface-specific click hook (T-701): the bestseller slider passes
+      // an analytics callback; Collection/TCM grids pass none, so those cards are
+      // unaffected. The scroll-to-top behaviour is unchanged.
+      onClick={() => { onClick?.(); window.scrollTo(0, 0) }}
       style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', color: 'inherit', textDecoration: 'none' }}
     >
       {personalizable ? (

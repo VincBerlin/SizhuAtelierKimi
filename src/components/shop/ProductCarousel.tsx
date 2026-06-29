@@ -11,7 +11,7 @@ const GAP = 16 // px gap between cards on the mobile track (keep in sync with .c
 // horizontal touch-swipe carousel on mobile (arrows, dots, "swipe to explore").
 // Layout switch lives in CSS (.carousel-track); the JS here only drives the
 // mobile arrow visibility, dot state and smooth scroll-by-card.
-export default function ProductCarousel({ products }: { products: Product[] }) {
+export default function ProductCarousel({ products, onCardClick }: { products: Product[]; onCardClick?: (p: Product) => void }) {
   const { t } = useT()
   const ref = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
@@ -85,7 +85,7 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
       <div ref={ref} className="carousel-track">
         {products.map((p) => (
           <div className="carousel-item" key={p.id}>
-            <ProductCard product={p} />
+            <ProductCard product={p} onClick={onCardClick ? () => onCardClick(p) : undefined} />
           </div>
         ))}
       </div>

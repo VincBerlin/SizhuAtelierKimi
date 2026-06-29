@@ -125,8 +125,8 @@ describe('REQ-017 / AT-017-4 — negative Saju/Junishi (must not appear)', () =>
   })
 })
 
-describe('REQ-008 / AT-017-2 — homepage data-module 02..13 present in order (smoke)', () => {
-  it('home renders modules 02..13 in DOM order with hero (02) first', async () => {
+describe('REQ-008 / AT-017-2 (+ REQ-002 above-fold re-order) — homepage data-module anchors present in order (smoke)', () => {
+  it('home renders modules 02..13 in DOM order with hero (02) first, above-fold band re-ordered to 04→03', async () => {
     renderAt('/')
     await waitFor(
       () => {
@@ -134,7 +134,10 @@ describe('REQ-008 / AT-017-2 — homepage data-module 02..13 present in order (s
           document.querySelectorAll<HTMLElement>('[data-module]'),
         ).map((el) => el.dataset.module)
         expect(anchors.length).toBeGreaterThanOrEqual(12)
-        const expected = ['02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13']
+        // REQ-002 / T-702: above-fold band is [Hero(02) → Bestseller(04) →
+        // Kategorie-Banner(03)]; lower band 05→13 keeps the V2 order. Same
+        // exact-order strength, new value.
+        const expected = ['02', '04', '03', '05', '06', '07', '08', '09', '10', '11', '12', '13']
         // Filter to the V2 set in case the App shell adds an unrelated 01 anchor.
         const v2 = anchors.filter((m) => m && expected.includes(m))
         expect(v2).toEqual(expected)

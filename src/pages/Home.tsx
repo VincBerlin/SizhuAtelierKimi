@@ -2,6 +2,7 @@ import { useEffect, lazy, Suspense, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
 import { C } from '../lib/tokens'
+import { track, EVENTS } from '../lib/analytics'
 // Three.js hero is split into its own chunk and streamed in after the hero
 // text paints — keeps Three.js (~150KB gzip) off the critical path.
 const InkWave = lazy(() => import('../components/InkWave'))
@@ -95,6 +96,9 @@ function HeroSection() {
         <div className="flex flex-wrap gap-4" style={{ marginTop: 36 }}>
           <Link
             to="/personalize"
+            // Hero primary-CTA click funnel event (T-701, instrumentation only —
+            // RL-EVENT RED).
+            onClick={() => track(EVENTS.heroCta, { cta: 'personalize' })}
             style={{
               background: C.accent,
               color: '#F5F2ED',
@@ -148,25 +152,41 @@ export default function Home() {
     window.scrollTo(0, 0)
   }, [])
 
-  // V2 homepage module order 02→13 (REQ-008 AK-1). Module 01 (Utility Bar) lives
-  // in the App shell (AnnouncementBar). Module 13 (Newsletter + Footer): the
-  // SiteFooter is rendered globally by AppShell, so module 13 carries the
-  // Newsletter here. Hero stays module 02 — FIRST — and is untouched (NFR-1):
+  // V2 homepage modules (REQ-008 AK-1). Module 01 (Utility Bar) lives in the App
+  // shell (AnnouncementBar). Module 13 (Newsletter + Footer): the SiteFooter is
+  // rendered globally by AppShell, so module 13 carries the Newsletter here. Hero
+  // stays module 02 — FIRST, DOM-index-0 — and is untouched (NFR-1 / REQ-001):
   // the lazy InkWave chunk + Suspense boundary above is byte-equivalent.
+  //
+  // REQ-002 / T-702 — ABOVE-FOLD re-order (identity-preserving): the above-fold
+  // band is now [Hero → Bestseller slider (04) → Kategorie-Banner (03)]. The
+  // data-module NUMBERS are STABLE IDENTITIES referenced elsewhere (04 = the
+  // bestseller carousel, 03 = shop-by-world), so they are NOT renumbered — only
+  // the DOM order changes: anchor 04 renders BEFORE anchor 03. The lower band
+  // 05→13 keeps the V2 order (no 13-module resequence — that is deferred). The
+  // `data-band` markers make the two bands machine-checkable (AT-002-1/2).
+  //
+  // NOTE: REQ-002 stays value-risk / merge-gate-held — the real-browser
+  // Playwright order/LCP specs are UNRUN here (BLK-CHROMIUM) and RL-EVENT reads
+  // no real data. Nothing here marks REQ-002 aligned/done.
   return (
     <main>
-      <ModuleAnchor id="02"><HeroSection /></ModuleAnchor>
-      <ModuleAnchor id="03"><ShopByWorldSection /></ModuleAnchor>
-      <ModuleAnchor id="04"><CatalogSection /></ModuleAnchor>
-      <ModuleAnchor id="05"><HowItWorksSection /></ModuleAnchor>
-      <ModuleAnchor id="06"><FeaturedCollectionSection /></ModuleAnchor>
-      <ModuleAnchor id="07"><CompatibilitySection /></ModuleAnchor>
-      <ModuleAnchor id="08"><AnalysisPdfsSection /></ModuleAnchor>
-      <ModuleAnchor id="09"><InspirationTeaserSection /></ModuleAnchor>
-      <ModuleAnchor id="10"><WissenSection /></ModuleAnchor>
-      <ModuleAnchor id="11"><PathToPoster /></ModuleAnchor>
-      <ModuleAnchor id="12"><SeoTextSection /></ModuleAnchor>
-      <ModuleAnchor id="13"><NewsletterSection /></ModuleAnchor>
+      <div data-band="above-fold">
+        <ModuleAnchor id="02"><HeroSection /></ModuleAnchor>
+        <ModuleAnchor id="04"><CatalogSection /></ModuleAnchor>
+        <ModuleAnchor id="03"><ShopByWorldSection /></ModuleAnchor>
+      </div>
+      <div data-band="below-fold">
+        <ModuleAnchor id="05"><HowItWorksSection /></ModuleAnchor>
+        <ModuleAnchor id="06"><FeaturedCollectionSection /></ModuleAnchor>
+        <ModuleAnchor id="07"><CompatibilitySection /></ModuleAnchor>
+        <ModuleAnchor id="08"><AnalysisPdfsSection /></ModuleAnchor>
+        <ModuleAnchor id="09"><InspirationTeaserSection /></ModuleAnchor>
+        <ModuleAnchor id="10"><WissenSection /></ModuleAnchor>
+        <ModuleAnchor id="11"><PathToPoster /></ModuleAnchor>
+        <ModuleAnchor id="12"><SeoTextSection /></ModuleAnchor>
+        <ModuleAnchor id="13"><NewsletterSection /></ModuleAnchor>
+      </div>
     </main>
   )
 }

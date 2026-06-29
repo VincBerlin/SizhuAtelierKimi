@@ -12,6 +12,7 @@ import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
 import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../lib/config'
 import { posterProductId, buildVariantId } from '../lib/checkout'
+import { track, EVENTS } from '../lib/analytics'
 import { de } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER, posterBgName } from '../lib/tokens'
 
@@ -35,6 +36,10 @@ export default function ProductView() {
   const showReviews = REVIEWS_ENABLED && prod.reviews > 0
 
   useEffect(() => { window.scrollTo(0, 0) }, [id])
+
+  // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
+  // the resolved product id so it fires once per product view, not per re-render.
+  useEffect(() => { track(EVENTS.pdpView, { id: prod.id }) }, [prod.id])
 
   // Empty time → disclosed noon fallback (REQ-018). place + the flag are threaded
   // into the placeholder chart (accepted, not used to vary it — ADR-002 pt.3/4).

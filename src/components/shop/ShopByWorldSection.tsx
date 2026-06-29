@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { collectionPath } from '../../lib/collections'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
+import { track, EVENTS } from '../../lib/analytics'
 
 // V2 homepage module 03 — "Shop by product world" (REQ-008). Four curated entry
 // cards, each linking to a real per-world collection route (REQ-010). No invented
@@ -27,6 +28,9 @@ export default function ShopByWorldSection() {
           <Link
             key={key}
             to={collectionPath(slug)}
+            // Category-banner click funnel event (T-701, instrumentation only —
+            // RL-EVENT RED).
+            onClick={() => track(EVENTS.categoryClick, { world: key, slug })}
             className="transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-20px_rgba(42,38,32,0.4)]"
             style={{ display: 'flex', flexDirection: 'column', gap: 10, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, textDecoration: 'none' }}
           >
