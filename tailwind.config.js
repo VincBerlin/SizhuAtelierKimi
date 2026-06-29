@@ -50,9 +50,11 @@ module.exports = {
         },
         parchment: '#E8E1D6',
         'ink-black': '#2C2420',
-        terracotta: '#A0522D',
+        // REQ-017 / FM-09: canonical Terracotta (was the sienna naming-lie A0522D).
+        // Matches tokens.ts C.accent so the Tailwind `terracotta` utility (e.g.
+        // `hover:text-terracotta`) and the inline-style accent never diverge.
+        terracotta: '#C0492E',
         'warm-sand': '#D5C9B7',
-        'muted-gold': '#C4A265',
         stone: '#8A7E72',
         'off-white': '#F5F2ED',
       },

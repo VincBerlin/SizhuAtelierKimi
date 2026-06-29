@@ -1,6 +1,7 @@
 import { useEffect, lazy, Suspense, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
+import { C } from '../lib/tokens'
 // Three.js hero is split into its own chunk and streamed in after the hero
 // text paints — keeps Three.js (~150KB gzip) off the critical path.
 const InkWave = lazy(() => import('../components/InkWave'))
@@ -58,7 +59,7 @@ function HeroSection() {
             fontWeight: 500,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
-            color: '#A0522D',
+            color: C.accent,
             marginBottom: 16,
             textShadow: '0 0 40px rgba(232, 225, 214, 0.6)',
           }}
@@ -95,7 +96,7 @@ function HeroSection() {
           <Link
             to="/personalize"
             style={{
-              background: '#A0522D',
+              background: C.accent,
               color: '#F5F2ED',
               fontFamily: '"Inter", sans-serif',
               fontSize: 13,
@@ -108,8 +109,8 @@ function HeroSection() {
               display: 'inline-block',
               transition: 'background 0.3s',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#B5652B' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = C.accent }}
           >
             {t('hero.cta1')}
           </Link>
@@ -130,7 +131,7 @@ function HeroSection() {
               display: 'inline-block',
               transition: 'all 0.3s',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A0522D'; e.currentTarget.style.color = '#A0522D' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.accent }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(44, 36, 32, 0.15)'; e.currentTarget.style.color = '#2C2420' }}
           >
             {t('hero.cta2')}

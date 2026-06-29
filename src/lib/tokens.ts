@@ -6,6 +6,14 @@ export const C = {
   bg: '#FBF8F1',
   ink: '#2A2620',
   accent: '#C0492E',
+  // Hover/active state of the one canonical Terracotta accent — a DARKER shade of
+  // the same hue (#C0492E ≈ hue 11°, #A0341F ≈ hue 10°), NOT a second accent.
+  // Consumed by the inline-style pages (Home/About/Contact) for the accent hover.
+  // NOTE: several V2 shop components still hard-code the equivalent
+  // `hover:text-[#A0341F]` Tailwind literal; migrating those onto this token is a
+  // tracked DRY follow-up — out of REQ-017's orange/gold scope (#A0341F is
+  // terracotta-hue, not orange/gold), so not part of this milestone.
+  accentHover: '#A0341F',
   surface: '#FFFFFF',
   surfaceWarm: '#F5F0E6',
   surfaceInput: '#FBF8F1',

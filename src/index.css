@@ -6,12 +6,14 @@
   :root {
     --parchment: #E8E1D6;
     --ink-black: #2C2420;
-    --terracotta: #A0522D;
+    /* REQ-017 / FM-09: the canonical Terracotta accent. Was a SIENNA naming-lie
+       (hex A0522D — "terracotta" in name only, actually a brown sienna). Unified to
+       the single source-of-truth Terracotta from tokens.ts (C.accent). */
+    --terracotta: #C0492E;
     --warm-sand: #D5C9B7;
-    --muted-gold: #C4A265;
     --stone: #8A7E72;
     --white: #F5F2ED;
-    --terracotta-light: rgba(160, 82, 45, 0.08);
+    --terracotta-light: rgba(192, 73, 46, 0.08);
 
     --background: 36 24% 87%;
     --foreground: 20 14% 15%;
@@ -66,6 +68,10 @@
 }
 
 /* ===== SHIMMER TEXT RIBBON ===== */
+/* REQ-017 exception (DECORATIVE): the gold-foil gradient below (#8B7355→#C4A265→
+   #E8D5A3) is a metallic text-sweep ART treatment, not an interactive UI accent
+   (no link/button/badge role). Same category as InkWave/poster artwork — it is
+   intentionally NOT unified to Terracotta and is excluded from the chrome scan. */
 .shimmer {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 300;
@@ -1043,7 +1049,7 @@
 }
 
 .blog-preview-head a {
-  color: #A0522D;
+  color: var(--terracotta);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -1077,7 +1083,7 @@
 }
 
 .blog-preview-grid small {
-  color: #A0522D;
+  color: var(--terracotta);
   font-size: 13px;
 }
 
@@ -1120,7 +1126,7 @@
 }
 
 .blog-page-list a {
-  color: #A0522D;
+  color: var(--terracotta);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -1283,7 +1289,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #A0522D;
+  color: var(--terracotta);
   font-size: 12px;
   cursor: pointer;
 }
