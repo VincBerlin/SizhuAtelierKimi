@@ -103,7 +103,10 @@ accepted-incremental · `value-risk` retained · build-allowed · **merge-gated*
 - **Scope-Ratifikation:** `src/lib/analytics.ts` zu `allowed_change_scope` hinzugefügt (spezifische Datei, kein `src/lib/*`-Glob → bazi.ts bleibt geschützt). scope-check danach **exit 0**.
 - **Review:** **approve** (heroNotRegressed, testsNotWeakened, mergeGateHeldHonest, eventsHonestFakeOnly) + 2 LOW-Doc-Nits behoben (diese BLK-EVENT-Zeile + Test-Titel). **QA: 551 passed / 1 skipped** (AT-002-4 PLANNED), tsc clean, regressionsfrei. **Watcher: blocked** nur wegen scope-check exit 3 (analytics.ts) → **jetzt behoben**; Substanz war durchweg grün.
 
-## Milestone 8 — FINALIZE (REQ-020 QA/Reality-Meta + Playwright-Specs, T-801+T-802) — VERIFIED, COMMIT PENDING (2026-06-29)
+## ✅ DELTA-BUILD KOMPLETT (M1–M8) — 2026-06-29
+Commits: M4-Basis `955dec5` → M5 `111f48a` (ES + Region-Währung) → M6 `b0e8a62` (Farb-Tokens) → M7 `b259fb9` (Above-Fold + Events, value-risk/merge-gate-held) → M8 `bf96685` (FINALIZE/Reality-Meta-Scan). Volle Suite 587 passed / 1 skipped. Branch `feat/desenio-delta`, **nicht gepusht**. Nichts production-verified. Offene RED-Carries (USER-eigen, vor Launch): VR-OQ002-PRICES, VR-ES-MACHINE-TRANSLATED (+ ES-Recht EN-Template), VR-017-COLOR-VISUAL-REVIEW, VR-002-REORDER-CONVERSION-UNPROVEN, RL-STRIPE, RL-CHROMIUM (Real-Browser lokal nachholen), RL-BAZI, RL-IMAGES. M8 ohne unabhängigen Multi-Agent-Gate (Spend-Limit) — vor Launch unabhängig reviewen.
+
+## Milestone 8 — FINALIZE (REQ-020 QA/Reality-Meta + Playwright-Specs, T-801+T-802) — COMMITTED `bf96685` (2026-06-29)
 - **GOVERNANCE-CAVEAT (offen):** Der Multi-Agent-Workflow scheiterte am **API-Monats-Spend-Limit** (alle 6 Agenten failed). M8 wurde daher **direkt im Hauptthread gebaut + self-verifiziert** — der übliche **unabhängige Gate (sweep/review/watcher) lief NICHT**. Verifikation diesmal single-threaded, nicht Defense-in-Depth. Vor echtem Launch sollte M8 noch einen unabhängigen Review bekommen.
 - **T-801:** alle 6 `tests/e2e/*.spec.ts` konsistent `[REAL-BROWSER-PLANNED]` (die 2 fehlenden — `legal-localization`, `noon-fallback-disclosure` — Header ergänzt). BLK-CHROMIUM bleibt PLANNED; Vitest-Kern-Suite hängt nicht an Playwright.
 - **T-802:** neuer `tests/unit/delta-reality-ledger.test.ts` (AT-020-1/2/3, FM-18) — **36 Tests**:
