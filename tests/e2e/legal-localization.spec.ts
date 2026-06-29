@@ -1,6 +1,11 @@
 /**
  * Legal DE/FR localization — RENDERED [REAL-BOUNDARY] — REQ-007 (AT-007-1/2/4).
  *
+ * STATUS: PLANNED — NOT EXECUTED in this sandbox (no chromium build). [REAL-BROWSER-PLANNED]
+ * Authored to the real contract so it runs once a browser lands; `npm test` (Vitest)
+ * does NOT execute this Playwright spec. The runnable green evidence now is the jsdom
+ * render test tests/unit/legal-localization-render.test.tsx.
+ *
  * Beat-0 Gegenthese (Vision §7.7(a) "created but never displayed"): the localized
  * legal docs + per-language review banner exist in src/lib/legal.ts, but if
  * Legal.tsx keeps consuming the flat EN-only export and hard-codes the English

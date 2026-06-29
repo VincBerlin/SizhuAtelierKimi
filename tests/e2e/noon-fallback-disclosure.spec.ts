@@ -1,6 +1,11 @@
 /**
  * Noon-fallback disclosure — RENDERED — REQ-018 (acceptance-design AT-018-2/3).
  *
+ * STATUS: PLANNED — NOT EXECUTED in this sandbox (no chromium build). [REAL-BROWSER-PLANNED]
+ * Authored to the real contract so it runs once a browser lands; `npm test` (Vitest)
+ * does NOT execute this Playwright spec. The runnable green evidence now is the jsdom
+ * render test tests/unit/noon-fallback-render.test.tsx.
+ *
  * Beat-0 Gegenthese (Vision §7.5 "12:00-Noon-Fallback still setzen"): the fallback
  * is set, but the disclosure never renders (missing key in a language, or hint only
  * in code) → a silent default, exactly the concealment REQ-018 must close. So these
