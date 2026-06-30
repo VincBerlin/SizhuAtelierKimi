@@ -49,6 +49,11 @@ async function bootInLang(page: Page, lang: Lang, path: string) {
     window.localStorage.setItem('sizhu_lang', l)
   }, lang)
   await page.goto(path)
+  // The legal route is lazy-loaded (code-split). Wait for its H1 + first body
+  // section to paint BEFORE any one-shot read below — `allTextContents()` does NOT
+  // auto-retry, so without this it races the lazy chunk and reads 0 markers.
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.locator('main section').first()).toBeVisible()
 }
 
 /** Canonical [MISSING — …] marker count for a doc-key, taken from the EN source. */

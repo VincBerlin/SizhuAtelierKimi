@@ -21,13 +21,21 @@ import { defineConfig, devices } from '@playwright/test'
  * (360/390/430) per REQ-017 are configured per-project below.
  */
 const PORT = 3000
-const BASE_URL = `http://localhost:${PORT}`
+// Overridable so the suite can target an already-running server (e.g. a prod build
+// on another port) instead of always booting the vite dev server. Default unchanged.
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${PORT}`
 
 export default defineConfig({
   testDir: './tests/e2e',
   // No specs yet — an empty run must not fail CI in this iteration.
   forbidOnly: !!process.env.CI,
   fullyParallel: true,
+  // The InkWave Three.js hero is GPU/CPU-heavy; too many parallel workers against a
+  // single dev/prod server starve renders and cause spurious toBeVisible timeouts.
+  // Cap local parallelism and give lazy-route content room to paint.
+  workers: process.env.CI ? undefined : 2,
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
