@@ -275,7 +275,7 @@ export default function Navbar() {
               <button
                 type="button"
                 data-testid="mega-menu-trigger"
-                onClick={() => setPosterOpen((o) => !o)}
+                onClick={() => setPosterOpen(true)}
                 aria-haspopup="true"
                 aria-expanded={posterOpen}
                 className="flex items-center gap-1 transition-colors hover:text-[#C0492E]"
