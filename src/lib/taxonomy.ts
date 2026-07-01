@@ -38,11 +38,12 @@ import { sizes } from './bazi'
 // ── Link model ────────────────────────────────────────────────────────────────
 // A taxonomy entry never carries a raw URL; it carries a typed link that
 // `resolveTaxonomyHref` turns into a LIVE path. Filter-kind links (style/room/
-// size) resolve to the live /collections hub with a query param. HONEST STATUS:
-// the hub does NOT yet consume that query, so these facet links land on the
-// unfiltered hub — the nav→pre-filter handoff is a DISCLOSED PARTIAL (the in-page
-// collection toolbar is the functional filter; see the gap-closure report). No
-// dead links: /collections is live.
+// size) resolve to the live /collections hub with a query param. STATUS (M16):
+// the hub NOW consumes ?style=<design_family> and ?room=<use_case> — it
+// pre-filters the all-posters grid to the matching REAL catalog products and
+// shows the active facet + a reset. ?size=<id> is disclosed but does NOT narrow
+// (every poster ships in every size — M13 reconciliation; size stays PARTIAL by
+// design, not by omission). No dead links: /collections is live.
 export type TaxonomyLink =
   | { readonly kind: 'collection'; readonly slug: CollectionSlug }
   | { readonly kind: 'world'; readonly world: ProductWorld }
@@ -244,9 +245,9 @@ export const MEGA_TILES: readonly MegaTile[] = [
 
 // ── Href resolver — turns a typed link into a LIVE path (no dead links) ──────────
 // Filter-kind links resolve to the live /collections hub with a query param that
-// the hub does NOT currently consume (DISCLOSED PARTIAL — the nav→pre-filter
-// handoff is not wired; the in-page collection toolbar is the functional filter).
-// Every resolved href is a real, live route.
+// the hub CONSUMES (M16): ?style/?room pre-filter the all-posters grid; ?size is
+// disclosed but non-narrowing (uniform size — M13). Every resolved href is a
+// real, live route.
 export function resolveTaxonomyHref(link: TaxonomyLink): string {
   switch (link.kind) {
     case 'collection':

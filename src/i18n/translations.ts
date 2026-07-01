@@ -124,6 +124,13 @@ export const translations: Record<Lang, Record<string, any>> = {
     card: { bought: 'bought', reviews: 'reviews', sold: 'sold', personalize: 'Personalize', personalLine: 'Created from your birth date, time & place.', shop: 'Shop this poster' },
     coll: {
       allPosters: 'All personalized posters',
+      filter: {
+        label: 'Filtered by',
+        posters: 'posters',
+        reset: 'Show all posters',
+        sizeNote: 'Every poster is available in this size.',
+        empty: 'No posters match this selection.',
+      },
       cards: {
         bazi: { title: 'Personalized BaZi Posters', desc: 'Turn your Four Pillars chart into a premium personalized wall print.', cta: 'Start Personalizing' },
         birthchart: { title: 'Personalized Birth Chart Posters', desc: 'Your personal star chart, designed as refined wall art.', cta: 'Start Personalizing' },
@@ -468,6 +475,13 @@ export const translations: Record<Lang, Record<string, any>> = {
     card: { bought: 'gekauft', reviews: 'Bewertungen', sold: 'verkauft', personalize: 'Personalisieren', personalLine: 'Aus deinem Geburtsdatum, -zeit & -ort erstellt.', shop: 'Poster ansehen' },
     coll: {
       allPosters: 'Alle personalisierten Poster',
+      filter: {
+        label: 'Gefiltert nach',
+        posters: 'Poster',
+        reset: 'Alle Poster anzeigen',
+        sizeNote: 'Alle Poster sind in diesem Format erhältlich.',
+        empty: 'Keine Poster für diese Auswahl.',
+      },
       cards: {
         bazi: { title: 'Personalisierte BaZi-Poster', desc: 'Verwandle dein Vier-Säulen-Chart in einen hochwertigen, personalisierten Wanddruck.', cta: 'Personalisierung starten' },
         birthchart: { title: 'Personalisierte Geburtschart-Poster', desc: 'Dein persönliches Sternenbild als edle Wandkunst gestaltet.', cta: 'Personalisierung starten' },
@@ -811,6 +825,13 @@ export const translations: Record<Lang, Record<string, any>> = {
     card: { bought: 'achetés', reviews: 'avis', sold: 'vendus', personalize: 'Personnaliser', personalLine: 'Créé à partir de votre date, heure & lieu de naissance.', shop: 'Voir le poster' },
     coll: {
       allPosters: 'Tous les posters personnalisés',
+      filter: {
+        label: 'Filtré par',
+        posters: 'posters',
+        reset: 'Voir tous les posters',
+        sizeNote: 'Chaque poster est disponible dans ce format.',
+        empty: 'Aucun poster ne correspond à cette sélection.',
+      },
       cards: {
         bazi: { title: 'Posters BaZi personnalisés', desc: 'Transformez votre thème des Quatre Piliers en une impression murale personnalisée haut de gamme.', cta: 'Commencer la personnalisation' },
         birthchart: { title: 'Posters carte du ciel personnalisés', desc: 'Votre carte du ciel personnelle, conçue en œuvre murale raffinée.', cta: 'Commencer la personnalisation' },
@@ -1416,6 +1437,13 @@ export const translations: Record<Lang, Record<string, any>> = {
     },
     coll: {
       allPosters: 'Todos los pósteres personalizados',
+      filter: {
+        label: 'Filtrado por',
+        posters: 'pósteres',
+        reset: 'Ver todos los pósteres',
+        sizeNote: 'Cada póster está disponible en este tamaño.',
+        empty: 'Ningún póster coincide con esta selección.',
+      },
       cards: {
         bazi: {
           title: 'Pósteres BaZi personalizados',
