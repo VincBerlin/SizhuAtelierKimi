@@ -16,8 +16,8 @@ Mode: `/agileteam` Plumbline, ultracode. Per-milestone: build → independent re
 | M10 | Nav & Mega-Menu Matrix | done | ✅ pass | ✅ tsc 0 + smoke 38/0 | ✅ scope 10 | ✅ committed 28de8ac | Navbar taxonomy matrix desktop+mobile mirror; i18n×4; migrated nav tests |
 | M11 | Homepage Full Sequence | done | ✅ pass | ✅ tsc 0 + home smoke 18/0 | ✅ scope 23 | ✅ committed 355ffc0 | Home target order; new CampaignBannerRow/NewArrivals/Trust; old V2 chain removed; deleted 5 orphaned sections + 2 superseded tests |
 | M12 | Collection Template & Filters | done | ✅ pass | ✅ tsc 0 + coll smoke 19/0 | ✅ scope 4 | ✅ committed b7aad7d | Collection filter matrix style/room/price functional + size NON-FINAL; empty-state honesty; facet labels via M10 i18n |
-| M13 | PDP Size/Commerce | done | pending | ✅ tsc 0 + pdp+money smoke 17/0 | pending | pending | Standalone size selector on non-personalizable PDPs (non-final OQ-001) → drives price via UNCHANGED server/pricing.js (already prices size for any poster id); BaZi gate preserved; new exact-pdp-size test. NO money-path edit |
-| M14 | Mobile Commerce Repair | — | — | — | — | — | 360/390/430 evidence (RL-CHROMIUM) |
+| M13 | PDP Size/Commerce | done | ✅ APPROVE | ✅ tsc 0 + pdp smoke 17/0 + parity 48/0 | ✅ scope 6 | ✅ committed 89fcbc0 | Size selector on all PDPs → price via UNCHANGED server (comment-only fix); BaZi gate; parity loops all posters×size |
+| M14 | Mobile Commerce Repair | spec authored | pending | ⚠️ evidence RL-CHROMIUM (dev machine) — tsc 0 + playwright --list 40 tests valid | pending | pending | Mobile shell built M10-M13; `mobile-commerce.spec.ts` (40 tests × 360/390/430: header/drawer/no-overflow/grid≤2/PDP). **Stop-gate = real-browser evidence → CANNOT go green in-sandbox; user's machine only.** No app-logic change |
 | M15 | Trust/Newsletter/Footer/Evidence | — | — | — | — | — | gap-closure report closed |
 
 ## Sandbox note
