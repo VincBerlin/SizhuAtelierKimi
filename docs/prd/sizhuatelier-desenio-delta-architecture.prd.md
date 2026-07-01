@@ -1,5 +1,7 @@
 # PRD: SizhuAtelier Desenio Delta Architecture
 
+> ⚠️ **SUPERSEDED (2026-07-01)** by `sizhuatelier-desenio-exact-architecture` (see `docs/prd/sizhuatelier-desenio-exact-architecture.prd.md`). The partial interpretation this package permitted — above-fold-only reorder, unchanged below-fold V2 sequence, generic Collections mega-menu, omitted poster sizes, text-band campaign sections — is **no longer valid**. Retained for history only.
+
 Status: user-confirmed  (by user, 2026-06-27 — exact phrase: "Ich bestätige die PRD (die 25 Anforderungen) als verbindliche Grundlage für die AgileTeam-Umsetzung")  
 Feature Slug: `sizhuatelier-desenio-delta-architecture`  
 Owner: SizhuAtelier / AgileTeam  

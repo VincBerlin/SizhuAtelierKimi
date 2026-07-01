@@ -1,5 +1,7 @@
 # Product Canvas: SizhuAtelier Desenio Delta Architecture
 
+> ⚠️ **SUPERSEDED (2026-07-01)** by `sizhuatelier-desenio-exact-architecture` (see `docs/canvas/sizhuatelier-desenio-exact-architecture.canvas.md`). The partial interpretation this package permitted — above-fold-only reorder, unchanged below-fold V2 sequence, generic Collections mega-menu, omitted poster sizes, text-band campaign sections — is **no longer valid**. Retained for history only.
+
 Status: user-confirmed  (RE-CONFIRMED by user 2026-06-27 after council amendments; final — see "Council-adopted amendments (Phase 0.16, 2026-06-27)")  
 Feature Slug: `sizhuatelier-desenio-delta-architecture`  
 Mode: PLUMBLINE_READY_PACKAGE  

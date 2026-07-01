@@ -1,5 +1,7 @@
 # Product Vision: SizhuAtelier Desenio Delta Architecture
 
+> ⚠️ **SUPERSEDED (2026-07-01)** by `sizhuatelier-desenio-exact-architecture` (see `docs/vision/sizhuatelier-desenio-exact-architecture.vision.md`). The partial interpretation this package permitted — above-fold-only reorder, unchanged below-fold V2 sequence, generic Collections mega-menu, omitted poster sizes, text-band campaign sections — is **no longer valid**. Retained for history only.
+
 Status: user-confirmed  (by user, 2026-06-27, exact phrase)  
 Feature Slug: `sizhuatelier-desenio-delta-architecture`  
 Confirmation Status: confirmed by user 2026-06-27  
