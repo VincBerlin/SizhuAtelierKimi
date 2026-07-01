@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { products, filterByWorld, productsByIds, type Product } from '../lib/catalog'
 import { getCollectionConfig, type CollectionConfig } from '../lib/collections'
+import { isPersonalizable } from '../lib/productTypes'
+import { TAXONOMY } from '../lib/taxonomy'
 import ProductCard from '../components/shop/ProductCard'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
+import { useT } from '../i18n/I18nProvider'
 
 /**
  * Reusable per-world collection template (REQ-009 / REQ-006-render / T-303).
@@ -47,35 +50,111 @@ function sortProducts(list: Product[], sort: SortKey): Product[] {
   return list // 'featured' = config order
 }
 
+// M12 / REQ-026 — collection filter matrix. Style/room facet VALUES are derived
+// per-collection from the REAL products (never invented); price buckets cover the
+// real catalog range. Size/format is a NON-FINAL axis (OQ-001): there is no
+// per-product size data yet, so a size selection honestly narrows to the
+// personalizable posters (the ones offered in the A3/A2/A1 configurator sizes) —
+// tagged data-nonfinal, never a fake filter.
+const PRICE_BUCKETS: { id: string; label: string; test: (p: Product) => boolean }[] = [
+  { id: 'lt45', label: 'unter 45 €', test: (p) => p.price < 45 },
+  { id: 'mid', label: '45–59 €', test: (p) => p.price >= 45 && p.price < 60 },
+  { id: 'gte60', label: 'ab 60 €', test: (p) => p.price >= 60 },
+]
+
+/** One labelled facet row (a filter dimension) in the collection toolbar. */
+function FilterRow({ testid, label, nonFinal, children }: { testid: string; label: string; nonFinal?: boolean; children: ReactNode }) {
+  return (
+    <div data-testid={testid} data-nonfinal={nonFinal ? 'true' : undefined} style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+      <span style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.textMuted2, minWidth: 108 }}>
+        {label}{nonFinal && <span style={{ color: C.textMuted4, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}> · vorläufig</span>}
+      </span>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{children}</div>
+    </div>
+  )
+}
+
+/** A single toggle chip for a facet value. */
+function Chip({ active, nonFinal, onClick, children }: { active: boolean; nonFinal?: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      data-testid="collection-facet"
+      data-active={active ? 'true' : undefined}
+      data-nonfinal={nonFinal ? 'true' : undefined}
+      aria-pressed={active}
+      onClick={onClick}
+      style={{ fontFamily: FONT_SANS, fontSize: 13, color: active ? '#fff' : C.ink, background: active ? C.accent : C.surface, border: `1px solid ${active ? C.accent : C.borderInput}`, borderRadius: 999, padding: '6px 14px', cursor: 'pointer' }}
+    >
+      {children}
+    </button>
+  )
+}
+
 export default function Collection() {
   const { slug } = useParams<{ slug: string }>()
   const cfg = slug ? getCollectionConfig(slug) : undefined
 
+  const { t } = useT()
   const [personalizableOnly, setPersonalizableOnly] = useState(false)
+  const [styleFilter, setStyleFilter] = useState<string | null>(null)
+  const [roomFilter, setRoomFilter] = useState<string | null>(null)
+  const [sizeFilter, setSizeFilter] = useState<string | null>(null) // NON-FINAL (OQ-001)
+  const [priceFilter, setPriceFilter] = useState<string | null>(null)
   const [sort, setSort] = useState<SortKey>('featured')
   // How many cards are revealed (pagination / show-more). Reset whenever the
-  // collection or the filter changes so the count never carries over stale state.
+  // collection or any filter changes so the count never carries over stale state.
   const [shownCount, setShownCount] = useState(PAGE_SIZE)
+
+  const anyFilter = personalizableOnly || !!styleFilter || !!roomFilter || !!sizeFilter || !!priceFilter
+
+  function resetFilters(): void {
+    setPersonalizableOnly(false)
+    setStyleFilter(null)
+    setRoomFilter(null)
+    setSizeFilter(null)
+    setPriceFilter(null)
+    setShownCount(PAGE_SIZE)
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    setShownCount(PAGE_SIZE)
-    setPersonalizableOnly(false)
+    resetFilters()
     setSort('featured')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug])
 
-  // Resolve + filter + sort. Always ≥1 in the base set per config (REQ-010 AK-3);
-  // the personalizable toggle is purely a display refinement that we guard so the
-  // grid can still show the base set rather than ever rendering empty.
   const base = useMemo(() => (cfg ? resolveProducts(cfg) : []), [cfg])
+
+  // Facets available in THIS collection — derived from the REAL products (never
+  // invented). Size uses the canonical taxonomy sizes (non-final, OQ-001).
+  const styleFacets = useMemo(() => [...new Set(base.map((p) => p.design_family))], [base])
+  const roomFacets = useMemo(() => [...new Set(base.map((p) => p.use_case))], [base])
+  const sizeFacets = TAXONOMY.size
+  // Price facets are derived per-collection too — only buckets that actually have
+  // a product in THIS collection are offered (never an invariant global list).
+  const priceFacets = useMemo(() => PRICE_BUCKETS.filter((b) => base.some(b.test)), [base])
+
+  // Resolve + filter + sort. Style/room/price refine over real product fields;
+  // the size refinement is non-final (see the PRICE_BUCKETS note above).
   const sorted = useMemo(() => {
-    const filtered = personalizableOnly
-      ? base.filter((p) => p.personalizable !== false)
-      : base
-    // Defensive: never let a refinement empty an otherwise-stocked collection.
-    const shown = filtered.length > 0 ? filtered : base
+    let filtered = base
+    if (personalizableOnly) filtered = filtered.filter((p) => p.personalizable !== false)
+    if (styleFilter) filtered = filtered.filter((p) => p.design_family === styleFilter)
+    if (roomFilter) filtered = filtered.filter((p) => p.use_case === roomFilter)
+    if (sizeFilter) filtered = filtered.filter((p) => isPersonalizable(p))
+    if (priceFilter) {
+      const bucket = PRICE_BUCKETS.find((b) => b.id === priceFilter)
+      if (bucket) filtered = filtered.filter(bucket.test)
+    }
+    // Honest faceting: with NO user filter active, guard against an empty base
+    // (REQ-010 AK-3 — bad slug / empty world). With a user filter active, show the
+    // REAL filtered result (which may be empty → an explicit empty state), NEVER
+    // silently the full set — a fallback there would defeat the user's filter.
+    const active = personalizableOnly || !!styleFilter || !!roomFilter || !!sizeFilter || !!priceFilter
+    const shown = active ? filtered : base
     return sortProducts(shown, sort)
-  }, [base, personalizableOnly, sort])
+  }, [base, personalizableOnly, styleFilter, roomFilter, sizeFilter, priceFilter, sort])
 
   // The visible slice the grid maps. Count + pagination derive from THIS, so the
   // displayed number can never drift from the rendered cards (AT-009-2).
@@ -134,11 +213,42 @@ export default function Collection() {
         </div>
       </section>
 
-      {/* Toolbar: filter + sort */}
+      {/* Category toolbar + filter matrix (REQ-025 / REQ-026) */}
       <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 8px' }}>
+        <div data-testid="collection-filters" style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {styleFacets.length > 1 && (
+            <FilterRow testid="collection-filter-style" label="Stil">
+              {styleFacets.map((f) => (
+                <Chip key={f} active={styleFilter === f} onClick={() => { setStyleFilter(styleFilter === f ? null : f); setShownCount(PAGE_SIZE) }}>{t(`taxonomy.style.${f}`) || f}</Chip>
+              ))}
+            </FilterRow>
+          )}
+          {roomFacets.length > 1 && (
+            <FilterRow testid="collection-filter-room" label="Raum & Anlass">
+              {roomFacets.map((r) => (
+                <Chip key={r} active={roomFilter === r} onClick={() => { setRoomFilter(roomFilter === r ? null : r); setShownCount(PAGE_SIZE) }}>{t(`taxonomy.room.${r}`) || r}</Chip>
+              ))}
+            </FilterRow>
+          )}
+          <FilterRow testid="collection-filter-size" label="Größe / Format" nonFinal>
+            {sizeFacets.map((s) => (
+              <Chip key={s.id} active={sizeFilter === s.id} nonFinal onClick={() => { setSizeFilter(sizeFilter === s.id ? null : s.id); setShownCount(PAGE_SIZE) }}>{t(`taxonomy.size.${s.id}`) || s.label}</Chip>
+            ))}
+          </FilterRow>
+          {priceFacets.length > 1 && (
+            <FilterRow testid="collection-filter-price" label="Preis">
+              {priceFacets.map((b) => (
+                <Chip key={b.id} active={priceFilter === b.id} onClick={() => { setPriceFilter(priceFilter === b.id ? null : b.id); setShownCount(PAGE_SIZE) }}>{b.label}</Chip>
+              ))}
+            </FilterRow>
+          )}
+          {anyFilter && (
+            <button type="button" data-testid="collection-filter-reset" onClick={resetFilters} style={{ alignSelf: 'flex-start', fontFamily: FONT_SANS, fontSize: 12.5, color: C.accent, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0', textDecoration: 'underline' }}>Filter zurücksetzen</button>
+          )}
+        </div>
         <div
           data-testid="collection-toolbar"
-          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: '14px 0' }}
+          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: '14px 0', marginTop: 12 }}
         >
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: FONT_SANS, fontSize: 13.5, color: C.textMuted, cursor: 'pointer' }}>
             <input
@@ -181,37 +291,48 @@ export default function Collection() {
 
       {/* Product grid (≥1, real catalog) */}
       <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '14px 32px 16px' }}>
-        <div
-          data-testid="collection-grid"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 28 }}
-        >
-          {visible.map((p) => (
-            <div data-testid="collection-product-card" data-product-id={p.id} key={p.id}>
-              <ProductCard product={p} />
-            </div>
-          ))}
-        </div>
-
-        {/* Pagination / show-more — reveals the next page; when nothing remains
-            it states the full set is shown (the anchor is always present). */}
-        <div
-          data-testid="collection-pagination"
-          style={{ display: 'flex', justifyContent: 'center', padding: '28px 0 0' }}
-        >
-          {hasMore ? (
-            <button
-              type="button"
-              onClick={() => setShownCount((n) => n + PAGE_SIZE)}
-              style={{ fontFamily: FONT_SANS, fontSize: 13.5, fontWeight: 600, color: C.ink, background: C.surface, border: `1px solid ${C.borderInput}`, borderRadius: 4, padding: '11px 24px', cursor: 'pointer' }}
+        {sorted.length === 0 ? (
+          /* Honest empty state — a user filter matched nothing; we say so and
+             offer a reset rather than silently showing the unfiltered set. */
+          <div data-testid="collection-empty" style={{ textAlign: 'center', padding: '48px 0', border: `1px dashed ${C.border}`, borderRadius: 4 }}>
+            <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: C.textMuted, margin: '0 0 14px' }}>Keine Produkte entsprechen den gewählten Filtern.</p>
+            <button type="button" data-testid="collection-empty-reset" onClick={resetFilters} style={{ fontFamily: FONT_SANS, fontSize: 13.5, fontWeight: 600, color: C.accent, background: 'none', border: `1px solid ${C.borderInput}`, borderRadius: 999, padding: '8px 18px', cursor: 'pointer' }}>Filter zurücksetzen</button>
+          </div>
+        ) : (
+          <>
+            <div
+              data-testid="collection-grid"
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 28 }}
             >
-              Mehr anzeigen ({sorted.length - visible.length})
-            </button>
-          ) : (
-            <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted4 }}>
-              Alle {sorted.length} {sorted.length === 1 ? 'Produkt' : 'Produkte'} angezeigt
-            </span>
-          )}
-        </div>
+              {visible.map((p) => (
+                <div data-testid="collection-product-card" data-product-id={p.id} key={p.id}>
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination / show-more — reveals the next page; when nothing remains
+                it states the full set is shown (the anchor is always present). */}
+            <div
+              data-testid="collection-pagination"
+              style={{ display: 'flex', justifyContent: 'center', padding: '28px 0 0' }}
+            >
+              {hasMore ? (
+                <button
+                  type="button"
+                  onClick={() => setShownCount((n) => n + PAGE_SIZE)}
+                  style={{ fontFamily: FONT_SANS, fontSize: 13.5, fontWeight: 600, color: C.ink, background: C.surface, border: `1px solid ${C.borderInput}`, borderRadius: 4, padding: '11px 24px', cursor: 'pointer' }}
+                >
+                  Mehr anzeigen ({sorted.length - visible.length})
+                </button>
+              ) : (
+                <span style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted4 }}>
+                  Alle {sorted.length} {sorted.length === 1 ? 'Produkt' : 'Produkte'} angezeigt
+                </span>
+              )}
+            </div>
+          </>
+        )}
       </section>
 
       {/* SEO text block (H2 + paragraphs) */}
