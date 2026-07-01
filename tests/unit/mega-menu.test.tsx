@@ -26,15 +26,17 @@ import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import { COLLECTION_SLUGS } from '../../src/lib/collections'
 
-// The grouped mega-menu columns required by PRD §6.1/§6.2 (AT-009-1). Each is a
-// stable data-testid on the rendered column container.
-const MEGA_COLUMN_TESTIDS = [
-  'mega-col-personalized',
-  'mega-col-tcm',
-  'mega-col-wuxing',
-  'mega-col-analysis-pdfs',
-  'mega-col-bundles',
-  'mega-col-featured',
+// M10 (supersedes the delta 6-column mega-menu): the mega-menu now renders the
+// SIX canonical taxonomy axes as a matrix (src/lib/taxonomy.ts). Each axis is a
+// stable data-testid on the rendered group container. This is the REQ-006 matrix
+// contract (world/style/room/size/set/campaign) — the stop-gate for M11.
+const MEGA_AXIS_TESTIDS = [
+  'mega-axis-world',
+  'mega-axis-style',
+  'mega-axis-room',
+  'mega-axis-size',
+  'mega-axis-set',
+  'mega-axis-campaign',
 ] as const
 
 function renderApp(path = '/') {
@@ -68,7 +70,7 @@ describe('REQ-009 / AT-009-1 — desktop mega-menu opens with grouped columns', 
     expect(getMegaTrigger()).toBeInTheDocument()
   })
 
-  it('opens the grouped mega-menu panel on trigger and shows all 6 buy-intent columns', async () => {
+  it('opens the mega-menu panel on trigger and shows all 6 taxonomy axes', async () => {
     renderApp()
     await screen.findAllByRole('navigation')
 
@@ -78,7 +80,7 @@ describe('REQ-009 / AT-009-1 — desktop mega-menu opens with grouped columns', 
     const panel = await waitFor(() => getMegaPanel())
     expect(panel).toBeVisible()
 
-    for (const id of MEGA_COLUMN_TESTIDS) {
+    for (const id of MEGA_AXIS_TESTIDS) {
       const col = within(panel).getByTestId(id)
       expect(col).toBeInTheDocument()
       // every column must carry a non-empty heading + ≥1 link (not a bare shell)
@@ -122,7 +124,7 @@ describe('REQ-009 / AT-009-3 — keyboard + ARIA state', () => {
     fireEvent.click(getMegaTrigger())
     const panel = await waitFor(() => getMegaPanel())
     const links = within(panel).getAllByRole('link')
-    expect(links.length).toBeGreaterThanOrEqual(MEGA_COLUMN_TESTIDS.length)
+    expect(links.length).toBeGreaterThanOrEqual(MEGA_AXIS_TESTIDS.length)
     // focusable: anchors with href are tabbable; assert each has an href target
     for (const link of links) {
       expect(link).toHaveAttribute('href')
@@ -140,21 +142,26 @@ describe('REQ-009 / AT-009-4 — items link to real REQ-010 collection routes', 
     fireEvent.click(getMegaTrigger())
     const panel = await waitFor(() => getMegaPanel())
 
-    const valid = new Set<string>([
-      ...COLLECTION_SLUGS.map((s) => `/collections/${s}`),
-      '/collections', // hub link (Featured / "view all") is allowed
-      '/personalize', // the personalization entry is an allowed live route
-    ])
+    // M10 — every mega-menu link resolves to a REAL destination: a collection
+    // slug route, the /collections hub, a filter query on the live /collections
+    // route (?style=/?room=/?size=), or the live /offers|/personalize route.
+    // No dead links (REQ-035 no-dead-link intent).
+    const isRealHref = (href: string) =>
+      href === '/collections' ||
+      href === '/offers' ||
+      href === '/personalize' ||
+      href.startsWith('/collections?') ||
+      COLLECTION_SLUGS.some((s) => href === `/collections/${s}`)
 
-    const collectionLinks = within(panel)
+    const links = within(panel)
       .getAllByRole('link')
       .map((a) => a.getAttribute('href') ?? '')
-      .filter((href) => href.startsWith('/collections') || href === '/personalize')
+      .filter(Boolean)
 
-    // there must be collection links, and every one must be a real route
-    expect(collectionLinks.length).toBeGreaterThanOrEqual(COLLECTION_SLUGS.length - 2)
-    for (const href of collectionLinks) {
-      expect(valid.has(href)).toBe(true)
+    // there must be many links, and every one must be a real route
+    expect(links.length).toBeGreaterThanOrEqual(COLLECTION_SLUGS.length)
+    for (const href of links) {
+      expect(isRealHref(href), `mega link ${href} must be a real route`).toBe(true)
     }
   })
 
@@ -204,15 +211,16 @@ describe('REQ-009 / AT-009-2 — mobile drawer (accordion) preserved', () => {
   })
 })
 
-describe('REQ-009 / REQ-008 AK-3 — ≤6 top-level desktop nav entries', () => {
-  it('the desktop primary nav has at most 6 top-level entries', async () => {
+describe('M10 / REQ-005 — the desktop primary nav shows exactly the 8 shop entries', () => {
+  it('renders the 8 canonical primary entries plus the mega-menu trigger', async () => {
     renderApp()
     await screen.findAllByRole('navigation')
     const primary = screen.getByTestId('primary-nav')
-    // top-level entries are tagged data-nav-top; the mega-menu trigger counts as
-    // one entry (its columns are nested, not top-level).
-    const topEntries = primary.querySelectorAll('[data-nav-top]')
-    expect(topEntries.length).toBeGreaterThan(0)
-    expect(topEntries.length).toBeLessThanOrEqual(6)
+    // REQ-005 (exact spec) SUPERSEDES the delta "≤6 top-level" budget: the primary
+    // bar carries exactly the 8 shop-oriented entries (data-nav-primary) plus the
+    // Personalize CTA + mega-menu trigger (data-nav-top). The deep taxonomy lives
+    // in the mega-menu panel, not the top bar — so the bar is not overloaded.
+    expect(primary.querySelectorAll('[data-nav-primary]').length).toBe(8)
+    expect(within(primary).getByTestId('mega-menu-trigger')).toBeInTheDocument()
   })
 })

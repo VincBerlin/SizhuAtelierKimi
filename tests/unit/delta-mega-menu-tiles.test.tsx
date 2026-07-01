@@ -29,9 +29,10 @@ import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import { COLLECTION_SLUGS } from '../../src/lib/collections'
 
-// The buy-intent columns that MUST carry ≥2 promo tiles (REQ-004 relevant
-// columns: Poster / TCM / Wuxing).
-const TILE_COLUMN_TESTIDS = ['mega-tiles-posters', 'mega-tiles-tcm', 'mega-tiles-wuxing'] as const
+// M10 (supersedes the delta per-column tiles): the mega-menu now renders a flat
+// asset-light promo tile strip (MEGA_TILES from src/lib/taxonomy.ts). We assert
+// ≥MIN_TILES tiles, each text-forward + placeholder-imaged (REQ-013).
+const MIN_TILES = 4
 
 const VALID_TILE_HREFS = new Set<string>([
   ...COLLECTION_SLUGS.map((s) => `/collections/${s}`),
@@ -61,14 +62,11 @@ beforeEach(() => {
 
 // ── AT-004-1 — relevant columns each show ≥2 tiles ────────────────────────────
 
-describe('REQ-004 / AT-004-1 — Poster/TCM/Wuxing columns each show ≥2 tiles', () => {
-  it('opens the mega-menu and every relevant column has ≥2 promo tiles', async () => {
+describe('REQ-013 / AT-004-1 — mega-menu renders the asset-light promo tile strip', () => {
+  it('opens the mega-menu and renders ≥4 flat promo tiles', async () => {
     const panel = await openMegaMenu()
-    for (const colId of TILE_COLUMN_TESTIDS) {
-      const col = within(panel).getByTestId(colId)
-      const tiles = within(col).getAllByTestId('mega-tile')
-      expect(tiles.length, `${colId} must have ≥2 tiles`).toBeGreaterThanOrEqual(2)
-    }
+    const tiles = within(panel).getAllByTestId('mega-tile')
+    expect(tiles.length, 'mega-menu must render the promo tile strip').toBeGreaterThanOrEqual(MIN_TILES)
   })
 })
 
@@ -78,7 +76,7 @@ describe('REQ-004 / AT-004-2 — each tile has title + CTA + live target', () =>
   it('every tile has a non-empty title, a CTA, and an href on a real route', async () => {
     const panel = await openMegaMenu()
     const tiles = within(panel).getAllByTestId('mega-tile')
-    expect(tiles.length).toBeGreaterThanOrEqual(TILE_COLUMN_TESTIDS.length * 2)
+    expect(tiles.length).toBeGreaterThanOrEqual(MIN_TILES)
 
     for (const tile of tiles) {
       // title
@@ -119,7 +117,7 @@ describe('REQ-004 / AT-004-3 — tiles are asset-light, not fake product photos 
   it('the placeholder fields are generic (no inline background-image of a real .webp)', async () => {
     const panel = await openMegaMenu()
     const placeholders = within(panel).getAllByTestId('mega-tile-image')
-    expect(placeholders.length).toBeGreaterThanOrEqual(TILE_COLUMN_TESTIDS.length * 2)
+    expect(placeholders.length).toBeGreaterThanOrEqual(MIN_TILES)
     for (const ph of placeholders) {
       const style = ph.getAttribute('style') ?? ''
       expect(/\/images\/.*\.webp/i.test(style)).toBe(false)

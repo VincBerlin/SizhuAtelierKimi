@@ -19,19 +19,20 @@
  */
 import { test, expect } from '@playwright/test'
 
-const MEGA_COLUMNS = [
-  'mega-col-personalized',
-  'mega-col-tcm',
-  'mega-col-wuxing',
-  'mega-col-analysis-pdfs',
-  'mega-col-bundles',
-  'mega-col-featured',
+// M10 — the mega-menu renders the six canonical taxonomy axes (REQ-006 matrix).
+const MEGA_AXES = [
+  'mega-axis-world',
+  'mega-axis-style',
+  'mega-axis-room',
+  'mega-axis-size',
+  'mega-axis-set',
+  'mega-axis-campaign',
 ] as const
 
 // ── AT-009-1 — desktop mega-menu opens with grouped columns ──────────────────
 
 test.describe('REQ-009 / AT-009-1 — desktop mega-menu opens with grouped columns', () => {
-  test('opens the panel and shows all 6 buy-intent columns', async ({ page }) => {
+  test('opens the panel and shows all 6 taxonomy axes', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.goto('/')
 
@@ -41,7 +42,7 @@ test.describe('REQ-009 / AT-009-1 — desktop mega-menu opens with grouped colum
 
     const panel = page.getByTestId('mega-menu-panel')
     await expect(panel).toBeVisible()
-    for (const id of MEGA_COLUMNS) {
+    for (const id of MEGA_AXES) {
       const col = panel.getByTestId(id)
       await expect(col).toBeVisible()
       expect(await col.getByRole('link').count()).toBeGreaterThanOrEqual(1)
@@ -72,7 +73,7 @@ test.describe('REQ-009 / AT-009-3 — keyboard + ARIA', () => {
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.goto('/')
     await page.getByTestId('mega-menu-trigger').click()
-    const firstLink = page.getByTestId('mega-col-personalized').getByRole('link').first()
+    const firstLink = page.getByTestId('mega-axis-world').getByRole('link').first()
     await firstLink.focus()
     await expect(firstLink).toBeFocused()
   })
@@ -87,7 +88,7 @@ test.describe('REQ-009 / AT-009-4 — items navigate to real collection routes',
     await page.getByTestId('mega-menu-trigger').click()
 
     await page
-      .getByTestId('mega-col-personalized')
+      .getByTestId('mega-axis-world')
       .getByRole('link', { name: /bazi/i })
       .first()
       .click()

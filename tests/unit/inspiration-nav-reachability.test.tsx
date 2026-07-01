@@ -39,15 +39,14 @@ beforeEach(() => {
 // ── AT-011-4 — /inspiration is reachable from the production navigation ───────
 
 describe('REQ-011 / AT-011-4 — /inspiration is wired into production navigation', () => {
-  it('the desktop mega-menu (Featured column) links to /inspiration', async () => {
+  it('the desktop primary nav links to /inspiration', async () => {
     renderApp()
     await screen.findAllByRole('navigation')
 
-    fireEvent.click(screen.getByTestId('mega-menu-trigger'))
-    const panel = await waitFor(() => screen.getByTestId('mega-menu-panel'))
-
-    const featured = within(panel).getByTestId('mega-col-featured')
-    const links = within(featured)
+    // M10 — Inspiration is a shop-oriented PRIMARY nav entry (REQ-005), reachable
+    // directly from the top bar (no longer buried in a mega-menu "Featured" column).
+    const primary = screen.getByTestId('primary-nav')
+    const links = within(primary)
       .getAllByRole('link')
       .map((a) => a.getAttribute('href') ?? '')
     expect(links).toContain('/inspiration')
@@ -59,10 +58,10 @@ describe('REQ-011 / AT-011-4 — /inspiration is wired into production navigatio
 
     // open the mobile drawer via the hamburger (aria-label from nav.open)
     fireEvent.click(screen.getByLabelText(/open menu/i))
-    // expand the collections accordion (the mega columns flow into it)
-    fireEvent.click(await screen.findByTestId('mobile-collections-toggle'))
 
-    const drawerLinks = await screen.findAllByTestId('mobile-collection-link')
+    // M10 — Inspiration is a primary drawer entry (always rendered), not buried
+    // in the taxonomy accordion.
+    const drawerLinks = await screen.findAllByTestId('mobile-primary-link')
     const hrefs = drawerLinks.map((a) => a.getAttribute('href') ?? '')
     expect(hrefs).toContain('/inspiration')
   })

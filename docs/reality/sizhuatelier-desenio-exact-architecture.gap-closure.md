@@ -19,7 +19,7 @@ claim. No row may be laundered to CLOSED without the named evidence existing.
 | Milestone | REQs | Gap it closes | Evidence artifact (target) | Status |
 |---|---|---|---|---|
 | **M9** Supersession & Taxonomy | REQ-001, REQ-008(data), REQ-009..012(data) | Stale docs superseded; canonical taxonomy data model (world/style/room/size/set/campaign); no fake sizes | `src/lib/taxonomy.ts` + `tests/unit/exact-taxonomy.test.ts` | **IN-PROGRESS** |
-| **M10** Nav & Mega-Menu Matrix | REQ-004, REQ-005, REQ-006, REQ-007, REQ-013 | Desktop mega-menu matrix + mobile drawer taxonomy + visual tiles | mega-menu DOM test + mobile drawer test + screenshots (EV-001/EV-002) | OPEN |
+| **M10** Nav & Mega-Menu Matrix | REQ-004, REQ-005, REQ-006, REQ-007, REQ-013 | Desktop mega-menu matrix + mobile drawer taxonomy + visual tiles | `Navbar.tsx` renders taxonomy matrix; `exact-nav-matrix.test.tsx` + migrated `mega-menu`/`tiles`/`inspiration` tests; renderToStaticMarkup smoke 38/0 green in-sandbox; real-browser screenshots (EV-001/EV-002) → RL-CHROMIUM | **TEST-GREEN** (jsdom run + screenshots on dev machine) |
 | **M11** Homepage Full Sequence | REQ-003, REQ-014..021, REQ-023, REQ-024 | Full target sequence; remove old below-fold V2 chain; unify campaign row; add New Arrivals | Home DOM-order test + screenshots (EV-003) | OPEN |
 | **M12** Collection Template & Filters | REQ-025, REQ-026, REQ-027, REQ-031 | Category toolbar + filter matrix (incl. size) + count/pagination | collection filter/sort/count tests + screenshots (EV-004) | OPEN |
 | **M13** PDP Size/Commerce | REQ-008, REQ-028, REQ-029, REQ-030 | Size selector on ALL PDPs, size→price/availability, BaZi-only gate kept | PDP size/price/gate tests + screenshots (EV-005) | OPEN |

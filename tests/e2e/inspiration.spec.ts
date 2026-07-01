@@ -86,13 +86,11 @@ test.describe('REQ-011 / AT-011-4 — /inspiration is reachable from production 
     ).toHaveCount(1)
   })
 
-  test('the desktop mega-menu (Featured column) links to /inspiration', async ({ page }) => {
+  test('the desktop primary nav links to /inspiration', async ({ page }) => {
+    // M10 — Inspiration is a shop-oriented PRIMARY nav entry (REQ-005).
     await page.goto('/')
-    await page.getByTestId('mega-menu-trigger').click()
-    const panel = page.getByTestId('mega-menu-panel')
-    await expect(panel).toBeVisible()
     await expect(
-      panel.getByTestId('mega-col-featured').locator('a[href="/inspiration"]'),
+      page.getByTestId('primary-nav').locator('a[href="/inspiration"]'),
     ).toHaveCount(1)
   })
 

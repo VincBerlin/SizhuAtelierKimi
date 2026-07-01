@@ -6,6 +6,18 @@ export type Lang = 'EN' | 'DE' | 'FR' | 'ES'
 
 export const translations: Record<Lang, Record<string, any>> = {
   EN: {
+    // M10 — canonical taxonomy matrix labels (nav mega-menu + mobile drawer).
+    tax: { world: 'Shop by World', style: 'Theme & Style', room: 'Room & Use', size: 'Size / Format', set: 'Sets & Solutions', campaign: 'Trends & Campaigns' },
+    taxonomy: {
+      world: { bazi: 'BaZi Posters', tcm: 'TCM Posters', wuxing: 'Wuxing', personalized: 'Personalized' },
+      style: { minimal: 'Minimal Ink', classic_ink: 'Classic Ink', wabi_sabi: 'Wabi-Sabi', japandi: 'Japandi', five_elements: 'Five Elements', compatibility: 'Couples / Compatibility' },
+      room: { home: 'Living / Home', practice: 'Practice / Studio', wellness: 'Wellness / Quiet Room', yoga: 'Yoga Studio', educational: 'Teaching / Education', gift: 'Gift', collector: 'Collector Edition' },
+      size: { A3: 'A3 · 30 × 42 cm', A2: 'A2 · 42 × 59 cm', A1: 'A1 · 59 × 84 cm' },
+      set: { poster_sets: 'Poster Sets', couples: 'Couples Set', analysis: 'Poster + Analysis Bundle' },
+      campaign: { fire_horse: 'Fire Horse 2026', five_elements: 'Wu Xing · Five Elements', compatibility: 'Compatibility Posters', offers: 'Offers' },
+      quick: { bestseller: 'Bestseller', new: 'New Arrivals', offers: 'Offers' },
+      tile: { bazi: { title: 'Personalized BaZi', label: 'Four Pillars', cta: 'Discover' }, tcm: { title: 'TCM Knowledge', label: 'Teaching graphics', cta: 'Explore' }, wuxing: { title: 'Five Elements', label: 'Wu Xing balance', cta: 'View' }, 'fire-horse': { title: 'Fire Horse 2026', label: 'Limited edition', cta: 'See edition' } },
+    },
     announce: { shipping: 'Free shipping over {amount}', personalized: 'Personalized from your birth data', freeActivated: '✓ Free Shipping Activated ✦ A symbolic artwork inspired by your birth data', fallback: 'Premium personalized prints. Secure checkout. Refined local production.' },
     preview: { announce: 'Preview — our shop is launching soon ✦', notForSale: 'Preview — not yet available for purchase', soon: 'Coming soon' },
     // Noon-fallback disclosure (REQ-018). Rendered by the personalization form
@@ -323,6 +335,17 @@ export const translations: Record<Lang, Record<string, any>> = {
   },
 
   DE: {
+    tax: { world: 'Nach Welt', style: 'Thema & Stil', room: 'Raum & Anlass', size: 'Größe / Format', set: 'Sets & Lösungen', campaign: 'Trends & Aktionen' },
+    taxonomy: {
+      world: { bazi: 'BaZi-Poster', tcm: 'TCM-Poster', wuxing: 'Wuxing', personalized: 'Personalisiert' },
+      style: { minimal: 'Minimal Ink', classic_ink: 'Classic Ink', wabi_sabi: 'Wabi-Sabi', japandi: 'Japandi', five_elements: 'Fünf Elemente', compatibility: 'Paare / Kompatibilität' },
+      room: { home: 'Wohnen / Zuhause', practice: 'Praxis / Studio', wellness: 'Wellness / Ruheraum', yoga: 'Yoga-Studio', educational: 'Lehre / Bildung', gift: 'Geschenk', collector: 'Sammler-Edition' },
+      size: { A3: 'A3 · 30 × 42 cm', A2: 'A2 · 42 × 59 cm', A1: 'A1 · 59 × 84 cm' },
+      set: { poster_sets: 'Poster-Sets', couples: 'Paar-Set', analysis: 'Poster + Analyse-Bundle' },
+      campaign: { fire_horse: 'Feuerpferd 2026', five_elements: 'Wu Xing · Fünf Elemente', compatibility: 'Kompatibilitäts-Poster', offers: 'Angebote' },
+      quick: { bestseller: 'Bestseller', new: 'Neuheiten', offers: 'Angebote' },
+      tile: { bazi: { title: 'Personalisiertes BaZi', label: 'Vier Säulen', cta: 'Entdecken' }, tcm: { title: 'TCM-Wissen', label: 'Lehrgrafiken', cta: 'Ansehen' }, wuxing: { title: 'Fünf Elemente', label: 'Wu-Xing-Balance', cta: 'Ansehen' }, 'fire-horse': { title: 'Feuerpferd 2026', label: 'Limitierte Edition', cta: 'Zur Edition' } },
+    },
     announce: { shipping: 'Kostenloser Versand ab {amount}', personalized: 'Personalisiert aus deinen Geburtsdaten', freeActivated: '✓ Kostenloser Versand aktiviert ✦ Ein symbolisches Kunstwerk, inspiriert von deinen Geburtsdaten', fallback: 'Premium personalisierte Drucke. Sichere Kasse. Hochwertige Produktion.' },
     preview: { announce: 'Vorschau — unser Shop startet in Kürze ✦', notForSale: 'Vorschau — noch nicht bestellbar', soon: 'Bald verfügbar' },
     // Noon-Fallback-Offenlegung (REQ-018) — siehe EN-Kommentar.
@@ -636,6 +659,17 @@ export const translations: Record<Lang, Record<string, any>> = {
   },
 
   FR: {
+    tax: { world: 'Par univers', style: 'Thème & style', room: 'Pièce & usage', size: 'Taille / Format', set: 'Sets & solutions', campaign: 'Tendances & campagnes' },
+    taxonomy: {
+      world: { bazi: 'Posters BaZi', tcm: 'Posters MTC', wuxing: 'Wuxing', personalized: 'Personnalisé' },
+      style: { minimal: 'Minimal Ink', classic_ink: 'Classic Ink', wabi_sabi: 'Wabi-Sabi', japandi: 'Japandi', five_elements: 'Cinq éléments', compatibility: 'Couples / Compatibilité' },
+      room: { home: 'Salon / Maison', practice: 'Cabinet / Studio', wellness: 'Bien-être / Détente', yoga: 'Studio de yoga', educational: 'Enseignement / Éducation', gift: 'Cadeau', collector: 'Édition collector' },
+      size: { A3: 'A3 · 30 × 42 cm', A2: 'A2 · 42 × 59 cm', A1: 'A1 · 59 × 84 cm' },
+      set: { poster_sets: 'Sets de posters', couples: 'Set couple', analysis: 'Poster + analyse' },
+      campaign: { fire_horse: 'Cheval de Feu 2026', five_elements: 'Wu Xing · Cinq éléments', compatibility: 'Posters compatibilité', offers: 'Offres' },
+      quick: { bestseller: 'Meilleures ventes', new: 'Nouveautés', offers: 'Offres' },
+      tile: { bazi: { title: 'BaZi personnalisé', label: 'Quatre piliers', cta: 'Découvrir' }, tcm: { title: 'Savoir MTC', label: 'Graphiques pédagogiques', cta: 'Explorer' }, wuxing: { title: 'Cinq éléments', label: 'Équilibre Wu Xing', cta: 'Voir' }, 'fire-horse': { title: 'Cheval de Feu 2026', label: 'Édition limitée', cta: 'Voir l’édition' } },
+    },
     announce: { shipping: 'Livraison offerte dès {amount}', personalized: 'Personnalisé à partir de vos données de naissance', freeActivated: '✓ Livraison offerte activée ✦ Une œuvre symbolique inspirée de vos données de naissance', fallback: 'Impressions personnalisées premium. Paiement sécurisé. Production locale soignée.' },
     preview: { announce: 'Aperçu — notre boutique ouvre bientôt ✦', notForSale: 'Aperçu — pas encore disponible à l’achat', soon: 'Bientôt disponible' },
     // Divulgation du repli midi (REQ-018) — voir le commentaire EN.
@@ -952,6 +986,17 @@ export const translations: Record<Lang, Record<string, any>> = {
   // is guaranteed (AT-015-1); translation QUALITY is an open value-risk the user
   // reviews (VR-ES-MACHINE-TRANSLATED). Not native-reviewed.
   ES: {
+    tax: { world: 'Por mundo', style: 'Tema y estilo', room: 'Espacio y uso', size: 'Tamaño / Formato', set: 'Sets y soluciones', campaign: 'Tendencias y campañas' },
+    taxonomy: {
+      world: { bazi: 'Pósters BaZi', tcm: 'Pósters MTC', wuxing: 'Wuxing', personalized: 'Personalizado' },
+      style: { minimal: 'Minimal Ink', classic_ink: 'Classic Ink', wabi_sabi: 'Wabi-Sabi', japandi: 'Japandi', five_elements: 'Cinco elementos', compatibility: 'Parejas / Compatibilidad' },
+      room: { home: 'Salón / Hogar', practice: 'Consulta / Estudio', wellness: 'Bienestar / Descanso', yoga: 'Estudio de yoga', educational: 'Enseñanza / Educación', gift: 'Regalo', collector: 'Edición coleccionista' },
+      size: { A3: 'A3 · 30 × 42 cm', A2: 'A2 · 42 × 59 cm', A1: 'A1 · 59 × 84 cm' },
+      set: { poster_sets: 'Sets de pósters', couples: 'Set de pareja', analysis: 'Póster + análisis' },
+      campaign: { fire_horse: 'Caballo de Fuego 2026', five_elements: 'Wu Xing · Cinco elementos', compatibility: 'Pósters de compatibilidad', offers: 'Ofertas' },
+      quick: { bestseller: 'Más vendidos', new: 'Novedades', offers: 'Ofertas' },
+      tile: { bazi: { title: 'BaZi personalizado', label: 'Cuatro pilares', cta: 'Descubrir' }, tcm: { title: 'Conocimiento MTC', label: 'Gráficos didácticos', cta: 'Explorar' }, wuxing: { title: 'Cinco elementos', label: 'Equilibrio Wu Xing', cta: 'Ver' }, 'fire-horse': { title: 'Caballo de Fuego 2026', label: 'Edición limitada', cta: 'Ver edición' } },
+    },
     announce: {
       shipping: 'Envío gratis a partir de {amount}',
       personalized: 'Personalizado a partir de tus datos de nacimiento',

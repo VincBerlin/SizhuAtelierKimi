@@ -12,8 +12,8 @@ Mode: `/agileteam` Plumbline, ultracode. Per-milestone: build → independent re
 ## Milestone ledger
 | M | Name | Build | Review | QA | Watcher | User commit | Notes |
 |---|---|---|---|---|---|---|---|
-| M9 | Supersession & Taxonomy | done | pending | pending | pending | pending | `src/lib/taxonomy.ts` + `tests/unit/exact-taxonomy.test.ts` + doc supersession + scope.json + gap-closure report |
-| M10 | Nav & Mega-Menu Matrix | — | — | — | — | — | reads taxonomy.ts |
+| M9 | Supersession & Taxonomy | done | ✅ pass | ✅ 228/0 esbuild + tsc | ✅ scope 12 | ✅ committed 2f1acb8 | `src/lib/taxonomy.ts` + gate test + doc supersession + scope.json + gap-closure |
+| M10 | Nav & Mega-Menu Matrix | done | pending | ✅ tsc 0 + smoke 38/0 | pending | pending | Navbar renders taxonomy matrix (desktop + mobile mirror); i18n×4; migrated old delta/e2e nav tests; new exact-nav-matrix test |
 | M11 | Homepage Full Sequence | — | — | — | — | — | replaces below-fold V2 chain |
 | M12 | Collection Template & Filters | — | — | — | — | — | filter matrix incl. size |
 | M13 | PDP Size/Commerce | — | — | — | — | — | size selector on all PDPs |
