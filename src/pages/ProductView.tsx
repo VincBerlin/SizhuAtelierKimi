@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
@@ -22,6 +22,10 @@ export default function ProductView() {
   const { cfg, addItem, showToast, openFaqId, setOpenFaqId, posterBgHex } = useShopStore()
   const money = useMoney()
   const { t, lang } = useT()
+  // M13 / REQ-008/028 — size for the NON-personalizable PDP path (ready-to-ship
+  // SKUs). Personalizable products carry size in the configurator (cfg.size).
+  // Size availability/pricing stays NON-FINAL (OQ-001).
+  const [pdpSize, setPdpSize] = useState('A2')
 
   const prod = getProduct(Number(id)) ?? products[0]
   // SINGLE source of truth for the personalization gate (REQ-007 / REQ-025):
@@ -35,7 +39,7 @@ export default function ProductView() {
   // catalog's placeholder `rating`/`reviews` are never surfaced as social proof.
   const showReviews = REVIEWS_ENABLED && prod.reviews > 0
 
-  useEffect(() => { window.scrollTo(0, 0) }, [id])
+  useEffect(() => { window.scrollTo(0, 0); setPdpSize('A2') }, [id])
 
   // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
   // the resolved product id so it fires once per product view, not per re-render.
@@ -47,9 +51,14 @@ export default function ProductView() {
   const bt = birthTimeMeta(cfg.time, birthTimeUnknown)
   const chart = computeChart(cfg.date, bt.time, cfg.place, birthTimeUnknown)
   const livePoster: PosterData = { frame: cfg.frameHex, bg: cfg.bgHex, name: cfg.name || 'Dein Name', element: chart.element, animal: chart.animal, pillars: chart.pillars }
-  const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
-  const livePrice = personalizable ? prod.price + size.delta : prod.price
-  const liveAnchor = prod.anchor != null ? prod.anchor + (personalizable ? size.delta : 0) : null
+  // M13 — size is a first-class axis on EVERY PDP. Personalizable → cfg.size (the
+  // configurator); non-personalizable → the standalone pdpSize selector. The
+  // server (server/pricing.js) already prices size deltas for ANY poster id, so
+  // the money path is UNCHANGED — the client just wires the size in for ready-to-
+  // ship SKUs (default A2 = delta 0 = base price, no regression).
+  const size = sizes.find((z) => z.id === (personalizable ? cfg.size : pdpSize)) ?? sizes[1]
+  const livePrice = prod.price + size.delta
+  const liveAnchor = prod.anchor != null ? prod.anchor + size.delta : null
   const starPct = (prod.rating / 5) * 100 + '%'
   const related = products.filter((p) => p.id !== prod.id).slice(0, 3)
   // Breadcrumb trail: Home → the product's world collection → this product. The
@@ -62,9 +71,11 @@ export default function ProductView() {
   const addToCart = () => {
     const title = t(`content.products.${prod.id}.title`)
     if (!personalizable) {
-      // Non-personalizable (Fire Horse / TCM lehrposter): plain line, no birth data,
-      // no size axis → server prices at base (empty variantId).
-      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: prod.category, productId: posterProductId(prod.id), variantId: '' })
+      // Non-personalizable (Fire Horse / TCM lehrposter): NO birth data, but M13
+      // gives it a first-class size axis. The size is carried in the variantId so
+      // the server (server/pricing.js) prices base + size delta authoritatively —
+      // same money path as personalizable posters (default A2 = base, no change).
+      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: `${prod.category} · ${size.label}`, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id }) })
       showToast(t('cart.toastAdded'))
       return
     }
@@ -169,6 +180,42 @@ export default function ProductView() {
             <div data-testid="pdp-variants">
               <div data-testid="pdp-configurator">
                 <Configurator />
+              </div>
+            </div>
+          )}
+
+          {/* M13 / REQ-008/028/029 — first-class size selector for NON-personalizable
+              (ready-to-ship) PDPs: NO birth data, NO chart preview (REQ-030 gate
+              preserved). Size drives the live price (base + delta) and is carried
+              into the cart. The axis is NON-FINAL (OQ-001): real per-product size
+              availability/pricing is operator-owned; every A3/A2/A1 is available
+              for now and none is offered as an unavailable-but-purchasable size. */}
+          {!personalizable && (
+            <div data-testid="pdp-size-selector" data-nonfinal="true" style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 10px' }}>
+                {t('tax.size')}<span style={{ color: C.textMuted4, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}> · vorläufig</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+                {sizes.map((z) => {
+                  const sel = z.id === pdpSize
+                  const deltaText = z.delta > 0 ? '+ ' + money(z.delta) : z.delta < 0 ? '− ' + money(-z.delta) : t('configurator.inclusive')
+                  return (
+                    <button
+                      key={z.id}
+                      type="button"
+                      data-testid="pdp-size-option"
+                      data-size={z.id}
+                      aria-pressed={sel}
+                      onClick={() => setPdpSize(z.id)}
+                      style={{ position: 'relative', border: `1px solid ${sel ? C.accent : C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}
+                    >
+                      <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
+                      <div style={{ fontSize: 11, color: C.textMuted3, margin: '3px 0 4px' }}>{z.sub}</div>
+                      {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>{deltaText}</div>}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}

@@ -15,8 +15,8 @@ Mode: `/agileteam` Plumbline, ultracode. Per-milestone: build → independent re
 | M9 | Supersession & Taxonomy | done | ✅ pass | ✅ 228/0 esbuild + tsc | ✅ scope 12 | ✅ committed 2f1acb8 | `src/lib/taxonomy.ts` + gate test + doc supersession + scope.json + gap-closure |
 | M10 | Nav & Mega-Menu Matrix | done | ✅ pass | ✅ tsc 0 + smoke 38/0 | ✅ scope 10 | ✅ committed 28de8ac | Navbar taxonomy matrix desktop+mobile mirror; i18n×4; migrated nav tests |
 | M11 | Homepage Full Sequence | done | ✅ pass | ✅ tsc 0 + home smoke 18/0 | ✅ scope 23 | ✅ committed 355ffc0 | Home target order; new CampaignBannerRow/NewArrivals/Trust; old V2 chain removed; deleted 5 orphaned sections + 2 superseded tests |
-| M12 | Collection Template & Filters | done | pending | ✅ tsc 0 + coll smoke 19/0 | pending | pending | Collection filter matrix style/room/price functional + size NON-FINAL (OQ-001→personalizable); facet labels via M10 taxonomy i18n; new exact-collection-filters test; existing toolbar/sort/count preserved |
-| M13 | PDP Size/Commerce | — | — | — | — | — | size selector on all PDPs |
+| M12 | Collection Template & Filters | done | ✅ pass | ✅ tsc 0 + coll smoke 19/0 | ✅ scope 4 | ✅ committed b7aad7d | Collection filter matrix style/room/price functional + size NON-FINAL; empty-state honesty; facet labels via M10 i18n |
+| M13 | PDP Size/Commerce | done | pending | ✅ tsc 0 + pdp+money smoke 17/0 | pending | pending | Standalone size selector on non-personalizable PDPs (non-final OQ-001) → drives price via UNCHANGED server/pricing.js (already prices size for any poster id); BaZi gate preserved; new exact-pdp-size test. NO money-path edit |
 | M14 | Mobile Commerce Repair | — | — | — | — | — | 360/390/430 evidence (RL-CHROMIUM) |
 | M15 | Trust/Newsletter/Footer/Evidence | — | — | — | — | — | gap-closure report closed |
 

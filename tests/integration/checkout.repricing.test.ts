@@ -295,15 +295,16 @@ describe('[UNIT] price/shipping source-of-truth PARITY (server == client, drift 
       // Base price (no size axis) always equals the catalog display price.
       expect(priceLineItemCents(productId, '')).toBe(eurToCents(p.price))
 
-      // Personalizable posters carry a size axis → price = base + size delta for
-      // every configurable size. Non-personalizable posters carry no size axis.
-      if (p.personalizable !== false) {
-        for (const s of sizes) {
-          const variantId = buildVariantId({ size: s.id, frame: '#B98A5E' })
-          expect(priceLineItemCents(productId, variantId)).toBe(
-            eurToCents(p.price + s.delta),
-          )
-        }
+      // M13 — EVERY poster now carries a size axis: personalizable BaZi posters via
+      // the configurator, non-personalizable ready-to-ship posters via the PDP size
+      // selector. The server prices base + size delta for ANY poster id, so parity
+      // holds for ALL products × ALL configurable sizes. This loop is the runnable
+      // tripwire for the non-personalizable-poster × size money path M13 depends on.
+      for (const s of sizes) {
+        const variantId = buildVariantId({ size: s.id, frame: '#B98A5E' })
+        expect(priceLineItemCents(productId, variantId)).toBe(
+          eurToCents(p.price + s.delta),
+        )
       }
     }
   })

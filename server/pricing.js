@@ -77,8 +77,12 @@ export function priceLineItemCents(productId, variantId) {
   const v = parseVariant(variantId)
 
   // ── catalog posters ──
-  // Personalizable posters carry a `size` axis (delta applies). Non-personalizable
-  // posters (Fire Horse, TCM lehrposter) carry no size → base price only.
+  // EVERY catalog poster carries a `size` axis: the delta applies whenever a size
+  // is present in the variantId. Personalizable BaZi posters set it in the
+  // configurator; non-personalizable ready-to-ship posters (Fire Horse, TCM
+  // lehrposter) set it in the PDP size selector (M13). A poster line with NO size
+  // resolves to the base price. DO NOT reject a size on non-personalizable ids —
+  // that would 400 every ready-to-ship poster purchase (default size=A2).
   if (id.startsWith(POSTER_PRODUCT_PREFIX)) {
     const numId = Number(id.slice(POSTER_PRODUCT_PREFIX.length))
     const baseEur = POSTER_BASE_EUR[numId]
