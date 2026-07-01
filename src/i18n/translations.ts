@@ -171,6 +171,25 @@ export const translations: Record<Lang, Record<string, any>> = {
     // V2 homepage modules 03/06/07/08/09 + 12 (REQ-008 / REQ-012). Honest framing
     // only — symbolic artwork inspired by birth data; no precision/health claims.
     home: {
+      newArrivals: { eyebrow: 'New in the atelier', title: 'New Arrivals', more: 'View all' },
+      campaign: {
+        eyebrow: 'Featured', title: 'Editions & campaigns',
+        items: {
+          fireHorse: { title: 'Fire Horse 2026', sub: 'The numbered annual edition — a collector piece, ships ready to hang.', cta: 'See the edition' },
+          compatibility: { title: 'Couples & Compatibility', sub: 'Two birth charts on one symbolic artwork, inspired by shared birth data.', cta: 'Explore' },
+          analysis: { title: 'Digital BaZi Analysis', sub: 'A 10–15 page PDF reading captured from your inputs — solo or bundled.', cta: 'Learn more' },
+          sets: { title: 'Poster Sets', sub: 'Curated, value-priced sets for practice, studio and home.', cta: 'Shop sets' },
+        },
+      },
+      trust: {
+        title: 'Crafted with care, delivered with confidence',
+        items: {
+          secure: { title: 'Secure checkout', sub: 'Encrypted payment via PayPal, Apple Pay and Google Pay.' },
+          shipping: { title: 'Climate-neutral shipping', sub: 'Worldwide delivery — free over {amount}.' },
+          quality: { title: 'Museum-quality print', sub: 'Archival pigment print on acid-free paper, made in Germany.' },
+          madeToOrder: { title: 'Made to order', sub: 'Each poster is produced for you and numbered in the atelier.' },
+        },
+      },
       world: {
         eyebrow: 'Shop by world', title: 'Find your product world', sub: 'Four curated worlds — from personalized birth-chart art to ready-to-hang teaching posters.',
         cards: {
@@ -497,6 +516,25 @@ export const translations: Record<Lang, Record<string, any>> = {
     // Framing — symbolisches Kunstwerk, inspiriert von Geburtsdaten; keine
     // Präzisions-/Heilversprechen.
     home: {
+      newArrivals: { eyebrow: 'Neu im Atelier', title: 'Neuheiten', more: 'Alle ansehen' },
+      campaign: {
+        eyebrow: 'Im Fokus', title: 'Editionen & Aktionen',
+        items: {
+          fireHorse: { title: 'Feuerpferd 2026', sub: 'Die nummerierte Jahresedition — ein Sammlerstück, versandfertig zum Aufhängen.', cta: 'Zur Edition' },
+          compatibility: { title: 'Paare & Kompatibilität', sub: 'Zwei Geburtscharts auf einem symbolischen Motiv, inspiriert von euren Geburtsdaten.', cta: 'Entdecken' },
+          analysis: { title: 'Digitale BaZi-Analyse', sub: 'Eine 10–15-seitige PDF-Auswertung, erfasst aus deinen Eingaben — einzeln oder im Bundle.', cta: 'Mehr erfahren' },
+          sets: { title: 'Poster-Sets', sub: 'Kuratierte, vergünstigte Sets für Praxis, Studio und Zuhause.', cta: 'Sets ansehen' },
+        },
+      },
+      trust: {
+        title: 'Mit Sorgfalt gefertigt, zuverlässig geliefert',
+        items: {
+          secure: { title: 'Sichere Kasse', sub: 'Verschlüsselte Zahlung über PayPal, Apple Pay und Google Pay.' },
+          shipping: { title: 'Klimaneutraler Versand', sub: 'Weltweiter Versand — kostenlos ab {amount}.' },
+          quality: { title: 'Museumsqualität', sub: 'Archiv-Pigmentdruck auf säurefreiem Papier, gefertigt in Deutschland.' },
+          madeToOrder: { title: 'Auf Bestellung gefertigt', sub: 'Jedes Poster wird für dich produziert und im Atelier nummeriert.' },
+        },
+      },
       world: {
         eyebrow: 'Nach Welt shoppen', title: 'Finde deine Produktwelt', sub: 'Vier kuratierte Welten — von personalisierter Geburtschart-Kunst bis zu versandfertigen Lehrpostern.',
         cards: {
@@ -821,6 +859,25 @@ export const translations: Record<Lang, Record<string, any>> = {
     // Cadrage honnête — œuvre symbolique inspirée des données de naissance ;
     // aucune promesse de précision ni de santé.
     home: {
+      newArrivals: { eyebrow: 'Nouveau à l’atelier', title: 'Nouveautés', more: 'Voir tout' },
+      campaign: {
+        eyebrow: 'À la une', title: 'Éditions & campagnes',
+        items: {
+          fireHorse: { title: 'Cheval de Feu 2026', sub: 'L’édition annuelle numérotée — une pièce de collection, prête à accrocher.', cta: 'Voir l’édition' },
+          compatibility: { title: 'Couples & compatibilité', sub: 'Deux thèmes natals sur une œuvre symbolique, inspirée de vos données de naissance.', cta: 'Explorer' },
+          analysis: { title: 'Analyse BaZi digitale', sub: 'Une lecture PDF de 10 à 15 pages, saisie à partir de vos données — seule ou en coffret.', cta: 'En savoir plus' },
+          sets: { title: 'Sets de posters', sub: 'Des sets curatés à prix avantageux pour cabinet, studio et maison.', cta: 'Voir les sets' },
+        },
+      },
+      trust: {
+        title: 'Façonné avec soin, livré en toute confiance',
+        items: {
+          secure: { title: 'Paiement sécurisé', sub: 'Paiement chiffré via PayPal, Apple Pay et Google Pay.' },
+          shipping: { title: 'Livraison neutre en carbone', sub: 'Livraison mondiale — offerte dès {amount}.' },
+          quality: { title: 'Qualité musée', sub: 'Impression pigmentaire archivistique sur papier sans acide, fabriquée en Allemagne.' },
+          madeToOrder: { title: 'Fabriqué à la commande', sub: 'Chaque poster est produit pour vous et numéroté à l’atelier.' },
+        },
+      },
       world: {
         eyebrow: 'Acheter par univers', title: 'Trouvez votre univers produit', sub: 'Quatre univers curatés — de l’art de thème natal personnalisé aux posters pédagogiques prêts à accrocher.',
         cards: {
@@ -1527,6 +1584,25 @@ export const translations: Record<Lang, Record<string, any>> = {
       }
     ],
     home: {
+      newArrivals: { eyebrow: 'Nuevo en el atelier', title: 'Novedades', more: 'Ver todo' },
+      campaign: {
+        eyebrow: 'Destacado', title: 'Ediciones y campañas',
+        items: {
+          fireHorse: { title: 'Caballo de Fuego 2026', sub: 'La edición anual numerada — una pieza de colección, lista para colgar.', cta: 'Ver la edición' },
+          compatibility: { title: 'Parejas y compatibilidad', sub: 'Dos cartas natales en una obra simbólica, inspirada en vuestros datos de nacimiento.', cta: 'Explorar' },
+          analysis: { title: 'Análisis BaZi digital', sub: 'Una lectura PDF de 10–15 páginas, capturada de tus datos — individual o en paquete.', cta: 'Saber más' },
+          sets: { title: 'Sets de pósters', sub: 'Sets curados a buen precio para consulta, estudio y hogar.', cta: 'Ver sets' },
+        },
+      },
+      trust: {
+        title: 'Hecho con cuidado, entregado con confianza',
+        items: {
+          secure: { title: 'Pago seguro', sub: 'Pago cifrado con PayPal, Apple Pay y Google Pay.' },
+          shipping: { title: 'Envío climáticamente neutro', sub: 'Envío mundial — gratis desde {amount}.' },
+          quality: { title: 'Calidad de museo', sub: 'Impresión de pigmento de archivo en papel libre de ácido, hecha en Alemania.' },
+          madeToOrder: { title: 'Hecho por encargo', sub: 'Cada póster se produce para ti y se numera en el atelier.' },
+        },
+      },
       world: {
         eyebrow: 'Compra por mundo',
         title: 'Encuentra tu mundo de producto',

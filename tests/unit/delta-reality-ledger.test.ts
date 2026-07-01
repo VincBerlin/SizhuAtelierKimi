@@ -99,14 +99,14 @@ describe('REQ-020 / AT-020-3 — every delta requirement has runnable evidence',
   // (BLK-CHROMIUM). A REQ with no runnable test would instead carry a named blocker
   // string; none is needed — every delta REQ has at least one runnable test.
   const REQ_EVIDENCE: Record<string, string> = {
-    'REQ-001': 'tests/unit/above-fold-reorder.test.tsx', // hero stays module-02 DOM-index-0 (AT-002-3)
-    'REQ-002': 'tests/unit/above-fold-reorder.test.tsx', // above-fold re-order (value-risk, merge-gate held)
+    'REQ-001': 'tests/unit/exact-home-sequence.test.tsx', // hero stays FIRST + lazy InkWave intact (M11 supersedes above-fold-reorder)
+    'REQ-002': 'tests/unit/exact-home-sequence.test.tsx', // homepage sequence (M11 full target order supersedes the delta above-fold reorder)
     'REQ-003': 'tests/unit/delta-primary-nav.test.tsx',
     'REQ-004': 'tests/unit/delta-mega-menu-tiles.test.tsx',
     'REQ-005': 'tests/unit/delta-collection-template-inventory.test.tsx',
     'REQ-006': 'tests/unit/delta-tcm-wuxing-worlds.test.ts',
     'REQ-007': 'tests/unit/legal-localization-render.test.tsx',
-    'REQ-008': 'tests/unit/home-module-order.test.tsx',
+    'REQ-008': 'tests/unit/exact-home-sequence.test.tsx',
     'REQ-009': 'tests/unit/mega-menu.test.tsx',
     'REQ-010': 'tests/unit/collections-routes.test.tsx',
     'REQ-011': 'tests/unit/inspiration-page.test.tsx',

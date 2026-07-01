@@ -6,23 +6,21 @@ import { track, EVENTS } from '../lib/analytics'
 // Three.js hero is split into its own chunk and streamed in after the hero
 // text paints — keeps Three.js (~150KB gzip) off the critical path.
 const InkWave = lazy(() => import('../components/InkWave'))
-import PathToPoster from '../components/shop/PathToPoster'
 import CatalogSection from '../components/shop/CatalogSection'
 import NewsletterSection from '../components/shop/NewsletterSection'
-import WissenSection from '../components/shop/WissenSection'
 import HowItWorksSection from '../components/shop/HowItWorksSection'
 import ShopByWorldSection from '../components/shop/ShopByWorldSection'
-import FeaturedCollectionSection from '../components/shop/FeaturedCollectionSection'
-import CompatibilitySection from '../components/shop/CompatibilitySection'
-import AnalysisPdfsSection from '../components/shop/AnalysisPdfsSection'
 import InspirationTeaserSection from '../components/shop/InspirationTeaserSection'
 import SeoTextSection from '../components/shop/SeoTextSection'
+import NewArrivalsSection from '../components/shop/NewArrivalsSection'
+import CampaignBannerRow from '../components/shop/CampaignBannerRow'
+import TrustSection from '../components/shop/TrustSection'
 
 /**
- * Stable, machine-checkable module anchor for the V2 homepage order (REQ-008).
- * Wraps each section with a `data-module="NN"` + `data-testid="home-module-NN"`
- * so the DOM order is verifiable through the real App.tsx (acceptance-design
- * AT-008-1) without coupling each reusable section component to its position.
+ * Stable, machine-checkable module anchor for the homepage target sequence
+ * (M11 / REQ-014). Wraps each section with a `data-module="<id>"` +
+ * `data-testid="home-module-<id>"` so the DOM order is verifiable through the
+ * real App.tsx without coupling each reusable section component to its position.
  */
 function ModuleAnchor({ id, children }: { id: string; children: ReactNode }) {
   return (
@@ -152,41 +150,34 @@ export default function Home() {
     window.scrollTo(0, 0)
   }, [])
 
-  // V2 homepage modules (REQ-008 AK-1). Module 01 (Utility Bar) lives in the App
-  // shell (AnnouncementBar). Module 13 (Newsletter + Footer): the SiteFooter is
-  // rendered globally by AppShell, so module 13 carries the Newsletter here. Hero
-  // stays module 02 — FIRST, DOM-index-0 — and is untouched (NFR-1 / REQ-001):
-  // the lazy InkWave chunk + Suspense boundary above is byte-equivalent.
+  // M11 / REQ-014 — FULL homepage target sequence. This SUPERSEDES the delta
+  // above-fold-only reorder + unchanged below-fold V2 chain (STOP-003): the old
+  // data-band split and the 05→13 module numbers are removed. The new order is a
+  // shopper funnel with semantic anchors:
+  //   hero → bestseller → category-banners → editorial → new-arrivals →
+  //   campaign-row → inspiration → seo → trust → newsletter (→ global footer).
+  // Changes vs the old chain: New Arrivals is now a SEPARATE slider (REQ-018);
+  // Fire Horse / Compatibility / Digital Analysis / Poster Sets are unified into
+  // one visual CampaignBannerRow (REQ-019, no more isolated text-bands); Trust is
+  // a STANDALONE band (REQ-022, honest service badges only); the standalone Blog
+  // (Wissen) + duplicate process (PathToPoster) blocks are removed from the
+  // purchase path (REQ-017/020 — still reachable via routes/footer). Hero stays
+  // FIRST and untouched (REQ-003 / VIS-032): the lazy InkWave chunk is unchanged.
   //
-  // REQ-002 / T-702 — ABOVE-FOLD re-order (identity-preserving): the above-fold
-  // band is now [Hero → Bestseller slider (04) → Kategorie-Banner (03)]. The
-  // data-module NUMBERS are STABLE IDENTITIES referenced elsewhere (04 = the
-  // bestseller carousel, 03 = shop-by-world), so they are NOT renumbered — only
-  // the DOM order changes: anchor 04 renders BEFORE anchor 03. The lower band
-  // 05→13 keeps the V2 order (no 13-module resequence — that is deferred). The
-  // `data-band` markers make the two bands machine-checkable (AT-002-1/2).
-  //
-  // NOTE: REQ-002 stays value-risk / merge-gate-held — the real-browser
-  // Playwright order/LCP specs are UNRUN here (BLK-CHROMIUM) and RL-EVENT reads
-  // no real data. Nothing here marks REQ-002 aligned/done.
+  // NOTE: real-browser order/LCP + mobile evidence stay Playwright-only
+  // (RL-CHROMIUM); RL-EVENT reads no real data. Nothing here is production-claimed.
   return (
-    <main>
-      <div data-band="above-fold">
-        <ModuleAnchor id="02"><HeroSection /></ModuleAnchor>
-        <ModuleAnchor id="04"><CatalogSection /></ModuleAnchor>
-        <ModuleAnchor id="03"><ShopByWorldSection /></ModuleAnchor>
-      </div>
-      <div data-band="below-fold">
-        <ModuleAnchor id="05"><HowItWorksSection /></ModuleAnchor>
-        <ModuleAnchor id="06"><FeaturedCollectionSection /></ModuleAnchor>
-        <ModuleAnchor id="07"><CompatibilitySection /></ModuleAnchor>
-        <ModuleAnchor id="08"><AnalysisPdfsSection /></ModuleAnchor>
-        <ModuleAnchor id="09"><InspirationTeaserSection /></ModuleAnchor>
-        <ModuleAnchor id="10"><WissenSection /></ModuleAnchor>
-        <ModuleAnchor id="11"><PathToPoster /></ModuleAnchor>
-        <ModuleAnchor id="12"><SeoTextSection /></ModuleAnchor>
-        <ModuleAnchor id="13"><NewsletterSection /></ModuleAnchor>
-      </div>
+    <main data-testid="home">
+      <ModuleAnchor id="hero"><HeroSection /></ModuleAnchor>
+      <ModuleAnchor id="bestseller"><CatalogSection /></ModuleAnchor>
+      <ModuleAnchor id="category-banners"><ShopByWorldSection /></ModuleAnchor>
+      <ModuleAnchor id="editorial"><HowItWorksSection /></ModuleAnchor>
+      <ModuleAnchor id="new-arrivals"><NewArrivalsSection /></ModuleAnchor>
+      <ModuleAnchor id="campaign-row"><CampaignBannerRow /></ModuleAnchor>
+      <ModuleAnchor id="inspiration"><InspirationTeaserSection /></ModuleAnchor>
+      <ModuleAnchor id="seo"><SeoTextSection /></ModuleAnchor>
+      <ModuleAnchor id="trust"><TrustSection /></ModuleAnchor>
+      <ModuleAnchor id="newsletter"><NewsletterSection /></ModuleAnchor>
     </main>
   )
 }

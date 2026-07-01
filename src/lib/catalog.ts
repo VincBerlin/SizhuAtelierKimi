@@ -157,6 +157,13 @@ export const products: Product[] = [
 // carousel has something to discover (personalizable + ready-to-ship mix).
 export const featuredIds = [1, 7, 8, 11, 3, 2]
 
+// M11 / REQ-018 — "New Arrivals" is a SEPARATE home slider (not merged into
+// Bestseller). Curated from REAL catalog ids — the most recently added SKUs
+// (the TCM educational line 11–14 + the Fire Horse 2026 annual edition), a set
+// deliberately distinct from featuredIds. No invented inventory; honest framing
+// (recently added, not a fake "just dropped" claim).
+export const newArrivalsIds = [11, 12, 13, 14, 8]
+
 export const categories = ['Alle', 'TCM', 'Praxen', 'Wellness', 'Yoga']
 
 // Digital product (PDF) — standalone, not a poster; surfaced on /digital and

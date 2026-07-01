@@ -12,18 +12,17 @@
  * the hero FIRST, the hero stays code-split, reduced-motion renders a static
  * fallback, and there is no Saju/Junishi in the rendered DOM.
  *
- * REQ-002 / T-702 — the ABOVE-FOLD band is re-ordered to
- * [Hero(02) → Bestseller slider(04) → Kategorie-Banner(03)]; the data-module
- * numbers stay stable identities (only the DOM order changes). The lower band
- * 05→13 keeps the V2 order. REQ-002 stays value-risk / merge-gate-held — this
- * real-browser proof is UNRUN here (BLK-CHROMIUM) and RL-EVENT reads no real
- * event data, so nothing marks REQ-002 aligned/done.
+ * M11 / REQ-014 — the homepage renders the FULL target sequence with semantic
+ * anchors (hero → bestseller → category-banners → editorial → new-arrivals →
+ * campaign-row → inspiration → seo → trust → newsletter); the old delta 02..13
+ * numbering + data-band split are removed (STOP-003). This real-browser proof is
+ * UNRUN here (BLK-CHROMIUM); nothing marks the sequence production-verified.
  *
  * STATUS: PLANNED — NOT EXECUTED in this sandbox. Playwright's chromium build is
  * missing here, so `npx playwright test` cannot run this spec; it is authored to
  * the real contract so it runs once a browser lands. `npm test` (Vitest) does NOT
  * execute it (excluded via the jsdom/node projects). The runnable green evidence
- * now is the jsdom render test (tests/unit/home-module-order.test.tsx), which
+ * now is the jsdom render test (tests/unit/exact-home-sequence.test.tsx), which
  * mounts the same real `App.tsx` through MemoryRouter.
  *
  * LCP NOTE (BLK-MEASURE-LCP / OQ-008): there is NO absolute LCP threshold defined.
@@ -35,19 +34,17 @@
  */
 import { test, expect } from '@playwright/test'
 
-// Module 01 (Utility Bar) is global App-shell chrome; modules 02–13 are the
-// homepage <main> sections in order. REQ-002 / T-702 re-orders the above-fold
-// band to [Hero(02) → Bestseller(04) → Kategorie-Banner(03)]; the lower band
-// 05→13 keeps the V2 order. Identity-preserving: numbers are stable, only the
-// DOM order changes.
+// M11 — the homepage <main> renders the FULL target sequence with semantic
+// anchors (supersedes the delta 02..13 numbering + data-band split).
 const EXPECTED_MODULES = [
-  '02', '04', '03', '05', '06', '07', '08', '09', '10', '11', '12', '13',
+  'hero', 'bestseller', 'category-banners', 'editorial', 'new-arrivals',
+  'campaign-row', 'inspiration', 'seo', 'trust', 'newsletter',
 ]
 
-test.describe('REQ-008 / AT-008-1 (+ REQ-002 above-fold re-order) — homepage modules in exact DOM order', () => {
-  test('every module anchor 02..13 is present in the exact sequence (above-fold 02→04→03)', async ({ page }) => {
+test.describe('M11 / REQ-014 — homepage modules in exact target order', () => {
+  test('the homepage renders the full target sequence', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByTestId('home-module-02')).toBeVisible()
+    await expect(page.getByTestId('home-module-hero')).toBeVisible()
 
     const order = await page.$$eval('main [data-module]', (nodes) =>
       nodes.map((n) => n.getAttribute('data-module')),
@@ -55,55 +52,49 @@ test.describe('REQ-008 / AT-008-1 (+ REQ-002 above-fold re-order) — homepage m
     expect(order).toEqual(EXPECTED_MODULES)
   })
 
-  // REQ-002 / AT-002-1 — the above-fold band renders exactly
-  // [Hero(02), Bestseller(04), Kategorie-Banner(03)] in that DOM order.
-  test('the above-fold band is [Hero(02) → Bestseller(04) → Kategorie-Banner(03)]', async ({ page }) => {
+  // STOP-003 — the old below-fold V2 chain must be gone.
+  test('no data-band split and no numeric 05..13 module anchors remain', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByTestId('home-module-02')).toBeVisible()
-    const aboveFold = await page.$$eval('[data-band="above-fold"] [data-module]', (nodes) =>
-      nodes.map((n) => n.getAttribute('data-module')),
-    )
-    expect(aboveFold).toEqual(['02', '04', '03'])
-  })
-
-  // REQ-002 / AT-002-2 — the lower band keeps the V2 order (no full resequence).
-  test('the below-fold band keeps the V2 order 05→13', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.getByTestId('home-module-05')).toBeVisible()
-    const belowFold = await page.$$eval('[data-band="below-fold"] [data-module]', (nodes) =>
-      nodes.map((n) => n.getAttribute('data-module')),
-    )
-    expect(belowFold).toEqual(['05', '06', '07', '08', '09', '10', '11', '12', '13'])
+    await expect(page.getByTestId('home-module-hero')).toBeVisible()
+    expect(await page.locator('main [data-band]').count()).toBe(0)
+    for (const n of ['05', '06', '07', '08', '09', '10', '11', '12', '13'])
+      expect(await page.locator(`[data-module="${n}"]`).count(), `old module ${n} gone`).toBe(0)
   })
 
   test('the new modules link to the real production routes', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByTestId('home-module-03')).toBeVisible()
+    await expect(page.getByTestId('home-module-category-banners')).toBeVisible()
 
     const hrefsIn = async (testId: string) =>
       page.getByTestId(testId).locator('a').evaluateAll((as) =>
         as.map((a) => a.getAttribute('href') ?? ''),
       )
 
-    expect(await hrefsIn('home-module-03')).toEqual(
+    expect(await hrefsIn('home-module-category-banners')).toEqual(
       expect.arrayContaining([
         '/collections/bazi-posters',
         '/collections/tcm-posters',
         '/collections/wuxing-posters',
       ]),
     )
-    expect(await hrefsIn('home-module-06')).toContain('/collections/fire-horse-2026')
-    expect(await hrefsIn('home-module-07')).toContain('/collections/compatibility-posters')
-    expect(await hrefsIn('home-module-08')).toContain('/collections/analysis-pdfs')
-    // AT-011-4 coupling: module 09 links to /inspiration.
-    expect(await hrefsIn('home-module-09')).toContain('/inspiration')
+    // REQ-019 — the unified campaign row carries the four real campaign links.
+    expect(await hrefsIn('home-module-campaign-row')).toEqual(
+      expect.arrayContaining([
+        '/collections/fire-horse-2026',
+        '/collections/compatibility-posters',
+        '/collections/analysis-pdfs',
+        '/collections/bundles',
+      ]),
+    )
+    // AT-011-4 coupling: inspiration links to /inspiration.
+    expect(await hrefsIn('home-module-inspiration')).toContain('/inspiration')
   })
 })
 
 test.describe('REQ-012 / AT-012-1 — module 12 SEO block renders with H2 + internal links', () => {
   test('module 12 has ≥2 H2 sub-headings, links to collections, and carries NO /blog buy-path link (REQ-019 / T-306)', async ({ page }) => {
     await page.goto('/')
-    const seo = page.getByTestId('home-module-12')
+    const seo = page.getByTestId('home-module-seo')
     await expect(seo).toBeVisible()
     expect(await seo.locator('h2').count()).toBeGreaterThanOrEqual(2)
     const hrefs = await seo.locator('a').evaluateAll((as) =>
@@ -124,14 +115,14 @@ test.describe('REQ-012 / AT-012-1 — module 12 SEO block renders with H2 + inte
 })
 
 test.describe('REQ-008 / AT-008-2 — hero (InkWave) is module 02, FIRST, lazy split intact', () => {
-  test('the hero is the first homepage module (02) and carries the H1', async ({ page }) => {
+  test('the hero is the first homepage module and carries the H1', async ({ page }) => {
     await page.goto('/')
     const order = await page.$$eval('main [data-module]', (nodes) =>
       nodes.map((n) => n.getAttribute('data-module')),
     )
-    expect(order[0]).toBe('02')
+    expect(order[0]).toBe('hero')
 
-    const hero = page.getByTestId('home-module-02')
+    const hero = page.getByTestId('home-module-hero')
     await expect(hero.locator('h1')).toHaveCount(1)
     await expect(hero.locator('h1')).not.toBeEmpty()
   })
@@ -144,7 +135,7 @@ test.describe('REQ-008 / AT-008-2 — hero (InkWave) is module 02, FIRST, lazy s
       if (/InkWave.*\.js/.test(req.url())) inkWaveChunkRequested.push(req.url())
     })
     await page.goto('/')
-    await expect(page.getByTestId('home-module-02')).toBeVisible()
+    await expect(page.getByTestId('home-module-hero')).toBeVisible()
     // give the deferred chunk a moment to be requested after first paint
     await page.waitForTimeout(1500)
     expect(inkWaveChunkRequested.length).toBeGreaterThanOrEqual(1)
@@ -155,7 +146,7 @@ test.describe('REQ-008 / AT-008-2 — hero (InkWave) is module 02, FIRST, lazy s
     const ctx = await browser.newContext({ reducedMotion: 'reduce' })
     const page = await ctx.newPage()
     await page.goto('/')
-    const hero = page.getByTestId('home-module-02')
+    const hero = page.getByTestId('home-module-hero')
     await expect(hero).toBeVisible()
     // The hero text + H1 still render; the InkWave canvas honours reduced-motion
     // (static frame) per the InkWave component (commits 0133437 / 0f8995c).

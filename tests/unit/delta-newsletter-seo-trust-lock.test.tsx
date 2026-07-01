@@ -3,7 +3,7 @@
  * Home trust-regression LOCK (REQ-010).
  *
  * Source contract (FROZEN): docs/tests/desenio-acceptance-design.md
- *   AT-019-1  SEO block (home-module-12 / SeoTextSection) contains NO /blog links
+ *   AT-019-1  SEO block (home-module-seo / SeoTextSection) contains NO /blog links
  *             directly under the offer summaries (the buy-path band).
  *   AT-019-2  Blog links appear only in the Inspiration / Footer context, never in
  *             the offer-summary buy-path band.
@@ -43,9 +43,12 @@ const BLOG_HREF_RE = /^\/blog(?:\/|$)/
 // the way to a purchase. A /blog link directly under these is the exact "störende
 // Bloglink unter Angebotszusammenfassungen" REQ-019 removes. Module 09 is the
 // Inspiration teaser (allowed inspiration context) and is intentionally excluded.
-const OFFER_SUMMARY_MODULES = ['03', '04', '05', '06', '07', '08', '10', '11', '12'] as const
-// The SEO block carries the offer summaries (per-world sections) at module 12.
-const SEO_MODULE = 'home-module-12'
+// M11 — the buy-path bands a shopper scrolls through (hero, inspiration and
+// newsletter intentionally excluded — inspiration is the allowed blog/inspiration
+// context). Semantic anchors replace the delta 03..12 numbering.
+const OFFER_SUMMARY_MODULES = ['category-banners', 'bestseller', 'editorial', 'new-arrivals', 'campaign-row', 'seo', 'trust'] as const
+// The SEO block carries the offer summaries (per-world sections).
+const SEO_MODULE = 'home-module-seo'
 
 // ── shared scan helpers (mirror truthful-claims.test.ts / home-seo-block) ─────
 
@@ -76,7 +79,7 @@ function renderHome() {
 
 /** Resolve once the lazy Home chunk has mounted its module anchors. */
 async function findHomeMain() {
-  await screen.findByTestId('home-module-12', undefined, { timeout: 15000 })
+  await screen.findByTestId('home-module-seo', undefined, { timeout: 15000 })
   return document.querySelector('main') as HTMLElement
 }
 
@@ -132,7 +135,7 @@ describe('REQ-019 / AT-019-2 — blog links only in Inspiration/Footer context',
     renderHome()
     await findHomeMain()
     await waitFor(() => {
-      const insp = screen.getByTestId('home-module-09')
+      const insp = screen.getByTestId('home-module-inspiration')
       const hrefs = within(insp)
         .getAllByRole('link')
         .map((a) => a.getAttribute('href') ?? '')
@@ -216,7 +219,7 @@ describe('REQ-010 / AT-010-2 — Home <main> renders no coming-soon/patron/credi
     await waitFor(() => {
       const main = document.querySelector('main') as HTMLElement
       // the lower band must be settled — the newsletter (module 13) is mounted
-      expect(within(main).getByTestId('home-module-13')).toBeInTheDocument()
+      expect(within(main).getByTestId('home-module-newsletter')).toBeInTheDocument()
       const html = main.innerHTML
       const text = main.textContent ?? ''
 

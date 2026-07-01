@@ -53,7 +53,7 @@ describe('precondition — the fake sink starts empty + is fake-only (RL-EVENT R
 describe('REQ-002 / AT-002-5 — the 5 funnel events fire through the fake sink (instrumentation only)', () => {
   it('1. hero CTA click emits hero_cta_click', async () => {
     renderAt('/')
-    const hero = await screen.findByTestId('home-module-02', undefined, { timeout: 15000 })
+    const hero = await screen.findByTestId('home-module-hero', undefined, { timeout: 15000 })
     let cta!: HTMLElement
     await waitFor(() => {
       cta = within(hero)
@@ -68,7 +68,7 @@ describe('REQ-002 / AT-002-5 — the 5 funnel events fire through the fake sink 
 
   it('2. bestseller-slider card click emits bestseller_product_click', async () => {
     renderAt('/')
-    const slider = await screen.findByTestId('home-module-04', undefined, { timeout: 15000 })
+    const slider = await screen.findByTestId('home-module-bestseller', undefined, { timeout: 15000 })
     let card!: HTMLElement
     await waitFor(() => {
       // The bestseller cards expose the CTA link via data-testid="card-cta"; the
@@ -83,7 +83,7 @@ describe('REQ-002 / AT-002-5 — the 5 funnel events fire through the fake sink 
 
   it('3. category-banner card click emits category_banner_click', async () => {
     renderAt('/')
-    const banner = await screen.findByTestId('home-module-03', undefined, { timeout: 15000 })
+    const banner = await screen.findByTestId('home-module-category-banners', undefined, { timeout: 15000 })
     let card!: HTMLElement
     await waitFor(() => {
       card = within(banner)

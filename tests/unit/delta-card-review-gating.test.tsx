@@ -110,7 +110,7 @@ describe('REQ-008 / AT-008-4 — Home carousel cards show no fake social proof',
     // CatalogSection (module 04) feeds ProductCarousel from featuredIds, which
     // include non-zero-placeholder-review BaZi SKUs.
     await renderRoute('/', () =>
-      screen.findByTestId('home-module-04', undefined, { timeout: 15000 }),
+      screen.findByTestId('home-module-bestseller', undefined, { timeout: 15000 }),
     )
     // The module-04 anchor can exist a commit before its carousel cards have
     // painted, so wait until ≥1 product link is rendered inside it (re-querying
@@ -119,7 +119,7 @@ describe('REQ-008 / AT-008-4 — Home carousel cards show no fake social proof',
     // one — the gate assertion below is unchanged.
     let carousel!: HTMLElement
     await waitFor(() => {
-      carousel = screen.getByTestId('home-module-04')
+      carousel = screen.getByTestId('home-module-bestseller')
       expect(
         within(carousel).getAllByRole('link').length,
         'home carousel has rendered its cards',

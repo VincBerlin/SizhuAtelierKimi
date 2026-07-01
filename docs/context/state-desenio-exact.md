@@ -13,8 +13,8 @@ Mode: `/agileteam` Plumbline, ultracode. Per-milestone: build → independent re
 | M | Name | Build | Review | QA | Watcher | User commit | Notes |
 |---|---|---|---|---|---|---|---|
 | M9 | Supersession & Taxonomy | done | ✅ pass | ✅ 228/0 esbuild + tsc | ✅ scope 12 | ✅ committed 2f1acb8 | `src/lib/taxonomy.ts` + gate test + doc supersession + scope.json + gap-closure |
-| M10 | Nav & Mega-Menu Matrix | done | pending | ✅ tsc 0 + smoke 38/0 | pending | pending | Navbar renders taxonomy matrix (desktop + mobile mirror); i18n×4; migrated old delta/e2e nav tests; new exact-nav-matrix test |
-| M11 | Homepage Full Sequence | — | — | — | — | — | replaces below-fold V2 chain |
+| M10 | Nav & Mega-Menu Matrix | done | ✅ pass | ✅ tsc 0 + smoke 38/0 | ✅ scope 10 | ✅ committed 28de8ac | Navbar taxonomy matrix desktop+mobile mirror; i18n×4; migrated nav tests |
+| M11 | Homepage Full Sequence | done | pending | ✅ tsc 0 + home smoke 18/0 | pending | pending | Home restructured to target order; new CampaignBannerRow/NewArrivals/Trust; old V2 chain removed (STOP-003); i18n×4; deleted 2 superseded order tests, migrated 6 coupled tests + e2e |
 | M12 | Collection Template & Filters | — | — | — | — | — | filter matrix incl. size |
 | M13 | PDP Size/Commerce | — | — | — | — | — | size selector on all PDPs |
 | M14 | Mobile Commerce Repair | — | — | — | — | — | 360/390/430 evidence (RL-CHROMIUM) |

@@ -30,8 +30,8 @@ function renderHome() {
 
 async function findSeoBlock() {
   // The SEO block lives in module 12; wait for the lazy Home chunk to resolve.
-  await screen.findByTestId('home-module-12', undefined, { timeout: 15000 })
-  return screen.getByTestId('home-module-12')
+  await screen.findByTestId('home-module-seo', undefined, { timeout: 15000 })
+  return screen.getByTestId('home-module-seo')
 }
 
 beforeEach(() => {

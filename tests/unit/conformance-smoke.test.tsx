@@ -8,8 +8,8 @@
  *  (2) Negative Saju/Junishi — no route renders a recognised page for them,
  *      and the shipped data structures (catalog + i18n + collections config)
  *      contain no Saju/Junishi tokens.
- *  (3) Homepage data-module 02..13 are all present + in order (a thinner
- *      duplicate of the home-module-order test, kept here as a smoke).
+ *  (3) Homepage data-module target sequence is present + in order (a thinner
+ *      duplicate of the exact-home-sequence test, kept here as a smoke).
  *
  * What is honestly NOT claimed here (and must NOT be silently green):
  *  - Mobile breakpoints 360/390/430, no-horizontal-scroll, sticky CTA, real
@@ -125,22 +125,19 @@ describe('REQ-017 / AT-017-4 — negative Saju/Junishi (must not appear)', () =>
   })
 })
 
-describe('REQ-008 / AT-017-2 (+ REQ-002 above-fold re-order) — homepage data-module anchors present in order (smoke)', () => {
-  it('home renders modules 02..13 in DOM order with hero (02) first, above-fold band re-ordered to 04→03', async () => {
+describe('M11 / REQ-014 / AT-017-2 — homepage data-module anchors present in target order (smoke)', () => {
+  it('home renders the full target sequence with hero first', async () => {
     renderAt('/')
     await waitFor(
       () => {
         const anchors = Array.from(
           document.querySelectorAll<HTMLElement>('[data-module]'),
         ).map((el) => el.dataset.module)
-        expect(anchors.length).toBeGreaterThanOrEqual(12)
-        // REQ-002 / T-702: above-fold band is [Hero(02) → Bestseller(04) →
-        // Kategorie-Banner(03)]; lower band 05→13 keeps the V2 order. Same
-        // exact-order strength, new value.
-        const expected = ['02', '04', '03', '05', '06', '07', '08', '09', '10', '11', '12', '13']
-        // Filter to the V2 set in case the App shell adds an unrelated 01 anchor.
-        const v2 = anchors.filter((m) => m && expected.includes(m))
-        expect(v2).toEqual(expected)
+        expect(anchors.length).toBeGreaterThanOrEqual(10)
+        // M11 supersedes the delta 02..13 numbering with the semantic target order.
+        const expected = ['hero', 'bestseller', 'category-banners', 'editorial', 'new-arrivals', 'campaign-row', 'inspiration', 'seo', 'trust', 'newsletter']
+        const seq = anchors.filter((m) => m && expected.includes(m))
+        expect(seq).toEqual(expected)
       },
       { timeout: 15000 },
     )
