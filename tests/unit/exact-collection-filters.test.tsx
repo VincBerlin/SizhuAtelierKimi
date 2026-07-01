@@ -35,7 +35,7 @@ describe('M12 / REQ-026 — collection filter matrix renders the facet rows', ()
     renderCollection('bundles')
     await page()
     await waitFor(() => expect(screen.getByTestId('collection-filters')).toBeInTheDocument())
-    for (const row of ['collection-filter-style', 'collection-filter-room', 'collection-filter-size', 'collection-filter-price'])
+    for (const row of ['collection-filter-style', 'collection-filter-room', 'collection-filter-price'])
       expect(screen.getByTestId(row), row).toBeInTheDocument()
     expect(screen.getAllByTestId('collection-facet').length).toBeGreaterThanOrEqual(6)
   })
@@ -47,14 +47,10 @@ describe('M12 / REQ-026 — collection filter matrix renders the facet rows', ()
     expect(screen.getByTestId('collection-sort')).toBeInTheDocument()
   })
 
-  it('flags the size axis as NON-FINAL (OQ-001)', async () => {
-    renderCollection('bundles')
+  it('does NOT expose a size facet — size is uniform across posters (M13 reconciliation; nav + PDP only)', async () => {
+    renderCollection('tcm-posters') // all ready-to-ship — every one ships in every size
     await page()
-    expect(screen.getByTestId('collection-filter-size')).toHaveAttribute('data-nonfinal', 'true')
-    // every size chip carries the non-final marker
-    const sizeRow = screen.getByTestId('collection-filter-size')
-    for (const chip of within(sizeRow).getAllByTestId('collection-facet'))
-      expect(chip).toHaveAttribute('data-nonfinal', 'true')
+    expect(screen.queryByTestId('collection-filter-size')).toBeNull()
   })
 })
 
@@ -78,30 +74,6 @@ describe('M12 / REQ-026 — a facet click narrows the grid (real filtering)', ()
     // reset restores the full set
     fireEvent.click(screen.getByTestId('collection-filter-reset'))
     await waitFor(() => expect(cardCount()).toBe(before))
-  })
-
-  it('the non-final size filter narrows to personalizable posters (drops the ready-to-ship Wuxing)', async () => {
-    renderCollection('bundles') // productIds [1,2,5,3,4,7] — #7 Wuxing is non-personalizable
-    await page()
-    const ids = () => screen.getAllByTestId('collection-product-card').map((c) => c.getAttribute('data-product-id'))
-    const revealAll = async () => {
-      const btn = within(screen.getByTestId('collection-pagination')).queryByRole('button')
-      if (btn) fireEvent.click(btn)
-    }
-    // reveal the full set first and confirm the ready-to-ship Wuxing (#7) is shown
-    await waitFor(() => expect(screen.getByTestId('collection-pagination')).toBeInTheDocument())
-    await revealAll()
-    await waitFor(() => expect(ids(), 'the ready-to-ship Wuxing is visible before filtering').toContain('7'))
-
-    // apply the non-final size filter, then reveal the FULL filtered set so the
-    // assertion proves the FILTER (not pagination) dropped #7
-    fireEvent.click(within(screen.getByTestId('collection-filter-size')).getAllByTestId('collection-facet')[0]) // A3
-    await waitFor(() => expect(screen.getByTestId('collection-pagination')).toBeInTheDocument())
-    await revealAll()
-    await waitFor(() => {
-      expect(ids(), 'the ready-to-ship Wuxing (#7) is dropped by the size filter').not.toContain('7')
-      expect(ids(), 'the 5 personalizable posters remain').toEqual(expect.arrayContaining(['1', '2', '5', '3', '4']))
-    })
   })
 
   it('a zero-match filter shows an honest empty state, not the full unfiltered set', async () => {

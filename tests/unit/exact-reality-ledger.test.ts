@@ -31,7 +31,7 @@ const gapReport = readFileSync(new URL('../../docs/reality/sizhuatelier-desenio-
 
 describe('M15 / REQ-036 — Gap-Closure Report names the RED carries + claims NO completion', () => {
   it('names every standing RED carry', () => {
-    for (const carry of ['OQ-001', 'OQ-002', 'OQ-003', 'OQ-004', 'OQ-005', 'OQ-006', 'RL-STRIPE', 'RL-BAZI', 'RL-CHROMIUM'])
+    for (const carry of ['OQ-001', 'OQ-002', 'OQ-003', 'OQ-004', 'OQ-005', 'OQ-006', 'RL-STRIPE', 'RL-BAZI', 'RL-CHROMIUM', 'RL-SOCIAL'])
       expect(gapReport, `RED carry ${carry} must be named`).toContain(carry)
   })
 

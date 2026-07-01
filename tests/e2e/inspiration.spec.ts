@@ -73,7 +73,7 @@ test.describe('REQ-011 / AT-011-3 — placeholder tiles marked, no fake examples
 // Previously left as a commented coupling deferred to the Home/REQ-008 task. The
 // Iteration-3 review (high) flagged that "route-mounted" is NOT "user-reachable":
 // nothing in the production chrome linked to /inspiration. It is now wired via the
-// mega-menu (Featured column) → mobile drawer → and the site footer, so the
+// primary nav (M10) → mobile drawer → and the site footer, so the
 // coupling is verified green, not merely documented. STATUS: PLANNED (real-browser
 // — chromium missing here); the runnable green proof is the jsdom render through
 // the real App.tsx in tests/unit/inspiration-nav-reachability.test.tsx.

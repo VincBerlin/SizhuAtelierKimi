@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { products, filterByWorld, productsByIds, type Product } from '../lib/catalog'
 import { getCollectionConfig, type CollectionConfig } from '../lib/collections'
-import { isPersonalizable } from '../lib/productTypes'
-import { TAXONOMY } from '../lib/taxonomy'
 import ProductCard from '../components/shop/ProductCard'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
 import { useT } from '../i18n/I18nProvider'
@@ -52,10 +50,11 @@ function sortProducts(list: Product[], sort: SortKey): Product[] {
 
 // M12 / REQ-026 — collection filter matrix. Style/room facet VALUES are derived
 // per-collection from the REAL products (never invented); price buckets cover the
-// real catalog range. Size/format is a NON-FINAL axis (OQ-001): there is no
-// per-product size data yet, so a size selection honestly narrows to the
-// personalizable posters (the ones offered in the A3/A2/A1 configurator sizes) —
-// tagged data-nonfinal, never a fake filter.
+// real catalog range. NOTE (M13 reconciliation): size/format is NOT a collection
+// product-facet — every poster ships in every size (server/pricing.js prices any
+// poster id × size), so a size filter would not differentiate products. Size stays
+// a nav path (M10 mega-menu) + PDP selector (M13); REQ-026's size-in-collection is
+// PARTIAL / deferred (OQ-001) until per-product size availability actually differs.
 const PRICE_BUCKETS: { id: string; label: string; test: (p: Product) => boolean }[] = [
   { id: 'lt45', label: 'unter 45 €', test: (p) => p.price < 45 },
   { id: 'mid', label: '45–59 €', test: (p) => p.price >= 45 && p.price < 60 },
@@ -99,20 +98,18 @@ export default function Collection() {
   const [personalizableOnly, setPersonalizableOnly] = useState(false)
   const [styleFilter, setStyleFilter] = useState<string | null>(null)
   const [roomFilter, setRoomFilter] = useState<string | null>(null)
-  const [sizeFilter, setSizeFilter] = useState<string | null>(null) // NON-FINAL (OQ-001)
   const [priceFilter, setPriceFilter] = useState<string | null>(null)
   const [sort, setSort] = useState<SortKey>('featured')
   // How many cards are revealed (pagination / show-more). Reset whenever the
   // collection or any filter changes so the count never carries over stale state.
   const [shownCount, setShownCount] = useState(PAGE_SIZE)
 
-  const anyFilter = personalizableOnly || !!styleFilter || !!roomFilter || !!sizeFilter || !!priceFilter
+  const anyFilter = personalizableOnly || !!styleFilter || !!roomFilter || !!priceFilter
 
   function resetFilters(): void {
     setPersonalizableOnly(false)
     setStyleFilter(null)
     setRoomFilter(null)
-    setSizeFilter(null)
     setPriceFilter(null)
     setShownCount(PAGE_SIZE)
   }
@@ -130,7 +127,6 @@ export default function Collection() {
   // invented). Size uses the canonical taxonomy sizes (non-final, OQ-001).
   const styleFacets = useMemo(() => [...new Set(base.map((p) => p.design_family))], [base])
   const roomFacets = useMemo(() => [...new Set(base.map((p) => p.use_case))], [base])
-  const sizeFacets = TAXONOMY.size
   // Price facets are derived per-collection too — only buckets that actually have
   // a product in THIS collection are offered (never an invariant global list).
   const priceFacets = useMemo(() => PRICE_BUCKETS.filter((b) => base.some(b.test)), [base])
@@ -142,7 +138,6 @@ export default function Collection() {
     if (personalizableOnly) filtered = filtered.filter((p) => p.personalizable !== false)
     if (styleFilter) filtered = filtered.filter((p) => p.design_family === styleFilter)
     if (roomFilter) filtered = filtered.filter((p) => p.use_case === roomFilter)
-    if (sizeFilter) filtered = filtered.filter((p) => isPersonalizable(p))
     if (priceFilter) {
       const bucket = PRICE_BUCKETS.find((b) => b.id === priceFilter)
       if (bucket) filtered = filtered.filter(bucket.test)
@@ -151,10 +146,10 @@ export default function Collection() {
     // (REQ-010 AK-3 — bad slug / empty world). With a user filter active, show the
     // REAL filtered result (which may be empty → an explicit empty state), NEVER
     // silently the full set — a fallback there would defeat the user's filter.
-    const active = personalizableOnly || !!styleFilter || !!roomFilter || !!sizeFilter || !!priceFilter
+    const active = personalizableOnly || !!styleFilter || !!roomFilter || !!priceFilter
     const shown = active ? filtered : base
     return sortProducts(shown, sort)
-  }, [base, personalizableOnly, styleFilter, roomFilter, sizeFilter, priceFilter, sort])
+  }, [base, personalizableOnly, styleFilter, roomFilter, priceFilter, sort])
 
   // The visible slice the grid maps. Count + pagination derive from THIS, so the
   // displayed number can never drift from the rendered cards (AT-009-2).
@@ -230,11 +225,6 @@ export default function Collection() {
               ))}
             </FilterRow>
           )}
-          <FilterRow testid="collection-filter-size" label="Größe / Format" nonFinal>
-            {sizeFacets.map((s) => (
-              <Chip key={s.id} active={sizeFilter === s.id} nonFinal onClick={() => { setSizeFilter(sizeFilter === s.id ? null : s.id); setShownCount(PAGE_SIZE) }}>{t(`taxonomy.size.${s.id}`) || s.label}</Chip>
-            ))}
-          </FilterRow>
           {priceFacets.length > 1 && (
             <FilterRow testid="collection-filter-price" label="Preis">
               {priceFacets.map((b) => (

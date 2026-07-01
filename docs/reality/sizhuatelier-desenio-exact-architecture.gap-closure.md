@@ -34,6 +34,12 @@ claim. No row may be laundered to CLOSED without the named evidence existing.
 - **OQ-005 / RL-CHROMIUM** real-browser + mobile 360/390/430 screenshot evidence (needs a machine where vite/chromium run; the sandbox does not boot vite).
 - **OQ-006** (NEW, M9) no backing product for **REQ-010 "Meridian/Organ Clock"** (style) or **REQ-012 "TCM Organ Clock"** (campaign). These MUST sub-requirements are **DEFERRED, not dropped**: they are omitted from `src/lib/taxonomy.ts` rather than fabricated (STOP-001/RISK-002). **REQ-010 and REQ-012 are therefore PARTIAL** — all other styles/campaigns delivered; organ-clock/meridian OPEN pending an **operator decision**: create a real Organ-Clock/Meridian product/collection, or amend the spec to drop it. A future organ/meridian taxonomy entry MUST be `nonFinal`+OQ-006 (test-guarded), never faked launch-final.
 - Carried from delta: **RL-STRIPE** (integration-fake), **RL-BAZI** (placeholder chart, `bazi.ts` protected).
+- **RL-SOCIAL** (NEW, M15) no real social accounts → the footer honestly OMITS a social area (NG-004, no fake handles); **REQ-024 social = PARTIAL** until real accounts are supplied.
+
+## Whole-build re-gate reconciliations (2026-07-01 — honest PARTIALs)
+An independent re-gate over the full M9→M15 diff surfaced two cross-milestone seams; reconciled honestly (no laundering):
+- **REQ-026 size-in-collection = PARTIAL** (M13 reconciliation): the size axis was REMOVED from the collection filter matrix — every poster ships in every size (server/pricing.js prices any poster × size), so a size filter would not differentiate products (and dropped the whole grid on ready-to-ship collections). Size stays a first-class **nav path (M10)** + **PDP selector (M13)**; a per-product size *availability* facet is deferred (OQ-001).
+- **nav→filter deep-link = PARTIAL**: the mega-menu style/room/size facet links resolve to the live `/collections` hub with a query param the hub does not yet consume, so they land unfiltered (no dead links). The in-page collection toolbar (style/room/price) is the functional filter; the nav→pre-filter handoff is disclosed, not wired.
 
 ## Protected surfaces (out of scope unless explicitly added per-milestone)
 `src/components/InkWave.tsx` (Hero, VIS-032 — only mobile-clipping fixes) · `src/lib/bazi.ts` (VIS-033 — read-only; size list is referenced, never mutated).

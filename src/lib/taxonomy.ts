@@ -37,9 +37,12 @@ import { sizes } from './bazi'
 
 // ── Link model ────────────────────────────────────────────────────────────────
 // A taxonomy entry never carries a raw URL; it carries a typed link that
-// `resolveTaxonomyHref` turns into a LIVE path. Filter-kind links resolve to the
-// existing /collections route with a query the M12 toolbar reads — the route is
-// live today, so there are no dead links even before the filter UI ships.
+// `resolveTaxonomyHref` turns into a LIVE path. Filter-kind links (style/room/
+// size) resolve to the live /collections hub with a query param. HONEST STATUS:
+// the hub does NOT yet consume that query, so these facet links land on the
+// unfiltered hub — the nav→pre-filter handoff is a DISCLOSED PARTIAL (the in-page
+// collection toolbar is the functional filter; see the gap-closure report). No
+// dead links: /collections is live.
 export type TaxonomyLink =
   | { readonly kind: 'collection'; readonly slug: CollectionSlug }
   | { readonly kind: 'world'; readonly world: ProductWorld }
@@ -240,9 +243,10 @@ export const MEGA_TILES: readonly MegaTile[] = [
 ]
 
 // ── Href resolver — turns a typed link into a LIVE path (no dead links) ──────────
-// Filter-kind links resolve to the existing /collections route with a query the
-// M12 toolbar reads. /collections is live today, so every resolved href is real
-// even before the filter UI ships.
+// Filter-kind links resolve to the live /collections hub with a query param that
+// the hub does NOT currently consume (DISCLOSED PARTIAL — the nav→pre-filter
+// handoff is not wired; the in-page collection toolbar is the functional filter).
+// Every resolved href is a real, live route.
 export function resolveTaxonomyHref(link: TaxonomyLink): string {
   switch (link.kind) {
     case 'collection':

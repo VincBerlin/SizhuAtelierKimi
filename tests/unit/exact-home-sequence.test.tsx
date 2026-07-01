@@ -7,6 +7,11 @@
  * valid delta invariants (hero FIRST + lazy InkWave perf split intact + no
  * Saju/Junishi + real module-link wiring) under the new structure.
  *
+ * It therefore provides the runnable evidence the delta reality-ledger maps here
+ * for delta REQ-001 (hero stays first / DOM-index-0, lazy InkWave intact),
+ * REQ-002 (the homepage above-fold/order behaviour, now the full target sequence)
+ * and REQ-008 (the homepage module order is machine-checkable in the DOM).
+ *
  * NOTE (sandbox): the jsdom worker pool hangs in the build sandbox, so this runs
  * on the dev machine. The identical order is verified in-sandbox by a
  * renderToStaticMarkup Home smoke (18 assertions green). Real-browser order/LCP
