@@ -6,6 +6,7 @@ export type Lang = 'EN' | 'DE' | 'FR' | 'ES'
 
 export const translations: Record<Lang, Record<string, any>> = {
   EN: {
+    a11y: { skipToContent: 'Skip to content' },
     // M10 — canonical taxonomy matrix labels (nav mega-menu + mobile drawer).
     tax: { world: 'Shop by World', style: 'Theme & Style', room: 'Room & Use', size: 'Size / Format', set: 'Sets & Solutions', campaign: 'Trends & Campaigns' },
     taxonomy: {
@@ -361,6 +362,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   },
 
   DE: {
+    a11y: { skipToContent: 'Zum Inhalt springen' },
     tax: { world: 'Nach Welt', style: 'Thema & Stil', room: 'Raum & Anlass', size: 'Größe / Format', set: 'Sets & Lösungen', campaign: 'Trends & Aktionen' },
     taxonomy: {
       world: { bazi: 'BaZi-Poster', tcm: 'TCM-Poster', wuxing: 'Wuxing', personalized: 'Personalisiert' },
@@ -711,6 +713,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   },
 
   FR: {
+    a11y: { skipToContent: 'Aller au contenu' },
     tax: { world: 'Par univers', style: 'Thème & style', room: 'Pièce & usage', size: 'Taille / Format', set: 'Sets & solutions', campaign: 'Tendances & campagnes' },
     taxonomy: {
       world: { bazi: 'Posters BaZi', tcm: 'Posters MTC', wuxing: 'Wuxing', personalized: 'Personnalisé' },
@@ -1064,6 +1067,7 @@ export const translations: Record<Lang, Record<string, any>> = {
   // is guaranteed (AT-015-1); translation QUALITY is an open value-risk the user
   // reviews (VR-ES-MACHINE-TRANSLATED). Not native-reviewed.
   ES: {
+    a11y: { skipToContent: 'Saltar al contenido' },
     tax: { world: 'Por mundo', style: 'Tema y estilo', room: 'Espacio y uso', size: 'Tamaño / Formato', set: 'Sets y soluciones', campaign: 'Tendencias y campañas' },
     taxonomy: {
       world: { bazi: 'Pósters BaZi', tcm: 'Pósters MTC', wuxing: 'Wuxing', personalized: 'Personalizado' },

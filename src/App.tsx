@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router'
 
 // Route-level code splitting: each page ships as its own chunk and is only
@@ -35,7 +35,7 @@ import ArticleOverlay from './components/shop/ArticleOverlay'
 import Toast from './components/shop/Toast'
 import { ShopStoreProvider } from './store/ShopStore'
 import { AuthProvider } from './store/AuthProvider'
-import { I18nProvider } from './i18n/I18nProvider'
+import { I18nProvider, useT } from './i18n/I18nProvider'
 
 const NAV_HEIGHT = 72
 
@@ -47,15 +47,41 @@ function LegacyProductRedirect() {
 
 function AppShell() {
   const { pathname } = useLocation()
+  const { t } = useT()
+  const mainRef = useRef<HTMLDivElement>(null)
+  const firstRender = useRef(true)
   // Home keeps a full-viewport hero under the transparent fixed chrome;
   // every other route needs clearance below the announcement bar + navbar.
   const isHome = pathname === '/'
 
+  // A11y (M18) — move focus to the main content region on route change so
+  // keyboard / screen-reader users land on the new page instead of being
+  // stranded in the header. Skip the initial mount (no navigation yet).
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    // preventScroll: the page owns scroll position (each page scrolls to top);
+    // we only move the focus ring so it doesn't fight the page reset (no jank).
+    mainRef.current?.focus({ preventScroll: true })
+  }, [pathname])
+
   return (
     <>
+      <a
+        href="#main-content"
+        data-testid="skip-link"
+        onClick={(e) => {
+          // A plain hash anchor only SCROLLS; a skip link must also move keyboard
+          // focus INTO the content region (that is its whole purpose).
+          e.preventDefault()
+          mainRef.current?.focus()
+        }}
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:top-2 focus:left-2 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-black focus:shadow-lg"
+      >
+        {t('a11y.skipToContent')}
+      </a>
       <AnnouncementBar />
       <Navbar />
-      <div style={{ paddingTop: isHome ? 0 : ANNOUNCEMENT_HEIGHT + NAV_HEIGHT }}>
+      <div id="main-content" ref={mainRef} tabIndex={-1} style={{ paddingTop: isHome ? 0 : ANNOUNCEMENT_HEIGHT + NAV_HEIGHT, outline: 'none' }}>
         <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />
