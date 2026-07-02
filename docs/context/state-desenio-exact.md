@@ -27,6 +27,15 @@ vite dev + chromium do NOT boot here; jsdom vitest workers hang under load. Run 
 suite + real-browser evidence on the user's machine. Node-env unit tests (taxonomy) run via
 `node ./node_modules/vitest/vitest.mjs run <file> --environment=node --pool=forks --isolate=false`.
 
+## Build-typecheck gate (corrected 2026-07-02)
+`tsc --noEmit -p tsconfig.json` typechecks ~nothing (tsconfig.json is a references-only solution file).
+The REAL gate is **`tsc -b`** (builds tsconfig.app.json, `noUnusedLocals`). A latent breakage — unused
+value imports in `src/lib/taxonomy.ts` (TS6192/TS6133, comment-only references) — was RED under `tsc -b`
+since ~M9 but missed by the weaker per-milestone check. Fixed 2026-07-02; `tsc -b` now 0 across M9–M16.
+Also: `vite dev`, `vite build` AND the Tailwind CLI all HANG here (esbuild service/worker model); a
+from-source browser preview was produced via single-process esbuild (the mode that works) + reused
+Tailwind CSS, served on :5173 — headless-Chrome DOM confirmed the full app renders.
+
 ## Reality Ledger
 0 production-verified. RED carries: OQ-001 sizes, OQ-002 assets, OQ-003 prices/shipping, OQ-004 reviews,
 OQ-005/RL-CHROMIUM real-browser+mobile evidence, OQ-006 organ-clock/meridian, RL-STRIPE, RL-BAZI, RL-SOCIAL. See

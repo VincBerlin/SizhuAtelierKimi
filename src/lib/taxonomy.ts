@@ -29,9 +29,7 @@
 // those when it rewrites Navbar/Offers.
 // The exact-taxonomy test (tests/unit/exact-taxonomy.test.ts) machine-enforces
 // all of the above so a future edit cannot silently smuggle in fake data.
-import { PRODUCT_WORLDS, DESIGN_FAMILIES } from './catalog'
 import type { ProductWorld, DesignFamily } from './catalog'
-import { COLLECTION_SLUGS } from './collections'
 import type { CollectionSlug } from './collections'
 import { sizes } from './bazi'
 
