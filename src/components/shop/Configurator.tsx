@@ -1,10 +1,9 @@
 import { type CSSProperties, type ReactNode } from 'react'
 import { frames, backgrounds, sizes } from '../../lib/bazi'
-import { useShopStore } from '../../store/ShopStore'
+import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'
-import { euro } from '../../lib/format'
-import { C, FONT_SANS } from '../../lib/tokens'
+import { C, FONT_SANS, POSTER_BG_PALETTE } from '../../lib/tokens'
 
 const inputStyle: CSSProperties = {
   border: `1px solid ${C.borderInput}`,
@@ -29,8 +28,13 @@ function Label({ text, children }: { text: string; children: ReactNode }) {
 }
 
 export default function Configurator() {
-  const { cfg, setCfg } = useShopStore()
+  const { cfg, setCfg, posterBgHex, setPosterBgHex } = useShopStore()
+  const money = useMoney()
   const { t } = useT()
+  // REQ-018 / T-404 — poster background palette (EXACTLY the 5 frozen hex from
+  // tokens.ts), coupled to the SINGLE store source (`posterBgHex`). The PDP live
+  // preview (ProductView) and the order assembly both read that same store value,
+  // so a swatch click is no longer a dead local control (FM-15).
 
   return (
     <>
@@ -75,11 +79,28 @@ export default function Configurator() {
           </div>
         </div>
         <div>
+          {/* REQ-018 / T-404 — poster background palette: EXACTLY the 5 frozen
+              hex from tokens.ts (no extra, none missing). */}
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t('personalize.posterBgHeading')}</div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {POSTER_BG_PALETTE.map((p) => {
+              const sel = p.hex === posterBgHex
+              return (
+                <span key={p.hex} data-testid="poster-bg-swatch" data-hex={p.hex}>
+                  <button type="button" onClick={() => setPosterBgHex(p.hex)} title={p.name} aria-label={p.name} aria-pressed={sel} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.12)', background: p.hex, cursor: 'pointer' }}>
+                    {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
+                  </button>
+                </span>
+              )
+            })}
+          </div>
+        </div>
+        <div>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t('configurator.step4')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
             {sizes.map((z) => {
               const sel = z.id === cfg.size
-              const deltaText = z.delta > 0 ? '+ ' + euro(z.delta) : z.delta < 0 ? '− ' + euro(-z.delta) : t('configurator.inclusive')
+              const deltaText = z.delta > 0 ? '+ ' + money(z.delta) : z.delta < 0 ? '− ' + money(-z.delta) : t('configurator.inclusive')
               return (
                 <button key={z.id} onClick={() => setCfg({ size: z.id })} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>

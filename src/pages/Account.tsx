@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '../store/AuthProvider'
 import { apiLogin, apiSignup, apiLogout, apiUpdatePrefs, apiResetRequest, apiResetConfirm, apiOrders, apiBillingPortal, type OrderRow } from '../lib/auth'
 import { useT } from '../i18n/I18nProvider'
-import { euro } from '../lib/format'
+import { moneyInCurrency } from '../lib/format'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
 import PersonalDetails from '../components/account/PersonalDetails'
 import AddressBook from '../components/account/AddressBook'
@@ -133,14 +133,6 @@ function Dashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px,1fr))', gap: 16, marginBottom: 20 }}>
         <div style={cardStyle}>
-          <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.creditBalance')}</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 34, color: C.accent }}>{user.points} C.</div>
-          <div style={{ fontSize: 12, color: C.textMuted3, marginTop: 4 }}>{t('auth.lifetime')}: {user.lifetime} C.</div>
-          {user.unlockedFeatures && user.unlockedFeatures.length > 0 && (
-            <div style={{ fontSize: 11.5, color: C.textMuted2, marginTop: 8, lineHeight: 1.5 }}>✦ {user.unlockedFeatures.join(' · ')}</div>
-          )}
-        </div>
-        <div style={cardStyle}>
           <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 6 }}>{t('auth.emailLabel')}</div>
           {user.name && <div style={{ fontSize: 15, fontWeight: 600, color: C.ink, marginBottom: 2 }}>{user.name}</div>}
           <div style={{ fontSize: 15, color: C.ink, wordBreak: 'break-word' }}>{user.email}</div>
@@ -173,7 +165,7 @@ function Dashboard() {
                 <span style={{ color: C.textMuted }}>{new Date(o.created_at).toLocaleDateString(lang.toLowerCase())} · {(o.items || []).map((it) => it.description).filter(Boolean).join(', ') || '—'}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                   {o.status && <span style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: C.textMuted2, border: `1px solid ${C.border}`, borderRadius: 999, padding: '2px 8px' }}>{o.status}</span>}
-                  <span style={{ fontWeight: 600 }}>{euro((o.amount_total || 0) / 100)}</span>
+                  <span style={{ fontWeight: 600 }}>{moneyInCurrency((o.amount_total || 0) / 100, o.currency)}</span>
                 </div>
               </div>
             ))}

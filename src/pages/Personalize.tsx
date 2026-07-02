@@ -1,45 +1,20 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import PosterScene from '../components/shop/PosterScene'
 import { computeChart, frames, backgrounds, sizes, type PosterData } from '../lib/bazi'
-import { useShopStore } from '../store/ShopStore'
+import { birthTimeMeta } from '../lib/personalization'
+import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
 import { COMMERCE_ENABLED } from '../lib/config'
-import { euro } from '../lib/format'
-import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
-
-/* ---- Product-type catalogue (current MVP only — no Saju/Junishi) ---- */
-type ProductTypeId = 'bazi' | 'birthchart' | 'couple' | 'digital' | 'bundle'
-interface PTDef {
-  id: ProductTypeId
-  basePrice: number
-  couple: boolean
-  /** physical poster → has frame/palette/size; false = digital-only */
-  poster: boolean
-  /** PDF is already included (bundle) → no separate add-on */
-  pdfIncluded: boolean
-}
-const PRODUCT_TYPES: PTDef[] = [
-  { id: 'bazi', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
-  { id: 'birthchart', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
-  { id: 'couple', basePrice: 69, couple: true, poster: true, pdfIncluded: false },
-  { id: 'digital', basePrice: 39, couple: false, poster: false, pdfIncluded: true },
-  { id: 'bundle', basePrice: 79, couple: false, poster: true, pdfIncluded: true },
-]
-const PDF_ADDON_PRICE = 30
+import { ptypeProductId, buildVariantId } from '../lib/checkout'
+import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW, POSTER_BG_PALETTE, posterBgName } from '../lib/tokens'
+import { searchCities } from '../lib/cities'
+// Single client source of truth for product-type base prices + PDF add-on price.
+// server/pricing.js mirrors these 1:1; the parity test couples to this module.
+import { PRODUCT_TYPES, PDF_ADDON_PRICE, type ProductTypeId } from '../lib/productTypes'
 
 interface Person { name: string; date: string; time: string; place: string }
 const emptyPerson: Person = { name: '', date: '', time: '', place: '' }
-
-// "14:30" -> "2:30 PM" for human-readable storage/display.
-function to12h(t: string): string {
-  if (!t) return ''
-  const [h, m] = t.split(':').map(Number)
-  if (isNaN(h)) return t
-  const ampm = h < 12 ? 'AM' : 'PM'
-  const hh = h % 12 === 0 ? 12 : h % 12
-  return `${hh}:${String(m || 0).padStart(2, '0')} ${ampm}`
-}
 
 const inputStyle = {
   border: `1px solid ${C.borderInput}`, borderRadius: 9, padding: '11px 12px', fontSize: 14,
@@ -59,6 +34,7 @@ function Field({ label, error, children }: { label: string; error?: boolean; chi
 export default function Personalize() {
   const { t, lang } = useT()
   const { addItem, showToast } = useShopStore()
+  const money = useMoney()
 
   const [typeId, setTypeId] = useState<ProductTypeId>('bazi')
   const [a, setA] = useState<Person>(emptyPerson)
@@ -67,6 +43,10 @@ export default function Personalize() {
   const [posterLang, setPosterLang] = useState<Lang>(lang)
   const [frameHex, setFrameHex] = useState(frames[0].hex)
   const [bgHex, setBgHex] = useState(backgrounds[0].hex)
+  // REQ-018 / T-404 — poster background palette (5 frozen hex from tokens.ts).
+  // Drives the live preview's surrounding background so a swatch selection is
+  // traceable (AT-018-3). Distinct from `bgHex` (the poster-art design palette).
+  const [posterBgHex, setPosterBgHex] = useState(POSTER_BG_PALETTE[0].hex)
   const [sizeId, setSizeId] = useState('A2')
   const [pdfAddon, setPdfAddon] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
@@ -84,9 +64,11 @@ export default function Personalize() {
     if (def.poster && !def.pdfIncluded && pdfAddon) p += PDF_ADDON_PRICE
     return p
   }, [def, size, pdfAddon])
-  const credits = Math.round(price)
 
-  const chart = computeChart(a.date, unknownTime ? '12:00' : a.time)
+  // Thread place + the unknown-time flag into the placeholder chart (accepted,
+  // not used to vary it — ADR-002 pt.3/4) and apply the disclosed noon fallback.
+  const btA = birthTimeMeta(a.time, unknownTime)
+  const chart = computeChart(a.date, btA.time, a.place, unknownTime)
   const livePoster: PosterData = {
     frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
     element: chart.element, animal: chart.animal, pillars: chart.pillars,
@@ -103,40 +85,62 @@ export default function Personalize() {
 
   const addToCart = () => {
     if (!valid) { setShowErrors(true); document.getElementById('personalize-birth')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return }
+    // place/date/time + the canonical birthTimeUnknown flag are captured and
+    // threaded through so the planned calculation API can dock without loss
+    // (REQ-004 AK-1); the disclosed noon fallback is applied when time is unknown.
     const personalization: Record<string, string> = {
       productType: typeId,
       productTypeLabel: t(`personalize.types.${typeId}.name`),
       language: posterLang,
       name: a.name.trim(),
       date: a.date,
-      time: unknownTime ? '12:00' : a.time,
-      timeDisplay: unknownTime ? '12:00 PM' : to12h(a.time),
-      unknownTime: String(unknownTime),
-      timeFallbackUsed: String(unknownTime),
-      fallbackReason: unknownTime ? 'customer_unknown_birth_time' : '',
+      time: btA.time,
+      timeDisplay: btA.timeDisplay,
+      birthTimeUnknown: btA.birthTimeUnknown,
+      unknownTime: btA.unknownTime,
+      timeFallbackUsed: btA.timeFallbackUsed,
+      fallbackReason: btA.fallbackReason,
       place: a.place.trim(),
     }
     if (def.couple) {
+      // Mirror the A-side fallback provenance for person B (REQ-004 AK-1 / REQ-018):
+      // the 2nd chart must carry the SAME canonical fields, derived from the SAME
+      // birthTimeMeta helper — never collect btB then drop its disclosure flags.
+      const btB = birthTimeMeta(b.time, unknownTime)
       personalization.nameB = b.name.trim()
       personalization.dateB = b.date
-      personalization.timeB = unknownTime ? '12:00' : b.time
-      personalization.timeDisplayB = unknownTime ? '12:00 PM' : to12h(b.time)
+      personalization.timeB = btB.time
+      personalization.timeDisplayB = btB.timeDisplay
+      personalization.birthTimeUnknownB = btB.birthTimeUnknown
+      personalization.unknownTimeB = btB.unknownTime
+      personalization.timeFallbackUsedB = btB.timeFallbackUsed
+      personalization.fallbackReasonB = btB.fallbackReason
       personalization.placeB = b.place.trim()
     }
     if (def.poster) {
       personalization.frame = frame.name
       personalization.palette = bg.name
+      // REQ-018 poster background (the 5-hex palette) is a real product attribute —
+      // carry the chosen swatch into the order line (no silent drop, FM-15).
+      personalization.posterBg = posterBgName(posterBgHex)
       personalization.size = size.label
       personalization.pdfAddon = String(!def.pdfIncluded && pdfAddon)
     }
-    const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? size.label : null]
+    const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? posterBgName(posterBgHex) : null, def.poster ? size.label : null]
+    // Stable server-pricing identity (ADR-001): poster types carry size + frame +
+    // pdf-addon axes; digital-only types carry none. The server re-prices from
+    // these and ignores the client `price`.
+    const variantId = def.poster
+      ? buildVariantId({ size: size.id, frame: frameHex, pdf: !def.pdfIncluded && pdfAddon })
+      : ''
     addItem({
       title: t(`personalize.types.${typeId}.name`),
       price, qty: 1,
       poster: def.poster ? livePoster : null,
       meta: metaParts.filter(Boolean).join(' · '),
       personalization,
-      creditsEarned: credits,
+      productId: ptypeProductId(typeId),
+      variantId,
     })
     showToast(t('cart.toastAdded'))
   }
@@ -150,10 +154,19 @@ export default function Personalize() {
       </div>
 
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        {/* ---- LEFT: live preview (sticky) ---- */}
-        <div className="lg:sticky lg:top-24">
+        {/* ---- LEFT: live preview (sticky) ----
+            REQ-012 / T-402: the preview is `position: sticky` with a bounded
+            `maxHeight` so on a narrow mobile viewport it pins above the inputs
+            WITHOUT growing tall enough to cover an input field (RISK-002). The
+            real no-overlap proof at 360px is Playwright [REAL-BROWSER-PLANNED]. */}
+        <div
+          data-testid="poster-preview-sticky"
+          data-bg-hex={posterBgHex}
+          className="lg:top-24"
+          style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: posterBgHex, borderRadius: 6, padding: 8 }}
+        >
           {def.poster ? (
-            <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" />
+            <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={posterBgHex} />
           ) : (
             <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 40 }}>◇</div>
@@ -176,7 +189,7 @@ export default function Personalize() {
                   <button key={p.id} onClick={() => setTypeId(p.id)} style={{ position: 'relative', textAlign: 'left', border: `1px solid ${C.borderInput}`, background: sel ? C.accentSoftBg : C.surfaceInput, borderRadius: 10, padding: '12px 14px', cursor: 'pointer', fontFamily: FONT_SANS }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{t(`personalize.types.${p.id}.name`)}</div>
                     <div style={{ fontSize: 11, color: C.textMuted2, marginTop: 4, lineHeight: 1.35 }}>{t(`personalize.types.${p.id}.sub`)}</div>
-                    {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600, marginTop: 6 }}>{t('personalize.from')} {euro(p.basePrice)}</div>}
+                    {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600, marginTop: 6 }}>{t('personalize.from')} {money(p.basePrice)}</div>}
                     {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
                   </button>
                 )
@@ -187,7 +200,7 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
-            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} />
+            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary />
             {def.couple && (
               <>
                 <div style={{ ...headingStyle, marginTop: 22 }}>{t('personalize.birthHeadingB')}</div>
@@ -198,6 +211,13 @@ export default function Personalize() {
               <input type="checkbox" checked={unknownTime} onChange={(e) => setUnknownTime(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
               <span>{t('personalize.unknownTime')}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.unknownTimeHint')}</span></span>
             </label>
+            {/* REQ-018 AK-2 — disclosed noon fallback at the birth-time field (no
+                silent default). Shown only when the buyer marks the time unknown. */}
+            {unknownTime && (
+              <div data-testid="noon-fallback-field-hint" role="note" style={{ marginTop: 12, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '10px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+                {t('noonFallback.fieldHint')}
+              </div>
+            )}
           </div>
 
           {/* Step 3 — poster language */}
@@ -243,11 +263,27 @@ export default function Personalize() {
                   )
                 })}
               </div>
+              {/* REQ-018 / T-404 — poster background palette: EXACTLY the 5 frozen
+                  hex from tokens.ts. Selecting a swatch updates the live preview
+                  background (see poster-preview-sticky data-bg-hex). */}
+              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{t('personalize.posterBgHeading')}</div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+                {POSTER_BG_PALETTE.map((p) => {
+                  const sel = p.hex === posterBgHex
+                  return (
+                    <span key={p.hex} data-testid="poster-bg-swatch" data-hex={p.hex}>
+                      <button type="button" onClick={() => setPosterBgHex(p.hex)} title={p.name} aria-label={p.name} aria-pressed={sel} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.12)', background: p.hex, cursor: 'pointer' }}>
+                        {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
               <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{t('personalize.sizeHeading')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
                 {sizes.map((z) => {
                   const sel = z.id === sizeId
-                  const deltaText = z.delta > 0 ? '+ ' + euro(z.delta) : z.delta < 0 ? '− ' + euro(-z.delta) : t('configurator.inclusive')
+                  const deltaText = z.delta > 0 ? '+ ' + money(z.delta) : z.delta < 0 ? '− ' + money(-z.delta) : t('configurator.inclusive')
                   return (
                     <button key={z.id} onClick={() => setSizeId(z.id)} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
@@ -261,7 +297,7 @@ export default function Personalize() {
               {!def.pdfIncluded && (
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 18, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
                   <input type="checkbox" checked={pdfAddon} onChange={(e) => setPdfAddon(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
-                  <span>{t('personalize.pdfAddon')}{COMMERCE_ENABLED && <> (+ {euro(PDF_ADDON_PRICE)})</>}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.pdfNote')}</span></span>
+                  <span>{t('personalize.pdfAddon')}{COMMERCE_ENABLED && <> (+ {money(PDF_ADDON_PRICE)})</>}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.pdfNote')}</span></span>
                 </label>
               )}
             </div>
@@ -280,9 +316,14 @@ export default function Personalize() {
               <SumRow label={t('personalize.sumLang')} value={posterLangLabel} />
               {def.poster && <SumRow label={t('personalize.sumDesign')} value={designLabel} />}
               {def.poster && <SumRow label={t('personalize.sumSize')} value={size.label} />}
-              {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={euro(price)} strong />}
-              <SumRow label={t('personalize.sumCredits')} value={`${credits} C.`} />
+              {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={money(price)} strong />}
             </dl>
+            {/* REQ-018 AK-3 — disclosed noon fallback in the personalization summary. */}
+            {unknownTime && (
+              <div data-testid="noon-fallback-summary-notice" role="note" style={{ marginTop: 12, color: C.accent, fontSize: 12.5, lineHeight: 1.5 }}>
+                {t('noonFallback.summaryNotice')}
+              </div>
+            )}
           </div>
 
           {/* trust signals (REQ-027) */}
@@ -298,23 +339,67 @@ export default function Personalize() {
           )}
 
           <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
-            {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {euro(price)}</>}
+            {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {money(price)}</>}
           </button>
-          {COMMERCE_ENABLED && <div style={{ textAlign: 'center', fontSize: 12, color: C.textMuted2, marginTop: 10 }}>{t('personalize.creditsLine', { n: credits })}</div>}
         </div>
       </div>
     </main>
   )
 }
 
-function PersonFields({ person, setPerson, unknownTime, err, showErrors, t }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any }) {
+function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any; primary?: boolean }) {
   const e = (cond: boolean) => showErrors && cond
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
       <Field label={t('configurator.name')} error={e(err.name)}><input type="text" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
-      <Field label={t('configurator.place')} error={e(err.place)}><input type="text" value={person.place} onChange={(ev) => setPerson({ ...person, place: ev.target.value })} placeholder={t('configurator.placePh')} style={inputStyle} /></Field>
+      {/* REQ-013 / T-403 — Place-of-Birth autocomplete from the bundled cities
+          list (src/lib/cities.ts). NEVER calls a public geocoder per keystroke. */}
+      <Field label={t('configurator.place')} error={e(err.place)}>
+        <PlaceAutocomplete value={person.place} onChange={(v) => setPerson({ ...person, place: v })} placeholder={t('configurator.placePh')} primary={primary} />
+      </Field>
       <Field label={t('configurator.date')} error={e(err.date)}><input type="date" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
       <Field label={t('configurator.time')} error={e(err.time)}><input type="time" value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
+    </div>
+  )
+}
+
+/** Place-of-Birth combobox backed ONLY by the bundled cities list (REQ-013 /
+ *  T-403). Suggestions are pure string matches over src/lib/cities.ts — no fetch,
+ *  no XHR, no public geocoder (policy-guard AT-013-3). `primary` tags the first
+ *  person's field with stable test anchors. */
+function PlaceAutocomplete({ value, onChange, placeholder, primary }: { value: string; onChange: (v: string) => void; placeholder: string; primary?: boolean }) {
+  const [open, setOpen] = useState(false)
+  const suggestions = useMemo(() => searchCities(value), [value])
+  const show = open && suggestions.length > 0
+
+  const pick = (city: string) => { onChange(city); setOpen(false) }
+
+  return (
+    <div style={{ position: 'relative', minWidth: 0 }}>
+      <input
+        type="text"
+        role="combobox"
+        aria-expanded={show}
+        aria-autocomplete="list"
+        data-testid={primary ? 'place-of-birth-input' : undefined}
+        value={value}
+        onChange={(ev) => { onChange(ev.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+        placeholder={placeholder}
+        style={inputStyle}
+      />
+      {show && (
+        <ul data-testid={primary ? 'place-suggestions' : undefined} role="listbox" style={{ position: 'absolute', zIndex: 5, top: 'calc(100% + 4px)', left: 0, right: 0, listStyle: 'none', margin: 0, padding: 4, maxHeight: 220, overflowY: 'auto', background: '#fff', border: `1px solid ${C.borderInput}`, borderRadius: 9, boxShadow: '0 12px 24px -14px rgba(0,0,0,0.3)' }}>
+          {suggestions.map((city) => (
+            <li key={city} role="option" aria-selected={city === value}>
+              <button type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => pick(city)} style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', background: 'transparent', cursor: 'pointer', padding: '8px 10px', borderRadius: 6, fontFamily: FONT_SANS, fontSize: 13, color: C.ink }}>
+                {city}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

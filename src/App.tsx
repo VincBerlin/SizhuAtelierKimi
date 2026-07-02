@@ -21,6 +21,12 @@ const TcmOverview = lazy(() => import('./pages/TcmOverview'))
 const BundlesPage = lazy(() => import('./pages/BundlesPage'))
 const DigitalPage = lazy(() => import('./pages/DigitalPage'))
 const Kollektion = lazy(() => import('./pages/Kollektion'))
+const Collection = lazy(() => import('./pages/Collection'))
+const Inspiration = lazy(() => import('./pages/Inspiration'))
+// Offers / Sale hub — the full curated Offers hub (REQ-024 / T-305): several
+// curated sections, each linking to a real collection route. The primary-nav
+// "Angebote" entry targets this live route (AT-003-3 / AT-024-4).
+const Offers = lazy(() => import('./pages/Offers'))
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
 import SiteFooter from './components/shop/SiteFooter'
@@ -62,6 +68,15 @@ function AppShell() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/collections" element={<Kollektion />} />
+          {/* Per-world MVP collection routes (REQ-010): one reusable template,
+              driven by lib/collections.ts. Unknown slugs redirect to the hub. */}
+          <Route path="/collections/:slug" element={<Collection />} />
+          {/* Inspiration / Gallery wall (REQ-011): curated tiles link to real
+              collection/product routes; placeholder imagery is clearly marked. */}
+          <Route path="/inspiration" element={<Inspiration />} />
+          {/* Offers / Sale hub (REQ-024 / T-305) — the full curated hub is live:
+              ≥2 curated sections, each onward-linking to a real collection route. */}
+          <Route path="/offers" element={<Offers />} />
           <Route path="/gifts" element={<Gifts />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tcm" element={<TcmOverview />} />

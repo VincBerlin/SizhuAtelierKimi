@@ -3,6 +3,7 @@ import { products, featuredIds } from '../../lib/catalog'
 import ProductCarousel from './ProductCarousel'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 import { useT } from '../../i18n/I18nProvider'
+import { track, EVENTS } from '../../lib/analytics'
 
 export default function CatalogSection() {
   const { t } = useT()
@@ -23,7 +24,13 @@ export default function CatalogSection() {
         </Link>
       </div>
 
-      <ProductCarousel products={featured} />
+      {/* Bestseller-slider product click funnel event (T-701, instrumentation
+          only — RL-EVENT RED). Scoped to the home bestseller carousel via the
+          optional onCardClick hook — Collection/TCM grids do not emit it. */}
+      <ProductCarousel
+        products={featured}
+        onCardClick={(p) => track(EVENTS.bestsellerClick, { id: p.id })}
+      />
     </section>
   )
 }

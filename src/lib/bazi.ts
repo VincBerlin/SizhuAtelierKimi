@@ -23,7 +23,22 @@ export interface ChartResult {
   element: string
 }
 
-export function computeChart(dateStr?: string, timeStr?: string): ChartResult {
+// PLACEHOLDER engine (ADR-002 pt.4, BLK-RED-BAZI / OQ-004 — RED for ACCURACY).
+// `place` and `birthTimeUnknown` are accepted as genuine inputs for the PLANNED
+// background calculation API so the call sites can thread them through without a
+// silent discard (REQ-004 AK-2). They are deliberately NOT used to vary the
+// placeholder output: per ADR-002 pt.3 "place varies the placeholder image" is
+// out of scope (gegenstandslos — the poster is a placeholder), so the chart stays
+// a deterministic placeholder and we never claim it is computed from the location.
+// Do NOT build a real astrological engine here.
+export function computeChart(
+  dateStr?: string,
+  timeStr?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _place?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _birthTimeUnknown?: boolean,
+): ChartResult {
   const stems = '甲乙丙丁戊己庚辛壬癸'
   const branches = '子丑寅卯辰巳午未申酉戌亥'
   let y = 1990

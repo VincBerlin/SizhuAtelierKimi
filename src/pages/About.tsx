@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router'
 import { useT } from '../i18n/I18nProvider'
+import { C } from '../lib/tokens'
 
 type Step = { num: string; title: string; desc: string }
 type Material = { title: string; desc: string }
@@ -27,7 +28,7 @@ export default function About() {
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
-                color: '#A0522D',
+                color: C.accent,
                 marginBottom: 16,
               }}
             >
@@ -255,7 +256,7 @@ export default function About() {
             <Link
               to="/"
               style={{
-                background: '#A0522D',
+                background: C.accent,
                 color: '#F5F2ED',
                 fontFamily: '"Inter", sans-serif',
                 fontSize: 13,
@@ -268,8 +269,8 @@ export default function About() {
                 display: 'inline-block',
                 transition: 'background 0.3s',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#B5652B' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = C.accent }}
             >
               {t('pages.about.ctaBtn1')}
             </Link>
@@ -290,7 +291,7 @@ export default function About() {
                 display: 'inline-block',
                 transition: 'all 0.3s',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A0522D'; e.currentTarget.style.color = '#A0522D' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.accent }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(44, 36, 32, 0.15)'; e.currentTarget.style.color = '#2C2420' }}
             >
               {t('pages.about.ctaBtn2')}

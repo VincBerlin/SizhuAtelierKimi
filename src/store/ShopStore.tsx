@@ -1,8 +1,12 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { computeChart, defaultCfg, sizes, type CfgState, type PosterData } from '../lib/bazi'
+import { birthTimeMeta } from '../lib/personalization'
 import { getProduct, type Addon, type Bundle } from '../lib/catalog'
-import { FREE_SHIP_THRESHOLD } from '../lib/tokens'
+import { FREE_SHIP_THRESHOLD, POSTER_BG_PALETTE } from '../lib/tokens'
 import { fetchRegion, type Region } from '../lib/region'
+import { moneyForRegion } from '../lib/format'
+import { posterProductId, buildVariantId, bundleProductId, addonProductId } from '../lib/checkout'
+import { track, EVENTS } from '../lib/analytics'
 
 export interface CartLine {
   key: string
@@ -12,10 +16,12 @@ export interface CartLine {
   poster: PosterData | null
   meta: string
   personalization?: Record<string, string>
-  /** Celestial Credits earned by this line (1 per net €/$ spent). Display-only in MVP. */
-  creditsEarned?: number
   /** Static product image for non-personalizable lines (TCM / Fire Horse). */
   image?: string
+  /** Stable server-pricing identity (ADR-001): the server re-prices from these,
+   *  ignoring the client price. Optional so legacy persisted carts still load. */
+  productId?: string
+  variantId?: string
 }
 
 const CART_KEY = 'sizhu_cart'
@@ -34,6 +40,12 @@ interface ShopValue {
   cart: CartLine[]
   cartOpen: boolean
   cfg: CfgState
+  /** Selected poster-background hex (REQ-018 / T-404). The single source of truth
+   *  for the 5-swatch poster background, shared by the PDP configurator (control)
+   *  and ProductView (live preview + order assembly) so the choice can never be a
+   *  dead local control again (FM-15). The matching label is resolved via
+   *  `posterBgName` at order-assembly time. */
+  posterBgHex: string
   openFaqId: string
   newsletterDone: Record<string, boolean>
   newsletterEmail: Record<string, string>
@@ -60,6 +72,7 @@ interface ShopValue {
   removeLine: (key: string) => void
   clearCart: () => void
   setCfg: (patch: Partial<CfgState>) => void
+  setPosterBgHex: (hex: string) => void
   showToast: (msg: string) => void
   setOpenFaqId: (id: string) => void
   submitNewsletter: (id: string) => void
@@ -74,6 +87,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>(loadCart)
   const [cartOpen, setCartOpen] = useState(false)
   const [cfg, setCfgState] = useState<CfgState>(defaultCfg)
+  const [posterBgHex, setPosterBgHex] = useState<string>(POSTER_BG_PALETTE[0].hex)
   const [openFaqId, setOpenFaqId] = useState('details')
   const [newsletterDone, setNewsletterDone] = useState<Record<string, boolean>>({})
   const [newsletterEmail, setNewsletterEmail] = useState<Record<string, string>>({})
@@ -111,6 +125,10 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
     const nextKey = () => `${Date.now()}-${keyRef.current++}`
 
     const addLine = (line: Omit<CartLine, 'key'>) => {
+      // Add-to-cart funnel event (T-701, instrumentation only — RL-EVENT RED):
+      // every add path (addCurrent / addBundle / addAddon / addItem) flows
+      // through here, so this is the single, non-duplicated readout point.
+      track(EVENTS.addToCart, { title: line.title, price: line.price, productId: line.productId ?? null })
       setCart((s) => [...s, { ...line, key: nextKey() }])
       setCartOpen(true)
     }
@@ -122,7 +140,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
     }
 
     return {
-      cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast,
+      cart, cartOpen, cfg, posterBgHex, openFaqId, newsletterDone, newsletterEmail, articleId, toast,
       cartCount, subtotal, shipCost, total, tax, remaining, reached, region, freeShipThreshold,
 
       openCart: () => setCartOpen(true),
@@ -132,17 +150,34 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
         const prod = getProduct(productId)
         if (!prod) return
         const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
-        const chart = computeChart(cfg.date, cfg.time)
+        // An empty time means the buyer did not provide a birth time → disclosed
+        // noon fallback (REQ-018). Thread place + the unknown flag through to the
+        // placeholder chart (accepted, not used to vary it) and the metadata.
+        const birthTimeUnknown = !cfg.time
+        const bt = birthTimeMeta(cfg.time, birthTimeUnknown)
+        const chart = computeChart(cfg.date, bt.time, cfg.place, birthTimeUnknown)
         const poster: PosterData = { frame: cfg.frameHex, bg: cfg.bgHex, name: cfg.name || 'Dein Name', element: chart.element, animal: chart.animal, pillars: chart.pillars }
-        const personalization = { date: cfg.date, time: cfg.time, place: cfg.place, name: cfg.name || '', frame: cfg.frameName, bg: cfg.bgName, size: size.label }
-        addLine({ title: prod.title, price: prod.price + size.delta, qty: 1, poster, meta: `${cfg.frameName} · ${cfg.bgName} · ${size.label}`, personalization })
+        // place/date/time + the canonical birthTimeUnknown flag are carried so the
+        // planned calculation API can dock without data loss (REQ-004 AK-1).
+        const personalization = {
+          date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, place: cfg.place, name: cfg.name || '',
+          birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime,
+          timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason,
+          frame: cfg.frameName, bg: cfg.bgName, size: size.label,
+        }
+        addLine({
+          title: prod.title, price: prod.price + size.delta, qty: 1, poster,
+          meta: `${cfg.frameName} · ${cfg.bgName} · ${size.label}`, personalization,
+          productId: posterProductId(prod.id),
+          variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }),
+        })
         showToast('Zum Warenkorb hinzugefügt')
       },
       addBundle: (b) => {
-        addLine({ title: b.title, price: b.price, qty: 1, poster: b.p1, meta: '3-teiliges Set · Vorteilspreis' })
+        addLine({ title: b.title, price: b.price, qty: 1, poster: b.p1, meta: '3-teiliges Set · Vorteilspreis', productId: bundleProductId(b.id), variantId: '' })
         showToast('Set zum Warenkorb hinzugefügt')
       },
-      addAddon: (a) => addLine({ title: a.title, price: a.price, qty: 1, poster: null, meta: a.note }),
+      addAddon: (a) => addLine({ title: a.title, price: a.price, qty: 1, poster: null, meta: a.note, productId: addonProductId(a.id), variantId: '' }),
       addItem: (item) => addLine(item),
       // Decrementing below 1 removes the line (so the − button empties the item).
       setQty: (key, d) => setCart((s) => s.flatMap((i) => {
@@ -153,6 +188,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       removeLine: (key) => setCart((s) => s.filter((i) => i.key !== key)),
       clearCart: () => setCart([]),
       setCfg: (patch) => setCfgState((s) => ({ ...s, ...patch })),
+      setPosterBgHex,
       showToast,
       setOpenFaqId,
       submitNewsletter: (id) => setNewsletterDone((s) => ({ ...s, [id]: true })),
@@ -160,7 +196,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       openArticle: (id) => setArticleId(id),
       closeArticle: () => setArticleId(null),
     }
-  }, [cart, cartOpen, cfg, openFaqId, newsletterDone, newsletterEmail, articleId, toast, region])
+  }, [cart, cartOpen, cfg, posterBgHex, openFaqId, newsletterDone, newsletterEmail, articleId, toast, region])
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>
 }
@@ -169,4 +205,23 @@ export function useShopStore(): ShopValue {
   const ctx = useContext(ShopContext)
   if (!ctx) throw new Error('useShopStore must be used inside ShopStoreProvider')
   return ctx
+}
+
+/**
+ * Region-aware price formatter bound to the LIVE shipping region (REQ-016 /
+ * VIS-016). Every customer-facing price surface calls this instead of the
+ * EUR-only `euro()` so a US cart reads $, a UK cart £, and EU/other €. The
+ * region is the SAME store value the promo / announcement bar reads, so the
+ * symbol can never drift from the bar. DISPLAY ONLY — amounts stay the
+ * placeholder prototype numbers (OQ-002); only the currency symbol is
+ * region-correct (no FX conversion).
+ */
+export function useMoney(): (amount: number) => string {
+  // Read the region WITHOUT hard-requiring the provider: a price surface mounted
+  // in isolation (e.g. a ProductCard unit test) keeps working and falls back to
+  // the primary market (EUR) — byte-identical to its pre-region `euro()` output.
+  // Inside the app the ShopStoreProvider always supplies the live region.
+  const ctx = useContext(ShopContext)
+  const region: Region = ctx?.region ?? 'eu'
+  return useCallback((amount: number) => moneyForRegion(amount, region), [region])
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronDown, Mail, Instagram, MapPin, Clock } from 'lucide-react'
 import { useT } from '../i18n/I18nProvider'
+import { C } from '../lib/tokens'
 
 type Faq = { q: string; a: string }
 
@@ -136,7 +137,7 @@ export default function Contact() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   style={fieldStyle}
-                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
+                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = C.accent }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 />
               </div>
@@ -147,7 +148,7 @@ export default function Contact() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   style={fieldStyle}
-                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
+                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = C.accent }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 />
               </div>
@@ -157,7 +158,7 @@ export default function Contact() {
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   style={{ ...fieldStyle, cursor: 'pointer' }}
-                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
+                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = C.accent }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 >
                   <option value="general">{t('pages.contact.subjectGeneral')}</option>
@@ -173,14 +174,14 @@ export default function Contact() {
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   rows={6}
                   style={{ ...fieldStyle, resize: 'vertical' }}
-                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = '#A0522D' }}
+                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = C.accent }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = '#D5C9B7' }}
                 />
               </div>
               <button
                 type="submit"
                 style={{
-                  background: '#A0522D',
+                  background: C.accent,
                   color: '#F5F2ED',
                   fontFamily: '"Inter", sans-serif',
                   fontSize: 13,
@@ -194,8 +195,8 @@ export default function Contact() {
                   transition: 'background 0.3s',
                   marginTop: 12,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#B5652B' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#A0522D' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = C.accent }}
               >
                 {t('pages.contact.send')}
               </button>
@@ -219,7 +220,7 @@ export default function Contact() {
             </h3>
             <div className="space-y-5">
               <div className="flex items-start gap-3">
-                <Mail size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
+                <Mail size={18} strokeWidth={1.5} style={{ color: C.accent, marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.emailLabel')}</p>
                   <a
@@ -232,7 +233,7 @@ export default function Contact() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Instagram size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
+                <Instagram size={18} strokeWidth={1.5} style={{ color: C.accent, marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.instagramLabel')}</p>
                   <a
@@ -245,7 +246,7 @@ export default function Contact() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <MapPin size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
+                <MapPin size={18} strokeWidth={1.5} style={{ color: C.accent, marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.atelierLabel')}</p>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, color: '#8A7E72' }}>
@@ -256,7 +257,7 @@ export default function Contact() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock size={18} strokeWidth={1.5} style={{ color: '#A0522D', marginTop: 2, flexShrink: 0 }} />
+                <Clock size={18} strokeWidth={1.5} style={{ color: C.accent, marginTop: 2, flexShrink: 0 }} />
                 <div>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, fontWeight: 500, color: '#2C2420' }}>{t('pages.contact.responseLabel')}</p>
                   <p style={{ fontFamily: '"Inter", sans-serif', fontSize: 14, color: '#8A7E72' }}>

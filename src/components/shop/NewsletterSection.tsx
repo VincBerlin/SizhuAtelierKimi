@@ -7,10 +7,12 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 type Status = 'idle' | 'submitting' | 'success' | 'error'
 
 /**
- * Cosmic Pulse newsletter (§4.8): weekly Energy Charts + marketing opt-in with
- * benefits, consent + privacy link, language preference, success/error states.
- * Persists to Postgres via /api/newsletter (double-opt-in ready) — no faked
- * success. The 20-credit welcome bonus now lives in the profile / Celestial Vault.
+ * Shop newsletter (M15 / REQ-023): a shop-oriented opt-in — new poster releases,
+ * seasonal offers, atelier stories and inspiration; the Cosmic Pulse energy note
+ * is a SECONDARY, occasional extra (title/copy/benefits/consent all lead with
+ * shop content). Benefits + consent + privacy link, language preference,
+ * success/error states. Persists to Postgres via /api/newsletter (double-opt-in
+ * ready) — no faked success. No credits/welcome-bonus affordance (REQ-010 / NG-004).
  */
 export default function NewsletterSection() {
   const { t, lang } = useT()

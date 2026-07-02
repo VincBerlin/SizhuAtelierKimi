@@ -2,33 +2,48 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router'
 import { ShoppingBag, Menu, X, ChevronDown, Search, User } from 'lucide-react'
 import { useShopStore } from '../store/ShopStore'
-import { useAuth } from '../store/AuthProvider'
 import { useT, LANGS } from '../i18n/I18nProvider'
+import { type Lang } from '../i18n/translations'
 import HeaderSearch from './shop/HeaderSearch'
 import { C, FONT_SERIF, FONT_SANS } from '../lib/tokens'
+import {
+  TAXONOMY, PRIMARY_NAV as TAX_PRIMARY_NAV, QUICK_ACCESS, MEGA_TILES,
+  resolveTaxonomyHref, type TaxonomyAxis, type TaxonomyEntry,
+} from '../lib/taxonomy'
 
-// "Collections" dropdown — the full shop (§4.4): all products, both
-// personalizable and ready-to-ship. (The old "Personalized Posters" item is
-// removed; everything now lives under Collections.)
-const shopLinks = [
-  { key: 'bazi', href: '/personalize' },
-  { key: 'birthChart', href: '/personalize' },
-  { key: 'couple', href: '/personalize' },
-  { key: 'fireHorse', href: '/product/8' },
-  { key: 'tcm', href: '/tcm' },
-  { key: 'digital', href: '/digital' },
-  { key: 'bundles', href: '/bundles' },
-  { key: 'gifts', href: '/gifts' },
+// REQ-005 — shop-oriented PRIMARY navigation, sourced 1:1 from the canonical
+// taxonomy (src/lib/taxonomy.ts, M9): exactly the 8 spec entries in order;
+// FAQ/About/Contact/Blog are intentionally NOT here. Re-exported in the legacy
+// {i18nKey, href} shape so the existing REQ-003 boundary tests keep passing.
+export interface PrimaryNavEntry { i18nKey: string; href: string }
+export const PRIMARY_NAV: PrimaryNavEntry[] = TAX_PRIMARY_NAV.map((n) => ({ i18nKey: n.labelKey, href: n.href }))
+
+// REQ-006 / M10 — the six mandatory mega-menu + mobile-drawer axes, rendered as a
+// MATRIX straight from the canonical taxonomy (no hand-rolled duplicate nav data).
+// Each axis heading carries an i18n key + an English fallback so the panel renders
+// even before a locale string ships. The order is the shopper's funnel: world →
+// style → room → size → sets → campaigns.
+const AXIS_META: { axis: TaxonomyAxis; headingKey: string; heading: string }[] = [
+  { axis: 'world', headingKey: 'tax.world', heading: 'Shop by World' },
+  { axis: 'style', headingKey: 'tax.style', heading: 'Theme & Style' },
+  { axis: 'room', headingKey: 'tax.room', heading: 'Room & Use' },
+  { axis: 'size', headingKey: 'tax.size', heading: 'Size / Format' },
+  { axis: 'set', headingKey: 'tax.set', heading: 'Sets & Solutions' },
+  { axis: 'campaign', headingKey: 'tax.campaign', heading: 'Trends & Campaigns' },
 ]
-const mainLinks = [
-  { key: 'gifts', href: '/gifts' },
-  { key: 'blog', href: '/blog' },
-  { key: 'faq', href: '/faq' },
-  { key: 'about', href: '/about' },
-  { key: 'contact', href: '/contact' },
-]
+
 // ≥44px touch targets for header icon controls (§6.1 / §7.4).
 const HIT = { minWidth: 44, minHeight: 44 } as const
+
+// REQ-015 / AT-015-3 — flag emoji per locale (rendered to the RIGHT of the
+// unchanged abbreviation). EN maps to the UK flag (en-GB spelling).
+const LANG_FLAG: Record<Lang, string> = { EN: '🇬🇧', DE: '🇩🇪', FR: '🇫🇷', ES: '🇪🇸' }
+
+// Tinted asset-light swatches for the mega-menu tiles (REQ-013) — keyed by tile
+// id. NO real image; a hatch-pattern placeholder that reads as a placeholder.
+const TILE_TINT: Record<string, string> = {
+  bazi: '#E2DACB', tcm: '#AFBCA6', wuxing: '#CFC4B2', 'fire-horse': '#D9C6B0',
+}
 
 function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: number; up?: boolean; align?: 'left' | 'right' }) {
   const { lang, setLang } = useT()
@@ -64,12 +79,13 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
       >
         {LANGS.map((l) => (
           <button
-            key={l} role="option" aria-selected={lang === l}
+            key={l} role="option" data-testid="lang-option" aria-selected={lang === l}
             onClick={() => { setLang(l); setOpen(false) }}
-            className="block w-full text-left transition-colors hover:bg-[#F5F0E6]"
-            style={{ background: lang === l ? '#F5F0E6' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', borderRadius: 7 }}
+            className="flex w-full items-center transition-colors hover:bg-[#F5F0E6]"
+            style={{ justifyContent: 'space-between', gap: 8, background: lang === l ? '#F5F0E6' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', borderRadius: 7, textAlign: 'left' }}
           >
-            {l}
+            <span data-testid="lang-code">{l}</span>
+            <span data-testid="lang-flag" aria-hidden="true" style={{ fontSize: size + 3, lineHeight: 1 }}>{LANG_FLAG[l]}</span>
           </button>
         ))}
       </div>
@@ -85,9 +101,16 @@ export default function Navbar() {
   const [mPosterOpen, setMPosterOpen] = useState(false)
   const location = useLocation()
   const { cartCount, openCart } = useShopStore()
-  const { user } = useAuth()
   const { t } = useT()
   const posterRef = useRef<HTMLDivElement>(null)
+
+  // Resolve an i18n key with an explicit fallback — taxonomy entries carry an
+  // English `label`/`heading` so the matrix renders even where a locale string
+  // is not yet supplied (proper nouns like "BaZi"/"Wabi-Sabi" stay as the label).
+  const tx = (key: string, fallback: string) => {
+    const v = t(key)
+    return v && v !== key ? v : fallback
+  }
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 100)
@@ -127,6 +150,9 @@ export default function Navbar() {
     textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0,
   } as const)
 
+  // A single taxonomy entry as a real routed link (shared by desktop + mobile).
+  const axisItemStyle = { fontFamily: FONT_SANS, fontSize: 13.5, color: C.ink, textDecoration: 'none', padding: '7px 8px', borderRadius: 2, display: 'block' } as const
+
   return (
     <>
       <header
@@ -139,11 +165,11 @@ export default function Navbar() {
         }}
       >
         <div className="max-w-[1200px] mx-auto h-full flex items-center justify-between" style={{ padding: '0 24px', gap: 16 }}>
-          <button className="lg:hidden flex items-center justify-center" onClick={() => setMobileOpen(true)} aria-label={t('nav.open')} style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button data-testid="mobile-menu-trigger" className="lg:hidden flex items-center justify-center" onClick={() => setMobileOpen(true)} aria-label={t('nav.open')} aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="mobile-menu" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
             <Menu size={24} strokeWidth={1.5} />
           </button>
 
-          <Link to="/" className="flex items-center gap-2" style={{ textDecoration: 'none', flexShrink: 0 }}>
+          <Link data-testid="header-logo" to="/" className="flex items-center gap-2" style={{ textDecoration: 'none', flexShrink: 0 }}>
             <img src="/images/sizhu-chinese-mark.webp" alt="" aria-hidden="true" style={{ width: 24, height: 30, objectFit: 'contain', display: 'block' }} />
             <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
               <span style={{ fontFamily: FONT_SERIF, fontSize: 24, fontWeight: 500, letterSpacing: '0.02em', color: C.ink }}>SizhuAtelier</span>
@@ -152,47 +178,155 @@ export default function Navbar() {
           </Link>
 
           {searchOpen && <HeaderSearch onClose={() => setSearchOpen(false)} />}
-          <nav className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
-            <Link to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
-            <div ref={posterRef} className="relative" onMouseEnter={() => setPosterOpen(true)} onMouseLeave={() => setPosterOpen(false)}>
-              <Link to="/collections" className="flex items-center gap-1 transition-colors hover:text-[#C0492E]" style={navLinkStyle(posterActive || isActive('/collections'))} aria-haspopup="true" aria-expanded={posterOpen}>
+          <nav data-testid="primary-nav" className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
+            <Link data-nav-top to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
+
+            {/* REQ-006 — real grouped mega-menu MATRIX. Hover opens (desktop); the
+                trigger is a real button with aria-haspopup/aria-expanded, and
+                Escape/click-away/mouse-leave close it. The panel groups the six
+                canonical taxonomy axes (world/style/room/size/set/campaign) plus a
+                quick-access strip and asset-light visual tiles — every item routes
+                to a real destination via resolveTaxonomyHref (no dead links). */}
+            <div
+              data-nav-top
+              ref={posterRef}
+              className="relative"
+              onMouseEnter={() => setPosterOpen(true)}
+              onMouseLeave={() => setPosterOpen(false)}
+            >
+              <button
+                type="button"
+                data-testid="mega-menu-trigger"
+                onClick={() => setPosterOpen(true)}
+                aria-haspopup="true"
+                aria-expanded={posterOpen}
+                className="flex items-center gap-1 transition-colors hover:text-[#C0492E]"
+                style={{ ...navLinkStyle(posterActive || location.pathname.startsWith('/collections')) }}
+              >
                 {t('nav.collections')} <ChevronDown size={14} style={{ transition: 'transform .2s', transform: posterOpen ? 'rotate(180deg)' : 'none' }} />
-              </Link>
-              {/* REQ-006: rectangular premium dropdown — radius 2px, calm ivory, subtle border */}
-              <div role="menu" style={{ position: 'absolute', top: 'calc(100% + 10px)', left: 0, minWidth: 264, background: '#FBF8F1', border: `1px solid ${C.border}`, borderRadius: 2, boxShadow: '0 16px 36px -18px rgba(28,24,18,0.4)', padding: 6, opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden', transform: posterOpen ? 'translateY(0)' : 'translateY(-6px)', transition: 'opacity .2s, transform .2s, visibility .2s' }}>
-                {shopLinks.map((l) => (
-                  <Link key={l.key} to={l.href} role="menuitem" className="block transition-colors hover:bg-[#F0E9DA]" style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.ink, textDecoration: 'none', padding: '10px 12px', borderRadius: 0 }}>{t('nav.posterMenu.' + l.key)}</Link>
-                ))}
+              </button>
+
+              <div
+                data-testid="mega-menu-panel"
+                aria-label={t('nav.collections')}
+                style={{
+                  position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: posterOpen ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-6px)',
+                  width: 'min(960px, 94vw)',
+                  background: '#FBF8F1', border: `1px solid ${C.border}`, borderRadius: 2,
+                  boxShadow: '0 18px 44px -20px rgba(28,24,18,0.45)', padding: 20,
+                  opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden',
+                  transition: 'opacity .2s, transform .2s, visibility .2s', zIndex: 70,
+                }}
+              >
+                {/* Quick access (REQ-006) — top strip of live shortcuts. */}
+                <div data-testid="mega-quick" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingBottom: 12, marginBottom: 12, borderBottom: `1px solid ${C.border}` }}>
+                  {QUICK_ACCESS.map((q) => (
+                    <Link key={q.id} data-testid="mega-quick-item" to={q.href} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
+                      className="transition-colors hover:bg-[#F0E9DA]"
+                      style={{ fontFamily: FONT_SANS, fontSize: 12.5, fontWeight: 600, color: C.accent, textDecoration: 'none', padding: '6px 12px', border: `1px solid ${C.borderInput}`, borderRadius: 999 }}>
+                      {tx(q.labelKey, q.label)}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* The six-axis MATRIX (REQ-006/008/009/010/011/012). */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4 }}>
+                  {AXIS_META.map(({ axis, headingKey, heading }) => (
+                    <div key={axis} data-testid={`mega-axis-${axis}`} data-axis={axis} style={{ padding: '4px 10px' }}>
+                      <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.accent, margin: '0 0 8px' }}>
+                        {tx(headingKey, heading)}
+                      </div>
+                      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {TAXONOMY[axis].map((e: TaxonomyEntry) => (
+                          <li key={e.id}>
+                            <Link
+                              data-testid="mega-axis-item"
+                              data-axis={axis}
+                              data-nonfinal={e.nonFinal ? 'true' : undefined}
+                              to={resolveTaxonomyHref(e.link)}
+                              tabIndex={posterOpen ? 0 : -1}
+                              onClick={() => setPosterOpen(false)}
+                              className="transition-colors hover:bg-[#F0E9DA]"
+                              style={axisItemStyle}
+                            >
+                              {tx(e.labelKey, e.label)}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Asset-light visual tiles (REQ-013) — image field is a generic
+                    placeholder (data-placeholder), never a real /images/*.webp. */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 6, marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                  {MEGA_TILES.map((tile) => (
+                    <Link
+                      key={tile.id}
+                      data-testid="mega-tile"
+                      to={resolveTaxonomyHref(tile.link)}
+                      tabIndex={posterOpen ? 0 : -1}
+                      onClick={() => setPosterOpen(false)}
+                      className="transition-colors hover:bg-[#F0E9DA]"
+                      style={{ display: 'flex', gap: 10, alignItems: 'center', textDecoration: 'none', padding: 6, borderRadius: 2 }}
+                    >
+                      <span
+                        data-testid="mega-tile-image"
+                        data-placeholder="true"
+                        aria-hidden="true"
+                        style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 2, border: `1px dashed ${C.borderInput}`, background: `repeating-linear-gradient(45deg, ${TILE_TINT[tile.id] || '#E2DACB'} 0 6px, transparent 6px 12px)` }}
+                      />
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                        <span data-testid="mega-tile-title" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{tx(tile.titleKey, tile.title)}</span>
+                        <span data-testid="mega-tile-cta" style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.accent, fontWeight: 600 }}>{tx(tile.ctaKey, tile.cta)} →</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {mainLinks.map((l) => (
-              <Link key={l.href} to={l.href} className="transition-colors hover:text-[#C0492E]" style={navLinkStyle(isActive(l.href))}>{t('nav.' + l.key)}</Link>
+            {/* REQ-005 — the 8 shop-oriented primary entries. */}
+            {PRIMARY_NAV.map((entry) => (
+              <Link
+                data-nav-primary
+                key={entry.href + entry.i18nKey}
+                to={entry.href}
+                className="transition-colors hover:text-[#C0492E]"
+                style={navLinkStyle(isActive(entry.href))}
+              >
+                {t(entry.i18nKey)}
+              </Link>
             ))}
           </nav>
 
           <div className="flex items-center" style={{ gap: 4, flexShrink: 0 }}>
             {!searchOpen && (
-              <button onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button data-testid="header-search" onClick={() => setSearchOpen(true)} aria-label={t('search.placeholder')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
                 <Search size={19} strokeWidth={1.5} />
               </button>
             )}
-            <div className="hidden sm:block"><LangDropdown /></div>
-            <Link to="/account" aria-label={t('auth.account')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, gap: 5, color: C.ink, textDecoration: 'none' }}>
-              {user && <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600 }}>{user.points} C.</span>}
+            <div data-testid="header-lang" className="hidden sm:block"><LangDropdown /></div>
+            <Link data-testid="header-account" to="/account" aria-label={t('auth.account')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, gap: 5, color: C.ink, textDecoration: 'none' }}>
               <User size={19} strokeWidth={1.5} />
             </Link>
-            <button onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button data-testid="header-cart" onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
+                <span data-testid="cart-badge" className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
               )}
             </button>
           </div>
         </div>
       </header>
 
-      <div className="fixed inset-0 z-[100] transition-opacity duration-300" style={{ display: mobileOpen ? 'block' : 'none', opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? 'auto' : 'none', overflow: 'hidden' }}>
+      {/* REQ-007 / M10 — mobile drawer that MIRRORS the desktop taxonomy matrix
+          (not a compressed desktop nav). The collections toggle expands the same
+          six axes; the drawer content is always in the DOM (visibility toggled) so
+          the mobile taxonomy is testable and the 360/390/430 no-clip proof stays
+          Playwright-only (RL-CHROMIUM). */}
+      <div data-testid="mobile-menu" id="mobile-menu" role="dialog" aria-modal={mobileOpen} aria-label={t('nav.menu')} className="fixed inset-0 z-[100] transition-opacity duration-300" style={{ display: mobileOpen ? 'block' : 'none', opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? 'auto' : 'none', overflow: 'hidden' }}>
         <div className="absolute inset-0" style={{ background: 'rgba(28,24,18,0.42)' }} onClick={() => setMobileOpen(false)} />
         <div className="absolute top-0 right-0 h-full w-full max-w-md" style={{ background: C.bg, transform: mobileOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform .4s ease-out', display: 'flex', flexDirection: 'column' }}>
           <div className="flex items-center justify-between" style={{ padding: '20px 24px', borderBottom: `1px solid ${C.border}` }}>
@@ -201,23 +335,39 @@ export default function Navbar() {
           </div>
           <nav className="flex flex-col" style={{ padding: '14px 24px', gap: 2, overflowY: 'auto', flex: 1 }}>
             <Link to="/personalize" style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.accent, fontWeight: 600, textDecoration: 'none', padding: '12px 0' }}>{t('nav.startPersonalizing')}</Link>
-            <button onClick={() => setMPosterOpen((o) => !o)} aria-expanded={mPosterOpen} className="flex items-center justify-between" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '12px 0', fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textAlign: 'left' }}>
+            <button data-testid="mobile-collections-toggle" onClick={() => setMPosterOpen((o) => !o)} aria-expanded={mPosterOpen} aria-controls="mobile-collections-panel" className="flex items-center justify-between" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '12px 0', minHeight: 44, fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textAlign: 'left' }}>
               {t('nav.collections')} <ChevronDown size={20} style={{ transition: 'transform .2s', transform: mPosterOpen ? 'rotate(180deg)' : 'none' }} />
             </button>
-            {mPosterOpen && (
-              <div className="flex flex-col" style={{ paddingLeft: 12, gap: 2, marginBottom: 4 }}>
-                <Link to="/collections" style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.ink, textDecoration: 'none', padding: '8px 0' }}>{t('coll.allPosters')}</Link>
-                {shopLinks.map((l) => (
-                  <Link key={l.key} to={l.href} style={{ fontFamily: FONT_SANS, fontSize: 16, color: C.textMuted, textDecoration: 'none', padding: '8px 0' }}>{t('nav.posterMenu.' + l.key)}</Link>
-                ))}
-              </div>
-            )}
-            {mainLinks.map((l) => (
-              <Link key={l.href} to={l.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{t('nav.' + l.key)}</Link>
+            {/* Mobile taxonomy — the SAME six axes as the desktop matrix, grouped
+                (not a flat dump). Always in the DOM; the accordion toggles its
+                visibility so the mirror is verifiable. */}
+            <div id="mobile-collections-panel" className="flex flex-col" style={{ paddingLeft: 12, gap: 4, marginBottom: 4, overflow: 'hidden', maxHeight: mPosterOpen ? 4000 : 0, visibility: mPosterOpen ? 'visible' : 'hidden', transition: 'max-height .3s ease' }}>
+              <Link data-testid="mobile-collection-link" to="/collections" style={{ fontFamily: FONT_SANS, fontSize: 16, fontWeight: 600, color: C.ink, textDecoration: 'none', padding: '8px 0', minHeight: 44, display: 'flex', alignItems: 'center' }}>{t('coll.allPosters')}</Link>
+              {AXIS_META.map(({ axis, headingKey, heading }) => (
+                <div key={axis} data-testid={`mobile-axis-${axis}`} data-axis={axis} style={{ marginTop: 6 }}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.accent, margin: '0 0 2px' }}>{tx(headingKey, heading)}</div>
+                  {TAXONOMY[axis].map((e: TaxonomyEntry) => (
+                    <Link
+                      key={e.id}
+                      data-testid="mobile-tax-item"
+                      data-axis={axis}
+                      data-nonfinal={e.nonFinal ? 'true' : undefined}
+                      to={resolveTaxonomyHref(e.link)}
+                      style={{ fontFamily: FONT_SANS, fontSize: 15, color: C.textMuted, textDecoration: 'none', padding: '7px 0', minHeight: 40, display: 'flex', alignItems: 'center' }}
+                    >
+                      {tx(e.labelKey, e.label)}
+                    </Link>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {/* REQ-005 — shop-oriented primary entries in the drawer too. */}
+            {PRIMARY_NAV.map((entry) => (
+              <Link data-testid="mobile-primary-link" key={entry.href + entry.i18nKey} to={entry.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{t(entry.i18nKey)}</Link>
             ))}
           </nav>
           <div className="flex items-center" style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, gap: 10 }}>
-            <LangDropdown size={14} up align="left" />
+            <div data-testid="mobile-menu-lang"><span data-testid="header-lang"><LangDropdown size={14} up align="left" /></span></div>
             <span style={{ marginLeft: 'auto', fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted2 }}>hello@sizhuatelier.shop</span>
           </div>
         </div>

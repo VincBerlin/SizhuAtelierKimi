@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useMemo } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { products } from '../lib/catalog'
 import ProductCard from '../components/shop/ProductCard'
 import FaqSection from '../components/shop/FaqSection'
@@ -38,7 +38,41 @@ function CollectionCard({ ckey, img, to }: { ckey: string; img: string; to: stri
 
 export default function Kollektion() {
   const { t } = useT()
+  const [params] = useSearchParams()
   useEffect(() => { window.scrollTo(0, 0) }, [])
+
+  // M16 / REQ-004..007 × REQ-026 — nav→filter deep-link handoff (closes the
+  // disclosed PARTIAL). The mega-menu style/room facets resolve to
+  // /collections?style=<design_family> and /collections?room=<use_case>
+  // (resolveTaxonomyHref); the hub now CONSUMES that query and pre-filters the
+  // all-posters grid to the matching REAL catalog products, with the active facet
+  // shown + a reset. Size is the M13-reconciliation special case: every poster
+  // ships in every size, so ?size=<id> does NOT narrow the grid — it is disclosed
+  // ("available in this size"), never faked into a bogus filter.
+  const styleFacet = params.get('style')
+  const roomFacet = params.get('room')
+  const sizeFacet = params.get('size')
+  // ONLY style/room actually narrow the grid, so ONLY they count as an active
+  // filter. Size is deliberately excluded: per the M13 reconciliation every poster
+  // ships in every size, so ?size never hides products, never flips the hub into a
+  // filtered view (no "Filtered by" banner, cards stay, heading unchanged) — it
+  // surfaces an honest disclosure note only. This keeps the size axis from
+  // masquerading as a real product filter.
+  const facetActive = !!(styleFacet || roomFacet)
+
+  const filtered = useMemo(() => {
+    let list: typeof products = products
+    if (styleFacet) list = list.filter((p) => p.design_family === styleFacet)
+    if (roomFacet) list = list.filter((p) => p.use_case === roomFacet)
+    return list
+  }, [styleFacet, roomFacet])
+
+  const facetLabel = styleFacet
+    ? t(`taxonomy.style.${styleFacet}`) || styleFacet
+    : roomFacet
+      ? t(`taxonomy.room.${roomFacet}`) || roomFacet
+      : ''
+  const gridProducts = facetActive ? filtered : products
 
   return (
     <main style={{ background: C.bg, minHeight: '60vh' }}>
@@ -49,32 +83,56 @@ export default function Kollektion() {
         <p style={{ fontFamily: FONT_SANS, fontSize: 16, color: C.textMuted, maxWidth: 560, margin: '0 0 8px', lineHeight: 1.65 }}>{t('pages.kollIntro')}</p>
       </div>
 
-      {/* Collection cards */}
-      <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 8px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 24 }}>
-          {COLLECTIONS.map((c) => (
-            <CollectionCard key={c.key} ckey={c.key} img={c.img} to={c.to} />
-          ))}
-        </div>
-      </section>
+      {/* M16 — size deep-link is DISCLOSED, never a filter (M13: uniform size). A
+          ?size link lands on the NORMAL hub (cards + full grid) plus this honest
+          note — no narrowing, no "Filtered by" framing. */}
+      {sizeFacet && (
+        <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '8px 32px 0' }}>
+          <p data-testid="hub-size-note" style={{ fontFamily: FONT_SANS, fontSize: 12.5, color: C.textMuted2, margin: 0, border: `1px solid ${C.border}`, borderRadius: 4, background: C.surfaceWarm, padding: '10px 14px' }}>{t('coll.filter.sizeNote')}</p>
+        </section>
+      )}
 
-      {/* All personalized posters */}
+      {/* M16 — active nav→filter banner (ONLY style/room, which actually narrow) */}
+      {facetActive && (
+        <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '8px 32px 0' }}>
+          <div data-testid="hub-active-filter" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, border: `1px solid ${C.border}`, borderRadius: 4, background: C.surfaceWarm, padding: '12px 16px' }}>
+            <span style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.textMuted2 }}>{t('coll.filter.label')}</span>
+            <span data-testid="hub-facet-value" style={{ fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, color: C.ink }}>{facetLabel}</span>
+            <span data-testid="hub-filter-count" style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted }}>· {gridProducts.length} {t('coll.filter.posters')}</span>
+            <Link to="/collections" data-testid="hub-filter-reset" style={{ marginLeft: 'auto', fontFamily: FONT_SANS, fontSize: 12.5, color: C.accent, textDecoration: 'underline' }}>{t('coll.filter.reset')}</Link>
+          </div>
+        </section>
+      )}
+
+      {/* Collection cards — hidden when a facet deep-link is active so the filtered
+          listing is the focus (a nav facet click lands ON the pre-filtered grid). */}
+      {!facetActive && (
+        <section data-testid="hub-collection-cards" style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 24 }}>
+            {COLLECTIONS.map((c) => (
+              <CollectionCard key={c.key} ckey={c.key} img={c.img} to={c.to} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* All / filtered posters */}
       <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '40px 32px 16px' }}>
-        <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 30, color: C.ink, margin: '0 0 24px' }}>{t('coll.allPosters')}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 28 }}>
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      </section>
-
-      {/* Patron Vault — coming soon (REQ-021 #9) */}
-      <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '32px 32px 8px' }}>
-        <div style={{ border: `1px solid ${C.border}`, borderRadius: 4, background: C.surfaceWarm, padding: '28px 28px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.accent }}>{t('coll.patron.eyebrow')}</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 26, color: C.ink }}>{t('coll.patron.title')}</div>
-          <p style={{ fontSize: 14, color: C.textMuted, lineHeight: 1.6, margin: 0, maxWidth: 620 }}>{t('coll.patron.desc')}</p>
-        </div>
+        <h2 data-testid="hub-posters-heading" style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 30, color: C.ink, margin: '0 0 24px' }}>{facetActive ? facetLabel : t('coll.allPosters')}</h2>
+        {gridProducts.length === 0 ? (
+          <div data-testid="hub-filter-empty" style={{ border: `1px solid ${C.border}`, borderRadius: 4, background: C.surface, padding: '32px 24px', textAlign: 'center' }}>
+            <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: C.textMuted, margin: '0 0 12px' }}>{t('coll.filter.empty')}</p>
+            <Link to="/collections" data-testid="hub-empty-reset" style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.accent, textDecoration: 'underline' }}>{t('coll.filter.reset')}</Link>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 28 }}>
+            {gridProducts.map((p) => (
+              <div key={p.id} data-testid="hub-poster-card" data-product-id={p.id}>
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* FAQ + Newsletter (REQ-021 #10, #11) */}

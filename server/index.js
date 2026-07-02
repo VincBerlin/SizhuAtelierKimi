@@ -8,6 +8,7 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
+import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -20,7 +21,10 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 // Railway-provided domain, then to the request origin at call time.
 const PUBLIC_URL = (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '')).replace(/\/$/, '')
 
-const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null
+// `let` (not `const`) so the `createApp({ stripe })` test factory can inject a
+// stubbed Stripe SDK and drive the REAL /api/checkout route without a live key
+// (REQ-015 AK-4). Production still derives it from STRIPE_SECRET_KEY below.
+let stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null
 // Secret for signing session cookies. Auth is disabled unless this is set.
 const SESSION_SECRET = process.env.SESSION_SECRET || ''
 
@@ -48,6 +52,9 @@ if (process.env.DATABASE_URL) {
     consent BOOLEAN NOT NULL DEFAULT false,
     status TEXT NOT NULL DEFAULT 'pending',
     confirm_token TEXT,
+    -- DORMANT (REQ-010): credits_reserved is a Celestial-Credits carry-over with
+    -- no readers/writers; left in place (DEFAULT 20) so the production column is
+    -- not dropped. Scheduled for the separate credits DROP migration.
     credits_reserved INTEGER NOT NULL DEFAULT 20,
     marketing_consent_at TIMESTAMPTZ,
     source TEXT
@@ -55,6 +62,12 @@ if (process.env.DATABASE_URL) {
   // Add the marketing-consent timestamp + source columns to pre-existing tables.
   await pool.query('ALTER TABLE newsletter_signups ADD COLUMN IF NOT EXISTS marketing_consent_at TIMESTAMPTZ').catch(() => {})
   await pool.query('ALTER TABLE newsletter_signups ADD COLUMN IF NOT EXISTS source TEXT').catch(() => {})
+  // DORMANT / DECOMMISSIONED (REQ-010): the Celestial-Credits machinery was
+  // retired. No code reads or writes credits_ledger anymore (the sole writer,
+  // recordCreditsEarned, was removed). This CREATE IF NOT EXISTS is kept ONLY so
+  // a pre-existing production table is not implicitly dropped; it is scheduled
+  // for removal via a separate, explicit DROP migration (FOLLOW-UP: db-drop
+  // credits decommission). Do NOT add new readers/writers.
   await pool.query(`CREATE TABLE IF NOT EXISTS credits_ledger (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -69,11 +82,15 @@ if (process.env.DATABASE_URL) {
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    -- DORMANT (REQ-010): Celestial-Credits columns. No code reads or writes
+    -- them anymore; kept here only so a pre-existing production table is not
+    -- dropped. Scheduled for removal via the separate credits DROP migration.
     points_balance INTEGER NOT NULL DEFAULT 0,
     lifetime_points INTEGER NOT NULL DEFAULT 0,
     marketing_consent BOOLEAN NOT NULL DEFAULT false,
     marketing_consent_at TIMESTAMPTZ,
     newsletter_status TEXT NOT NULL DEFAULT 'none',
+    -- DORMANT (REQ-010): gamification carry-overs, no readers/writers remain.
     unlocked_features JSONB NOT NULL DEFAULT '[]'::jsonb,
     achievements JSONB NOT NULL DEFAULT '[]'::jsonb,
     reset_token TEXT,
@@ -124,7 +141,17 @@ app.disable('x-powered-by')
 // content-hashed bundles ship raw — ~3x larger over the wire on every visit.
 app.use(compression())
 
-const eur = (cents) => (cents / 100).toLocaleString('de-DE', { style: 'currency', currency: CURRENCY.toUpperCase() })
+// Human-readable money for order mail + logs. DISPLAY ONLY — the AUTHORITATIVE
+// charge currency is whatever Stripe settled (`session.currency`), which we mirror
+// here so a US order reads in $, a UK order in £, never a hardcoded €. Falls back
+// to the CURRENCY env only when no per-order currency is supplied; an unrecognised
+// code also falls back so `toLocaleString` can never throw on bad external data.
+export function money(cents, currency) {
+  const raw = String(currency || CURRENCY).toUpperCase()
+  const code = /^[A-Z]{3}$/.test(raw) ? raw : CURRENCY.toUpperCase()
+  const value = Number.isFinite(Number(cents)) ? Number(cents) / 100 : 0
+  return value.toLocaleString('de-DE', { style: 'currency', currency: code })
+}
 
 // ---- in-memory per-IP rate limiter (single instance; use Redis for a cluster) ---
 const rlBuckets = new Map()
@@ -158,9 +185,8 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       const items = (full.line_items?.data || []).map((li) => ({ description: li.description, qty: li.quantity, amount: li.amount_total }))
       const personalization = readPersonalizationMetadata(session.metadata)
       await persistOrder(full, items, personalization)
-      await recordCreditsEarned(full, items)
       await sendEmails(full, items, personalization)
-      console.log(`[order] ${full.id} · ${eur(full.amount_total)} · ${full.customer_details?.email}`)
+      console.log(`[order] ${full.id} · ${money(full.amount_total, full.currency)} · ${full.customer_details?.email}`)
     } catch (e) {
       console.error('[webhook] handling failed:', e.message)
     }
@@ -176,14 +202,15 @@ app.get('/api/health', (_req, res) => {
 })
 
 // ---- shipping region (server IP geolocation via CDN/host header) ------------
-const EU_COUNTRIES = new Set(['DE', 'AT', 'FR', 'NL', 'BE', 'LU', 'IT', 'ES', 'PT', 'IE', 'FI', 'EE', 'LV', 'LT', 'SK', 'SI', 'GR', 'CY', 'MT', 'HR', 'BG', 'RO', 'HU', 'PL', 'CZ', 'DK', 'SE'])
+// Country→region classification lives in ONE place — `regionFromCountry` in
+// pricing.js. This DISPLAY route and the CHARGE route (/api/checkout) both derive
+// the region from that single function, so the currency a shopper SEES and the
+// currency they are CHARGED can never silently diverge on a one-sided country-set
+// edit (FM-06, one layer up). region-currency.test.ts pins this route's region to
+// `regionFromCountry` across a representative country sample.
 app.get('/api/region', (req, res) => {
   const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '').toUpperCase()
-  let region = (process.env.DEFAULT_REGION || 'eu').toLowerCase()
-  if (country === 'US') region = 'us'
-  else if (country === 'GB') region = 'uk'
-  else if (EU_COUNTRIES.has(country)) region = 'eu'
-  else if (country) region = 'other'
+  const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
   res.json({ region, country: country || null })
 })
 
@@ -191,29 +218,50 @@ app.get('/api/region', (req, res) => {
 app.post('/api/checkout', async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Payment is not configured yet (missing STRIPE_SECRET_KEY).' })
   try {
-    const { items, shippingCents = 0, locale, email } = req.body || {}
+    const { items, locale, email } = req.body || {}
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Cart is empty.' })
 
-    // NOTE: amounts come from the client here. Before going live, validate each
-    // line against an authoritative server-side price list to prevent tampering.
+    // ── Server-authoritative region + currency (REQ-016 / AT-016-7) ──────────
+    // Region is derived from the CDN/host country header; the line-item currency
+    // FOLLOWS the region via the declarative server map (us→USD, uk→GBP, eu→EUR).
+    // Any client-supplied currency is IGNORED, exactly like client `unitAmount` /
+    // `shippingCents` (FM-06). Stripe wants the ISO code lowercased.
+    const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '')
+    const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
+    const currency = currencyForRegion(region).toLowerCase()
+
+    // ── Server-authoritative re-pricing (ADR-001 / REQ-001) ──────────────────
+    // The client-supplied `it.unitAmount` and `shippingCents` are IGNORED. Each
+    // line's price is resolved from the server-owned price table by its stable
+    // (productId + variantId) identity. An unknown id → 4xx and Stripe is never
+    // called (no 1-cent checkout, no free-shipping tampering).
     const line_items = []
     const personalization = {}
+    let subtotalCents = 0
     for (const [i, it] of items.entries()) {
-      const cents = Math.round(Number(it.unitAmount))
       const qty = Math.max(1, Math.min(99, parseInt(it.qty, 10) || 1))
-      if (!Number.isInteger(cents) || cents <= 0) return res.status(400).json({ error: 'Invalid item amount.' })
+      const cents = priceLineItemCents(it.productId, it.variantId)
+      if (cents === null || !Number.isInteger(cents) || cents <= 0) {
+        return res.status(400).json({ error: 'Unknown product or variant.' })
+      }
+      subtotalCents += cents * qty
       line_items.push({
         quantity: qty,
         price_data: {
-          currency: CURRENCY,
+          currency,
           unit_amount: cents,
           product_data: { name: String(it.title || 'Poster').slice(0, 120), ...(it.meta ? { description: String(it.meta).slice(0, 200) } : {}) },
         },
       })
       if (it.personalization) personalization[`line${i + 1}`] = it.personalization
     }
-    if (shippingCents > 0) {
-      line_items.push({ quantity: 1, price_data: { currency: CURRENCY, unit_amount: Math.round(shippingCents), product_data: { name: 'Shipping' } } })
+
+    // Shipping is computed server-side from region (CDN header) + subtotal,
+    // replicating the documented ShopStore rule (REQ-002). Client `shippingCents`
+    // is never trusted.
+    const shipCents = computeShippingCents(region, subtotalCents)
+    if (shipCents > 0) {
+      line_items.push({ quantity: 1, price_data: { currency, unit_amount: shipCents, product_data: { name: 'Shipping' } } })
     }
 
     const origin = PUBLIC_URL || (req.headers.origin || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '')
@@ -280,12 +328,14 @@ app.post('/api/newsletter', async (req, res) => {
   }
 })
 
-// ---- auth (profile + Celestial Credits accounts) ---------------------------
+// ---- auth (profile accounts) -----------------------------------------------
 // Stateless sessions: an HMAC-signed cookie carrying the user id + expiry (no
 // session table; tampering fails the HMAC check). Passwords are scrypt-hashed.
+// NOTE: the Celestial-Credits machinery was decommissioned (REQ-010). No
+// welcome credits are granted and no credits are read/written anywhere below;
+// the underlying DB columns/table are left DORMANT (see schema notes above).
 const SESSION_COOKIE = 'sizhu_session'
 const SESSION_DAYS = 30
-const WELCOME_CREDITS = 20 // granted on profile creation — the relocated lead magnet
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 function hashPassword(pw) {
@@ -359,18 +409,15 @@ app.post('/api/auth/signup', async (req, res) => {
   const nm = typeof name === 'string' ? name.trim().slice(0, 120) : null
   try {
     const consent = marketingConsent === true
+    // Celestial Credits decommissioned (REQ-010): no welcome credits are granted.
+    // points_balance / lifetime_points are left out of the INSERT — their column
+    // DEFAULT (0/0) applies — and no credits_ledger welcome row is written.
     const r = await pool.query(
-      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, points_balance, lifetime_points, name)
-       VALUES ($1,$2,$3,$4,$5,$6,$6,$7) ON CONFLICT (email) DO NOTHING RETURNING id`,
-      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', WELCOME_CREDITS, nm || null],
+      `INSERT INTO users (email, password_hash, marketing_consent, marketing_consent_at, newsletter_status, name)
+       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [e, hashPassword(password), consent, consent ? new Date() : null, consent ? 'subscribed' : 'none', nm || null],
     )
     if (!r.rows.length) return res.status(409).json({ error: 'email_taken' })
-    // Grant the welcome credits as a ledger entry (idempotent via a synthetic order_id).
-    await pool.query(
-      `INSERT INTO credits_ledger (email, event_type, points_delta, balance_after, order_id)
-       VALUES ($1,'signup_bonus',$2,$2,$3) ON CONFLICT (order_id) DO NOTHING`,
-      [e, WELCOME_CREDITS, `signup-${r.rows[0].id}`],
-    ).catch((err) => console.error('[auth] welcome credits failed:', err.message))
     setSessionCookie(res, signSession(r.rows[0].id))
     return res.json({ ok: true })
   } catch (err) {
@@ -423,16 +470,18 @@ app.get('/api/auth/me', async (req, res) => {
   const uid = verifySession(readCookie(req, SESSION_COOKIE))
   if (!uid) return res.json({ user: null })
   try {
+    // Celestial Credits decommissioned (REQ-010): the dormant points_balance /
+    // lifetime_points / unlocked_features / achievements columns are no longer
+    // selected or returned. The user response carries only the live profile.
     const r = await pool.query(
-      `SELECT email, points_balance, lifetime_points, marketing_consent, newsletter_status, unlocked_features, achievements, created_at,
+      `SELECT email, marketing_consent, newsletter_status, created_at,
               name, preferred_language, stripe_customer_id, default_shipping_address_id, default_billing_address_id
        FROM users WHERE id = $1`, [uid])
     if (!r.rows.length) return res.json({ user: null })
     const u = r.rows[0]
     return res.json({ user: {
-      email: u.email, points: u.points_balance, lifetime: u.lifetime_points,
-      marketingConsent: u.marketing_consent, newsletterStatus: u.newsletter_status,
-      unlockedFeatures: u.unlocked_features, achievements: u.achievements, createdAt: u.created_at,
+      email: u.email,
+      marketingConsent: u.marketing_consent, newsletterStatus: u.newsletter_status, createdAt: u.created_at,
       name: u.name || '', preferredLanguage: u.preferred_language || '', hasPayment: !!u.stripe_customer_id,
       defaultShippingAddressId: u.default_shipping_address_id || null, defaultBillingAddressId: u.default_billing_address_id || null,
     } })
@@ -725,9 +774,26 @@ if (fs.existsSync(DIST)) {
   app.get('*', (_req, res) => res.status(503).send('Build missing — run `npm run build`.'))
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`SizhuAtelier server on :${PORT} — stripe=${!!stripe} db=${!!pool} email=${!!resend}`)
-})
+// ── App factory + entrypoint guard ──────────────────────────────────────────
+// Tests import `createApp({ stripe })` to drive the REAL routes (incl. the
+// money-path /api/checkout) with a stubbed Stripe SDK and no live key — without
+// binding a port (REQ-015 / ADR-001). The route reads the module `stripe`/`pool`
+// bindings at request time, so injecting them here makes the real path testable
+// while production behaviour is unchanged.
+export function createApp(overrides = {}) {
+  if ('stripe' in overrides) stripe = overrides.stripe
+  if ('pool' in overrides) pool = overrides.pool
+  return app
+}
+
+// Only bind a port when this file is the process entrypoint (`npm start`/Railway).
+// Importing it from a test (supertest) must NOT start a listener.
+const isEntrypoint = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
+if (isEntrypoint) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`SizhuAtelier server on :${PORT} — stripe=${!!stripe} db=${!!pool} email=${!!resend}`)
+  })
+}
 
 // ---- helpers ---------------------------------------------------------------
 
@@ -774,32 +840,12 @@ async function persistOrder(session, items, personalization) {
   )
 }
 
-// Celestial Credits (REQ-045): earn 1 credit per net €/$ spent, excluding
-// shipping. Recorded to credits_ledger; order_id UNIQUE makes it idempotent so a
-// webhook retry never double-credits. Credits are loyalty-only and NEVER reduce
-// the checkout price (REQ-044) — this only ADDS an earned-credits ledger entry.
-async function recordCreditsEarned(session, items) {
-  if (!pool) return
-  const email = session.customer_details?.email || null
-  const netCents = (items || []).reduce((s, it) => s + (String(it.description) === 'Shipping' ? 0 : (it.amount || 0)), 0)
-  const credits = Math.floor(netCents / 100)
-  if (credits <= 0) return
-  try {
-    const prior = email
-      ? await pool.query('SELECT COALESCE(SUM(points_delta),0) AS bal FROM credits_ledger WHERE email = $1', [email])
-      : { rows: [{ bal: 0 }] }
-    const balanceAfter = Number(prior.rows[0].bal) + credits
-    await pool.query(
-      `INSERT INTO credits_ledger (email, event_type, points_delta, balance_after, order_id)
-       VALUES ($1,'purchase_earned',$2,$3,$4) ON CONFLICT (order_id) DO NOTHING`,
-      [email, credits, balanceAfter, session.id],
-    )
-    // If the buyer has an account, reflect the earned credits on their profile.
-    if (email) await pool.query('UPDATE users SET points_balance = points_balance + $1, lifetime_points = lifetime_points + $1 WHERE email = $2', [credits, email])
-  } catch (e) {
-    console.error('[credits] record failed:', e.message)
-  }
-}
+// Celestial Credits earning (REQ-045) was DECOMMISSIONED (REQ-010): the
+// `recordCreditsEarned` writer — the only code that wrote to credits_ledger and
+// the users points columns — has been removed. The order-completion path no
+// longer calls it; order persistence, emails and the price/shipping/VAT
+// computation are untouched. The credits_ledger table and the points columns are
+// left DORMANT (no reader/writer remains) pending a separate DROP migration.
 
 // Resolve (and lazily create) the Stripe customer for a logged-in user, caching
 // the id on the user row. Returns null when Stripe/DB are unconfigured so callers
@@ -815,13 +861,25 @@ async function ensureStripeCustomer(uid) {
   return customer.id
 }
 
-async function sendEmails(session, items, personalization) {
-  const email = session.customer_details?.email
-  const lines = items.map((i) => `• ${i.qty}× ${i.description || 'Poster'} — ${eur(i.amount)}`).join('\n')
+// Pure builder for the customer-facing order strings (line items, total, the
+// personalization block). Every amount is formatted in `session.currency` — the
+// currency Stripe actually settled — so the confirmation a US/UK buyer receives
+// reads in $/£, not a hardcoded €. Display-only: it never touches what is charged.
+export function buildOrderSummary(session, items, personalization = {}) {
+  const currency = session?.currency
+  const lines = (items || [])
+    .map((i) => `• ${i.qty}× ${i.description || 'Poster'} — ${money(i.amount, currency)}`)
+    .join('\n')
+  const total = money(session?.amount_total, currency)
   const personalText = Object.keys(personalization).length
     ? '\n\nPersonalisierung:\n' + Object.entries(personalization).map(([k, v]) => `${k}: ${typeof v === 'object' ? Object.entries(v).map(([a, b]) => `${a}=${b}`).join(', ') : v}`).join('\n')
     : ''
-  const total = eur(session.amount_total)
+  return { lines, total, personalText }
+}
+
+async function sendEmails(session, items, personalization) {
+  const email = session.customer_details?.email
+  const { lines, total, personalText } = buildOrderSummary(session, items, personalization)
   if (!resend) { console.log('[mail] (no Resend) confirmation skipped for', email); return }
   try {
     if (email) {
