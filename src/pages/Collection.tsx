@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Link, Navigate, useParams } from 'react-router'
+import { Link, Navigate, useParams, useSearchParams } from 'react-router'
 import { products, filterByWorld, productsByIds, type Product } from '../lib/catalog'
 import { getCollectionConfig, type CollectionConfig } from '../lib/collections'
 import ProductCard from '../components/shop/ProductCard'
@@ -95,10 +95,14 @@ export default function Collection() {
   const cfg = slug ? getCollectionConfig(slug) : undefined
 
   const { t } = useT()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [personalizableOnly, setPersonalizableOnly] = useState(false)
-  const [styleFilter, setStyleFilter] = useState<string | null>(null)
-  const [roomFilter, setRoomFilter] = useState<string | null>(null)
-  const [priceFilter, setPriceFilter] = useState<string | null>(null)
+  // M17 — the facet matrix (style/room/price) is URL-DRIVEN: the query string is
+  // the source of truth, so a filtered view is shareable + back/forward-navigable
+  // and consistent with the M16 hub deep-link contract (?style/?room[/?price]).
+  const styleFilter = searchParams.get('style')
+  const roomFilter = searchParams.get('room')
+  const priceFilter = searchParams.get('price')
   const [sort, setSort] = useState<SortKey>('featured')
   // How many cards are revealed (pagination / show-more). Reset whenever the
   // collection or any filter changes so the count never carries over stale state.
@@ -106,19 +110,39 @@ export default function Collection() {
 
   const anyFilter = personalizableOnly || !!styleFilter || !!roomFilter || !!priceFilter
 
+  // Toggle a facet in the URL (immutable update). Clearing a facet removes its
+  // param entirely so the URL stays clean; every change snaps pagination back.
+  function setFacet(key: 'style' | 'room' | 'price', value: string | null): void {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (value === null) next.delete(key)
+      else next.set(key, value)
+      return next
+    })
+    setShownCount(PAGE_SIZE)
+  }
+
   function resetFilters(): void {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      next.delete('style')
+      next.delete('room')
+      next.delete('price')
+      return next
+    })
     setPersonalizableOnly(false)
-    setStyleFilter(null)
-    setRoomFilter(null)
-    setPriceFilter(null)
     setShownCount(PAGE_SIZE)
   }
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    resetFilters()
+    // Reset only LOCAL controls on collection change; the URL facets
+    // (style/room/price) are intentionally left intact so a deep-link like
+    // /collections/x?style=minimal is honored on load. In-app links that carry no
+    // query naturally clear the facets (empty search → null filters).
+    setPersonalizableOnly(false)
     setSort('featured')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setShownCount(PAGE_SIZE)
   }, [slug])
 
   const base = useMemo(() => (cfg ? resolveProducts(cfg) : []), [cfg])
@@ -214,21 +238,21 @@ export default function Collection() {
           {styleFacets.length > 1 && (
             <FilterRow testid="collection-filter-style" label="Stil">
               {styleFacets.map((f) => (
-                <Chip key={f} active={styleFilter === f} onClick={() => { setStyleFilter(styleFilter === f ? null : f); setShownCount(PAGE_SIZE) }}>{t(`taxonomy.style.${f}`) || f}</Chip>
+                <Chip key={f} active={styleFilter === f} onClick={() => setFacet('style', styleFilter === f ? null : f)}>{t(`taxonomy.style.${f}`) || f}</Chip>
               ))}
             </FilterRow>
           )}
           {roomFacets.length > 1 && (
             <FilterRow testid="collection-filter-room" label="Raum & Anlass">
               {roomFacets.map((r) => (
-                <Chip key={r} active={roomFilter === r} onClick={() => { setRoomFilter(roomFilter === r ? null : r); setShownCount(PAGE_SIZE) }}>{t(`taxonomy.room.${r}`) || r}</Chip>
+                <Chip key={r} active={roomFilter === r} onClick={() => setFacet('room', roomFilter === r ? null : r)}>{t(`taxonomy.room.${r}`) || r}</Chip>
               ))}
             </FilterRow>
           )}
           {priceFacets.length > 1 && (
             <FilterRow testid="collection-filter-price" label="Preis">
               {priceFacets.map((b) => (
-                <Chip key={b.id} active={priceFilter === b.id} onClick={() => { setPriceFilter(priceFilter === b.id ? null : b.id); setShownCount(PAGE_SIZE) }}>{b.label}</Chip>
+                <Chip key={b.id} active={priceFilter === b.id} onClick={() => setFacet('price', priceFilter === b.id ? null : b.id)}>{b.label}</Chip>
               ))}
             </FilterRow>
           )}
