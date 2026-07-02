@@ -64,7 +64,7 @@ const PRICE_BUCKETS: { id: string; label: string; test: (p: Product) => boolean 
 /** One labelled facet row (a filter dimension) in the collection toolbar. */
 function FilterRow({ testid, label, nonFinal, children }: { testid: string; label: string; nonFinal?: boolean; children: ReactNode }) {
   return (
-    <div data-testid={testid} data-nonfinal={nonFinal ? 'true' : undefined} style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+    <div data-testid={testid} role="group" aria-label={label} data-nonfinal={nonFinal ? 'true' : undefined} style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
       <span style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.textMuted2, minWidth: 108 }}>
         {label}{nonFinal && <span style={{ color: C.textMuted4, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}> · vorläufig</span>}
       </span>

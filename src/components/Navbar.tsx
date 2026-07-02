@@ -200,6 +200,7 @@ export default function Navbar() {
                 onClick={() => setPosterOpen(true)}
                 aria-haspopup="true"
                 aria-expanded={posterOpen}
+                aria-controls="mega-menu-panel"
                 className="flex items-center gap-1 transition-colors hover:text-[#C0492E]"
                 style={{ ...navLinkStyle(posterActive || location.pathname.startsWith('/collections')) }}
               >
@@ -208,6 +209,7 @@ export default function Navbar() {
 
               <div
                 data-testid="mega-menu-panel"
+                id="mega-menu-panel"
                 aria-label={t('nav.collections')}
                 style={{
                   position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: posterOpen ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-6px)',
