@@ -52,7 +52,9 @@ describe('M15 / REQ-002 / REQ-022 / NG-004 — no fake affordances or competitor
   for (const lang of LANGS) {
     it(`translations[${lang}] shop subtrees carry no coming-soon / patron / credit / competitor string`, () => {
       const root = translations[lang] as Record<string, unknown>
-      const blob = collect(['home', 'footer', 'newsletter', 'product', 'cart', 'nav', 'tax', 'taxonomy'].map((k) => root[k])).join('  ')
+      // Gate C remediation: 'checkout' added — the funnel copy must be honest too
+      // (no coming-soon/patron/credit/competitor strings in the checkout subtree).
+      const blob = collect(['home', 'footer', 'newsletter', 'product', 'cart', 'nav', 'tax', 'taxonomy', 'checkout'].map((k) => root[k])).join('  ')
       expect(COMING_SOON.test(blob), `coming-soon in ${lang}`).toBe(false)
       expect(PATRON.test(blob), `patron in ${lang}`).toBe(false)
       expect(CREDIT.test(blob), `credit in ${lang}`).toBe(false)

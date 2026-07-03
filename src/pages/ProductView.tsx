@@ -97,11 +97,21 @@ export default function ProductView() {
     showToast(t('cart.toastAdded'))
   }
 
-  const placeholderThumb = (label: string) => (
-    <div style={{ aspectRatio: '4 / 5', background: '#F2ECE0', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ fontFamily: FONT_SANS, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 8 }} dangerouslySetInnerHTML={{ __html: label }} />
-    </div>
-  )
+  const placeholderThumb = (label: string) => {
+    // Gate B (security): render real JSX instead of dangerouslySetInnerHTML. The
+    // labels carry only a literal <br/>; split on it and render <br/> elements so
+    // the innerHTML sink is gone and the surface stays immune to future interpolation.
+    const lines = label.split(/<br\s*\/?>/i)
+    return (
+      <div style={{ aspectRatio: '4 / 5', background: '#F2ECE0', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontFamily: FONT_SANS, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 8 }}>
+          {lines.map((ln, i) => (
+            <span key={i}>{i > 0 && <br />}{ln}</span>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <main data-testid="pdp" data-personalizable={personalizable} data-product-kind={kind} style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '24px 32px 64px' }}>
@@ -223,13 +233,12 @@ export default function ProductView() {
           {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
 
           {COMMERCE_ENABLED ? (
-            <>
-              <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
-                <button onClick={() => showToast(t('product.express'))} className="transition-[filter] hover:brightness-95" style={{ background: '#FFC439', color: '#0a0a0a', border: 'none', cursor: 'pointer', padding: 13, borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS }}>PayPal</button>
-                <button onClick={() => showToast(t('product.express'))} className="transition-[filter] hover:brightness-125" style={{ background: '#000', color: '#fff', border: 'none', cursor: 'pointer', padding: 13, borderRadius: 10, fontSize: 15, fontWeight: 500, fontFamily: FONT_SANS }}> Pay</button>
-              </div>
-            </>
+            /* Gate C/D remediation: the PDP express-pay buttons (PayPal / Apple Pay)
+               were a FAKE affordance — they toasted "Redirecting to express payment…"
+               but never redirected (no express flow exists; RL-STRIPE). Removed, so
+               the PDP no longer claims a capability it does not have. The honest
+               purchase path is add-to-cart → cart → checkout. */
+            <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
           ) : (
             <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
           )}
