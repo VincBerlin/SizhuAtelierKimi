@@ -90,7 +90,10 @@ export function worldToSlug(world: ProductWorld): CollectionSlug | null {
   }
 }
 
-// ── Axis: product world / type (REQ-006) — grounded on PRODUCT_WORLDS ────────────
+// ── Axis: product world / type (REQ-006) — each entry grounds on a LIVE collection
+// slug (a real world route where one exists, else a real cross-world collection like
+// personalized-posters). Not strictly a PRODUCT_WORLDS value: 'personalized' maps to
+// the personalized-posters collection, not a bazi/tcm/wuxing/mixed world. ────────────
 const WORLD_ENTRIES: readonly TaxonomyEntry[] = [
   { id: 'bazi', labelKey: 'taxonomy.world.bazi', label: 'BaZi Posters', link: { kind: 'collection', slug: 'bazi-posters' } },
   { id: 'tcm', labelKey: 'taxonomy.world.tcm', label: 'TCM Posters', link: { kind: 'collection', slug: 'tcm-posters' } },
