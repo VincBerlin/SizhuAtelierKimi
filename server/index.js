@@ -201,15 +201,31 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, stripe: !!stripe, db: !!pool, email: !!resend, publicUrl: PUBLIC_URL || null })
 })
 
-// ---- shipping region (server IP geolocation via CDN/host header) ------------
+// ---- shipping region (trusted-edge country header ONLY) ---------------------
 // Country→region classification lives in ONE place — `regionFromCountry` in
 // pricing.js. This DISPLAY route and the CHARGE route (/api/checkout) both derive
 // the region from that single function, so the currency a shopper SEES and the
-// currency they are CHARGED can never silently diverge on a one-sided country-set
-// edit (FM-06, one layer up). region-currency.test.ts pins this route's region to
-// `regionFromCountry` across a representative country sample.
+// currency they are CHARGED can never silently diverge (FM-06). region-currency
+// tests pin the region to `regionFromCountry` across a representative sample.
+//
+// RL-GEO (Gate B, 2026-07-03): geo headers (cf-ipcountry / x-vercel-ip-country /
+// x-geo-country / x-country) are CLIENT-SPOOFABLE unless a trusted edge
+// (Cloudflare/Vercel) sets them AND strips inbound copies. Railway does neither, so
+// blindly trusting them let a shopper send `x-country: US` for FREE shipping +
+// USD/GBP FX settlement of EUR amounts. We now read a geo header ONLY when
+// `TRUSTED_GEO_HEADER` names the header a trusted edge sets; otherwise the country is
+// UNKNOWN and the region falls back to `DEFAULT_REGION` (base 'eu' → EUR + standard
+// shipping). Read at request time so it stays test-injectable. Set
+// `TRUSTED_GEO_HEADER=cf-ipcountry` ONLY once the app actually sits behind an edge
+// that sets+strips that header — never before.
+function countryFromRequest(req) {
+  const trusted = String(process.env.TRUSTED_GEO_HEADER || '').toLowerCase()
+  if (!trusted) return '' // no trusted edge → never trust a client-sent geo header
+  return String(req.headers[trusted] || '').toUpperCase()
+}
+
 app.get('/api/region', (req, res) => {
-  const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '').toUpperCase()
+  const country = countryFromRequest(req)
   const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
   res.json({ region, country: country || null })
 })
@@ -222,11 +238,12 @@ app.post('/api/checkout', async (req, res) => {
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'Cart is empty.' })
 
     // ── Server-authoritative region + currency (REQ-016 / AT-016-7) ──────────
-    // Region is derived from the CDN/host country header; the line-item currency
-    // FOLLOWS the region via the declarative server map (us→USD, uk→GBP, eu→EUR).
-    // Any client-supplied currency is IGNORED, exactly like client `unitAmount` /
-    // `shippingCents` (FM-06). Stripe wants the ISO code lowercased.
-    const country = String(req.headers['cf-ipcountry'] || req.headers['x-vercel-ip-country'] || req.headers['x-geo-country'] || req.headers['x-country'] || '')
+    // Region comes from countryFromRequest (RL-GEO: a TRUSTED-EDGE geo header only,
+    // never a spoofable client header — no free-shipping/FX bypass); the line-item
+    // currency FOLLOWS the region via the declarative server map (us→USD, uk→GBP,
+    // eu→EUR). Any client-supplied currency is IGNORED, exactly like client
+    // `unitAmount` / `shippingCents` (FM-06). Stripe wants the ISO code lowercased.
+    const country = countryFromRequest(req)
     const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
     const currency = currencyForRegion(region).toLowerCase()
 

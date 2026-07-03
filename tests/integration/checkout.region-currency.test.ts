@@ -18,7 +18,7 @@
  * region.ts / pricing.js / catalog.ts — proving these tests catch the
  * "one currency for the whole world" hole.
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import request from 'supertest'
 // The server exposes `createApp({ stripe })` so the route can be driven with a
 // stubbed Stripe (ADR-001 / REQ-015 AK-4: no real key in tests).
@@ -72,10 +72,22 @@ const VALID_POSTER = {
 
 let stub: ReturnType<typeof makeStripeStub>
 let app: any
+let prevTrustedGeo: string | undefined
 
 beforeEach(() => {
   stub = makeStripeStub()
   app = createApp({ stripe: stub.stripe })
+  // RL-GEO: the header-driven region cases below simulate a REAL trusted edge that
+  // sets `cf-ipcountry` (Railway does not by default). Without a trusted header the
+  // route ignores spoofable client geo headers — that safe default is covered by the
+  // dedicated RL-GEO describe (which unsets it).
+  prevTrustedGeo = process.env.TRUSTED_GEO_HEADER
+  process.env.TRUSTED_GEO_HEADER = 'cf-ipcountry'
+})
+
+afterEach(() => {
+  if (prevTrustedGeo === undefined) delete process.env.TRUSTED_GEO_HEADER
+  else process.env.TRUSTED_GEO_HEADER = prevTrustedGeo
 })
 
 function lineItemsFromLastCall() {
@@ -238,5 +250,44 @@ describe('[INTEGRATION-FAKE] REQ-016 AT-016-5 — computeShippingCents: us/uk fr
     expect(computeShippingCents('eu', thresholdCents)).toBe(0)
     expect(computeShippingCents('other', 100)).toBe(490)
     expect(computeShippingCents('other', thresholdCents)).toBe(0)
+  })
+})
+
+describe('[INTEGRATION-FAKE] RL-GEO (Gate B) — spoofable geo headers NOT trusted without a trusted edge', () => {
+  // On Railway (no Cloudflare/Vercel edge) a shopper can send cf-ipcountry / x-country
+  // directly. With no TRUSTED_GEO_HEADER the route must IGNORE all client geo headers
+  // and fall back to the base region — closing the free US/UK-shipping + USD/GBP FX bypass.
+  beforeEach(() => { delete process.env.TRUSTED_GEO_HEADER })
+  const DEFAULT_REGION = (process.env.DEFAULT_REGION || 'eu').toLowerCase()
+
+  it('a spoofed cf-ipcountry:US is IGNORED at /api/region → base region, not us', async () => {
+    const res = await request(app).get('/api/region').set('cf-ipcountry', 'US')
+    expect(res.status).toBe(200)
+    expect(res.body.region).toBe(DEFAULT_REGION) // eu, NOT us
+    expect(res.body.country).toBeNull()
+  })
+
+  it('a spoofed x-country:US is IGNORED at /api/region (arbitrary client header)', async () => {
+    const res = await request(app).get('/api/region').set('x-country', 'US')
+    expect(res.body.region).toBe(DEFAULT_REGION)
+  })
+
+  it('checkout with spoofed cf-ipcountry:US → NO free shipping + EUR (no FX / free-ship bypass)', async () => {
+    const res = await request(app)
+      .post('/api/checkout')
+      .set('cf-ipcountry', 'US')
+      .send({ items: [{ ...VALID_POSTER, unitAmount: 1 }], shippingCents: 0, currency: 'usd' })
+    expect(res.status).toBe(200)
+    // region falls back to eu → 49 € < 80 € threshold → flat shipping charged, all lines EUR
+    const ship = shippingLine()
+    expect(ship).toBeTruthy()
+    expect(ship.price_data.unit_amount).toBe(490)
+    expect(new Set(allCurrencies())).toEqual(new Set(['eur'])) // NOT usd
+  })
+
+  it('only the CONFIGURED trusted header is honored (x-country ignored when TRUSTED_GEO_HEADER=cf-ipcountry)', async () => {
+    process.env.TRUSTED_GEO_HEADER = 'cf-ipcountry'
+    const res = await request(app).get('/api/region').set('x-country', 'US') // wrong header
+    expect(res.body.region).toBe(DEFAULT_REGION) // x-country not the trusted header → eu
   })
 })
