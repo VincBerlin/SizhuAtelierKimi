@@ -11,6 +11,7 @@
 //   - visual tiles are asset-light non-final placeholders (REQ-013 / OQ-002).
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   TAXONOMY,
   TAXONOMY_AXES,
@@ -123,7 +124,9 @@ describe('M9 · no dead links (every entry grounds on real data)', () => {
   })
 
   it('KNOWN_ROUTES are really declared in App.tsx (not a self-referential allowlist)', () => {
-    const app = readFileSync(new URL('../../src/App.tsx', import.meta.url), 'utf8')
+    // process.cwd() statt import.meta.url: im jsdom-Environment von Vitest 4 ist
+    // import.meta.url keine file://-URL mehr (readFileSync verweigert http-Schema).
+    const app = readFileSync(join(process.cwd(), 'src/App.tsx'), 'utf8')
     for (const r of KNOWN_ROUTES) {
       expect(app, `route ${r} must be a real <Route path> in App.tsx`).toContain(`path="${r}"`)
     }

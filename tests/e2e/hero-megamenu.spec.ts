@@ -30,6 +30,11 @@ test.describe('Hero (Operator-Plan §2.1/§4)', () => {
     const brand = (await page.getByTestId('split-hero-brand').boundingBox())!
     const media = (await page.getByTestId('split-hero-media').boundingBox())!
     expect(brand.y).toBeLessThan(media.y) // Brand oben, Foto darunter (§7)
+    // Mobile-first: die H1 muss UNTERHALB der fixierten Kopfzeile beginnen
+    // (Announcement 34px + Header ≈72px ⇒ ≥106px) — Fund 2026-07-12: das Logo
+    // überlappte die Headline; Fix = pt-[130px] auf der Markenfläche.
+    const h1 = (await page.locator('[data-testid="split-hero-brand"] h1').boundingBox())!
+    expect(h1.y).toBeGreaterThanOrEqual(106)
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
     expect(overflow).toBeLessThanOrEqual(0)
     await page.screenshot({ path: 'docs/evidence/fufire-gelato/hero-mobile.png' })
@@ -53,6 +58,10 @@ test.describe('Mega-Menü (Operator-Plan §5/§6)', () => {
     // Editorial-Spalte + genau 2 Bildkarten + keine Pills:
     await expect(page.getByTestId('mega-editorial')).toBeVisible()
     await expect(page.getByTestId('mega-tile')).toHaveCount(2)
+    // Ledger-Artefakt erst nach Ende des 180ms-Fades schießen — ein Screenshot
+    // mitten in der Opacity-Transition zeigt ein scheinbar defektes,
+    // halbtransparentes Panel (Fund vom 2026-07-12-Lauf).
+    await expect(panel).toHaveCSS('opacity', '1')
     await page.screenshot({ path: 'docs/evidence/fufire-gelato/megamenu-open.png' })
     await page.keyboard.press('Escape')
     await expect(panel).toBeHidden()

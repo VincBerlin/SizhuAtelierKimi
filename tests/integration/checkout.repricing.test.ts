@@ -12,7 +12,7 @@
  * actually catch the 1-cent / free-shipping tampering hole (Vision §7.2,
  * acceptance-design AT-001/002/003/015, AT-015-6 "rot-ohne-Fix").
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import request from 'supertest'
 // The server must expose a `createApp({ stripe })` factory so the route can be
 // driven with a stubbed Stripe (ADR-001 / REQ-015 AK-4: no real key in tests).
@@ -79,10 +79,21 @@ const VALID_POSTER_PRICE = 4900
 
 let stub: ReturnType<typeof makeStripeStub>
 let app: any
+let prevTrustedGeo: string | undefined
 
 beforeEach(() => {
   stub = makeStripeStub()
   app = createApp({ stripe: stub.stripe })
+  // RL-GEO (cad8794): geo headers are only honored when TRUSTED_GEO_HEADER names
+  // them. The region cases here (AT-002-3 US/GB free shipping) simulate a REAL
+  // trusted edge setting `cf-ipcountry` — same pattern as region-currency.test.ts.
+  prevTrustedGeo = process.env.TRUSTED_GEO_HEADER
+  process.env.TRUSTED_GEO_HEADER = 'cf-ipcountry'
+})
+
+afterEach(() => {
+  if (prevTrustedGeo === undefined) delete process.env.TRUSTED_GEO_HEADER
+  else process.env.TRUSTED_GEO_HEADER = prevTrustedGeo
 })
 
 function lineItemsFromLastCall() {

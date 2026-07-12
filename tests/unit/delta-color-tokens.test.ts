@@ -143,8 +143,14 @@ describe('REQ-017 / AT-017-COLOR-1 — tokens.ts accent is the single canonical 
 
 describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI surface', () => {
   // 2a — the specific FM-09 sienna accent + its hover variant are gone everywhere.
-  it('2a: the sienna "--terracotta" naming-lie (#A0522D) and its hover (#B5652B) are absent from index.css + pages + components', () => {
+  // AUSNAHME (Operator-superseded 2026-07-12, Hero/Mega-Menü-Plan §4 + Ledger
+  // „Vertrags-Änderungen"): der Split-Hero definiert #A0522D als BRAND_TERRACOTTA
+  // für seinen EINEN CTA — bewusste Operator-Vorgabe, KEIN zurückgekehrtes
+  // Naming-Lie-Token. Die Ausnahme ist exakt auf SplitHero.tsx begrenzt; der
+  // Hover #B5652B bleibt überall verboten.
+  it('2a: the sienna "--terracotta" naming-lie (#A0522D) and its hover (#B5652B) are absent from index.css + pages + components (SplitHero CTA excepted per Operator-Plan §4)', () => {
     const removed = ['#A0522D', '#B5652B']
+    const SPLIT_HERO_EXCEPTION = 'src/components/home/SplitHero.tsx'
     const sources: Array<[string, string]> = [
       ['src/index.css', INDEX_CSS],
       ...CHROME_FILES.map((f): [string, string] => [path.relative(ROOT, f), readFileSync(f, 'utf8')]),
@@ -153,6 +159,7 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
     for (const [name, text] of sources) {
       const upper = text.toUpperCase()
       for (const dead of removed) {
+        if (dead === '#A0522D' && name === SPLIT_HERO_EXCEPTION) continue
         const n = upper.split(dead).length - 1
         if (n > 0) hits.push(`${name}: ${dead}×${n}`)
       }
@@ -167,13 +174,20 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
   })
 
   // 2c — HSL sweep over the CHROME inline-styles; only documented exceptions allowed.
-  it('2c: the only saturated orange/gold hex in chrome inline-styles is the documented PayPal brand gold', () => {
+  it('2c: the only saturated orange/gold hex in chrome inline-styles is the documented PayPal brand gold (+ SplitHero BRAND_TERRACOTTA per Operator-Plan §4)', () => {
     // Documented allow-list (exceptionRegister): PayPal brand gold is brand-required.
     const ALLOW = new Set(['#FFC439'])
+    // Datei-gebundene Operator-Ausnahme (2026-07-12, Hero/Mega-Menü-Plan §4):
+    // BRAND_TERRACOTTA #A0522D ausschließlich im Split-Hero-CTA.
+    const FILE_ALLOW: Record<string, Set<string>> = {
+      'src/components/home/SplitHero.tsx': new Set(['#A0522D']),
+    }
     const flagged = new Set<string>()
     for (const f of CHROME_FILES) {
+      const rel = path.relative(ROOT, f)
+      const fileAllow = FILE_ALLOW[rel] ?? new Set<string>()
       for (const hex of hexesIn(readFileSync(f, 'utf8'))) {
-        if (isSaturatedOrangeGold(hex) && !ALLOW.has(hex)) flagged.add(hex)
+        if (isSaturatedOrangeGold(hex) && !ALLOW.has(hex) && !fileAllow.has(hex)) flagged.add(hex)
       }
     }
     expect(

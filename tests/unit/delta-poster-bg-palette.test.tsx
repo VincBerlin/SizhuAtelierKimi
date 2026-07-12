@@ -51,6 +51,36 @@ beforeEach(() => {
   localStorage.clear()
 })
 
+// FuFirE-Ehrlichkeits-Gate (049338d): ohne aufgelösten Ort + fertiges exaktes
+// Chart blockt addToCart — der Cart-Line-Test braucht daher denselben
+// fetch-Mock wie personalize-exact-chart.test.tsx (nur /api/geocode +
+// /api/bazi gemockt; die echte Route ist in tests/integration/bazi-routes
+// bewiesen, die echte API im Ledger [REAL-BOUNDARY-LIVE]).
+const MOCK_CHART = {
+  pillars: [
+    { label: '年', stem: '庚', branch: '午' },
+    { label: '月', stem: '壬', branch: '午' },
+    { label: '日', stem: '辛', branch: '亥' },
+    { label: '時', stem: '乙', branch: '未' },
+  ],
+  animal: 'Pferd',
+  element: 'Metall',
+  provenance: { engine_version: 'test', ruleset_id: 'test', tzdb_version_id: 'test' },
+}
+function mockBaziApi() {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+    const u = String(url)
+    if (u === '/api/bazi') return new Response(JSON.stringify(MOCK_CHART), { status: 200 })
+    if (u === '/api/geocode') {
+      return new Response(
+        JSON.stringify({ status: 'ok', lat: 48.137, lon: 11.575, tz: 'Europe/Berlin', resolvedName: 'München', countryCode: 'DE' }),
+        { status: 200 },
+      )
+    }
+    return new Response('{}', { status: 404 })
+  })
+}
+
 // ── AT-018-1 — palette is EXACTLY the 5 hex, defined in tokens.ts ────────────
 
 describe('REQ-018 / AT-018-1 — POSTER_BG_PALETTE is exactly the 5 frozen hex', () => {
@@ -121,6 +151,7 @@ describe('REQ-018 / AT-018-2/3 — Personalize renders 5 swatches and selection 
   it('AT-018-3 — the chosen poster background reaches the /personalize cart line', async () => {
     localStorage.setItem('sizhu_lang', 'EN')
     storeRef = null
+    mockBaziApi()
     render(
       <>
         <StoreProbe />
@@ -132,9 +163,16 @@ describe('REQ-018 / AT-018-2/3 — Personalize renders 5 swatches and selection 
     // Minimum valid birth data so the add-to-cart gate passes (name + place via
     // placeholder, date + time via input type — language-stable selectors).
     fireEvent.change(screen.getByPlaceholderText('e.g. Mara'), { target: { value: 'Mara' } })
-    fireEvent.change(screen.getByTestId('place-of-birth-input'), { target: { value: 'München' } })
+    const placeInput = screen.getByTestId('place-of-birth-input')
+    fireEvent.change(placeInput, { target: { value: 'München' } })
+    // Ort AUFLÖSEN (blur → /api/geocode) — ohne resolvedPlace kein Chart, ohne
+    // fertiges Chart kein Add-to-Cart (Ehrlichkeits-Gate).
+    fireEvent.blur(placeInput)
+    await screen.findByTestId('place-resolved-note')
     fireEvent.change(document.querySelector('input[type="date"]')!, { target: { value: '1990-07-21' } })
     fireEvent.change(document.querySelector('input[type="time"]')!, { target: { value: '08:30' } })
+    // Exaktes Chart abwarten (Debounce + Mock-Fetch), erst dann darf der Kauf.
+    await waitFor(() => expect(screen.getAllByText('庚').length).toBeGreaterThan(0), { timeout: 5000 })
 
     // Choose a poster background through the real swatch control.
     const swatches = screen.getAllByTestId('poster-bg-swatch')

@@ -1,8 +1,8 @@
 /**
  * useBaziChart — Debounce, Race-Guard, ehrlicher Fehlerzustand.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, waitFor, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeAll, afterAll, afterEach } from 'vitest'
+import { renderHook, act, cleanup } from '@testing-library/react'
 import { useBaziChart } from '@/hooks/useBaziChart'
 import type { BaziInput } from '@/lib/baziClient'
 
@@ -24,11 +24,27 @@ const input: BaziInput = {
   birthTimeUnknown: false,
 }
 
-beforeEach(() => {
+// EINE Fake-Uhr für die GANZE Datei — nie mid-test auf useRealTimers wechseln:
+// Reacts Scheduler cached seine Timer-Referenz beim ersten Laden; nach einem
+// Uhrwechsel hängen Passive-Effect-Flushes (inkl. Debounce-Timer-CANCEL im
+// Effekt-Cleanup) an einer toten Uhr, und Folgetests sehen Geister-Fetches
+// (Fund 2026-07-13 via Bisektion: jeder Sibling mit mid-test useRealTimers
+// vergiftete den Coalesce-Test; der Hook selbst war korrekt).
+// Statt useRealTimers+waitFor: advanceTimersByTimeAsync — treibt Fake-Timer
+// UND Microtasks (Fetch-Promise-Ketten) deterministisch bis zum Settled-State.
+beforeAll(() => {
   vi.useFakeTimers()
 })
-afterEach(() => {
+afterAll(() => {
   vi.useRealTimers()
+})
+afterEach(() => {
+  // Explizit: Hook-Instanz unmounten UND übrige Fake-Timer wegräumen, damit
+  // kein Sibling-Debounce-Timer ins Zeitfenster des nächsten Tests leakt
+  // (Bisektions-Fund 2026-07-13: Geister-Fetches mit dem Input des VORHERIGEN
+  // Tests — der Auto-Cleanup allein räumte die geteilte Fake-Uhr nicht).
+  cleanup()
+  vi.clearAllTimers()
   vi.restoreAllMocks()
 })
 
@@ -47,10 +63,9 @@ describe('useBaziChart', () => {
     expect(result.current.status).toBe('loading')
     expect(spy).not.toHaveBeenCalled() // noch im Debounce-Fenster
     await act(async () => {
-      vi.advanceTimersByTime(300)
+      await vi.advanceTimersByTimeAsync(300)
     })
-    vi.useRealTimers()
-    await waitFor(() => expect(result.current.status).toBe('ready'))
+    expect(result.current.status).toBe('ready')
     expect(result.current.chart!.pillars[3].branch).toBe('未')
     expect(spy).toHaveBeenCalledTimes(1)
   })
@@ -59,30 +74,15 @@ describe('useBaziChart', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 502 }))
     const { result } = renderHook(() => useBaziChart(input))
     await act(async () => {
-      vi.advanceTimersByTime(300)
+      await vi.advanceTimersByTimeAsync(300)
     })
-    vi.useRealTimers()
-    await waitFor(() => expect(result.current.status).toBe('error'))
+    expect(result.current.status).toBe('error')
     expect(result.current.chart).toBeNull()
   })
 
-  it('coalesces rapid input changes into one fetch (debounce)', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(CHART), { status: 200 }))
-    const { result, rerender } = renderHook(({ inp }) => useBaziChart(inp), { initialProps: { inp: input } })
-    await act(async () => {
-      vi.advanceTimersByTime(150)
-    })
-    rerender({ inp: { ...input, time: '13:30' } })
-    await act(async () => {
-      vi.advanceTimersByTime(150)
-    })
-    expect(spy).not.toHaveBeenCalled() // erster Timer wurde gecancelt
-    await act(async () => {
-      vi.advanceTimersByTime(300)
-    })
-    vi.useRealTimers()
-    await waitFor(() => expect(result.current.status).toBe('ready'))
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(JSON.parse(spy.mock.calls[0][1]!.body as string).time).toBe('13:30')
-  })
+  // Der Koaleszenz-Test (genau EIN Fetch mit dem neuesten Wert) lebt in der
+  // EIGENEN Datei use-bazi-chart.debounce.test.tsx: nach Siblings mit eigenem
+  // renderHook+Fake-Timer-Zyklus feuerten deren Debounce-Timer als Geister-
+  // Fetches in sein Zeitfenster (Bisektion + 11:11-Sonde, 2026-07-13).
+  // Datei-Isolation macht die Leckage strukturell unmöglich.
 })
