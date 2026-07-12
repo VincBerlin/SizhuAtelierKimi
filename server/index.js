@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
-import { fufireEnabled, calculateBazi, geocodePlace } from './fufire.js'
+import { fufireEnabled, calculateBazi, geocodePlace, matchHehun } from './fufire.js'
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
@@ -256,7 +256,7 @@ app.get('/api/region', (req, res) => {
 // damit die REALEN Routen mit gestubbtem Client testbar sind.
 // Ehrlichkeits-Regel (OQ-004): nicht konfiguriert/Upstream-Fehler → 503/502,
 // NIEMALS ein Platzhalter-Chart als echt ausliefern.
-let fufire = { enabled: fufireEnabled, calculateBazi, geocodePlace }
+let fufire = { enabled: fufireEnabled, calculateBazi, geocodePlace, matchHehun }
 // Gelato-Client — gleiches Override-Muster (createApp({ gelato })) für Tests.
 let gelato = { enabled: gelatoEnabled, createOrder: gelatoCreateOrder }
 
@@ -305,6 +305,35 @@ app.post('/api/bazi', async (req, res) => {
   } catch (e) {
     console.error('[fufire] bazi failed:', e.message)
     return res.status(502).json({ error: 'bazi_failed' })
+  }
+})
+
+// Paar-Analyse (合婚) für das Partner-Poster. Validierung je Person wie
+// /api/bazi; consent setzt der Server (Operator-Entscheidung), keine UI-Box.
+app.post('/api/match', async (req, res) => {
+  if (!fufire.enabled()) return res.status(503).json({ error: 'match_unavailable' })
+  if (rateLimited(req, 'match', 30, 60000)) return res.status(429).json({ error: 'rate_limited' })
+  const { a, b } = req.body || {}
+  for (const [label, p] of [['a', a], ['b', b]]) {
+    if (!p || typeof p !== 'object') return res.status(400).json({ error: `invalid_person_${label}` })
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''))) return res.status(400).json({ error: `invalid_date_${label}` })
+    if (!/^\d{2}:\d{2}$/.test(String(p.time || ''))) return res.status(400).json({ error: `invalid_time_${label}` })
+    if (typeof p.lat !== 'number' || typeof p.lon !== 'number' || typeof p.tz !== 'string' || !p.tz) {
+      return res.status(400).json({ error: `invalid_place_${label}` })
+    }
+  }
+  const toInput = (p) => ({
+    date: `${p.date}T${p.time}:00`,
+    tz: p.tz,
+    lon: p.lon,
+    lat: p.lat,
+    birthTimeKnown: p.birthTimeUnknown !== true,
+  })
+  try {
+    return res.json(await fufire.matchHehun(toInput(a), toInput(b)))
+  } catch (e) {
+    console.error('[fufire] match failed:', e.message)
+    return res.status(502).json({ error: 'match_failed' })
   }
 })
 

@@ -108,6 +108,76 @@ export async function calculateBazi({ date, tz, lon, lat, birthTimeKnown }, fetc
   return normalizeChart(json)
 }
 
+/** Fakten mit source_status === 'CALCULATED' aus einer pair-Sektion ziehen. */
+function calculatedFacts(section) {
+  const out = {}
+  for (const f of section?.facts || []) {
+    if (f.source_status === 'CALCULATED') out[f.key] = f.value
+  }
+  return out
+}
+
+/**
+ * Partnerschafts-Analyse (合婚) über /v1/match/bazi-hehun.
+ *
+ * WICHTIG (Live-Befund 2026-07-12): der Match-Endpunkt rechnet mit seinem
+ * eigenen Default-Zeitstandard, wenn keiner mitgegeben wird — die Stunden-
+ * säule wich vom Einzel-Endpunkt ab. Deshalb wird die gepinnte Konvention
+ * (BAZI_STANDARD/BAZI_BOUNDARY) hier EXPLIZIT für beide Personen gesetzt,
+ * damit Einzel- und Paar-Poster nach derselben Regel rechnen.
+ *
+ * Ehrlichkeits-Regel: ins Ergebnis kommen NUR Fakten mit
+ * source_status === 'CALCULATED' (z. B. bleibt spouse_palace draußen,
+ * solange es in FuFirE als NEEDS_DOMAIN_REVIEW markiert ist).
+ *
+ * consent: Operator-Entscheidung 2026-07-11 — der Shop setzt
+ * second_person_consent_confirmed serverseitig immer auf true.
+ */
+export async function matchHehun(a, b, fetchImpl = fetch, env = defaultEnv()) {
+  const person = (p) => ({
+    date: p.date,
+    tz: p.tz,
+    lon: p.lon,
+    lat: p.lat,
+    standard: BAZI_STANDARD,
+    boundary: BAZI_BOUNDARY,
+    birth_time_known: p.birthTimeKnown !== false,
+    ...(p.gender ? { gender: p.gender } : {}),
+  })
+  const { res, json } = await callFufire('/v1/match/bazi-hehun', {
+    mode: 'birth_input',
+    person_a: person(a),
+    person_b: person(b),
+    options: { second_person_consent_confirmed: true },
+  }, fetchImpl, env)
+  if (!res.ok) throw new FufireError(`fufire match failed (${res.status})`, res.status)
+
+  const ind = json.individual || {}
+  const chartOf = (key) => {
+    const fp = ind[key]?.four_pillars
+    if (!fp) throw new FufireError('malformed match response (individual pillars missing)')
+    return normalizeChart({ pillars: fp, provenance: json.provenance })
+  }
+  const dm = calculatedFacts(json.pair?.day_master_comparison)
+  const wx = calculatedFacts(json.pair?.wuxing_vector_comparison)
+  return {
+    a: chartOf('person_a'),
+    b: chartOf('person_b'),
+    relation: {
+      dayMasterA: dm.person_a_day_master ?? null,
+      dayMasterB: dm.person_b_day_master ?? null,
+      elementA: dm.person_a_element ?? null,
+      elementB: dm.person_b_element ?? null,
+      wuxingRelation: dm.day_master_wuxing_relation ?? null,
+    },
+    vectors: {
+      order: wx.element_order ?? null,
+      a: wx.person_a_vector ?? null,
+      b: wx.person_b_vector ?? null,
+    },
+  }
+}
+
 export async function geocodePlace(place, language = 'de', fetchImpl = fetch, env = defaultEnv()) {
   const { res, json } = await callFufire('/v1/geocode', { place, language }, fetchImpl, env)
   if (res.ok) {
