@@ -331,13 +331,13 @@ git commit -m "feat(server): fufire client with pinyin->hanzi normalization"
 **Files:**
 - Modify: `server/index.js` (Routen nach `/api/checkout`, ~Zeile 320; `createApp`-Override erweitern, Zeile 800)
 - Create: `scripts/evidence/fufire-smoke.mjs`
-- Test: `tests/integration/bazi-routes.test.js`
+- Test: `tests/integration/bazi-routes.test.ts`
 
 **Interfaces:**
 - Consumes: `calculateBazi`, `geocodePlace`, `fufireEnabled`, `FufireError` aus Task 2.
 - Produces: `POST /api/bazi` Body `{date:'YYYY-MM-DD', time:'HH:MM', lat, lon, tz, birthTimeUnknown?}` → 200 `Chart` (Task-2-Form) | 503 wenn nicht konfiguriert | 502 upstream-Fehler | 400 Validierungsfehler. `POST /api/geocode` Body `{place}` → 200 Geocode-Resultat (Task-2-Form). `createApp({ fufire })`-Override für Tests.
 
-- [ ] **Step 1: Failing Integrationstest** — `tests/integration/bazi-routes.test.js` (Muster: `tests/integration/checkout.repricing.test.ts` — reale Route, gestubbtes Extern via `createApp`):
+- [ ] **Step 1: Failing Integrationstest** — `tests/integration/bazi-routes.test.ts` (Muster: `tests/integration/checkout.repricing.test.ts` — reale Route, gestubbtes Extern via `createApp`):
 
 ```js
 import { describe, it, expect } from 'vitest'
@@ -393,7 +393,7 @@ describe('POST /api/geocode', () => {
 })
 ```
 
-- [ ] **Step 2: rot laufen lassen** — `npx vitest run tests/integration/bazi-routes.test.js` → FAIL (Routen existieren nicht)
+- [ ] **Step 2: rot laufen lassen** — `npx vitest run tests/integration/bazi-routes.test.ts` → FAIL (Routen existieren nicht)
 
 - [ ] **Step 3: Routen in `server/index.js` implementieren.** Import oben ergänzen; in `createApp(overrides)` das `fufire`-Override nach dem `stripe`-Muster auflösen; Routen hinter dem bestehenden Rate-Limiter (`rateLimited(req, name, max, windowMs)` existiert bereits):
 
@@ -443,7 +443,7 @@ app.post('/api/geocode', async (req, res) => {
 })
 ```
 
-- [ ] **Step 4: grün** — `npx vitest run tests/integration/bazi-routes.test.js` → PASS. Danach Gesamtlauf: `npm test` → alles grün (keine Regression).
+- [ ] **Step 4: grün** — `npx vitest run tests/integration/bazi-routes.test.ts` → PASS. Danach Gesamtlauf: `npm test` → alles grün (keine Regression).
 
 - [ ] **Step 5: `[REAL-BOUNDARY-LIVE]`-Beweisskript** — `scripts/evidence/fufire-smoke.mjs`:
 
@@ -481,7 +481,7 @@ Expected: `OK — live pillars 庚午|壬午|辛亥|乙未 (engine 1.0.0-rc1-202
 - [ ] **Step 7: Commit**
 
 ```bash
-git add server/index.js tests/integration/bazi-routes.test.js scripts/evidence/fufire-smoke.mjs docs/evidence/fufire-gelato/
+git add server/index.js tests/integration/bazi-routes.test.ts scripts/evidence/fufire-smoke.mjs docs/evidence/fufire-gelato/
 git commit -m "feat(server): /api/bazi + /api/geocode routes with live evidence smoke"
 ```
 
@@ -1063,7 +1063,7 @@ Personalize: `const [designId, setDesignId] = useState('klassik')`; neue Karte �
 
 **Files:**
 - Modify: `server/fufire.js`, `server/index.js`
-- Test: `tests/server/fufire-match.test.js`, Erweiterung `tests/integration/bazi-routes.test.js`
+- Test: `tests/server/fufire-match.test.js`, Erweiterung `tests/integration/bazi-routes.test.ts`
 
 **Interfaces:**
 - Produces: `matchHehun(a, b, fetchImpl?)` mit `a/b = {date, tz, lon, lat, gender?}` → `PairResult = { a: Chart, b: Chart, relation: {dayMasterA, dayMasterB, elementA, elementB, wuxingRelation}, vectors: {order: string[], a: number[], b: number[]}, provenance }` — **nur Fakten mit `source_status === 'CALCULATED'`** (Ehrlichkeits-Regel; `NEEDS_DOMAIN_REVIEW`-Fakten wie `spouse_palace` werden bewusst weggelassen, bis die Domain-Review in FuFirE abgeschlossen ist). Route `POST /api/match` Body `{a: {date,time,lat,lon,tz,birthTimeUnknown?}, b: {…}}` → 200 `PairResult`. Server setzt `second_person_consent_confirmed: true` immer selbst (Operator-Entscheidung 2026-07-11, keine UI-Checkbox).

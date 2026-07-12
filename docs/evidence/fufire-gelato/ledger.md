@@ -36,3 +36,16 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   gegen `fulfillOrder` (Stripe-Schritt dann `[INTEGRATION-FAKE]`, Rest real).
 - **HERO-ASSET** — Finales Hero-Foto ist Operator-Asset (Phase 8 des
   Hero/Mega-Menü-Plans); bis dahin bestes vorhandenes Asset aus `public/images/`.
+
+## Vertrags-Änderungen (Operator-superseded, dokumentiert statt still)
+
+- **AT-004-3 (asset-light Mega-Menü-Kacheln) superseded 2026-07-12:** Der
+  Operator-Plan Hero/Mega-Menü §5.3 verlangt GENAU ZWEI große Bildkarten MIT
+  echten Bildern (Personalized BaZi + Fire Horse). Der alte
+  `data-placeholder`-Vertrag (RL-IMAGES, DELTA T-203) ist damit für die
+  Editorial-Karten aufgehoben; verwendet werden bereits vorhandene Assets
+  (`bazi-personal.webp`, `fire-horse-editorial.webp`). Test aktualisiert:
+  `tests/unit/delta-mega-menu-tiles.test.tsx`. Escalation-Regel gewahrt:
+  Herabstufung kam vom Operator (Plan-Dokument), nicht vom Agenten.
+- **VIS-032 (InkWave-Hero unangetastet) superseded 2026-07-12:** Operator-Plan
+  §2/§4 ersetzt den Three.js-Hero durch den Split-Hero in der Viewport-Shell.
