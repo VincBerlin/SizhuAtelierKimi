@@ -44,15 +44,63 @@ export function posterLinesFrom(personalization) {
   return lines
 }
 
-async function chartFromPersonalization(p, fufire) {
-  const chart = await fufire.calculateBazi({
-    date: `${p.date}T${p.time}:00`,
-    tz: p.placeTz,
-    lon: Number(p.placeLon),
-    lat: Number(p.placeLat),
-    birthTimeKnown: p.birthTimeUnknown !== 'true',
-  })
-  return chart
+function birthInput(p, suffix = '') {
+  return {
+    date: `${p['date' + suffix]}T${p['time' + suffix]}:00`,
+    tz: p['placeTz' + suffix],
+    lon: Number(p['placeLon' + suffix]),
+    lat: Number(p['placeLat' + suffix]),
+    birthTimeKnown: p['birthTimeUnknown' + suffix] !== 'true',
+  }
+}
+
+// Relations-Label in der Poster-Sprache (p.language). Spiegel der i18n-Keys
+// personalize.relation.* (src/i18n/translations.ts) — Poster-Text, daher hier
+// serverseitig, wo das Druck-PDF entsteht.
+const RELATION_TEXT = {
+  DE: { a_generates_b: '{a} nährt {b}', b_generates_a: '{b} nährt {a}', a_controls_b: '{a} kontrolliert {b}', b_controls_a: '{b} kontrolliert {a}', same_element: 'Gemeinsames Element', same: 'Gemeinsames Element' },
+  EN: { a_generates_b: '{a} nourishes {b}', b_generates_a: '{b} nourishes {a}', a_controls_b: '{a} controls {b}', b_controls_a: '{b} controls {a}', same_element: 'Shared element', same: 'Shared element' },
+  FR: { a_generates_b: '{a} nourrit {b}', b_generates_a: '{b} nourrit {a}', a_controls_b: '{a} contrôle {b}', b_controls_a: '{b} contrôle {a}', same_element: 'Élément commun', same: 'Élément commun' },
+  ES: { a_generates_b: '{a} nutre {b}', b_generates_a: '{b} nutre {a}', a_controls_b: '{a} controla {b}', b_controls_a: '{b} controla {a}', same_element: 'Elemento común', same: 'Elemento común' },
+}
+
+function relationLabel(relation, language) {
+  const table = RELATION_TEXT[String(language || 'DE').toUpperCase()] || RELATION_TEXT.DE
+  const tpl = table[relation.wuxingRelation]
+  if (!tpl) return ''
+  return tpl.split('{a}').join(relation.elementA || '').split('{b}').join(relation.elementB || '')
+}
+
+/** Poster-Daten für die Design-Vorlage — Einzel ODER Paar, exakt neu
+ *  berechnet über FuFirE (deterministisch = identisch zur Vorschau). */
+async function posterDataFrom(p, fufire) {
+  if (p.dateB) {
+    const pair = await fufire.matchHehun(birthInput(p), birthInput(p, 'B'))
+    return {
+      data: {
+        frame: p.frameHex || '#1B1B1B',
+        bg: p.bgHex || '#E9DFCB',
+        nameA: p.name || '',
+        nameB: p.nameB || '',
+        chartA: pair.a,
+        chartB: pair.b,
+        relationLabel: relationLabel(pair.relation, p.language),
+      },
+      provenance: pair.a.provenance,
+    }
+  }
+  const chart = await fufire.calculateBazi(birthInput(p))
+  return {
+    data: {
+      frame: p.frameHex || '#1B1B1B',
+      bg: p.bgHex || '#E9DFCB',
+      name: p.name || '',
+      element: chart.element,
+      animal: chart.animal,
+      pillars: chart.pillars,
+    },
+    provenance: chart.provenance,
+  }
 }
 
 export async function fulfillOrder({ session, personalization, deps }) {
@@ -74,22 +122,14 @@ export async function fulfillOrder({ session, personalization, deps }) {
         result.printed.push({ lineKey, reused: true })
         continue
       }
-      const chart = await chartFromPersonalization(p, fufire)
-      const data = {
-        frame: p.frameHex || '#1B1B1B',
-        bg: p.bgHex || '#E9DFCB',
-        name: p.name || '',
-        element: chart.element,
-        animal: chart.animal,
-        pillars: chart.pillars,
-      }
+      const { data, provenance } = await posterDataFrom(p, fufire)
       const pdf = await renderPdf({ designId: p.designId, data, sizeId: p.size })
       const token = randomUUID()
       await pool.query(
         'INSERT INTO prints (stripe_session, line_key, token, design_id, size_id, pdf) VALUES ($1,$2,$3,$4,$5,$6)',
         [session.id, lineKey, token, p.designId, p.size, pdf],
       )
-      result.printed.push({ lineKey, token, bytes: pdf.length, provenance: chart.provenance })
+      result.printed.push({ lineKey, token, bytes: pdf.length, provenance })
     } catch (e) {
       result.failed.push({ lineKey, reason: e.message })
     }

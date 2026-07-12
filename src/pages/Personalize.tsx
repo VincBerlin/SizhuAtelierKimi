@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { frames, backgrounds, sizes, type PosterData, type Pillar } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
-import { resolvePlace, type ResolvedPlace, type PlaceCandidate } from '../lib/baziClient'
-import { useBaziChart } from '../hooks/useBaziChart'
+import { type PlaceCandidate } from '../lib/baziClient'
+import { useBaziChart, usePairChart } from '../hooks/useBaziChart'
+import { usePlaceResolution, type PlaceStatus } from '../hooks/usePlaceResolution'
 import PosterSvg from '../components/shop/PosterSvg'
 import { DESIGNS } from '../designs/registry.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
@@ -51,7 +52,9 @@ export default function Personalize() {
   // traceable (AT-018-3). Distinct from `bgHex` (the poster-art design palette).
   const [posterBgHex, setPosterBgHex] = useState(POSTER_BG_PALETTE[0].hex)
   // Design-Registry (src/designs/registry.mjs): der Käufer wählt das Design;
-  // dieselbe Vorlage rendert Vorschau UND Druck-PDF.
+  // dieselbe Vorlage rendert Vorschau UND Druck-PDF. Paar-Produkte nutzen
+  // pair-Designs, Einzel-Produkte single-Designs — Wechsel des Produkttyps
+  // setzt das Design auf den ersten aktiven Eintrag der passenden Art.
   const [designId, setDesignId] = useState(DESIGNS.find((d) => d.active && d.kind === 'single')?.id ?? 'klassik')
   const [sizeId, setSizeId] = useState('A2')
   const [pdfAddon, setPdfAddon] = useState(false)
@@ -59,48 +62,17 @@ export default function Personalize() {
   // Orts-Auflösung (REQ-013 + Exaktheit): der getippte Ort wird bei AUSWAHL/BLUR
   // (nie pro Tastendruck — Policy AT-013-3) über /api/geocode in lat/lon/tz
   // aufgelöst. Ohne aufgelösten Ort gibt es KEIN Chart (Ehrlichkeits-Gate).
-  const [resolvedPlace, setResolvedPlace] = useState<ResolvedPlace | null>(null)
-  const [placeCandidates, setPlaceCandidates] = useState<PlaceCandidate[] | null>(null)
-  const [placeStatus, setPlaceStatus] = useState<'idle' | 'resolving' | 'ok' | 'ambiguous' | 'not_found' | 'error'>('idle')
+  const placeA = usePlaceResolution()
+  const placeB = usePlaceResolution()
+  const resolvedPlace = placeA.place
 
-  const resolveSelectedPlace = async (value: string) => {
-    const q = value.trim()
-    if (!q) {
-      setResolvedPlace(null)
-      setPlaceCandidates(null)
-      setPlaceStatus('idle')
-      return
-    }
-    // Bereits exakt dieser Ort aufgelöst → nichts tun (Blur nach Pick).
-    if (resolvedPlace && resolvedPlace.resolvedName === q) return
-    setPlaceStatus('resolving')
-    try {
-      const r = await resolvePlace(q)
-      if (r.status === 'ok') {
-        setResolvedPlace({ lat: r.lat, lon: r.lon, tz: r.tz, resolvedName: r.resolvedName, countryCode: r.countryCode })
-        setPlaceCandidates(null)
-        setPlaceStatus('ok')
-      } else if (r.status === 'ambiguous') {
-        setResolvedPlace(null)
-        setPlaceCandidates(r.candidates)
-        setPlaceStatus('ambiguous')
-      } else {
-        setResolvedPlace(null)
-        setPlaceCandidates(null)
-        setPlaceStatus('not_found')
-      }
-    } catch {
-      setResolvedPlace(null)
-      setPlaceCandidates(null)
-      setPlaceStatus('error')
-    }
-  }
-
-  const pickCandidate = (c: PlaceCandidate) => {
+  const pickCandidateA = (c: PlaceCandidate) => {
     setA({ ...a, place: c.name })
-    setPlaceCandidates(null)
-    // Kandidat mit Landes-Suffix erneut auflösen, um die Zeitzone zu erhalten.
-    void resolveSelectedPlace(`${c.name}, ${c.countryCode}`)
+    placeA.pickCandidate(c)
+  }
+  const pickCandidateB = (c: PlaceCandidate) => {
+    setB({ ...b, place: c.name })
+    placeB.pickCandidate(c)
   }
 
   useEffect(() => { window.scrollTo(0, 0) }, [])
@@ -125,7 +97,14 @@ export default function Personalize() {
   const baziInput = a.date && (unknownTime || a.time) && resolvedPlace
     ? { date: a.date, time: btA.time, place: resolvedPlace, birthTimeUnknown: unknownTime }
     : null
-  const { chart, status: chartStatus } = useBaziChart(baziInput)
+  const { chart, status: chartStatus } = useBaziChart(def.couple ? null : baziInput)
+  // Paar-Poster: beide Personen vollständig → EINE /api/match-Berechnung.
+  const btB = birthTimeMeta(b.time, unknownTime)
+  const baziInputB = def.couple && b.date && (unknownTime || b.time) && placeB.place
+    ? { date: b.date, time: btB.time, place: placeB.place, birthTimeUnknown: unknownTime }
+    : null
+  const { pair, status: pairStatus } = usePairChart(def.couple ? baziInput : null, baziInputB)
+  const activeStatus = def.couple ? pairStatus : chartStatus
   const EMPTY_PILLARS: Pillar[] = [
     { label: '年', stem: '—', branch: '—' },
     { label: '月', stem: '—', branch: '—' },
@@ -137,6 +116,23 @@ export default function Personalize() {
     element: chart?.element ?? '', animal: chart?.animal ?? '',
     pillars: chart?.pillars ?? EMPTY_PILLARS,
   }
+  const designKind = def.couple ? 'pair' : 'single'
+  const activeDesigns = DESIGNS.filter((d) => d.active && d.kind === designKind)
+  useEffect(() => {
+    if (!activeDesigns.some((d) => d.id === designId) && activeDesigns[0]) setDesignId(activeDesigns[0].id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [designKind])
+  const relationLabel = pair?.relation.wuxingRelation
+    ? t(`personalize.relation.${pair.relation.wuxingRelation}`, { a: pair.relation.elementA ?? '', b: pair.relation.elementB ?? '' })
+    : ''
+  const livePairPoster = {
+    frame: frameHex, bg: bgHex,
+    nameA: a.name || t('configurator.namePh'), nameB: b.name || t('configurator.namePh'),
+    chartA: pair?.a ?? { pillars: EMPTY_PILLARS, animal: '', element: '' },
+    chartB: pair?.b ?? { pillars: EMPTY_PILLARS, animal: '', element: '' },
+    relationLabel,
+  }
+  const previewData = (def.couple ? livePairPoster : livePoster) as PosterData
 
   /* ---- validation (REQ-009/010/016) ---- */
   const personValid = (p: Person) => p.name.trim() !== '' && p.date !== '' && p.place.trim() !== '' && (unknownTime || p.time !== '')
@@ -152,12 +148,16 @@ export default function Personalize() {
     // Ehrlichkeits-Gate (OQ-004): kein Kauf ohne fertig berechnetes exaktes
     // Chart. Ein Poster mit Strichen oder einem veralteten Chart darf nie in
     // den Warenkorb — der Käufer bezahlt für die EXAKTE Berechnung.
-    if (chartStatus !== 'ready' || !chart || !resolvedPlace) {
+    const exactReady = def.couple
+      ? pairStatus === 'ready' && !!pair && !!resolvedPlace && !!placeB.place
+      : chartStatus === 'ready' && !!chart && !!resolvedPlace
+    if (!exactReady) {
       setShowErrors(true)
       showToast(t('personalize.chartNotReady'))
       document.getElementById('personalize-birth')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
+    const provenance = def.couple ? pair!.a.provenance : chart!.provenance
     // place/date/time + the canonical birthTimeUnknown flag are captured and
     // threaded through so the planned calculation API can dock without loss
     // (REQ-004 AK-1); the disclosed noon fallback is applied when time is unknown.
@@ -177,19 +177,18 @@ export default function Personalize() {
       // Aufgelöster Ort + Provenance (VCHK-01 erweitert): damit rechnet der
       // Server beim Druck (fulfillOrder) mit EXAKT denselben Koordinaten und
       // ist die Berechnung für immer der Engine-Version zuordenbar.
-      placeResolved: resolvedPlace.resolvedName,
-      placeLat: String(resolvedPlace.lat),
-      placeLon: String(resolvedPlace.lon),
-      placeTz: resolvedPlace.tz,
-      placeCountry: resolvedPlace.countryCode,
-      engineVersion: chart.provenance.engine_version ?? '',
-      rulesetId: chart.provenance.ruleset_id ?? '',
+      placeResolved: resolvedPlace!.resolvedName,
+      placeLat: String(resolvedPlace!.lat),
+      placeLon: String(resolvedPlace!.lon),
+      placeTz: resolvedPlace!.tz,
+      placeCountry: resolvedPlace!.countryCode,
+      engineVersion: provenance.engine_version ?? '',
+      rulesetId: provenance.ruleset_id ?? '',
     }
     if (def.couple) {
       // Mirror the A-side fallback provenance for person B (REQ-004 AK-1 / REQ-018):
       // the 2nd chart must carry the SAME canonical fields, derived from the SAME
       // birthTimeMeta helper — never collect btB then drop its disclosure flags.
-      const btB = birthTimeMeta(b.time, unknownTime)
       personalization.nameB = b.name.trim()
       personalization.dateB = b.date
       personalization.timeB = btB.time
@@ -199,6 +198,12 @@ export default function Personalize() {
       personalization.timeFallbackUsedB = btB.timeFallbackUsed
       personalization.fallbackReasonB = btB.fallbackReason
       personalization.placeB = b.place.trim()
+      // Aufgelöster Ort B — Spiegel der A-Felder (kein stiller Drop).
+      personalization.placeResolvedB = placeB.place!.resolvedName
+      personalization.placeLatB = String(placeB.place!.lat)
+      personalization.placeLonB = String(placeB.place!.lon)
+      personalization.placeTzB = placeB.place!.tz
+      personalization.placeCountryB = placeB.place!.countryCode
     }
     if (def.poster) {
       personalization.designId = designId
@@ -254,7 +259,7 @@ export default function Personalize() {
           style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: posterBgHex, borderRadius: 6, padding: 8 }}
         >
           {def.poster ? (
-            <PosterSvg data={livePoster} designId={designId} />
+            <PosterSvg data={previewData} designId={designId} />
           ) : (
             <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 40 }}>◇</div>
@@ -263,10 +268,10 @@ export default function Personalize() {
             </div>
           )}
           <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('personalize.previewCertainty')}</p>
-          {chartStatus === 'loading' && (
+          {activeStatus === 'loading' && (
             <p data-testid="chart-status-loading" style={{ fontSize: 12, color: C.textMuted3, margin: '6px 2px 0' }}>{t('personalize.chartLoading')}</p>
           )}
-          {chartStatus === 'error' && (
+          {activeStatus === 'error' && (
             <p data-testid="chart-status-error" role="alert" style={{ fontSize: 12, color: C.accent, margin: '6px 2px 0' }}>{t('personalize.chartError')}</p>
           )}
         </div>
@@ -294,40 +299,17 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
-            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={resolveSelectedPlace} />
+            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={placeA.resolve} />
             {/* Orts-Auflösungs-Status (Exaktheits-Transparenz): der Käufer sieht
                 IMMER, für welchen aufgelösten Ort gerechnet wird — nichts wird
                 still angenommen. Mehrdeutig → Kandidaten; nicht gefunden →
                 Nachbarort-Hinweis (astronomisch identisch). */}
-            {placeStatus === 'ok' && resolvedPlace && (
-              <div data-testid="place-resolved-note" role="note" style={{ marginTop: 10, fontSize: 12.5, color: C.textMuted2 }}>
-                {t('personalize.placeResolvedAs', { name: `${resolvedPlace.resolvedName}, ${resolvedPlace.countryCode}` })}
-              </div>
-            )}
-            {placeStatus === 'ambiguous' && placeCandidates && (
-              <div data-testid="place-candidates" role="group" style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 12.5, color: C.textMuted2, marginBottom: 6 }}>{t('personalize.placeAmbiguous')}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {placeCandidates.map((c, i) => (
-                    <button key={`${c.name}-${i}`} type="button" onClick={() => pickCandidate(c)} style={{ border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 9, padding: '7px 12px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 12.5, color: C.ink }}>
-                      {c.name}, {c.countryCode}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {placeStatus === 'not_found' && (
-              <div data-testid="place-not-found-note" role="note" style={{ marginTop: 10, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '9px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
-                {t('personalize.placeNotFound')}
-              </div>
-            )}
-            {placeStatus === 'error' && (
-              <div role="note" style={{ marginTop: 10, color: C.accent, fontSize: 12.5 }}>{t('personalize.chartError')}</div>
-            )}
+            <PlaceResolutionStatus status={placeA.status} place={placeA.place} candidates={placeA.candidates} onPick={pickCandidateA} t={t} testPrefix="place" />
             {def.couple && (
               <>
                 <div style={{ ...headingStyle, marginTop: 22 }}>{t('personalize.birthHeadingB')}</div>
-                <PersonFields person={b} setPerson={setB} unknownTime={unknownTime} err={errB} showErrors={showErrors} t={t} />
+                <PersonFields person={b} setPerson={setB} unknownTime={unknownTime} err={errB} showErrors={showErrors} t={t} onCommitPlace={placeB.resolve} />
+                <PlaceResolutionStatus status={placeB.status} place={placeB.place} candidates={placeB.candidates} onPick={pickCandidateB} t={t} testPrefix="place-b" />
               </>
             )}
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
@@ -366,13 +348,13 @@ export default function Personalize() {
               {/* Design-Wähler: rendert automatisch einen Swatch je AKTIVEM
                   Registry-Design — neues Design = neue Registry-Zeile, keine
                   UI-Änderung nötig. */}
-              {DESIGNS.filter((d) => d.active && d.kind === 'single').length > 1 && (
+              {activeDesigns.length > 1 && (
                 <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-                  {DESIGNS.filter((d) => d.active && d.kind === 'single').map((d) => {
+                  {activeDesigns.map((d) => {
                     const sel = d.id === designId
                     return (
                       <button key={d.id} data-testid="design-swatch" data-design={d.id} onClick={() => setDesignId(d.id)} style={{ position: 'relative', width: 84, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: 6, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}>
-                        <PosterSvg data={livePoster} designId={d.id} />
+                        <PosterSvg data={previewData} designId={d.id} />
                         <div style={{ marginTop: 4 }}>{d.name}</div>
                         {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
                       </button>
@@ -544,6 +526,43 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
       )}
     </div>
   )
+}
+
+/** Auflösungs-Status unter einem Geburtsort-Feld: bestätigter Ort, Kandidaten-
+ *  Auswahl (mehrdeutig), Nachbarort-Hinweis (nicht gefunden), Fehler. */
+function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefix }: { status: PlaceStatus; place: { resolvedName: string; countryCode: string } | null; candidates: PlaceCandidate[] | null; onPick: (c: PlaceCandidate) => void; t: (k: string, v?: Record<string, string | number>) => any; testPrefix: string }) {
+  if (status === 'ok' && place) {
+    return (
+      <div data-testid={`${testPrefix}-resolved-note`} role="note" style={{ marginTop: 10, fontSize: 12.5, color: C.textMuted2 }}>
+        {t('personalize.placeResolvedAs', { name: `${place.resolvedName}, ${place.countryCode}` })}
+      </div>
+    )
+  }
+  if (status === 'ambiguous' && candidates) {
+    return (
+      <div data-testid={`${testPrefix}-candidates`} role="group" style={{ marginTop: 10 }}>
+        <div style={{ fontSize: 12.5, color: C.textMuted2, marginBottom: 6 }}>{t('personalize.placeAmbiguous')}</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {candidates.map((c, i) => (
+            <button key={`${c.name}-${i}`} type="button" onClick={() => onPick(c)} style={{ border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 9, padding: '7px 12px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 12.5, color: C.ink }}>
+              {c.name}, {c.countryCode}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  if (status === 'not_found') {
+    return (
+      <div data-testid={`${testPrefix}-not-found-note`} role="note" style={{ marginTop: 10, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '9px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+        {t('personalize.placeNotFound')}
+      </div>
+    )
+  }
+  if (status === 'error') {
+    return <div role="note" style={{ marginTop: 10, color: C.accent, fontSize: 12.5 }}>{t('personalize.chartError')}</div>
+  }
+  return null
 }
 
 function SumRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {

@@ -13,6 +13,7 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 | Kanonischer Fall (1990-06-15 12:30 Berlin, TLST) liefert live durch `server/fufire.js` exakt 庚午/壬午/辛亥/乙未, Pferd/Metall, engine 1.0.0-rc1-20260220 | [REAL-BOUNDARY-LIVE] | `2026-07-12-bazi-live-response.json` | `FUFIRE_API_URL=… FUFIRE_API_KEY=… node scripts/evidence/fufire-smoke.mjs` | 2026-07-12 |
 | Druck-PDF maßgenau erzeugt: A2+3mm Beschnitt = MediaBox 1207.56×1700.79 pt, 59 kB (Fonts subset-eingebettet), Sichtprüfung: Säulen/Labels/Name korrekt (Tofu-Box-Fund bei 年月日時 behoben — Labels → CJK-Font) | [REAL-ARTIFACT] | `2026-07-12-klassik-A2.pdf` + `.png` | `node scripts/evidence/pdf-artifact.mjs` | 2026-07-12 |
 | Paar-Analyse live: Person A konsistent 庚午/壬午/辛亥/乙未 (gepinnte TLST-Konvention wirkt auch im Match-Endpunkt — Abweichungs-Fund behoben durch explizite standard/boundary-Übergabe), Relation Metall→nährt→Wasser, nur CALCULATED-Fakten | [REAL-BOUNDARY-LIVE] | `2026-07-12-match-live-response.json` | `FUFIRE_API_URL=… FUFIRE_API_KEY=… node scripts/evidence/fufire-match-smoke.mjs` | 2026-07-12 |
+| Partner-Poster-Druck-PDF live erzeugt: Charts beider Personen via matchHehun (A=庚午/壬午/辛亥/乙未 konsistent, B=壬申/庚戌/癸未/丁巳), Paar-Design A3+Beschnitt 62 kB, Sichtprüfung: beide Säulensätze + Relations-Label korrekt | [REAL-ARTIFACT]+[REAL-BOUNDARY-LIVE] | `2026-07-12-paar-harmonie-A3.pdf` + `.png` | `FUFIRE_API_URL=… FUFIRE_API_KEY=… node scripts/evidence/pdf-pair-artifact.mjs` | 2026-07-12 |
 
 ## RED (offen, launch-relevant)
 

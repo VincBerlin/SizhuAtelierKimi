@@ -8,9 +8,11 @@
 // `active: false` nimmt ein Design aus dem Verkauf, hält es aber für alte
 // Bestellungen (Nachdruck/Reklamation) auflösbar — Einträge NIE löschen.
 import { render as klassik } from './klassik.mjs'
+import { render as paarHarmonie } from './paarHarmonie.mjs'
 
 export const DESIGNS = [
   { id: 'klassik', name: 'Klassik', active: true, kind: 'single', render: klassik },
+  { id: 'paar-harmonie', name: 'Paar-Harmonie', active: true, kind: 'pair', render: paarHarmonie },
 ]
 
 export function getDesign(id) {

@@ -89,6 +89,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       placeResolvedAs: 'Calculated for: {name}',
       placeAmbiguous: 'Multiple places found — please pick yours:',
       placeNotFound: 'Place not found. Please choose the nearest larger town — astronomically the result is identical.',
+      relation: { a_generates_b: '{a} nourishes {b}', b_generates_a: '{b} nourishes {a}', a_controls_b: '{a} controls {b}', b_controls_a: '{b} controls {a}', same_element: 'Shared element', same: 'Shared element' },
     },
     trust: {
       apiTitle: 'Made from your data', apiSub: 'A symbolic artwork inspired by your birth data',
@@ -447,6 +448,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       placeResolvedAs: 'Berechnet für: {name}',
       placeAmbiguous: 'Mehrere Orte gefunden — bitte wähle deinen:',
       placeNotFound: 'Ort nicht gefunden. Bitte wähle den nächstgrößeren Ort — astronomisch ist das Ergebnis identisch.',
+      relation: { a_generates_b: '{a} nährt {b}', b_generates_a: '{b} nährt {a}', a_controls_b: '{a} kontrolliert {b}', b_controls_a: '{b} kontrolliert {a}', same_element: 'Gemeinsames Element', same: 'Gemeinsames Element' },
     },
     trust: {
       apiTitle: 'Aus deinen Daten', apiSub: 'Ein symbolisches Kunstwerk, inspiriert von deinen Geburtsdaten',
@@ -804,6 +806,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       placeResolvedAs: 'Calculé pour : {name}',
       placeAmbiguous: 'Plusieurs lieux trouvés — choisissez le vôtre :',
       placeNotFound: 'Lieu introuvable. Choisissez la ville voisine la plus proche — le résultat astronomique est identique.',
+      relation: { a_generates_b: '{a} nourrit {b}', b_generates_a: '{b} nourrit {a}', a_controls_b: '{a} contrôle {b}', b_controls_a: '{b} contrôle {a}', same_element: 'Élément commun', same: 'Élément commun' },
     },
     trust: {
       apiTitle: 'À partir de vos données', apiSub: 'Une œuvre symbolique inspirée de vos données de naissance',
@@ -1313,6 +1316,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       placeResolvedAs: 'Calculado para: {name}',
       placeAmbiguous: 'Se encontraron varios lugares — elige el tuyo:',
       placeNotFound: 'Lugar no encontrado. Elige la ciudad más cercana — el resultado astronómico es idéntico.',
+      relation: { a_generates_b: '{a} nutre {b}', b_generates_a: '{b} nutre {a}', a_controls_b: '{a} controla {b}', b_controls_a: '{b} controla {a}', same_element: 'Elemento común', same: 'Elemento común' },
     },
     trust: {
       apiTitle: 'Hecho a partir de tus datos',

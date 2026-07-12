@@ -64,3 +64,31 @@ export function fetchChart(input: BaziInput): Promise<ExactChart> {
 export function resolvePlace(place: string): Promise<GeocodeResult> {
   return postJson<GeocodeResult>('/api/geocode', { place })
 }
+
+// ── Partner-Poster (合婚) ────────────────────────────────────────────────────
+export interface PairRelation {
+  dayMasterA: string | null
+  dayMasterB: string | null
+  elementA: string | null
+  elementB: string | null
+  wuxingRelation: string | null
+}
+
+export interface PairChart {
+  a: ExactChart
+  b: ExactChart
+  relation: PairRelation
+  vectors: { order: string[] | null; a: number[] | null; b: number[] | null }
+}
+
+export function fetchPairChart(a: BaziInput, b: BaziInput): Promise<PairChart> {
+  const flat = (x: BaziInput) => ({
+    date: x.date,
+    time: x.time,
+    lat: x.place.lat,
+    lon: x.place.lon,
+    tz: x.place.tz,
+    birthTimeUnknown: x.birthTimeUnknown,
+  })
+  return postJson<PairChart>('/api/match', { a: flat(a), b: flat(b) })
+}
