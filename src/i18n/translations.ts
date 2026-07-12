@@ -61,7 +61,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         tcm: { eyebrow: 'Ready to ship', title: 'TCM Knowledge Posters', text: 'Curated teaching graphics for practice and home — standard products, no birth data, ships right away.', cta: 'Shop TCM posters' },
       },
     },
-    hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections' },
+    hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections', imageAlt: 'Framed BaZi poster in a calm, minimalist interior' },
     personalize: {
       eyebrow: 'Personalize', title: 'Create your personalized poster', intro: 'Enter your birth details, choose your design and we generate a premium poster made specifically for you.',
       chooseType: '1 · Choose your poster', from: 'from',
@@ -420,7 +420,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         tcm: { eyebrow: 'Direkt versandfertig', title: 'TCM-Wissensposter', text: 'Kuratierte Lehrgrafiken für Praxis und Zuhause — Standardprodukte, keine Geburtsdaten, direkt versandfertig.', cta: 'TCM-Poster ansehen' },
       },
     },
-    hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken' },
+    hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken', imageAlt: 'Gerahmtes BaZi-Poster in ruhigem, minimalistischem Interieur' },
     personalize: {
       eyebrow: 'Personalisieren', title: 'Gestalte dein personalisiertes Poster', intro: 'Gib deine Geburtsdaten ein, wähle dein Design und wir erstellen ein hochwertiges Poster, das eigens für dich gemacht ist.',
       chooseType: '1 · Wähle dein Poster', from: 'ab',
@@ -778,7 +778,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         tcm: { eyebrow: 'Prêt à expédier', title: 'Posters de savoir MTC', text: 'Des graphiques pédagogiques curés pour le cabinet et la maison — produits standard, sans données de naissance, expédiés tout de suite.', cta: 'Voir les posters MTC' },
       },
     },
-    hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections' },
+    hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections', imageAlt: 'Poster BaZi encadré dans un intérieur calme et minimaliste' },
     personalize: {
       eyebrow: 'Personnaliser', title: 'Créez votre poster personnalisé', intro: 'Saisissez vos données de naissance, choisissez votre design et nous générons un poster haut de gamme conçu spécialement pour vous.',
       chooseType: '1 · Choisissez votre poster', from: 'dès',
@@ -1247,7 +1247,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       title2: 'Carta natal',
       subtitle: 'Introduce tus datos de nacimiento y crea un póster BaZi o de carta natal personalizado premium diseñado específicamente para ti.',
       cta1: 'Empieza a personalizar',
-      cta2: 'Explorar colecciones'
+      cta2: 'Explorar colecciones', imageAlt: 'Póster BaZi enmarcado en un interior sereno y minimalista'
     },
     personalize: {
       eyebrow: 'Personalizar',

@@ -39,12 +39,6 @@ const HIT = { minWidth: 44, minHeight: 44 } as const
 // unchanged abbreviation). EN maps to the UK flag (en-GB spelling).
 const LANG_FLAG: Record<Lang, string> = { EN: '🇬🇧', DE: '🇩🇪', FR: '🇫🇷', ES: '🇪🇸' }
 
-// Tinted asset-light swatches for the mega-menu tiles (REQ-013) — keyed by tile
-// id. NO real image; a hatch-pattern placeholder that reads as a placeholder.
-const TILE_TINT: Record<string, string> = {
-  bazi: '#E2DACB', tcm: '#AFBCA6', wuxing: '#CFC4B2', 'fire-horse': '#D9C6B0',
-}
-
 function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: number; up?: boolean; align?: 'left' | 'right' }) {
   const { lang, setLang } = useT()
   const [open, setOpen] = useState(false)
@@ -103,6 +97,26 @@ export default function Navbar() {
   const { cartCount, openCart } = useShopStore()
   const { t } = useT()
   const posterRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // Operator-Plan Hero/Mega-Menü §6.3 — kontrolliertes Öffnen/Schließen ohne
+  // Flackern: 80ms Öffnungs-, 180ms Schließ-Verzögerung; Eintritt ins Panel
+  // bricht das Schließen ab (stabiler Cursorweg Titel → Panel).
+  const OPEN_DELAY = 80
+  const CLOSE_DELAY = 180
+  const openTimer = useRef<number | null>(null)
+  const closeTimer = useRef<number | null>(null)
+  const megaEnter = () => {
+    if (closeTimer.current) { window.clearTimeout(closeTimer.current); closeTimer.current = null }
+    openTimer.current = window.setTimeout(() => setPosterOpen(true), OPEN_DELAY)
+  }
+  const megaLeave = () => {
+    if (openTimer.current) { window.clearTimeout(openTimer.current); openTimer.current = null }
+    closeTimer.current = window.setTimeout(() => setPosterOpen(false), CLOSE_DELAY)
+  }
+  const megaKeep = () => {
+    if (closeTimer.current) { window.clearTimeout(closeTimer.current); closeTimer.current = null }
+  }
 
   // Resolve an i18n key with an explicit fallback — taxonomy entries carry an
   // English `label`/`heading` so the matrix renders even where a locale string
@@ -131,7 +145,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
-      if (posterRef.current && !posterRef.current.contains(e.target as Node)) setPosterOpen(false)
+      const inTrigger = posterRef.current?.contains(e.target as Node)
+      const inPanel = panelRef.current?.contains(e.target as Node)
+      if (!inTrigger && !inPanel) setPosterOpen(false)
     }
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { setPosterOpen(false); setMobileOpen(false) }
@@ -181,112 +197,42 @@ export default function Navbar() {
           <nav data-testid="primary-nav" className="hidden lg:flex items-center" style={{ gap: 28, ...(searchOpen ? { display: 'none' } : {}) }}>
             <Link data-nav-top to="/personalize" className="transition-opacity hover:opacity-80" style={{ ...navLinkStyle(isActive('/personalize')), color: C.accent, fontWeight: 600 }}>{t('nav.startPersonalizing')}</Link>
 
-            {/* REQ-006 — real grouped mega-menu MATRIX. Hover opens (desktop); the
-                trigger is a real button with aria-haspopup/aria-expanded, and
-                Escape/click-away/mouse-leave close it. The panel groups the six
-                canonical taxonomy axes (world/style/room/size/set/campaign) plus a
-                quick-access strip and asset-light visual tiles — every item routes
-                to a real destination via resolveTaxonomyHref (no dead links). */}
+            {/* REQ-006 + Operator-Plan §6.2 — Kategorie-Link und Menü-Trigger
+                GETRENNT: der Link führt direkt zu /collections, der Chevron-
+                Button öffnet das Full-Width-Panel (tastatur- und touchfähig).
+                Hover mit 80/180ms-Delays (§6.3); das Panel selbst hängt als
+                Full-Width-Layer direkt am <header> (§5.2), NICHT in diesem
+                max-width-Container. */}
             <div
               data-nav-top
               ref={posterRef}
-              className="relative"
-              onMouseEnter={() => setPosterOpen(true)}
-              onMouseLeave={() => setPosterOpen(false)}
+              className="relative flex items-center"
+              style={{ gap: 2 }}
+              onMouseEnter={megaEnter}
+              onMouseLeave={megaLeave}
             >
+              <Link
+                data-testid="mega-menu-landing-link"
+                to="/collections"
+                className="transition-colors hover:text-[#C0492E]"
+                style={{ ...navLinkStyle(posterActive || location.pathname.startsWith('/collections')) }}
+              >
+                {t('nav.collections')}
+              </Link>
               <button
                 type="button"
                 data-testid="mega-menu-trigger"
-                onClick={() => setPosterOpen(true)}
+                onClick={() => setPosterOpen((o) => !o)}
+                onFocus={megaEnter}
                 aria-haspopup="true"
                 aria-expanded={posterOpen}
                 aria-controls="mega-menu-panel"
-                className="flex items-center gap-1 transition-colors hover:text-[#C0492E]"
-                style={{ ...navLinkStyle(posterActive || location.pathname.startsWith('/collections')) }}
-              >
-                {t('nav.collections')} <ChevronDown size={14} style={{ transition: 'transform .2s', transform: posterOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              <div
-                data-testid="mega-menu-panel"
-                id="mega-menu-panel"
                 aria-label={t('nav.collections')}
-                style={{
-                  position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: posterOpen ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-6px)',
-                  width: 'min(960px, 94vw)',
-                  background: '#FBF8F1', border: `1px solid ${C.border}`, borderRadius: 2,
-                  boxShadow: '0 18px 44px -20px rgba(28,24,18,0.45)', padding: 20,
-                  opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden',
-                  transition: 'opacity .2s, transform .2s, visibility .2s', zIndex: 70,
-                }}
+                className="flex items-center transition-colors hover:text-[#C0492E]"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', color: C.ink, minHeight: 44 }}
               >
-                {/* Quick access (REQ-006) — top strip of live shortcuts. */}
-                <div data-testid="mega-quick" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingBottom: 12, marginBottom: 12, borderBottom: `1px solid ${C.border}` }}>
-                  {QUICK_ACCESS.map((q) => (
-                    <Link key={q.id} data-testid="mega-quick-item" to={q.href} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
-                      className="transition-colors hover:bg-[#F0E9DA]"
-                      style={{ fontFamily: FONT_SANS, fontSize: 12.5, fontWeight: 600, color: C.accent, textDecoration: 'none', padding: '6px 12px', border: `1px solid ${C.borderInput}`, borderRadius: 999 }}>
-                      {tx(q.labelKey, q.label)}
-                    </Link>
-                  ))}
-                </div>
-
-                {/* The six-axis MATRIX (REQ-006/008/009/010/011/012). */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4 }}>
-                  {AXIS_META.map(({ axis, headingKey, heading }) => (
-                    <div key={axis} data-testid={`mega-axis-${axis}`} data-axis={axis} style={{ padding: '4px 10px' }}>
-                      <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.accent, margin: '0 0 8px' }}>
-                        {tx(headingKey, heading)}
-                      </div>
-                      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        {TAXONOMY[axis].map((e: TaxonomyEntry) => (
-                          <li key={e.id}>
-                            <Link
-                              data-testid="mega-axis-item"
-                              data-axis={axis}
-                              data-nonfinal={e.nonFinal ? 'true' : undefined}
-                              to={resolveTaxonomyHref(e.link)}
-                              tabIndex={posterOpen ? 0 : -1}
-                              onClick={() => setPosterOpen(false)}
-                              className="transition-colors hover:bg-[#F0E9DA]"
-                              style={axisItemStyle}
-                            >
-                              {tx(e.labelKey, e.label)}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Asset-light visual tiles (REQ-013) — image field is a generic
-                    placeholder (data-placeholder), never a real /images/*.webp. */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 6, marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-                  {MEGA_TILES.map((tile) => (
-                    <Link
-                      key={tile.id}
-                      data-testid="mega-tile"
-                      to={resolveTaxonomyHref(tile.link)}
-                      tabIndex={posterOpen ? 0 : -1}
-                      onClick={() => setPosterOpen(false)}
-                      className="transition-colors hover:bg-[#F0E9DA]"
-                      style={{ display: 'flex', gap: 10, alignItems: 'center', textDecoration: 'none', padding: 6, borderRadius: 2 }}
-                    >
-                      <span
-                        data-testid="mega-tile-image"
-                        data-placeholder="true"
-                        aria-hidden="true"
-                        style={{ flexShrink: 0, width: 44, height: 44, borderRadius: 2, border: `1px dashed ${C.borderInput}`, background: `repeating-linear-gradient(45deg, ${TILE_TINT[tile.id] || '#E2DACB'} 0 6px, transparent 6px 12px)` }}
-                      />
-                      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                        <span data-testid="mega-tile-title" style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{tx(tile.titleKey, tile.title)}</span>
-                        <span data-testid="mega-tile-cta" style={{ fontFamily: FONT_SANS, fontSize: 12, color: C.accent, fontWeight: 600 }}>{tx(tile.ctaKey, tile.cta)} →</span>
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                <ChevronDown size={14} style={{ transition: 'transform .2s', transform: posterOpen ? 'rotate(180deg)' : 'none' }} />
+              </button>
             </div>
 
             {/* REQ-005 — the 8 shop-oriented primary entries. */}
@@ -319,6 +265,127 @@ export default function Navbar() {
                 <span data-testid="cart-badge" className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
               )}
             </button>
+          </div>
+        </div>
+
+        {/* ── Full-Width-Mega-Menü-Layer (Operator-Plan §5) ─────────────────
+            Direktes Header-Kind mit inset-inline:0 → reicht von Browserkante
+            zu Browserkante (KEIN max-width-Container darüber). Liegt über dem
+            Hero (z-index 300), verschiebt die Seite nicht. Pills und die alte
+            4er-Promo-Reihe sind entfernt; Schnelllinks als Textreihe, vier
+            Linkspalten + Editorial-Spalte (Trendlinks + 2 Bildkarten). Die
+            Inhalte kommen weiterhin 1:1 aus der kanonischen Taxonomie. */}
+        <div
+          ref={panelRef}
+          data-testid="mega-menu-panel"
+          id="mega-menu-panel"
+          aria-label={t('nav.collections')}
+          onMouseEnter={megaKeep}
+          onMouseLeave={megaLeave}
+          style={{
+            position: 'absolute', top: '100%', insetInline: 0, zIndex: 300,
+            background: '#FBF8F1', borderBottom: `1px solid ${C.border}`,
+            boxShadow: '0 24px 48px -24px rgba(28,24,18,0.35)',
+            opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden',
+            transform: posterOpen ? 'translateY(0)' : 'translateY(-4px)',
+            transition: 'opacity .18s ease, transform .18s ease, visibility .18s',
+          }}
+        >
+          <div className="mega-menu-layer__inner mx-auto" style={{ maxWidth: 1360, padding: 'clamp(18px, 2.2vw, 30px) clamp(20px, 3vw, 48px)' }}>
+            {/* Schnelllinks — schlichte Textreihe (§5.3/§5.4: keine Pills). */}
+            <div data-testid="mega-quick" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 22px', paddingBottom: 14, marginBottom: 16, borderBottom: `1px solid ${C.border}` }}>
+              {QUICK_ACCESS.map((q) => (
+                <Link key={q.id} data-testid="mega-quick-item" to={q.href} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
+                  className="transition-colors hover:text-[#C0492E]"
+                  style={{ fontFamily: FONT_SANS, fontSize: 12.5, fontWeight: 600, letterSpacing: '0.04em', color: C.ink, textDecoration: 'none' }}>
+                  {tx(q.labelKey, q.label)}
+                </Link>
+              ))}
+            </div>
+
+            {/* Zielraster §5.5: 4 Linkspalten + Editorial-Spalte. Spalte 4
+                bündelt size+set („Size & Solutions"); campaign wird zur
+                Trendlink-Liste der Editorial-Spalte. Alle sechs Taxonomie-
+                Achsen bleiben mit ihren data-testid-Ankern erhalten. */}
+            <div className="mega-menu__grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(145px,0.9fr) minmax(165px,1fr) minmax(175px,1fr) minmax(175px,1fr) minmax(340px,1.5fr)', gap: 'clamp(28px, 3vw, 52px)' }}>
+              {AXIS_META.filter(({ axis }) => ['world', 'style', 'room'].includes(axis)).map(({ axis, headingKey, heading }) => (
+                <div key={axis} data-testid={`mega-axis-${axis}`} data-axis={axis}>
+                  <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.accent, margin: '0 0 10px' }}>
+                    {tx(headingKey, heading)}
+                  </div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {TAXONOMY[axis].map((e: TaxonomyEntry) => (
+                      <li key={e.id}>
+                        <Link data-testid="mega-axis-item" data-axis={axis} data-nonfinal={e.nonFinal ? 'true' : undefined}
+                          to={resolveTaxonomyHref(e.link)} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
+                          className="transition-colors hover:text-[#C0492E]" style={{ ...axisItemStyle, padding: '5px 0' }}>
+                          {tx(e.labelKey, e.label)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+              {/* Spalte 4 — Size & Solutions (size + set gestapelt). */}
+              <div>
+                {AXIS_META.filter(({ axis }) => ['size', 'set'].includes(axis)).map(({ axis, headingKey, heading }, idx) => (
+                  <div key={axis} data-testid={`mega-axis-${axis}`} data-axis={axis} style={idx > 0 ? { marginTop: 16 } : undefined}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.accent, margin: '0 0 10px' }}>
+                      {tx(headingKey, heading)}
+                    </div>
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {TAXONOMY[axis].map((e: TaxonomyEntry) => (
+                        <li key={e.id}>
+                          <Link data-testid="mega-axis-item" data-axis={axis} data-nonfinal={e.nonFinal ? 'true' : undefined}
+                            to={resolveTaxonomyHref(e.link)} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
+                            className="transition-colors hover:text-[#C0492E]" style={{ ...axisItemStyle, padding: '5px 0' }}>
+                            {tx(e.labelKey, e.label)}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              {/* Editorial-Spalte — Trendlinks (campaign-Achse) + 2 Bildkarten. */}
+              <div data-testid="mega-editorial">
+                {AXIS_META.filter(({ axis }) => axis === 'campaign').map(({ axis, headingKey, heading }) => (
+                  <div key={axis} data-testid={`mega-axis-${axis}`} data-axis={axis}>
+                    <div style={{ fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.accent, margin: '0 0 10px' }}>
+                      {tx(headingKey, heading)}
+                    </div>
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {TAXONOMY[axis].map((e: TaxonomyEntry) => (
+                        <li key={e.id}>
+                          <Link data-testid="mega-axis-item" data-axis={axis} data-nonfinal={e.nonFinal ? 'true' : undefined}
+                            to={resolveTaxonomyHref(e.link)} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
+                            className="transition-colors hover:text-[#C0492E]" style={{ ...axisItemStyle, padding: '5px 0' }}>
+                            {tx(e.labelKey, e.label)}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                {/* Genau ZWEI große Bildkarten (§5.3): Personalized BaZi + Fire
+                    Horse — echte Assets statt der alten Placeholder-Kacheln. */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 16 }}>
+                  {MEGA_TILES.filter((tile) => ['bazi', 'fire-horse'].includes(tile.id)).map((tile) => (
+                    <Link key={tile.id} data-testid="mega-tile" to={resolveTaxonomyHref(tile.link)} tabIndex={posterOpen ? 0 : -1} onClick={() => setPosterOpen(false)}
+                      className="group" style={{ textDecoration: 'none', display: 'block' }}>
+                      <span data-testid="mega-tile-image" aria-hidden="true" style={{ display: 'block', aspectRatio: '4 / 3', overflow: 'hidden' }}>
+                        <img src={tile.id === 'fire-horse' ? '/images/atelier/fire-horse-editorial.webp' : '/images/posters/bazi-personal.webp'} alt="" loading="lazy"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      </span>
+                      <span data-testid="mega-tile-title" style={{ display: 'block', fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.ink, marginTop: 8, lineHeight: 1.3 }}>{tx(tile.titleKey, tile.title)}</span>
+                      <span data-testid="mega-tile-cta" style={{ display: 'block', fontFamily: FONT_SANS, fontSize: 12, color: C.accent, fontWeight: 600, marginTop: 2 }}>{tx(tile.ctaKey, tile.cta)} →</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
