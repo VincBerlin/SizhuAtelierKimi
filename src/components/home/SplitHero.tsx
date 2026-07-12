@@ -12,7 +12,10 @@ import { track, EVENTS } from '../../lib/analytics'
  * HERO-ASSET (Ledger-RED): das finale Interior-Foto liefert der Operator
  * (Plan §4.5/§8); bis dahin bestes vorhandenes Asset (hero-bg-fallback).
  */
-const BRAND_INK = '#2C2420'
+// Ink Black kommt aus der EINEN kanonischen Quelle (src/index.css
+// --ink-black: #2C2420) — Operator-Vorgabe 2026-07-13: die linke Markenfläche
+// trägt exakt diese Farbe. Hex-Fallback für Umgebungen ohne Stylesheet (jsdom).
+const BRAND_INK = 'var(--ink-black, #2C2420)'
 const BRAND_IVORY = '#FBF8F1'
 const BRAND_TERRACOTTA = '#A0522D'
 
@@ -24,9 +27,14 @@ export default function SplitHero() {
       className="split-hero grid grid-cols-1 md:grid-cols-2"
       style={{ minBlockSize: '100%', height: '100%' }}
     >
+      {/* Mobile-first Kopffreiheit: Announcement-Bar (34px) + fixierter Header
+          (~72px) liegen ÜBER dem Hero. Unterhalb md ist die Markenfläche das
+          oberste Element — ohne pt-[130px] rutschte die H1 unter das Logo
+          (Fund hero-mobile.png 2026-07-12). Ab md zentriert die volle
+          Viewport-Höhe die Inhalte ohnehin weit unterhalb des Headers. */}
       <div
         data-testid="split-hero-brand"
-        className="flex flex-col justify-center px-8 py-14 sm:px-12 lg:px-20"
+        className="flex flex-col justify-center px-8 pt-[130px] pb-14 md:py-14 sm:px-12 lg:px-20"
         style={{ background: BRAND_INK, minBlockSize: 'max(56vh, min-content)' }}
       >
         <h1
