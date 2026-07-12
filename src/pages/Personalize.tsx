@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import PosterScene from '../components/shop/PosterScene'
-import { computeChart, frames, backgrounds, sizes, type PosterData } from '../lib/bazi'
+import { frames, backgrounds, sizes, type PosterData, type Pillar } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
+import { resolvePlace, type ResolvedPlace, type PlaceCandidate } from '../lib/baziClient'
+import { useBaziChart } from '../hooks/useBaziChart'
+import PosterSvg from '../components/shop/PosterSvg'
+import { DESIGNS } from '../designs/registry.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
@@ -47,9 +50,58 @@ export default function Personalize() {
   // Drives the live preview's surrounding background so a swatch selection is
   // traceable (AT-018-3). Distinct from `bgHex` (the poster-art design palette).
   const [posterBgHex, setPosterBgHex] = useState(POSTER_BG_PALETTE[0].hex)
+  // Design-Registry (src/designs/registry.mjs): der Käufer wählt das Design;
+  // dieselbe Vorlage rendert Vorschau UND Druck-PDF.
+  const [designId, setDesignId] = useState(DESIGNS.find((d) => d.active && d.kind === 'single')?.id ?? 'klassik')
   const [sizeId, setSizeId] = useState('A2')
   const [pdfAddon, setPdfAddon] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
+  // Orts-Auflösung (REQ-013 + Exaktheit): der getippte Ort wird bei AUSWAHL/BLUR
+  // (nie pro Tastendruck — Policy AT-013-3) über /api/geocode in lat/lon/tz
+  // aufgelöst. Ohne aufgelösten Ort gibt es KEIN Chart (Ehrlichkeits-Gate).
+  const [resolvedPlace, setResolvedPlace] = useState<ResolvedPlace | null>(null)
+  const [placeCandidates, setPlaceCandidates] = useState<PlaceCandidate[] | null>(null)
+  const [placeStatus, setPlaceStatus] = useState<'idle' | 'resolving' | 'ok' | 'ambiguous' | 'not_found' | 'error'>('idle')
+
+  const resolveSelectedPlace = async (value: string) => {
+    const q = value.trim()
+    if (!q) {
+      setResolvedPlace(null)
+      setPlaceCandidates(null)
+      setPlaceStatus('idle')
+      return
+    }
+    // Bereits exakt dieser Ort aufgelöst → nichts tun (Blur nach Pick).
+    if (resolvedPlace && resolvedPlace.resolvedName === q) return
+    setPlaceStatus('resolving')
+    try {
+      const r = await resolvePlace(q)
+      if (r.status === 'ok') {
+        setResolvedPlace({ lat: r.lat, lon: r.lon, tz: r.tz, resolvedName: r.resolvedName, countryCode: r.countryCode })
+        setPlaceCandidates(null)
+        setPlaceStatus('ok')
+      } else if (r.status === 'ambiguous') {
+        setResolvedPlace(null)
+        setPlaceCandidates(r.candidates)
+        setPlaceStatus('ambiguous')
+      } else {
+        setResolvedPlace(null)
+        setPlaceCandidates(null)
+        setPlaceStatus('not_found')
+      }
+    } catch {
+      setResolvedPlace(null)
+      setPlaceCandidates(null)
+      setPlaceStatus('error')
+    }
+  }
+
+  const pickCandidate = (c: PlaceCandidate) => {
+    setA({ ...a, place: c.name })
+    setPlaceCandidates(null)
+    // Kandidat mit Landes-Suffix erneut auflösen, um die Zeitzone zu erhalten.
+    void resolveSelectedPlace(`${c.name}, ${c.countryCode}`)
+  }
 
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
@@ -65,13 +117,25 @@ export default function Personalize() {
     return p
   }, [def, size, pdfAddon])
 
-  // Thread place + the unknown-time flag into the placeholder chart (accepted,
-  // not used to vary it — ADR-002 pt.3/4) and apply the disclosed noon fallback.
+  // EXAKTES Chart über die FuFirE-Engine (OQ-004 geschlossen): berechnet wird
+  // erst, wenn Datum + Zeit (oder Zeit-unbekannt-Fallback) + AUFGELÖSTER Ort
+  // vorliegen. Bis dahin zeigt das Poster ehrliche Striche — nie einen
+  // Platzhalter, der wie eine echte Berechnung aussieht.
   const btA = birthTimeMeta(a.time, unknownTime)
-  const chart = computeChart(a.date, btA.time, a.place, unknownTime)
+  const baziInput = a.date && (unknownTime || a.time) && resolvedPlace
+    ? { date: a.date, time: btA.time, place: resolvedPlace, birthTimeUnknown: unknownTime }
+    : null
+  const { chart, status: chartStatus } = useBaziChart(baziInput)
+  const EMPTY_PILLARS: Pillar[] = [
+    { label: '年', stem: '—', branch: '—' },
+    { label: '月', stem: '—', branch: '—' },
+    { label: '日', stem: '—', branch: '—' },
+    { label: '時', stem: '—', branch: '—' },
+  ]
   const livePoster: PosterData = {
     frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
-    element: chart.element, animal: chart.animal, pillars: chart.pillars,
+    element: chart?.element ?? '', animal: chart?.animal ?? '',
+    pillars: chart?.pillars ?? EMPTY_PILLARS,
   }
 
   /* ---- validation (REQ-009/010/016) ---- */
@@ -85,6 +149,15 @@ export default function Personalize() {
 
   const addToCart = () => {
     if (!valid) { setShowErrors(true); document.getElementById('personalize-birth')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return }
+    // Ehrlichkeits-Gate (OQ-004): kein Kauf ohne fertig berechnetes exaktes
+    // Chart. Ein Poster mit Strichen oder einem veralteten Chart darf nie in
+    // den Warenkorb — der Käufer bezahlt für die EXAKTE Berechnung.
+    if (chartStatus !== 'ready' || !chart || !resolvedPlace) {
+      setShowErrors(true)
+      showToast(t('personalize.chartNotReady'))
+      document.getElementById('personalize-birth')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
     // place/date/time + the canonical birthTimeUnknown flag are captured and
     // threaded through so the planned calculation API can dock without loss
     // (REQ-004 AK-1); the disclosed noon fallback is applied when time is unknown.
@@ -101,6 +174,16 @@ export default function Personalize() {
       timeFallbackUsed: btA.timeFallbackUsed,
       fallbackReason: btA.fallbackReason,
       place: a.place.trim(),
+      // Aufgelöster Ort + Provenance (VCHK-01 erweitert): damit rechnet der
+      // Server beim Druck (fulfillOrder) mit EXAKT denselben Koordinaten und
+      // ist die Berechnung für immer der Engine-Version zuordenbar.
+      placeResolved: resolvedPlace.resolvedName,
+      placeLat: String(resolvedPlace.lat),
+      placeLon: String(resolvedPlace.lon),
+      placeTz: resolvedPlace.tz,
+      placeCountry: resolvedPlace.countryCode,
+      engineVersion: chart.provenance.engine_version ?? '',
+      rulesetId: chart.provenance.ruleset_id ?? '',
     }
     if (def.couple) {
       // Mirror the A-side fallback provenance for person B (REQ-004 AK-1 / REQ-018):
@@ -118,7 +201,12 @@ export default function Personalize() {
       personalization.placeB = b.place.trim()
     }
     if (def.poster) {
+      personalization.designId = designId
       personalization.frame = frame.name
+      // Hex-Werte zusätzlich zu den Namen: der Server rendert das Druck-PDF
+      // aus GENAU diesen Werten — kein Namens-Mapping, das driften könnte.
+      personalization.frameHex = frameHex
+      personalization.bgHex = bgHex
       personalization.palette = bg.name
       // REQ-018 poster background (the 5-hex palette) is a real product attribute —
       // carry the chosen swatch into the order line (no silent drop, FM-15).
@@ -166,7 +254,7 @@ export default function Personalize() {
           style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: posterBgHex, borderRadius: 6, padding: 8 }}
         >
           {def.poster ? (
-            <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={posterBgHex} />
+            <PosterSvg data={livePoster} designId={designId} />
           ) : (
             <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 40 }}>◇</div>
@@ -175,6 +263,12 @@ export default function Personalize() {
             </div>
           )}
           <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('personalize.previewCertainty')}</p>
+          {chartStatus === 'loading' && (
+            <p data-testid="chart-status-loading" style={{ fontSize: 12, color: C.textMuted3, margin: '6px 2px 0' }}>{t('personalize.chartLoading')}</p>
+          )}
+          {chartStatus === 'error' && (
+            <p data-testid="chart-status-error" role="alert" style={{ fontSize: 12, color: C.accent, margin: '6px 2px 0' }}>{t('personalize.chartError')}</p>
+          )}
         </div>
 
         {/* ---- RIGHT: linear flow ---- */}
@@ -200,7 +294,36 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
-            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary />
+            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={resolveSelectedPlace} />
+            {/* Orts-Auflösungs-Status (Exaktheits-Transparenz): der Käufer sieht
+                IMMER, für welchen aufgelösten Ort gerechnet wird — nichts wird
+                still angenommen. Mehrdeutig → Kandidaten; nicht gefunden →
+                Nachbarort-Hinweis (astronomisch identisch). */}
+            {placeStatus === 'ok' && resolvedPlace && (
+              <div data-testid="place-resolved-note" role="note" style={{ marginTop: 10, fontSize: 12.5, color: C.textMuted2 }}>
+                {t('personalize.placeResolvedAs', { name: `${resolvedPlace.resolvedName}, ${resolvedPlace.countryCode}` })}
+              </div>
+            )}
+            {placeStatus === 'ambiguous' && placeCandidates && (
+              <div data-testid="place-candidates" role="group" style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 12.5, color: C.textMuted2, marginBottom: 6 }}>{t('personalize.placeAmbiguous')}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {placeCandidates.map((c, i) => (
+                    <button key={`${c.name}-${i}`} type="button" onClick={() => pickCandidate(c)} style={{ border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 9, padding: '7px 12px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 12.5, color: C.ink }}>
+                      {c.name}, {c.countryCode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {placeStatus === 'not_found' && (
+              <div data-testid="place-not-found-note" role="note" style={{ marginTop: 10, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '9px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+                {t('personalize.placeNotFound')}
+              </div>
+            )}
+            {placeStatus === 'error' && (
+              <div role="note" style={{ marginTop: 10, color: C.accent, fontSize: 12.5 }}>{t('personalize.chartError')}</div>
+            )}
             {def.couple && (
               <>
                 <div style={{ ...headingStyle, marginTop: 22 }}>{t('personalize.birthHeadingB')}</div>
@@ -240,6 +363,23 @@ export default function Personalize() {
           {def.poster && (
             <div style={cardStyle}>
               <div style={headingStyle}>{t('personalize.designHeading')}</div>
+              {/* Design-Wähler: rendert automatisch einen Swatch je AKTIVEM
+                  Registry-Design — neues Design = neue Registry-Zeile, keine
+                  UI-Änderung nötig. */}
+              {DESIGNS.filter((d) => d.active && d.kind === 'single').length > 1 && (
+                <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                  {DESIGNS.filter((d) => d.active && d.kind === 'single').map((d) => {
+                    const sel = d.id === designId
+                    return (
+                      <button key={d.id} data-testid="design-swatch" data-design={d.id} onClick={() => setDesignId(d.id)} style={{ position: 'relative', width: 84, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: 6, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}>
+                        <PosterSvg data={livePoster} designId={d.id} />
+                        <div style={{ marginTop: 4 }}>{d.name}</div>
+                        {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
               <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{t('personalize.frameWord')} — {t(`options.frames.${frameHex}`)}</div>
               <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                 {frames.map((f) => {
@@ -347,15 +487,17 @@ export default function Personalize() {
   )
 }
 
-function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any; primary?: boolean }) {
+function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary, onCommitPlace }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any; primary?: boolean; onCommitPlace?: (v: string) => void }) {
   const e = (cond: boolean) => showErrors && cond
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
       <Field label={t('configurator.name')} error={e(err.name)}><input type="text" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
       {/* REQ-013 / T-403 — Place-of-Birth autocomplete from the bundled cities
-          list (src/lib/cities.ts). NEVER calls a public geocoder per keystroke. */}
+          list (src/lib/cities.ts). NEVER calls a public geocoder per keystroke.
+          Die EXAKTE Auflösung (lat/lon/tz) passiert erst bei Auswahl/Blur über
+          die EIGENE Route /api/geocode (onCommitPlace) — Policy AT-013-3 bleibt. */}
       <Field label={t('configurator.place')} error={e(err.place)}>
-        <PlaceAutocomplete value={person.place} onChange={(v) => setPerson({ ...person, place: v })} placeholder={t('configurator.placePh')} primary={primary} />
+        <PlaceAutocomplete value={person.place} onChange={(v) => setPerson({ ...person, place: v })} placeholder={t('configurator.placePh')} primary={primary} onCommit={onCommitPlace} />
       </Field>
       <Field label={t('configurator.date')} error={e(err.date)}><input type="date" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
       <Field label={t('configurator.time')} error={e(err.time)}><input type="time" value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
@@ -367,12 +509,12 @@ function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, prim
  *  T-403). Suggestions are pure string matches over src/lib/cities.ts — no fetch,
  *  no XHR, no public geocoder (policy-guard AT-013-3). `primary` tags the first
  *  person's field with stable test anchors. */
-function PlaceAutocomplete({ value, onChange, placeholder, primary }: { value: string; onChange: (v: string) => void; placeholder: string; primary?: boolean }) {
+function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: { value: string; onChange: (v: string) => void; placeholder: string; primary?: boolean; onCommit?: (v: string) => void }) {
   const [open, setOpen] = useState(false)
   const suggestions = useMemo(() => searchCities(value), [value])
   const show = open && suggestions.length > 0
 
-  const pick = (city: string) => { onChange(city); setOpen(false) }
+  const pick = (city: string) => { onChange(city); setOpen(false); onCommit?.(city) }
 
   return (
     <div style={{ position: 'relative', minWidth: 0 }}>
@@ -385,7 +527,7 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary }: { value: s
         value={value}
         onChange={(ev) => { onChange(ev.target.value); setOpen(true) }}
         onFocus={() => setOpen(true)}
-        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+        onBlur={() => { window.setTimeout(() => setOpen(false), 120); if (value.trim()) onCommit?.(value) }}
         placeholder={placeholder}
         style={inputStyle}
       />
