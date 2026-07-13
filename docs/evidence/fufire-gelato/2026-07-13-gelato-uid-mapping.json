@@ -1,0 +1,36 @@
+{
+  "catalog": "framed-posters",
+  "verified_at": "2026-07-13",
+  "mapping": {
+    "A3|Eiche natur": {
+      "expected": "frame_and_poster_product_frs_a3_frc_natural-wood_frm_wood_frp_w12xt22-mm_gt_plexiglass__pf_a3_pt_250-gsm-uncoated-offwhite-archival_cl_4-0_ct_none_prt_none_ver",
+      "live_verified": true,
+      "live_candidates": 10
+    },
+    "A3|Schwarz matt": {
+      "expected": "frame_and_poster_product_frs_a3_frc_black_frm_wood_frp_w12xt22-mm_gt_plexiglass__pf_a3_pt_250-gsm-uncoated-offwhite-archival_cl_4-0_ct_none_prt_none_ver",
+      "live_verified": true,
+      "live_candidates": 10
+    },
+    "A2|Eiche natur": {
+      "expected": "frame_and_poster_product_frs_a2_frc_natural-wood_frm_wood_frp_w12xt22-mm_gt_plexiglass__pf_a2_pt_250-gsm-uncoated-offwhite-archival_cl_4-0_ct_none_prt_none_ver",
+      "live_verified": true,
+      "live_candidates": 10
+    },
+    "A2|Schwarz matt": {
+      "expected": "frame_and_poster_product_frs_a2_frc_black_frm_wood_frp_w12xt22-mm_gt_plexiglass__pf_a2_pt_250-gsm-uncoated-offwhite-archival_cl_4-0_ct_none_prt_none_ver",
+      "live_verified": true,
+      "live_candidates": 10
+    },
+    "A1|Eiche natur": {
+      "expected": "frame_and_poster_product_frs_a1_frc_natural-wood_frm_wood_frp_w12xt22-mm_gt_plexiglass__pf_a1_pt_250-gsm-uncoated-offwhite-archival_cl_4-0_ct_none_prt_none_ver",
+      "live_verified": true,
+      "live_candidates": 10
+    },
+    "A1|Schwarz matt": {
+      "expected": "frame_and_poster_product_frs_a1_frc_black_frm_wood_frp_w12xt22-mm_gt_plexiglass__pf_a1_pt_250-gsm-uncoated-offwhite-archival_cl_4-0_ct_none_prt_none_ver",
+      "live_verified": true,
+      "live_candidates": 10
+    }
+  }
+}

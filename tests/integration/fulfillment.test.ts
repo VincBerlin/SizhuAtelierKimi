@@ -12,6 +12,7 @@ import { describe, it, expect } from 'vitest'
 import request from 'supertest'
 import { fulfillOrder, posterLinesFrom } from '../../server/fulfillment.js'
 import { renderPosterPdf } from '../../server/pdf.js'
+import { PRODUCT_UIDS } from '../../server/gelatoProducts.js'
 import { createApp } from '../../server/index.js'
 
 const CHART = {
@@ -98,12 +99,26 @@ describe('fulfillOrder', () => {
     const pool = fakePool()
     const orders: any[] = []
     const gelato = { enabled: () => true, createOrder: async (o: any) => { orders.push(o); return { id: 'g-1', orderType: 'draft' } } }
-    // Mapping-Tabelle ist bewusst leer bis zur Katalog-Verifikation → dieser
-    // Test stubbt productUidFor NICHT: er erwartet den LAUTEN Fehler.
+    // Seit 2026-07-13 ist PRODUCT_UIDS live-verifiziert befüllt (RL-GELATO,
+    // Artefakt 2026-07-13-gelato-uid-mapping.json) — der Test beweist jetzt den
+    // Ziel-Vertrag: GENAU EIN Draft, mit der korrekt GEMAPPTEN productUid
+    // (A2 + Schwarz matt → frs_a2 × frc_black), idempotent bei Webhook-Replay.
     const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato, publicUrl: 'https://shop.test' }
     const r = await fulfillOrder({ session, personalization: { line1: P_LINE }, deps })
-    expect(r.failed.some((f: any) => String(f.reason).includes('not verified'))).toBe(true)
-    expect(orders).toHaveLength(0) // kein Draft mit ungeprüfter productUid
+    expect(r.failed).toHaveLength(0)
+    expect(orders).toHaveLength(1)
+    const item = orders[0].items[0]
+    expect(item.productUid).toBe(PRODUCT_UIDS['A2|Schwarz matt'])
+    expect(item.productUid).toContain('frs_a2')
+    expect(item.productUid).toContain('frc_black')
+    // fulfillOrder übergibt fileUrl; das files[]-Mapping macht erst der echte
+    // Gelato-Client (server/gelato.js createOrder) — hier ist er gestubbt.
+    expect(item.fileUrl).toMatch(/^https:\/\/shop\.test\/prints\//)
+    expect(r.submitted).toHaveLength(1)
+    // Webhook-Replay: kein zweiter Druck, kein zweiter Draft (Idempotenz).
+    const r2 = await fulfillOrder({ session, personalization: { line1: P_LINE }, deps })
+    expect(orders).toHaveLength(1)
+    expect(r2.failed).toHaveLength(0)
   })
 
   it('marks failure loudly when fufire is down (no silent wrong print)', async () => {
