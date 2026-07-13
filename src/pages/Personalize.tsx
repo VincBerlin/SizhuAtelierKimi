@@ -3,11 +3,11 @@ import { useSearchParams } from 'react-router'
 import { frames, backgrounds, sizes, type PosterData, type Pillar } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { type PlaceCandidate } from '../lib/baziClient'
-import { useBaziChart, usePairChart } from '../hooks/useBaziChart'
+import { useBaziChart, usePairChart, useWesternChart } from '../hooks/useBaziChart'
 import { usePlaceResolution, type PlaceStatus } from '../hooks/usePlaceResolution'
 import PosterSvg from '../components/shop/PosterSvg'
 import { DESIGNS } from '../designs/registry.mjs'
-import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement } from '../designs/posterLocale.mjs'
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement, zodiacName, planetName } from '../designs/posterLocale.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
@@ -105,14 +105,18 @@ export default function Personalize() {
   const baziInput = a.date && (unknownTime || a.time) && resolvedPlace
     ? { date: a.date, time: btA.time, place: resolvedPlace, birthTimeUnknown: unknownTime }
     : null
-  const { chart, status: chartStatus } = useBaziChart(def.couple ? null : baziInput)
+  // Birth-Chart-Poster (Operator 2026-07-14) = WESTLICHES Geburtshoroskop
+  // über /api/western (FuFirE Swiss Ephemeris) — eigener Datenpfad + Design.
+  const isWestern = typeId === 'birthchart'
+  const { chart, status: chartStatus } = useBaziChart(def.couple || isWestern ? null : baziInput)
+  const { western, status: westernStatus } = useWesternChart(isWestern ? baziInput : null)
   // Paar-Poster: beide Personen vollständig → EINE /api/match-Berechnung.
   const btB = birthTimeMeta(b.time, unknownTime)
   const baziInputB = def.couple && b.date && (unknownTime || b.time) && placeB.place
     ? { date: b.date, time: btB.time, place: placeB.place, birthTimeUnknown: unknownTime }
     : null
   const { pair, status: pairStatus } = usePairChart(def.couple ? baziInput : null, baziInputB)
-  const activeStatus = def.couple ? pairStatus : chartStatus
+  const activeStatus = def.couple ? pairStatus : isWestern ? westernStatus : chartStatus
   const EMPTY_PILLARS: Pillar[] = [
     { label: '年', stem: '—', branch: '—' },
     { label: '月', stem: '—', branch: '—' },
@@ -129,7 +133,18 @@ export default function Personalize() {
     pillars: chart?.pillars ?? EMPTY_PILLARS,
     subtitle: posterSubtitle('single', posterLang),
   }
-  const designKind = def.couple ? 'pair' : 'single'
+  const liveWesternPoster = {
+    frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
+    subtitle: posterSubtitle('western', posterLang),
+    sunLabel: planetName('Sun', posterLang),
+    moonLabel: planetName('Moon', posterLang),
+    ascLabel: planetName('Ascendant', posterLang),
+    sun: western ? { sign: zodiacName(western.sun.signIndex, posterLang), deg: western.sun.deg } : { sign: '—', deg: '' },
+    moon: western ? { sign: zodiacName(western.moon.signIndex, posterLang), deg: western.moon.deg } : { sign: '—', deg: '' },
+    ascendant: western?.ascendant ? { sign: zodiacName(western.ascendant.signIndex, posterLang), deg: western.ascendant.deg } : null,
+    planets: (western?.planets ?? []).map((pl) => ({ label: planetName(pl.key, posterLang), sign: zodiacName(pl.signIndex, posterLang), deg: pl.deg, retro: pl.retro })),
+  }
+  const designKind = def.couple ? 'pair' : isWestern ? 'western' : 'single'
   const activeDesigns = DESIGNS.filter((d) => d.active && d.kind === designKind)
   useEffect(() => {
     if (!activeDesigns.some((d) => d.id === designId) && activeDesigns[0]) setDesignId(activeDesigns[0].id)
@@ -160,7 +175,7 @@ export default function Personalize() {
     relationLabel,
     subtitle: posterSubtitle('pair', posterLang),
   }
-  const previewData = (def.couple ? livePairPoster : livePoster) as PosterData
+  const previewData = (def.couple ? livePairPoster : isWestern ? liveWesternPoster : livePoster) as PosterData
 
   /* ---- validation (REQ-009/010/016) ---- */
   const personValid = (p: Person) => p.name.trim() !== '' && p.date !== '' && p.place.trim() !== '' && (unknownTime || p.time !== '')
@@ -178,14 +193,16 @@ export default function Personalize() {
     // den Warenkorb — der Käufer bezahlt für die EXAKTE Berechnung.
     const exactReady = def.couple
       ? pairStatus === 'ready' && !!pair && !!resolvedPlace && !!placeB.place
-      : chartStatus === 'ready' && !!chart && !!resolvedPlace
+      : isWestern
+        ? westernStatus === 'ready' && !!western && !!resolvedPlace
+        : chartStatus === 'ready' && !!chart && !!resolvedPlace
     if (!exactReady) {
       setShowErrors(true)
       showToast(t('personalize.chartNotReady'))
       document.getElementById('personalize-birth')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
-    const provenance = def.couple ? pair!.a.provenance : chart!.provenance
+    const provenance = def.couple ? pair!.a.provenance : isWestern ? western!.provenance : chart!.provenance
     // place/date/time + the canonical birthTimeUnknown flag are captured and
     // threaded through so the planned calculation API can dock without loss
     // (REQ-004 AK-1); the disclosed noon fallback is applied when time is unknown.
@@ -356,7 +373,7 @@ export default function Personalize() {
               lesbare Zusammenfassung; beim Paar-Poster BEIDE Partner mit den
               korrekten eingegebenen Daten. Erscheint erst, wenn das exakte
               Chart fertig berechnet ist — nie Platzhalterwerte. */}
-          {def.poster && !def.couple && chartStatus === 'ready' && chart && (
+          {def.poster && !def.couple && !isWestern && chartStatus === 'ready' && chart && (
             <div data-testid="chart-review" style={cardStyle}>
               <div style={headingStyle}>{t('personalize.review.heading')}</div>
               <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 7, columnGap: 16, fontSize: 13 }}>
@@ -364,6 +381,45 @@ export default function Personalize() {
                 <SumRow label={t('personalize.review.pillars')} value={chart.pillars.map((pl) => `${pl.label} ${pl.stem}${pl.branch}`).join(' · ')} />
                 <SumRow label={t('personalize.review.animal')} value={localizeAnimal(chart.animal, lang)} />
               </dl>
+              {/* Ausführliche Erklärungen (Operator 2026-07-14): Säulen,
+                  Tagesmeister, Elemente, Tierzeichen — niemand soll raten
+                  müssen, was die Zeichen bedeuten. */}
+              <div data-testid="chart-explain" style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                <div style={{ ...headingStyle, marginBottom: 10 }}>{t('personalize.review.explainHeading')}</div>
+                {(['pillars', 'dayMaster', 'element', 'animal'] as const).map((k) => (
+                  <p key={k} style={{ margin: '0 0 10px', fontSize: 13, lineHeight: 1.65, color: C.textMuted }}>
+                    <strong style={{ color: C.ink, fontWeight: 600 }}>{t(k === 'element' ? 'personalize.review.elementsLabel' : `personalize.review.${k}`)}: </strong>
+                    {t(`personalize.review.explain.${k}`)}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Western-Review (Birth-Chart-Poster): Big Three + Erklärungen. */}
+          {isWestern && westernStatus === 'ready' && western && (
+            <div data-testid="western-review" style={cardStyle}>
+              <div style={headingStyle}>{t('personalize.review.heading')}</div>
+              <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 7, columnGap: 16, fontSize: 13 }}>
+                <SumRow label={planetName('Sun', lang)} value={`${zodiacName(western.sun.signIndex, lang)} · ${String(western.sun.deg).replace('.', ',')}°`} strong />
+                <SumRow label={planetName('Moon', lang)} value={`${zodiacName(western.moon.signIndex, lang)} · ${String(western.moon.deg).replace('.', ',')}°`} />
+                {western.ascendant && (
+                  <SumRow label={planetName('Ascendant', lang)} value={`${zodiacName(western.ascendant.signIndex, lang)} · ${String(western.ascendant.deg).replace('.', ',')}°`} />
+                )}
+              </dl>
+              <div data-testid="western-explain" style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                <div style={{ ...headingStyle, marginBottom: 10 }}>{t('personalize.review.explainHeading')}</div>
+                <p style={{ margin: '0 0 10px', fontSize: 13, lineHeight: 1.65, color: C.textMuted }}>
+                  <strong style={{ color: C.ink, fontWeight: 600 }}>{planetName('Sun', lang)}: </strong>{t('personalize.review.western.sun')}
+                </p>
+                <p style={{ margin: '0 0 10px', fontSize: 13, lineHeight: 1.65, color: C.textMuted }}>
+                  <strong style={{ color: C.ink, fontWeight: 600 }}>{planetName('Moon', lang)}: </strong>{t('personalize.review.western.moon')}
+                </p>
+                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: C.textMuted }}>
+                  <strong style={{ color: C.ink, fontWeight: 600 }}>{planetName('Ascendant', lang)}: </strong>
+                  {western.ascendant ? t('personalize.review.western.asc') : t('personalize.review.western.ascUnknown')}
+                </p>
+              </div>
             </div>
           )}
           {def.couple && pairStatus === 'ready' && pair && (
@@ -384,6 +440,7 @@ export default function Personalize() {
                       <SumRow label={t('configurator.time')} value={unknownTime ? t('personalize.timeUnknown') : bt.timeDisplay || '—'} />
                       <SumRow label={t('configurator.place')} value={place ? `${place.resolvedName}, ${place.countryCode}` : person.place || '—'} />
                       <SumRow label={t('personalize.review.dayMaster')} value={`${pc.pillars[2]?.stem ?? '—'} · ${localizeElement(stemElement(pc.pillars[2]?.stem ?? ''), lang)}`} strong />
+                      <SumRow label={t('personalize.review.animal')} value={localizeAnimal(pc.animal, lang)} />
                       <SumRow label={t('personalize.review.pillars')} value={pc.pillars.map((pl) => `${pl.label} ${pl.stem}${pl.branch}`).join(' · ')} />
                     </dl>
                   </div>
@@ -417,6 +474,15 @@ export default function Personalize() {
                   <p style={{ margin: 0, fontSize: 12, lineHeight: 1.55, color: C.textMuted3 }}>
                     {t('personalize.review.compat.note')}
                   </p>
+                  <div data-testid="chart-explain" style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                    <div style={{ ...headingStyle, marginBottom: 10 }}>{t('personalize.review.explainHeading')}</div>
+                    {(['pillars', 'dayMaster', 'element', 'animal'] as const).map((k) => (
+                      <p key={k} style={{ margin: '0 0 10px', fontSize: 13, lineHeight: 1.65, color: C.textMuted }}>
+                        <strong style={{ color: C.ink, fontWeight: 600 }}>{t(k === 'element' ? 'personalize.review.elementsLabel' : `personalize.review.${k}`)}: </strong>
+                        {t(`personalize.review.explain.${k}`)}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

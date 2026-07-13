@@ -61,6 +61,15 @@ export function render(data, { widthMm, heightMm }) {
   <rect x="${artX}" y="${artY}" width="${artW}" height="${artH}" fill="${esc(bg)}"/>
   <text x="${cxA}" y="${artY + artH * 0.08}" text-anchor="middle" font-family="${headA.font}" font-size="${artH * 0.024}" letter-spacing="0.14em" fill="${ink}" opacity="0.78">${esc(headA.txt)}</text>
   <text x="${cxB}" y="${artY + artH * 0.08}" text-anchor="middle" font-family="${headB.font}" font-size="${artH * 0.024}" letter-spacing="0.14em" fill="${ink}" opacity="0.78">${esc(headB.txt)}</text>
+  ${
+    /* Tier-Zeile (Operator 2026-07-14): das Jahres-Tierzeichen ergänzt den
+       Tagesmeister-Kopf je Partner — dezent darunter. */ ''
+  }<text x="${cxA}" y="${artY + artH * 0.115}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.016}" letter-spacing="0.18em" fill="${ink}" opacity="0.55">${esc(String(chartA.animal || '').toUpperCase())}</text>
+  <text x="${cxB}" y="${artY + artH * 0.115}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.016}" letter-spacing="0.18em" fill="${ink}" opacity="0.55">${esc(String(chartB.animal || '').toUpperCase())}</text>
+  ${
+    /* Tagesmeister-Umrandung je Partner (Tag-Säule = Index 2). */ ''
+  }<rect x="${cxA + (2 - 1.5) * gap - gap * 0.42}" y="${colTop - artH * 0.028}" width="${gap * 0.84}" height="${glyph * 2.5 + artH * 0.055}" fill="none" stroke="${ink}" stroke-width="0.4"/>
+  <rect x="${cxB + (2 - 1.5) * gap - gap * 0.42}" y="${colTop - artH * 0.028}" width="${gap * 0.84}" height="${glyph * 2.5 + artH * 0.055}" fill="none" stroke="${ink}" stroke-width="0.4"/>
   ${pillarColumn(chartA.pillars, cxA, colTop, glyph, gap, ink, artH * 0.018)}
   ${pillarColumn(chartB.pillars, cxB, colTop, glyph, gap, ink, artH * 0.018)}
   <line x1="${artX + artW / 2}" y1="${artY + artH * 0.2}" x2="${artX + artW / 2}" y2="${artY + artH * 0.62}" stroke="${rule}" stroke-width="0.3"/>

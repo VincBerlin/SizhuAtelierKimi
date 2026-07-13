@@ -184,6 +184,34 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #5 2026-07-14 (Western Zodiac + Daymaster-Rahmen + Tier +
+  ausführliche Erklärungen):**
+  1. *API-Discovery:* FuFirE bietet `POST /v1/calculate/western` (OpenAPI-Spec
+     live gelesen; Swiss Ephemeris swieph, Placidus) — 14 bodies, Häuser,
+     Winkel, Aspekte. Live-Kanon: Sonne Zwillinge 24,1° · Mond Fische 14,5° ·
+     ASC Jungfrau 19,1°.
+  2. *Birth-Chart-Poster = Western:* neuer Client `calculateWestern`
+     (normalisiert auf Big Three + Merkur–Saturn; EHRLICH: bei unbekannter
+     Geburtszeit ist der Aszendent NULL und entfällt auf Poster+Druck — er
+     wechselt ~alle 2 h das Zeichen), Route `/api/western` (env-gated,
+     validiert), Hook `useWesternChart`, Design `western-zodiac`
+     (kind 'western', rein typografisch = druckfest, SONNEN-Block umrandet
+     als Kern), Registry+Picker automatisch, Druckzweig in fulfillment über
+     den Design-kind — Vorschau = Druck aus einer Quelle; Tierkreis- und
+     Planetennamen lokalisiert (posterLocale ZODIAC/PLANETS, 4 Sprachen).
+  3. *Daymaster-Umrandung (BaZi):* Tag-Säule (Index 2) auf klassik UND
+     paar-harmonie fein umrandet — „das Wichtigste"; TÜV asserted die Rahmen.
+  4. *Tier-Bezeichnung:* Jahres-Tier kehrt als eigene dezente Zeile unter dem
+     Tagesmeister-Kopf des Paar-Posters zurück + Tier-Zeile im Partner-Review
+     (supersedet die Batch-#4-not-PFERD-Assertion — dokumentiert).
+  5. *Ausführliche Erklärungen:* explain-Sektionen in den Reviews (Säulen,
+     Tagesmeister, fünf Elemente, Tierzeichen; Western: Sonne/Mond/Aszendent
+     inkl. ehrlicher ascUnknown-Hinweis) in EN/DE/FR/ES — reflektierend
+     formuliert, keine Wahrsagerei-Claims.
+  6. *Beweise:* fufire.test 14/14 (calculateWestern inkl. snake_case +
+     ASC-null), bazi-routes /api/western 4 Fälle, fulfillment western-Zweig,
+     Western-TÜV (Injektion, ASC-Entfall, Umrandung), jsdom-Flow-Test,
+     Live-E2E 8/8 (`personalize-western-live.png`).
 - **Operator-Batch #4 2026-07-14 (Paar-Visualisierung: Tagesmeister statt
   Jahressäule + Kompatibilitäts-Erklärung):**
   1. *EHRLICHKEITS-FUND (vom neuen Live-E2E aufgedeckt, vom Operator

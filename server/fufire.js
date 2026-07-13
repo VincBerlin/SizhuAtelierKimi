@@ -108,6 +108,50 @@ export async function calculateBazi({ date, tz, lon, lat, birthTimeKnown }, fetc
   return normalizeChart(json)
 }
 
+/**
+ * Westliches Geburtshoroskop über /v1/calculate/western (Swiss Ephemeris,
+ * Placidus). Normalisiert auf das Poster-taugliche Minimum: Big Three
+ * (Sonne/Mond/Aszendent) + die klassischen Planeten Merkur–Saturn, jeweils
+ * als Tierkreis-INDEX (0=Widder … 11=Fische) + Grad im Zeichen + rückläufig.
+ *
+ * EHRLICHKEITS-REGEL: der Aszendent hängt stark von der GeburtsZEIT ab
+ * (Zeichenwechsel ~alle 2 h) — bei unbekannter Zeit (12:00-Fallback) wird er
+ * als null geliefert und NICHT aufs Poster gedruckt (der Noon-Fallback für
+ * Sonne/Mond bleibt über die bestehende Disclosure offengelegt).
+ */
+const WESTERN_PLANETS = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn']
+
+export async function calculateWestern({ date, tz, lon, lat, birthTimeKnown }, fetchImpl = fetch, env = defaultEnv()) {
+  const { res, json } = await callFufire('/v1/calculate/western', {
+    date,
+    tz,
+    lon,
+    lat,
+    birth_time_known: birthTimeKnown !== false,
+  }, fetchImpl, env)
+  if (!res.ok) throw new FufireError(`fufire western failed (${res.status})`, res.status)
+  const body = (name) => {
+    const b = json?.bodies?.[name]
+    if (!b || typeof b.zodiac_sign !== 'number') throw new FufireError(`fufire western: body ${name} missing`)
+    return { signIndex: b.zodiac_sign, deg: Math.round((b.degree_in_sign ?? 0) * 10) / 10, retro: Boolean(b.is_retrograde) }
+  }
+  const ascLon = json?.angles?.Ascendant
+  const ascendant = birthTimeKnown !== false && typeof ascLon === 'number'
+    ? { signIndex: Math.floor(((ascLon % 360) + 360) % 360 / 30), deg: Math.round((((ascLon % 360) + 360) % 360 % 30) * 10) / 10, retro: false }
+    : null
+  return {
+    sun: body('Sun'),
+    moon: body('Moon'),
+    ascendant,
+    planets: WESTERN_PLANETS.map((name) => ({ key: name, ...body(name) })),
+    provenance: {
+      engine_version: json?.provenance?.engine_version ?? null,
+      ruleset_id: json?.provenance?.ruleset_id ?? null,
+      tzdb_version_id: json?.provenance?.tzdb_version_id ?? null,
+    },
+  }
+}
+
 /** Fakten mit source_status === 'CALCULATED' aus einer pair-Sektion ziehen. */
 function calculatedFacts(section) {
   const out = {}

@@ -27,6 +27,10 @@ const DATA = {
 describe.each(DESIGNS.filter((d) => d.kind === 'single'))('design $id', (design) => {
   const svg = design.render(DATA, { widthMm: 420, heightMm: 594 })
 
+  it('outlines the day pillar (Tagesmeister-Umrandung, Operator 2026-07-14)', () => {
+    expect(svg).toMatch(/<rect[^>]*fill="none"[^>]*stroke=/)
+  })
+
   it('renders a complete svg with mm viewBox', () => {
     expect(svg.startsWith('<svg')).toBe(true)
     expect(svg).toContain('viewBox="0 0 420 594"')

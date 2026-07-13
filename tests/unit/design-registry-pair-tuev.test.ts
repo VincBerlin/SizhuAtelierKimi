@@ -46,11 +46,17 @@ describe.each(DESIGNS.filter((d) => d.kind === 'pair'))('pair design $id', (desi
     { ...DATA, chartA: { ...CHART_A, dayMaster: '辛' }, chartB: { ...CHART_B, dayMaster: '癸' } } as never,
     { widthMm: 303, heightMm: 426 },
   )
-  it('with dayMaster: head shows day master · element, NOT the year animal', () => {
+  // Operator 2026-07-14 (zweiter Auftrag desselben Tages): der KOPF zeigt den
+  // Tagesmeister; das Jahres-Tier kehrt als EIGENE dezente Zeile darunter
+  // zurück („Tier-Bezeichnung fehlt — füge das hinzu").
+  it('with dayMaster: head shows day master · element AND the year animal as its own line', () => {
     expect(svgDM).toContain('辛 · METALL')
     expect(svgDM).toContain('癸 · WASSER')
-    expect(svgDM).not.toContain('PFERD')
-    expect(svgDM).not.toContain('AFFE')
+    expect(svgDM).toContain('PFERD')
+    expect(svgDM).toContain('AFFE')
+  })
+  it('outlines the day pillar (index 2) for both partners', () => {
+    expect((svgDM.match(/<rect[^>]*fill="none"[^>]*stroke=/g) || []).length).toBeGreaterThanOrEqual(2)
   })
   it('without dayMaster: legacy element · animal head still renders (reprint safety)', () => {
     expect(svg).toContain('METALL · PFERD')

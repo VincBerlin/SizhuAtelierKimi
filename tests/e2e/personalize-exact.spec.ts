@@ -64,9 +64,10 @@ test('couple: pair poster head shows the DAY MASTER (not the year animal) + stru
   await expect(noteB).toBeVisible({ timeout: 10_000 })
 
   const preview = page.getByTestId('poster-svg-preview')
-  // Tagesmeister-Kopf Person A: 辛 · METAL (EN) — NICHT das Jahres-Tier HORSE.
+  // Tagesmeister-Kopf Person A: 辛 · METAL — plus (Operator 2026-07-14,
+  // zweiter Auftrag) das Jahres-Tier als EIGENE Zeile darunter.
   await expect(preview.getByText('辛 · METAL').first()).toBeVisible({ timeout: 20_000 })
-  await expect(preview.getByText('HORSE')).toHaveCount(0)
+  await expect(preview.getByText('HORSE').first()).toBeVisible()
   await expect(preview.getByText('BAZI · PARTNERSHIP').first()).toBeVisible()
 
   // Strukturierte Kompatibilitäts-Erklärung unter den eingetragenen Daten.
@@ -75,4 +76,29 @@ test('couple: pair poster head shows the DAY MASTER (not the year animal) + stru
   await expect(explainer).toContainText('辛')
   await expect(explainer).toContainText(/not a judgement/i)
   await page.screenshot({ path: 'docs/evidence/fufire-gelato/personalize-couple-live.png', fullPage: false })
+})
+
+test('birth chart: western zodiac live — sun core GEMINI, big three, review + explanations', async ({ page }) => {
+  await page.goto(BASE + '/personalize?type=birthchart')
+  const place = page.getByTestId('place-of-birth-input')
+  await place.fill('Berlin')
+  await page.getByRole('option', { name: /Berlin/ }).first().click()
+  await expect(page.getByTestId('place-resolved-note')).toBeVisible({ timeout: 10_000 })
+  await page.locator('input[type="date"]').first().fill('1990-06-15')
+  await page.locator('input[type="time"]').first().fill('12:30')
+
+  const preview = page.getByTestId('poster-svg-preview')
+  // Live-Western (FuFirE Swiss Ephemeris): Sonne Zwillinge, Mond Fische,
+  // ASC Jungfrau — EN-Poster-Sprache.
+  await expect(preview.getByText('Gemini').first()).toBeVisible({ timeout: 20_000 })
+  await expect(preview.getByText('Pisces').first()).toBeVisible()
+  await expect(preview.getByText('Virgo').first()).toBeVisible()
+  await expect(preview.getByText('WESTERN · BIRTH CHART').first()).toBeVisible()
+
+  const review = page.getByTestId('western-review')
+  await expect(review).toBeVisible()
+  await expect(review).toContainText('Gemini')
+  const explain = page.getByTestId('western-explain')
+  await expect(explain).toContainText(/core identity/i)
+  await page.screenshot({ path: 'docs/evidence/fufire-gelato/personalize-western-live.png', fullPage: false })
 })

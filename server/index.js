@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
-import { fufireEnabled, calculateBazi, geocodePlace, matchHehun } from './fufire.js'
+import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun } from './fufire.js'
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
@@ -256,7 +256,7 @@ app.get('/api/region', (req, res) => {
 // damit die REALEN Routen mit gestubbtem Client testbar sind.
 // Ehrlichkeits-Regel (OQ-004): nicht konfiguriert/Upstream-Fehler → 503/502,
 // NIEMALS ein Platzhalter-Chart als echt ausliefern.
-let fufire = { enabled: fufireEnabled, calculateBazi, geocodePlace, matchHehun }
+let fufire = { enabled: fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun }
 // Gelato-Client — gleiches Override-Muster (createApp({ gelato })) für Tests.
 let gelato = { enabled: gelatoEnabled, createOrder: gelatoCreateOrder }
 
@@ -305,6 +305,32 @@ app.post('/api/bazi', async (req, res) => {
   } catch (e) {
     console.error('[fufire] bazi failed:', e.message)
     return res.status(502).json({ error: 'bazi_failed' })
+  }
+})
+
+// Westliches Geburtshoroskop (Birth-Chart-Poster, Operator 2026-07-14):
+// gleiche Validierung/Env-Gates wie /api/bazi; Proxy auf /v1/calculate/western.
+app.post('/api/western', async (req, res) => {
+  if (!fufire.enabled()) return res.status(503).json({ error: 'western_unavailable' })
+  if (rateLimited(req, 'western', 60, 60000)) return res.status(429).json({ error: 'rate_limited' })
+  const { date, time, lat, lon, tz, birthTimeUnknown } = req.body || {}
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return res.status(400).json({ error: 'invalid_date' })
+  if (!/^\d{2}:\d{2}$/.test(String(time || ''))) return res.status(400).json({ error: 'invalid_time' })
+  if (typeof lat !== 'number' || typeof lon !== 'number' || typeof tz !== 'string' || !tz) {
+    return res.status(400).json({ error: 'invalid_place' })
+  }
+  try {
+    const chart = await fufire.calculateWestern({
+      date: `${date}T${time}:00`,
+      tz,
+      lon,
+      lat,
+      birthTimeKnown: birthTimeUnknown !== true,
+    })
+    return res.json(chart)
+  } catch (e) {
+    console.error('[fufire] western failed:', e.message)
+    return res.status(502).json({ error: 'western_failed' })
   }
 })
 
