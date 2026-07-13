@@ -55,6 +55,24 @@ const RELATIONS = {
   ES: { a_generates_b: '{a} nutre {b}', b_generates_a: '{b} nutre {a}', a_controls_b: '{a} controla {b}', b_controls_a: '{b} controla {a}', same_element: 'Elemento común', same: 'Elemento común' },
 }
 
+// Tag-Stamm → Element (klassische FIXE Zuordnung, kein Rechnen): die Säulen
+// kommen von FuFirE; dieses Mapping beschriftet nur den Tagesmeister.
+// EHRLICHKEITS-FUND 2026-07-14 (Live-Diskrepanz 1988-03-02: chart.element
+// 'Erde' = JAHR 戊辰, relation.elementB 'Feuer' = TAG 丙): FuFirEs
+// chart.element/animal sind JAHRES-Säulen-Werte — fürs Tagesmeister-Label
+// MUSS das Element aus dem Tag-Stamm kommen, nie aus chart.element.
+const STEM_ELEMENT = {
+  '甲': 'Holz', '乙': 'Holz',
+  '丙': 'Feuer', '丁': 'Feuer',
+  '戊': 'Erde', '己': 'Erde',
+  '庚': 'Metall', '辛': 'Metall',
+  '壬': 'Wasser', '癸': 'Wasser',
+}
+
+export function stemElement(stem) {
+  return STEM_ELEMENT[stem] ?? ''
+}
+
 function norm(lang) {
   const l = String(lang || 'DE').toUpperCase()
   return ['DE', 'EN', 'FR', 'ES'].includes(l) ? l : 'DE'

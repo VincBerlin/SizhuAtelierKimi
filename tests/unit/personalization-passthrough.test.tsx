@@ -345,6 +345,21 @@ describe('REQ-004 / AT-004-1 (couple) — person B noon-fallback provenance reac
     // lässt das Ehrlichkeits-Gate den Kauf zu.
     await waitFor(() => expect(screen.getAllByText('庚').length).toBeGreaterThan(0), { timeout: 5000 })
 
+    // Operator 2026-07-14: Partner-Review mit den KORREKTEN Daten + je
+    // Tagesmeister, plus strukturierte Kompatibilitäts-Erklärung mit dem
+    // ehrlichen Rahmen-Satz (symbolische Lesart, keine Bewertung).
+    const reviewA = screen.getByTestId('partner-review-a')
+    expect(reviewA.textContent).toContain('Mara')
+    expect(reviewA.textContent).toContain('1990-06-15')
+    expect(reviewA.textContent).toContain('München')
+    const reviewB = screen.getByTestId('partner-review-b')
+    expect(reviewB.textContent).toContain('Tomas')
+    expect(reviewB.textContent).toContain('1988-03-02')
+    expect(reviewB.textContent).toContain('Lissabon')
+    const explainer = screen.getByTestId('compat-explainer')
+    expect(explainer.textContent).toMatch(/nourishes/i) // a_generates_b (EN-UI)
+    expect(explainer.textContent).toMatch(/not a judgement/i)
+
     // Click the real add-to-cart CTA.
     fireEvent.click(screen.getByText(new RegExp(escapeRe(EN.addToCart))))
 

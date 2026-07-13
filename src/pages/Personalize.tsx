@@ -7,7 +7,7 @@ import { useBaziChart, usePairChart } from '../hooks/useBaziChart'
 import { usePlaceResolution, type PlaceStatus } from '../hooks/usePlaceResolution'
 import PosterSvg from '../components/shop/PosterSvg'
 import { DESIGNS } from '../designs/registry.mjs'
-import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation } from '../designs/posterLocale.mjs'
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement } from '../designs/posterLocale.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
@@ -138,10 +138,20 @@ export default function Personalize() {
   // Relations-Label in der POSTER-Sprache (nicht UI-Sprache) — geteilte
   // Quelle mit dem Druck-PDF (posterLocale.localizeRelation).
   const relationLabel = pair?.relation ? localizeRelation(pair.relation, posterLang) : ''
+  // dayMaster = Tag-Stamm (Säule 日, pillars[2]) — trägt den Poster-Kopf je
+  // Partner (Operator 2026-07-14: Tagesmeister statt Jahres-Tier).
   const locChart = (c: { pillars: Pillar[]; animal: string; element: string } | undefined) =>
     c
-      ? { ...c, element: localizeElement(c.element, posterLang), animal: localizeAnimal(c.animal, posterLang) }
-      : { pillars: EMPTY_PILLARS, animal: '', element: '' }
+      ? {
+          ...c,
+          // Kopf-Element = TAGESMEISTER-Element aus dem Tag-Stamm (Fund
+          // 2026-07-14: chart.element ist das JAHRES-Element) — Glyphe + Element
+          // gehören zusammen auf den Paar-Poster-Kopf.
+          element: localizeElement(stemElement(c.pillars[2]?.stem ?? ''), posterLang),
+          animal: localizeAnimal(c.animal, posterLang),
+          dayMaster: c.pillars[2]?.stem ?? '',
+        }
+      : { pillars: EMPTY_PILLARS, animal: '', element: '', dayMaster: '' }
   const livePairPoster = {
     frame: frameHex, bg: bgHex,
     nameA: a.name || t('configurator.namePh'), nameB: b.name || t('configurator.namePh'),
@@ -350,7 +360,7 @@ export default function Personalize() {
             <div data-testid="chart-review" style={cardStyle}>
               <div style={headingStyle}>{t('personalize.review.heading')}</div>
               <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 7, columnGap: 16, fontSize: 13 }}>
-                <SumRow label={t('personalize.review.dayMaster')} value={`${chart.pillars[2]?.stem ?? '—'} · ${localizeElement(chart.element, lang)}`} strong />
+                <SumRow label={t('personalize.review.dayMaster')} value={`${chart.pillars[2]?.stem ?? '—'} · ${localizeElement(stemElement(chart.pillars[2]?.stem ?? ''), lang)}`} strong />
                 <SumRow label={t('personalize.review.pillars')} value={chart.pillars.map((pl) => `${pl.label} ${pl.stem}${pl.branch}`).join(' · ')} />
                 <SumRow label={t('personalize.review.animal')} value={localizeAnimal(chart.animal, lang)} />
               </dl>
@@ -361,16 +371,19 @@ export default function Personalize() {
               <div style={headingStyle}>{t('personalize.review.heading')}</div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {[
-                  { key: 'a', person: a, bt: btA, place: resolvedPlace, chart: pair.a, dm: pair.relation.dayMasterA },
-                  { key: 'b', person: b, bt: btB, place: placeB.place, chart: pair.b, dm: pair.relation.dayMasterB },
-                ].map(({ key, person, bt, place, chart: pc, dm }) => (
+                  // dayMaster-Anzeige nutzt die GLYPHE aus pillars[2].stem —
+                  // die API liefert relation.dayMasterA/B als Pinyin (Fund
+                  // 2026-07-14: „Xin"/„Bing"), Poster + Review zeigen Glyphen.
+                  { key: 'a', person: a, bt: btA, place: resolvedPlace, chart: pair.a },
+                  { key: 'b', person: b, bt: btB, place: placeB.place, chart: pair.b },
+                ].map(({ key, person, bt, place, chart: pc }) => (
                   <div key={key} data-testid={`partner-review-${key}`} style={{ border: `1px solid ${C.border}`, background: C.surfaceWarm, padding: 14 }}>
                     <div style={{ fontFamily: FONT_SERIF, fontSize: 17, color: C.ink, marginBottom: 8 }}>{person.name || '—'}</div>
                     <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 5, columnGap: 12, fontSize: 12.5 }}>
                       <SumRow label={t('configurator.date')} value={person.date || '—'} />
                       <SumRow label={t('configurator.time')} value={unknownTime ? t('personalize.timeUnknown') : bt.timeDisplay || '—'} />
                       <SumRow label={t('configurator.place')} value={place ? `${place.resolvedName}, ${place.countryCode}` : person.place || '—'} />
-                      <SumRow label={t('personalize.review.dayMaster')} value={`${dm ?? pc.pillars[2]?.stem ?? '—'} · ${localizeElement(pc.element, lang)}`} strong />
+                      <SumRow label={t('personalize.review.dayMaster')} value={`${pc.pillars[2]?.stem ?? '—'} · ${localizeElement(stemElement(pc.pillars[2]?.stem ?? ''), lang)}`} strong />
                       <SumRow label={t('personalize.review.pillars')} value={pc.pillars.map((pl) => `${pl.label} ${pl.stem}${pl.branch}`).join(' · ')} />
                     </dl>
                   </div>
@@ -379,6 +392,31 @@ export default function Personalize() {
               {relationLabel && (
                 <div data-testid="pair-relation-review" style={{ marginTop: 12, fontSize: 13, color: C.accent, fontWeight: 600 }}>
                   {localizeRelation(pair.relation, lang)}
+                </div>
+              )}
+              {/* Kompatibilitäts-Erklärung (Operator 2026-07-14): strukturiert
+                  unter den eingetragenen Daten — Tagesmeister-Paarung, die
+                  Fünf-Elemente-Beziehung in Worten, und der EHRLICHE Rahmen
+                  (symbolische Lesart, keine Beziehungsbewertung). */}
+              {pair.relation.wuxingRelation && (
+                <div data-testid="compat-explainer" style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                  <div style={{ ...headingStyle, marginBottom: 10 }}>{t('personalize.review.compat.heading')}</div>
+                  <dl style={{ margin: '0 0 10px', display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 5, columnGap: 12, fontSize: 12.5 }}>
+                    <SumRow
+                      label={t('personalize.review.compat.dayMasters')}
+                      value={`${pair.a.pillars[2]?.stem ?? '—'} · ${localizeElement(stemElement(pair.a.pillars[2]?.stem ?? ''), lang)}  &  ${pair.b.pillars[2]?.stem ?? '—'} · ${localizeElement(stemElement(pair.b.pillars[2]?.stem ?? ''), lang)}`}
+                      strong
+                    />
+                  </dl>
+                  <p style={{ margin: '0 0 8px', fontSize: 13, lineHeight: 1.6, color: C.textMuted }}>
+                    {t(`personalize.review.compat.rel.${pair.relation.wuxingRelation}`, {
+                      a: localizeElement(stemElement(pair.a.pillars[2]?.stem ?? ''), lang),
+                      b: localizeElement(stemElement(pair.b.pillars[2]?.stem ?? ''), lang),
+                    })}
+                  </p>
+                  <p style={{ margin: 0, fontSize: 12, lineHeight: 1.55, color: C.textMuted3 }}>
+                    {t('personalize.review.compat.note')}
+                  </p>
                 </div>
               )}
             </div>
@@ -551,7 +589,7 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
         role="combobox"
         aria-expanded={show}
         aria-autocomplete="list"
-        data-testid={primary ? 'place-of-birth-input' : undefined}
+        data-testid={primary ? 'place-of-birth-input' : 'place-of-birth-input-b'}
         value={value}
         onChange={(ev) => { onChange(ev.target.value); setOpen(true) }}
         onFocus={() => setOpen(true)}

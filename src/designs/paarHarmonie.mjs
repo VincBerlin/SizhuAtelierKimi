@@ -45,12 +45,22 @@ export function render(data, { widthMm, heightMm }) {
   const cxA = artX + artW * 0.27
   const cxB = artX + artW * 0.73
   const colTop = artY + artH * 0.28
+  // Kopfzeile je Partner (Operator 2026-07-14): der TAGESMEISTER (Tag-Stamm,
+  // Säule 日 = pillars[2]) trägt die 合婚-Relation — er steht im Kopf, NICHT
+  // das Jahres-Tier. Fallback ohne dayMaster-Feld: bisheriger Element·Tier-
+  // Kopf (alte Bestellungen/Nachdrucke bleiben reproduzierbar).
+  const head = (chart) =>
+    chart.dayMaster
+      ? { txt: `${chart.dayMaster} · ${String(chart.element || '').toUpperCase()}`, font: 'Noto Serif SC' }
+      : { txt: `${String(chart.element || '').toUpperCase()} · ${String(chart.animal || '').toUpperCase()}`, font: 'Noto Sans' }
+  const headA = head(chartA)
+  const headB = head(chartB)
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}mm" height="${H}mm">
   <rect x="0" y="0" width="${W}" height="${H}" fill="${esc(data.frame || '#B98A5E')}"/>
   <rect x="${frameW}" y="${frameW}" width="${W - 2 * frameW}" height="${H - 2 * frameW}" fill="#F5F0E4"/>
   <rect x="${artX}" y="${artY}" width="${artW}" height="${artH}" fill="${esc(bg)}"/>
-  <text x="${cxA}" y="${artY + artH * 0.08}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.024}" letter-spacing="0.14em" fill="${ink}" opacity="0.78">${esc(String(chartA.element || '').toUpperCase())} · ${esc(String(chartA.animal || '').toUpperCase())}</text>
-  <text x="${cxB}" y="${artY + artH * 0.08}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.024}" letter-spacing="0.14em" fill="${ink}" opacity="0.78">${esc(String(chartB.element || '').toUpperCase())} · ${esc(String(chartB.animal || '').toUpperCase())}</text>
+  <text x="${cxA}" y="${artY + artH * 0.08}" text-anchor="middle" font-family="${headA.font}" font-size="${artH * 0.024}" letter-spacing="0.14em" fill="${ink}" opacity="0.78">${esc(headA.txt)}</text>
+  <text x="${cxB}" y="${artY + artH * 0.08}" text-anchor="middle" font-family="${headB.font}" font-size="${artH * 0.024}" letter-spacing="0.14em" fill="${ink}" opacity="0.78">${esc(headB.txt)}</text>
   ${pillarColumn(chartA.pillars, cxA, colTop, glyph, gap, ink, artH * 0.018)}
   ${pillarColumn(chartB.pillars, cxB, colTop, glyph, gap, ink, artH * 0.018)}
   <line x1="${artX + artW / 2}" y1="${artY + artH * 0.2}" x2="${artX + artW / 2}" y2="${artY + artH * 0.62}" stroke="${rule}" stroke-width="0.3"/>

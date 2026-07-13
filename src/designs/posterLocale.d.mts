@@ -6,3 +6,4 @@ export function localizeRelation(
   relation: { wuxingRelation: string | null; elementA: string | null; elementB: string | null } | null | undefined,
   lang: string | undefined,
 ): string
+export function stemElement(stem: string): string

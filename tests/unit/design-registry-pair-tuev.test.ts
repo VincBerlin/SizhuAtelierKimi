@@ -39,6 +39,23 @@ const DATA = {
 describe.each(DESIGNS.filter((d) => d.kind === 'pair'))('pair design $id', (design) => {
   const svg = design.render(DATA as never, { widthMm: 303, heightMm: 426 })
 
+  // Operator 2026-07-14: MIT dayMaster-Feld zeigt der Kopf je Partner den
+  // TAGESMEISTER (Tag-Stamm · Element), nicht das Jahres-Tier; ohne Feld
+  // bleibt der alte Kopf (Nachdrucke alter Bestellungen reproduzierbar).
+  const svgDM = design.render(
+    { ...DATA, chartA: { ...CHART_A, dayMaster: '辛' }, chartB: { ...CHART_B, dayMaster: '癸' } } as never,
+    { widthMm: 303, heightMm: 426 },
+  )
+  it('with dayMaster: head shows day master · element, NOT the year animal', () => {
+    expect(svgDM).toContain('辛 · METALL')
+    expect(svgDM).toContain('癸 · WASSER')
+    expect(svgDM).not.toContain('PFERD')
+    expect(svgDM).not.toContain('AFFE')
+  })
+  it('without dayMaster: legacy element · animal head still renders (reprint safety)', () => {
+    expect(svg).toContain('METALL · PFERD')
+  })
+
   it('renders both complete pillar sets', () => {
     for (const g of ['庚', '壬', '辛', '乙', '午', '亥', '未', '申', '戌', '癸', '酉', '丙', '辰']) expect(svg).toContain(g)
   })
