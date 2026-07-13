@@ -18,7 +18,7 @@ import { shippingAddressFromSession } from './gelato.js'
 // Geteilte Poster-Lokalisierung (EINE Quelle mit der Browser-Vorschau —
 // Operator-Fund 2026-07-13: Druck/Vorschau zeigten Element/Tier immer deutsch,
 // unabhängig von der gewählten Poster-Sprache).
-import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation } from '../src/designs/posterLocale.mjs'
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement } from '../src/designs/posterLocale.mjs'
 
 export async function ensurePrintTables(pool) {
   if (!pool) return
@@ -69,8 +69,12 @@ async function posterDataFrom(p, fufire) {
         bg: p.bgHex || '#E9DFCB',
         nameA: p.name || '',
         nameB: p.nameB || '',
-        chartA: { ...pair.a, element: localizeElement(pair.a.element, p.language), animal: localizeAnimal(pair.a.animal, p.language) },
-        chartB: { ...pair.b, element: localizeElement(pair.b.element, p.language), animal: localizeAnimal(pair.b.animal, p.language) },
+        // dayMaster (Tag-Stamm, Säule 日) trägt den Poster-Kopf je Partner —
+        // identische Quelle wie die Vorschau (Operator 2026-07-14).
+        // Kopf-Element = TAGESMEISTER-Element aus dem Tag-Stamm (Fund 2026-07-14:
+        // chart.element ist das JAHRES-Element) — identisch zur Vorschau.
+        chartA: { ...pair.a, element: localizeElement(stemElement(pair.a.pillars?.[2]?.stem ?? ''), p.language), animal: localizeAnimal(pair.a.animal, p.language), dayMaster: pair.a.pillars?.[2]?.stem ?? '' },
+        chartB: { ...pair.b, element: localizeElement(stemElement(pair.b.pillars?.[2]?.stem ?? ''), p.language), animal: localizeAnimal(pair.b.animal, p.language), dayMaster: pair.b.pillars?.[2]?.stem ?? '' },
         relationLabel: localizeRelation(pair.relation, p.language),
         subtitle: posterSubtitle('pair', p.language),
       },

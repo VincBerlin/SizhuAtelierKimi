@@ -184,7 +184,33 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
-- **FuFirE-Gate-Nachzug 2026-07-13 (kein Vertragswechsel, Testreparatur):**
+- **Operator-Batch #4 2026-07-14 (Paar-Visualisierung: Tagesmeister statt
+  Jahressäule + Kompatibilitäts-Erklärung):**
+  1. *EHRLICHKEITS-FUND (vom neuen Live-E2E aufgedeckt, vom Operator
+     vorhergesagt):* FuFirEs `chart.element/animal` sind die **JAHRES**-
+     Säulen-Werte, NICHT der Tagesmeister — Live-Diskrepanz 1988-03-02:
+     `chart.element='Erde'` (Jahr 戊辰 Erd-Drache) vs. `relation.elementB=
+     'Feuer'` (Tag 丙). Beim kanonischen Fall (Metall-Jahr UND Metall-Tag)
+     war das unsichtbar. Zusätzlich liefert `relation.dayMasterA/B` PINYIN
+     („Xin"/„Bing"), keine Glyphen.
+  2. *Korrekturen:* `stemElement()` in posterLocale (klassische FIXE
+     Stamm→Element-Zuordnung — reines Beschriftungs-Mapping, keine eigene
+     Engine; Säulen bleiben FuFirE-Quelle). Paar-Poster-KOPF zeigt jetzt je
+     Partner `Tag-Stamm-Glyphe · Tagesmeister-Element` (z. B. 辛 · METAL),
+     nicht mehr Element·Jahres-Tier; Fallback ohne dayMaster-Feld = alter
+     Kopf (Nachdrucke reproduzierbar). Review/Explainer nutzen überall die
+     GLYPHE aus pillars[2].stem + stemElement (nie Pinyin, nie chart.element).
+     Druck (fulfillment) identisch zur Vorschau. Einzel-Poster-Kopf bleibt
+     bewusst Jahres-Branding (Element·Tier des Jahres) — nur die
+     Tagesmeister-BESCHRIFTUNGEN sind korrigiert.
+  3. *Kompatibilitäts-Erklärung:* strukturierter compat-explainer unter den
+     eingetragenen Daten (Tagesmeister-Paarung, Fünf-Elemente-Beziehung in
+     Worten je wuxingRelation, 4 Sprachen) mit EHRLICHEM Rahmen-Satz
+     („symbolische Lesart … keine Bewertung eurer Beziehung").
+  4. *Beweise:* Live-Paar-E2E (Berlin×Lissabon): Poster-Kopf 辛·METAL &
+     丙·FIRE, Säulen A kanonisch + B live (Jahr 戊辰 bestätigt den Fund),
+     Relation „Fire controls Metal"; Pair-TÜV um dayMaster-Kopf +
+     Legacy-Fallback erweitert; Screenshot `personalize-couple-live.png`.
   `delta-poster-bg-palette.test.tsx` (AT-018-3 Cart-Line) und
   `personalization-passthrough.test.tsx` (AT-004-1 Paar) stammten aus der
   Vor-FuFirE-Zeit und liefen ins (gewollte) Ehrlichkeits-Gate — jetzt mocken

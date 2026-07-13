@@ -38,3 +38,41 @@ test('buyer enters birth data and sees the exact live-computed pillars', async (
   await expect(review).toContainText('庚午')
   await page.screenshot({ path: 'docs/evidence/fufire-gelato/personalize-exact-live.png', fullPage: false })
 })
+
+test('couple: pair poster head shows the DAY MASTER (not the year animal) + structured compat explainer', async ({ page }) => {
+  await page.goto(BASE + '/personalize?type=couple')
+  // Person A — kanonischer Fall (Berlin).
+  const places = page.getByTestId('place-of-birth-input')
+  await places.fill('Berlin')
+  await page.getByRole('option', { name: /Berlin/ }).first().click()
+  await expect(page.getByTestId('place-resolved-note')).toBeVisible({ timeout: 10_000 })
+  await page.locator('input[type="date"]').first().fill('1990-06-15')
+  await page.locator('input[type="time"]').first().fill('12:30')
+  // Person B — Lissabon (stabile testid; blur committet die Orts-Auflösung).
+  await page.locator('input[type="date"]').nth(1).fill('1988-03-02')
+  await page.locator('input[type="time"]').nth(1).fill('08:15')
+  const placeB = page.getByTestId('place-of-birth-input-b')
+  await placeB.fill('Lissabon')
+  await placeB.blur()
+  // Geocoder kann direkt auflösen ODER Kandidaten anbieten — beides abdecken.
+  const noteB = page.getByTestId('place-b-resolved-note')
+  const candB = page.getByTestId('place-b-candidates')
+  await expect(noteB.or(candB)).toBeVisible({ timeout: 15_000 })
+  if (await candB.isVisible()) {
+    await candB.getByRole('button').first().click()
+  }
+  await expect(noteB).toBeVisible({ timeout: 10_000 })
+
+  const preview = page.getByTestId('poster-svg-preview')
+  // Tagesmeister-Kopf Person A: 辛 · METAL (EN) — NICHT das Jahres-Tier HORSE.
+  await expect(preview.getByText('辛 · METAL').first()).toBeVisible({ timeout: 20_000 })
+  await expect(preview.getByText('HORSE')).toHaveCount(0)
+  await expect(preview.getByText('BAZI · PARTNERSHIP').first()).toBeVisible()
+
+  // Strukturierte Kompatibilitäts-Erklärung unter den eingetragenen Daten.
+  const explainer = page.getByTestId('compat-explainer')
+  await expect(explainer).toBeVisible()
+  await expect(explainer).toContainText('辛')
+  await expect(explainer).toContainText(/not a judgement/i)
+  await page.screenshot({ path: 'docs/evidence/fufire-gelato/personalize-couple-live.png', fullPage: false })
+})
