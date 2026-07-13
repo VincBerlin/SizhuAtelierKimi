@@ -1,0 +1,10 @@
+{
+  "verified_at": "2026-07-13",
+  "sessionId": "evidence_draft_2026-07-13_uvqtt5",
+  "gelatoOrderId": "544e1b36-5ee1-43c9-a6f3-0fb64564900d",
+  "orderType": "draft",
+  "pdfUrl": "https://sizhuatelier-shop-production.up.railway.app/prints/evidence_draft_2026-07-13_uvqtt5/7656f83e-6ca8-4f14-b622-309f67083c58.pdf",
+  "pdfBytes": 61728,
+  "engine": "1.0.0-rc1-20260220",
+  "note": "TEST-Draft ohne Kaufabschluss — Operator sichtet im Gelato-Dashboard (HUMAN-VERIFIED) und löscht oder bestätigt bewusst."
+}

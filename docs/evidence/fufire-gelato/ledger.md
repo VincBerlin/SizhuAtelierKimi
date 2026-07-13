@@ -20,6 +20,8 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 | Live-Smokes mit Operator-Keys REPRODUZIERT: kanonischer Fall exakt 庚午\|壬午\|辛亥\|乙未, Pferd/Metall, engine 1.0.0-rc1-20260220 (exit 0) UND Paar-Match A konsistent + Relation Metall→nährt→Wasser (exit 0). Keys hinterlegt in lokaler `.env` (gitignored) + Railway-Service `sizhuatelier-shop` (FUFIRE_API_URL/KEY, GELATO_API_KEY, GELATO_ORDER_TYPE=draft; per CLI, --skip-deploys) | [REAL-BOUNDARY-LIVE] | `2026-07-12-bazi-live-response.json` / `2026-07-12-match-live-response.json` (frisch überschrieben 2026-07-13 01:12 lokal; Dateiname = UTC-Datum des Laufs) | `node --env-file=.env scripts/evidence/fufire-smoke.mjs` bzw. `…fufire-match-smoke.mjs` | 2026-07-13 |
 | Käufer-Flow LIVE im echten Browser: Geburtsdaten eingeben → Poster zeigt die exakt live-berechneten Säulen (庚壬辛乙亥未, PFERD, METALL) — personalize-exact.spec.ts gegen gebauten Server MIT echten FuFirE-Keys, 5/5 passed (inkl. Hero/Mega-Menü-Spec). Mobile-first-Fix bewiesen: H1 beginnt ≥106px (unter der fixierten Kopfzeile; Logo-Overlap-Fund behoben via pt-[130px], neue Assertion im Spec). Ink Black der Markenfläche jetzt aus kanonischer Quelle `--ink-black` (index.css) | [REAL-BROWSER]+[REAL-BOUNDARY-LIVE] | `personalize-exact-live.png` · `hero-mobile.png` (beide frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
 | Operator-Batch #2 im echten Chromium bewiesen (6/6): Mobile-Personalize — Poster-Vorschau klebt beim Scrollen SICHTBAR unter der Kopfzeile (y≈112, ≤36vh; Fund „Poster beim Ausfüllen unsichtbar" geschlossen, neue Spec-Assertion als Regressions-Schutz), SVG-Vorschau jetzt vollständig erkennbar (mm-Maße-Fund per CSS gezähmt); Sale-Banner unter dem Menü; 75-€-Announcement regional; eckige Buttons + Auswahlringe; Live-Käufer-Flow weiterhin grün | [REAL-BROWSER] | `personalize-mobile-sticky.png` · `hero-desktop.png` (frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
+| PDF-ANKUNFT bei Gelato HART BEWIESEN: Gelatos S3-Kopie (`file_original_default`) der Testbestellung heruntergeladen und mit unserer Druck-PDF verglichen — **BYTE-IDENTISCH** (61.728 B, SHA-256 `95a0c8cfc8073d02…d31dfd106` auf BEIDEN Seiten, %PDF-1.3-Header). Zusätzlich visueller Beweis: Gelatos Prepress hat aus GENAU dieser PDF das Druck-Preview gerendert (1084×1500 PNG, schwarzer Rahmen) — Säulen exakt 庚午/壬午/辛亥/乙未, METALL·PFERD, Name, CJK-Labels korrekt. [HUMAN-VERIFIED]: Operator hat die Draft-Order im Gelato-Dashboard GESEHEN und bestätigt (Chat 2026-07-13, „sehr gut ich sehe die bestellung") | [REAL-BOUNDARY-LIVE]+[HUMAN-VERIFIED] | `2026-07-13-gelato-pdf-sha256.txt` · `2026-07-13-gelato-preview-default.png` | Order per `GET /v4/orders/544e1b36-…` → `files[0].url` laden → `shasum -a 256` gegen die Prod-PDF-Route | 2026-07-13 |
+| Personalisierte TESTBESTELLUNG ohne Kaufabschluss END-TO-END: Session-Fixture → FuFirE-Live-Neuberechnung (engine 1.0.0-rc1) → Druck-PDF 61.728 B in Produktions-DB → PDF von der Produktions-Domain byte-identisch abrufbar (HTTP 200, %PDF) → ECHTER Gelato-DRAFT `544e1b36-5ee1-43c9-a6f3-0fb64564900d` (orderType=draft, fulfillmentStatus=draft, KEINE Produktion) mit korrekt gemappter productUid (A2 × Schwarz matt) — Gegenprobe per GET: Gelato hat die Datei auf SEIN S3 kopiert und 3 Druck-Previews erzeugt; Versandadresse TEST-markiert. Verbleibt [HUMAN-VERIFIED]: Operator sichtet den Draft im Dashboard (löschen oder bewusst bestätigen) | [REAL-BOUNDARY-LIVE] | `2026-07-13-gelato-draft-order.json` | `DATABASE_URL=$(railway variables --service Postgres --kv \| grep DATABASE_PUBLIC_URL \| cut -d= -f2-) node --env-file=.env scripts/evidence/gelato-draft-smoke.mjs` | 2026-07-13 |
 | Gelato-Produkt-Mapping vollständig LIVE-VERIFIZIERT (2. Operator-Key, beide APIs 200): alle 6 Kombinationen A3/A2/A1 × Eiche natur/Schwarz matt existieren als exakte productUids im Katalog `framed-posters` (gefilterte products:search, Papier 250 gsm uncoated offwhite archival, Holzrahmen 12×22 mm, Plexiglas, Hochformat) und sind in `server/gelatoProducts.js` hinterlegt; Fulfillment-Test beweist GENAU EINEN Draft mit gemappter UID, idempotent (node 72/72) | [REAL-BOUNDARY-LIVE] | `2026-07-13-gelato-uid-mapping.json` + `2026-07-13-gelato-catalog-fine-art-framed-poster.json` (Erst-Scan, Fehlkatalog-Fund) | `node --env-file=.env scripts/evidence/gelato-catalog-verify.mjs` (exit 0) | 2026-07-13 |
 
 ## RED (offen, launch-relevant)
@@ -66,10 +68,10 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
      „Eiche natur"→natural-wood, „Schwarz matt"→black.
   3. Fulfillment-Test fortgeschrieben: GENAU EIN Draft mit der gemappten UID,
      idempotent bei Webhook-Replay (72/72 node grün).
-  OFFEN bleibt der [HUMAN-VERIFIED]-Schlussstein: ein echter Test-Draft im
-  Gelato-Dashboard (braucht Stripe-TEST-Kette ODER Session-Fixture direkt
-  gegen fulfillOrder mit realem Gelato-Client + DB) — vom Operator zu
-  sichten/abzuzeichnen, GELATO_ORDER_TYPE=draft schützt vor Auto-Produktion.
+  Der Test-Draft ist ANGELEGT (2026-07-13, `544e1b36-…`, s. Evidenz-Zeile:
+  Datei von Gelato gezogen, 3 Previews erzeugt, orderType=draft). OFFEN
+  bleibt nur noch die [HUMAN-VERIFIED]-Abzeichnung: Operator sichtet den
+  Draft im Gelato-Dashboard (löschen oder bewusst bestätigen).
 - **RL-STRIPE-CHAIN** — Volle Zahlungskette (Checkout→Webhook) unbewiesen bis
   Stripe-TEST-Keys lokal vorliegen; Fallback für H1/H2: Session-Fixture direkt
   gegen `fulfillOrder` (Stripe-Schritt dann `[INTEGRATION-FAKE]`, Rest real).
@@ -161,6 +163,27 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   11. *personalize-entry-Sektion* direkt nach dem Hero (Einzel-BaZi +
      Paar-Kompatibilität als große Einstiegskarten); Home-Sequenz-Test
      fortgeschrieben (REQ-014-Reihenfolge + personalize-entry).
+- **Operator-Batch #3 2026-07-13 (Personalisierungs-Review + Poster-Sprache):**
+  1. *Poster-Sprache-Fund:* FuFirE liefert Element/Tier KANONISCH DEUTSCH —
+     Vorschau UND Druck zeigten „METALL/PFERD" auch bei englischer
+     Poster-Sprache; der Subtitle („BAZI · VIER SÄULEN") war hardcoded.
+     NEU: geteiltes Modul `src/designs/posterLocale.mjs` (Elemente, 12 Tiere,
+     Subtitles single/pair, Relations-Label — EINE Quelle für Browser + PDF;
+     unbekannte Werte werden UNVERÄNDERT durchgereicht, nie geraten). Die
+     doppelt gepflegte RELATION_TEXT-Tabelle in fulfillment.js ist dedupliziert.
+     Designs nehmen `data.subtitle` (Fallback = bisheriger deutscher Text);
+     Design-TÜV-Fixture um Subtitle-Injektion erweitert.
+  2. *Tagesmeister + Säulen als Review:* neuer chart-review-Block in der
+     Personalisierung (erst bei fertigem exakten Chart, nie Platzhalter):
+     Tagesmeister (Tag-Stamm + lokalisiertes Element), Säulen-Zeile
+     (年 庚午 · …), Tierzeichen.
+  3. *Partner-Review (Paar):* beide Partner als Karten mit den KORREKTEN
+     eingegebenen Daten (Name, Datum, Zeit inkl. Noon-Fallback-Anzeige,
+     aufgelöster Ort) + je Tagesmeister (dayMasterA/B aus /api/match) +
+     Relations-Label; Summary um Partner-Datenzeile ergänzt.
+  4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
+     DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
+     METAL/FOUR PILLARS + Review-Assertions).
 - **FuFirE-Gate-Nachzug 2026-07-13 (kein Vertragswechsel, Testreparatur):**
   `delta-poster-bg-palette.test.tsx` (AT-018-3 Cart-Line) und
   `personalization-passthrough.test.tsx` (AT-004-1 Paar) stammten aus der

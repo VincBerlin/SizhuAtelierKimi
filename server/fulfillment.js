@@ -15,6 +15,10 @@
 import { randomUUID } from 'node:crypto'
 import { productUidFor } from './gelatoProducts.js'
 import { shippingAddressFromSession } from './gelato.js'
+// Geteilte Poster-Lokalisierung (EINE Quelle mit der Browser-Vorschau —
+// Operator-Fund 2026-07-13: Druck/Vorschau zeigten Element/Tier immer deutsch,
+// unabhängig von der gewählten Poster-Sprache).
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation } from '../src/designs/posterLocale.mjs'
 
 export async function ensurePrintTables(pool) {
   if (!pool) return
@@ -54,23 +58,6 @@ function birthInput(p, suffix = '') {
   }
 }
 
-// Relations-Label in der Poster-Sprache (p.language). Spiegel der i18n-Keys
-// personalize.relation.* (src/i18n/translations.ts) — Poster-Text, daher hier
-// serverseitig, wo das Druck-PDF entsteht.
-const RELATION_TEXT = {
-  DE: { a_generates_b: '{a} nährt {b}', b_generates_a: '{b} nährt {a}', a_controls_b: '{a} kontrolliert {b}', b_controls_a: '{b} kontrolliert {a}', same_element: 'Gemeinsames Element', same: 'Gemeinsames Element' },
-  EN: { a_generates_b: '{a} nourishes {b}', b_generates_a: '{b} nourishes {a}', a_controls_b: '{a} controls {b}', b_controls_a: '{b} controls {a}', same_element: 'Shared element', same: 'Shared element' },
-  FR: { a_generates_b: '{a} nourrit {b}', b_generates_a: '{b} nourrit {a}', a_controls_b: '{a} contrôle {b}', b_controls_a: '{b} contrôle {a}', same_element: 'Élément commun', same: 'Élément commun' },
-  ES: { a_generates_b: '{a} nutre {b}', b_generates_a: '{b} nutre {a}', a_controls_b: '{a} controla {b}', b_controls_a: '{b} controla {a}', same_element: 'Elemento común', same: 'Elemento común' },
-}
-
-function relationLabel(relation, language) {
-  const table = RELATION_TEXT[String(language || 'DE').toUpperCase()] || RELATION_TEXT.DE
-  const tpl = table[relation.wuxingRelation]
-  if (!tpl) return ''
-  return tpl.split('{a}').join(relation.elementA || '').split('{b}').join(relation.elementB || '')
-}
-
 /** Poster-Daten für die Design-Vorlage — Einzel ODER Paar, exakt neu
  *  berechnet über FuFirE (deterministisch = identisch zur Vorschau). */
 async function posterDataFrom(p, fufire) {
@@ -82,9 +69,10 @@ async function posterDataFrom(p, fufire) {
         bg: p.bgHex || '#E9DFCB',
         nameA: p.name || '',
         nameB: p.nameB || '',
-        chartA: pair.a,
-        chartB: pair.b,
-        relationLabel: relationLabel(pair.relation, p.language),
+        chartA: { ...pair.a, element: localizeElement(pair.a.element, p.language), animal: localizeAnimal(pair.a.animal, p.language) },
+        chartB: { ...pair.b, element: localizeElement(pair.b.element, p.language), animal: localizeAnimal(pair.b.animal, p.language) },
+        relationLabel: localizeRelation(pair.relation, p.language),
+        subtitle: posterSubtitle('pair', p.language),
       },
       provenance: pair.a.provenance,
     }
@@ -95,9 +83,10 @@ async function posterDataFrom(p, fufire) {
       frame: p.frameHex || '#1B1B1B',
       bg: p.bgHex || '#E9DFCB',
       name: p.name || '',
-      element: chart.element,
-      animal: chart.animal,
+      element: localizeElement(chart.element, p.language),
+      animal: localizeAnimal(chart.animal, p.language),
       pillars: chart.pillars,
+      subtitle: posterSubtitle('single', p.language),
     },
     provenance: chart.provenance,
   }

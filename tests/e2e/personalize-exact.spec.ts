@@ -23,7 +23,18 @@ test('buyer enters birth data and sees the exact live-computed pillars', async (
   for (const glyph of ['庚', '壬', '辛', '乙', '亥', '未']) {
     await expect(preview.getByText(glyph).first()).toBeVisible({ timeout: 15_000 })
   }
-  await expect(preview.getByText('PFERD').first()).toBeVisible()
-  await expect(preview.getByText('METALL').first()).toBeVisible()
+  // Operator 2026-07-13: Poster-Texte in der GEWÄHLTEN Poster-Sprache —
+  // EN-Browser → posterLang EN → HORSE/METAL (posterLocale übersetzt die
+  // kanonisch deutschen FuFirE-Werte identisch für Vorschau und Druck).
+  await expect(preview.getByText('HORSE').first()).toBeVisible()
+  await expect(preview.getByText('METAL').first()).toBeVisible()
+  await expect(preview.getByText('BAZI · FOUR PILLARS').first()).toBeVisible()
+
+  // Chart-Review (Operator 2026-07-13): Tagesmeister (Tag-Stamm 辛 · Metal)
+  // + Säulen als lesbare Zusammenfassung.
+  const review = page.getByTestId('chart-review')
+  await expect(review).toBeVisible()
+  await expect(review).toContainText('辛')
+  await expect(review).toContainText('庚午')
   await page.screenshot({ path: 'docs/evidence/fufire-gelato/personalize-exact-live.png', fullPage: false })
 })

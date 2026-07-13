@@ -49,6 +49,6 @@ export function render(data, { widthMm, heightMm }) {
   ${pillars}
   <line x1="${artX + artW * 0.08}" y1="${artY + artH * 0.82}" x2="${artX + artW * 0.92}" y2="${artY + artH * 0.82}" stroke="${rule}" stroke-width="0.35"/>
   <text x="${artX + artW / 2}" y="${artY + artH * 0.89}" text-anchor="middle" font-family="Noto Serif SC" font-size="${artH * 0.07}" fill="${ink}">${esc(data.name || '')}</text>
-  <text x="${artX + artW / 2}" y="${artY + artH * 0.94}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.021}" letter-spacing="0.24em" fill="${ink}" opacity="0.62">BAZI · VIER SÄULEN</text>
+  <text x="${artX + artW / 2}" y="${artY + artH * 0.94}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.021}" letter-spacing="0.24em" fill="${ink}" opacity="0.62">${esc(data.subtitle || 'BAZI · VIER SÄULEN')}</text>
 </svg>`
 }

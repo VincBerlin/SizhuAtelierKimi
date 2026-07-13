@@ -11,6 +11,9 @@ const DATA = {
   frame: '#B98A5E',
   bg: '#E9DFCB',
   name: 'Anna <Müller> & Söhne',
+  // subtitle ist lokalisierbarer Text (posterLocale) — mit Injektions-Fixture,
+  // damit der TÜV unescaped Einbettung sofort rot macht (invalides XML).
+  subtitle: 'BAZI · <FOUR> & "PILLARS"',
   element: 'Metall',
   animal: 'Pferd',
   pillars: [
