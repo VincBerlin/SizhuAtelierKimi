@@ -14,12 +14,12 @@ import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../lib/config'
 import { posterProductId, buildVariantId } from '../lib/checkout'
 import { track, EVENTS } from '../lib/analytics'
 import { de } from '../lib/format'
-import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER, posterBgName } from '../lib/tokens'
+import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER } from '../lib/tokens'
 
 export default function ProductView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { cfg, addItem, showToast, openFaqId, setOpenFaqId, posterBgHex } = useShopStore()
+  const { cfg, addItem, showToast, openFaqId, setOpenFaqId } = useShopStore()
   const money = useMoney()
   const { t, lang } = useT()
   // M13 / REQ-008/028 — size for the NON-personalizable PDP path (ready-to-ship
@@ -68,8 +68,19 @@ export default function ProductView() {
   const ratingTxt = lang === 'EN' ? prod.rating.toFixed(1) : prod.rating.toFixed(1).replace('.', ',')
   const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
 
+  // Operator-Vorgabe 2026-07-13: die Paar-SKU (personalization_level 'couple')
+  // braucht ZWEI Geburtsdatensätze — der Single-Konfigurator dieser PDP kann
+  // das nicht ehrlich abbilden. Der CTA führt in den vollständigen Paar-Flow
+  // (/personalize?type=couple → /api/match → exaktes Paar-Chart → Warenkorb).
+  const isCoupleSku = prod.personalization_level === 'couple'
+
   const addToCart = () => {
     const title = t(`content.products.${prod.id}.title`)
+    if (isCoupleSku) {
+      navigate('/personalize?type=couple')
+      window.scrollTo(0, 0)
+      return
+    }
     if (!personalizable) {
       // Non-personalizable (Fire Horse / TCM lehrposter): NO birth data, but M13
       // gives it a first-class size axis. The size is carried in the variantId so
@@ -84,16 +95,11 @@ export default function ProductView() {
     if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    // REQ-018 poster background (the 5-hex palette) is a real product attribute:
-    // carry the chosen swatch into the order line so the selection is never a
-    // silent drop (FM-15). Like `palette`, it is descriptive-only and stays OUT of
-    // the variantId — the server prices solely from size + frame (money path
-    // unchanged).
-    const posterBg = posterBgName(posterBgHex)
+    // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
     // place/date/time + the canonical birthTimeUnknown flag are carried so the
     // planned calculation API can dock without loss (REQ-004 AK-1).
-    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, posterBg, frame: frameName, size: size.label }
-    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${posterBg} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
+    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
+    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }
 
@@ -128,8 +134,9 @@ export default function ProductView() {
         <div className="lg:sticky lg:top-24">
           {personalizable ? (
             <div data-testid="pdp-gallery">
-              <div data-testid="pdp-chart-preview" data-bg-hex={posterBgHex}>
-                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={posterBgHex} />
+              {/* Poster-BG-Palette entfernt (Operator 2026-07-13) — feste neutrale Fläche. */}
+              <div data-testid="pdp-chart-preview">
+                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={C.surfaceWarm} />
                 <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
                   <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
                   {placeholderThumb(t('product.detail'))}
@@ -186,11 +193,19 @@ export default function ProductView() {
               size / frame / background colour axes ARE the product variants
               (REQ-008 AT-008-1). The stable anchors let the gating test assert
               presence/absence and the inventory test assert the variants block. */}
-          {personalizable && (
+          {personalizable && !isCoupleSku && (
             <div data-testid="pdp-variants">
               <div data-testid="pdp-configurator">
                 <Configurator />
               </div>
+            </div>
+          )}
+
+          {/* Paar-SKU: kein Single-Konfigurator — beide Geburtsdatensätze werden
+              im Paar-Flow erfasst (exakte 合婚-Berechnung, Ehrlichkeits-Gate). */}
+          {isCoupleSku && (
+            <div data-testid="pdp-couple-note" style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, background: C.surfaceWarm, borderRadius: 10, padding: '14px 16px', margin: '0 0 14px' }}>
+              {t('product.coupleNote')}
             </div>
           )}
 

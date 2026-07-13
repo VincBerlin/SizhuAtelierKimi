@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router'
 import { frames, backgrounds, sizes, type PosterData, type Pillar } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { type PlaceCandidate } from '../lib/baziClient'
@@ -11,7 +12,7 @@ import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
 import { COMMERCE_ENABLED } from '../lib/config'
 import { ptypeProductId, buildVariantId } from '../lib/checkout'
-import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW, POSTER_BG_PALETTE, posterBgName } from '../lib/tokens'
+import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/tokens'
 import { searchCities } from '../lib/cities'
 // Single client source of truth for product-type base prices + PDF add-on price.
 // server/pricing.js mirrors these 1:1; the parity test couples to this module.
@@ -40,17 +41,23 @@ export default function Personalize() {
   const { addItem, showToast } = useShopStore()
   const money = useMoney()
 
-  const [typeId, setTypeId] = useState<ProductTypeId>('bazi')
+  // Deep-Link ?type=couple|bazi|… (Operator 2026-07-13): die Paar-SKU-PDP und
+  // Mega-Menü-Einträge springen direkt in den passenden Produkttyp. Nur gegen
+  // die realen PRODUCT_TYPES-Ids validiert — unbekannte Werte fallen auf 'bazi'.
+  const [searchParams] = useSearchParams()
+  const requestedType = searchParams.get('type')
+  const initialType: ProductTypeId = PRODUCT_TYPES.some((p) => p.id === requestedType)
+    ? (requestedType as ProductTypeId)
+    : 'bazi'
+  const [typeId, setTypeId] = useState<ProductTypeId>(initialType)
   const [a, setA] = useState<Person>(emptyPerson)
   const [b, setB] = useState<Person>(emptyPerson)
   const [unknownTime, setUnknownTime] = useState(false)
   const [posterLang, setPosterLang] = useState<Lang>(lang)
   const [frameHex, setFrameHex] = useState(frames[0].hex)
   const [bgHex, setBgHex] = useState(backgrounds[0].hex)
-  // REQ-018 / T-404 — poster background palette (5 frozen hex from tokens.ts).
-  // Drives the live preview's surrounding background so a swatch selection is
-  // traceable (AT-018-3). Distinct from `bgHex` (the poster-art design palette).
-  const [posterBgHex, setPosterBgHex] = useState(POSTER_BG_PALETTE[0].hex)
+  // Poster-Background-Palette (REQ-018/T-404) entfernt — Operator-Vorgabe
+  // 2026-07-13; die Vorschau-Umgebung ist eine feste neutrale Fläche.
   // Design-Registry (src/designs/registry.mjs): der Käufer wählt das Design;
   // dieselbe Vorlage rendert Vorschau UND Druck-PDF. Paar-Produkte nutzen
   // pair-Designs, Einzel-Produkte single-Designs — Wechsel des Produkttyps
@@ -213,13 +220,11 @@ export default function Personalize() {
       personalization.frameHex = frameHex
       personalization.bgHex = bgHex
       personalization.palette = bg.name
-      // REQ-018 poster background (the 5-hex palette) is a real product attribute —
-      // carry the chosen swatch into the order line (no silent drop, FM-15).
-      personalization.posterBg = posterBgName(posterBgHex)
+      // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
       personalization.size = size.label
       personalization.pdfAddon = String(!def.pdfIncluded && pdfAddon)
     }
-    const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? posterBgName(posterBgHex) : null, def.poster ? size.label : null]
+    const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? size.label : null]
     // Stable server-pricing identity (ADR-001): poster types carry size + frame +
     // pdf-addon axes; digital-only types carry none. The server re-prices from
     // these and ignores the client `price`.
@@ -254,9 +259,8 @@ export default function Personalize() {
             real no-overlap proof at 360px is Playwright [REAL-BROWSER-PLANNED]. */}
         <div
           data-testid="poster-preview-sticky"
-          data-bg-hex={posterBgHex}
           className="lg:top-24"
-          style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: posterBgHex, borderRadius: 6, padding: 8 }}
+          style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: C.surfaceWarm, borderRadius: 6, padding: 8 }}
         >
           {def.poster ? (
             <PosterSvg data={previewData} designId={designId} />
@@ -385,22 +389,8 @@ export default function Personalize() {
                   )
                 })}
               </div>
-              {/* REQ-018 / T-404 — poster background palette: EXACTLY the 5 frozen
-                  hex from tokens.ts. Selecting a swatch updates the live preview
-                  background (see poster-preview-sticky data-bg-hex). */}
-              <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{t('personalize.posterBgHeading')}</div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
-                {POSTER_BG_PALETTE.map((p) => {
-                  const sel = p.hex === posterBgHex
-                  return (
-                    <span key={p.hex} data-testid="poster-bg-swatch" data-hex={p.hex}>
-                      <button type="button" onClick={() => setPosterBgHex(p.hex)} title={p.name} aria-label={p.name} aria-pressed={sel} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.12)', background: p.hex, cursor: 'pointer' }}>
-                        {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
-                      </button>
-                    </span>
-                  )
-                })}
-              </div>
+              {/* Poster-Background-Palette (REQ-018/T-404) entfernt —
+                  Operator-Vorgabe 2026-07-13: keine 5-Swatch-Auswahl mehr. */}
               <div style={{ fontSize: 12, color: C.textMuted2, marginBottom: 10 }}>{t('personalize.sizeHeading')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
                 {sizes.map((z) => {

@@ -27,14 +27,12 @@ export default function SplitHero() {
       className="split-hero grid grid-cols-1 md:grid-cols-2"
       style={{ minBlockSize: '100%', height: '100%' }}
     >
-      {/* Mobile-first Kopffreiheit: Announcement-Bar (34px) + fixierter Header
-          (~72px) liegen ÜBER dem Hero. Unterhalb md ist die Markenfläche das
-          oberste Element — ohne pt-[130px] rutschte die H1 unter das Logo
-          (Fund hero-mobile.png 2026-07-12). Ab md zentriert die volle
-          Viewport-Höhe die Inhalte ohnehin weit unterhalb des Headers. */}
+      {/* Seit der Operator-Vorgabe 2026-07-13 (Hero endet an der Menü-Grenze,
+          App-Padding auch auf Home) liegt NICHTS mehr unter dem fixierten
+          Header — die frühere pt-[130px]-Kopffreiheit ist obsolet. */}
       <div
         data-testid="split-hero-brand"
-        className="flex flex-col justify-center px-8 pt-[130px] pb-14 md:py-14 sm:px-12 lg:px-20"
+        className="flex flex-col justify-center px-8 py-14 sm:px-12 lg:px-20"
         style={{ background: BRAND_INK, minBlockSize: 'max(56vh, min-content)' }}
       >
         <h1

@@ -33,17 +33,14 @@ import { translations, type Lang } from '../../src/i18n/translations'
 import { COLLECTION_SLUGS } from '../../src/lib/collections'
 import { PRIMARY_NAV } from '../../src/components/Navbar'
 
-// The exact, frozen 8-entry primary nav (REQ-003 / AC-003), in spec order. Each
-// is referenced by its i18n key (not hardcoded visible text) per AT-003-1.
+// SUPERSEDED 2026-07-13 (Operator-Vorgabe, s. Ledger „Vertrags-Änderungen"):
+// die alte, eingefrorene 8-Item-Leiste (REQ-003 / AC-003) ist auf ZWEI
+// Schnellzugriffe reduziert — Poster/TCM/Wuxing/Offers/Poster-Sets sind im
+// Mega-Menü verankert, Inspiration wanderte in dessen Quick-Access-Zeile.
+// Weiterhin per i18n-Key referenziert (AT-003-1), nicht per Sichttext.
 const EXPECTED_NAV = [
   { i18nKey: 'nav.primary.bestseller' },
   { i18nKey: 'nav.primary.new' },
-  { i18nKey: 'nav.primary.posters' },
-  { i18nKey: 'nav.primary.tcm' },
-  { i18nKey: 'nav.primary.wuxing' },
-  { i18nKey: 'nav.primary.offers' },
-  { i18nKey: 'nav.primary.posterSets' },
-  { i18nKey: 'nav.primary.inspiration' },
 ] as const
 
 // Routes a customer can actually reach (no dead link, AT-003-3). The offers hub
@@ -85,10 +82,11 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-// ── AT-003-1 — exactly the 8 spec labels, i18n-key-based, in spec order ───────
+// ── AT-003-1 — exakt die Spec-Labels, i18n-key-basiert, in Spec-Reihenfolge ───
+// (Operator 2026-07-13: Spec = 2 Schnellzugriffe, s. EXPECTED_NAV oben)
 
-describe('REQ-003 / AT-003-1 — primary nav is exactly the 8 shop entries', () => {
-  it('exports a PRIMARY_NAV config of exactly 8 entries in spec order', () => {
+describe('REQ-003 / AT-003-1 — primary nav is exactly the operator-spec entries', () => {
+  it('exports a PRIMARY_NAV config of exactly the spec entries in order', () => {
     expect(PRIMARY_NAV.map((e) => e.i18nKey)).toEqual(EXPECTED_NAV.map((e) => e.i18nKey))
   })
 

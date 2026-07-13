@@ -150,6 +150,8 @@ describe('REQ-009 / AT-009-4 — items link to real REQ-010 collection routes', 
       href === '/collections' ||
       href === '/offers' ||
       href === '/personalize' ||
+      // Operator 2026-07-13: Inspiration lebt jetzt im Mega-Menü (Quick-Access).
+      href === '/inspiration' ||
       href.startsWith('/collections?') ||
       COLLECTION_SLUGS.some((s) => href === `/collections/${s}`)
 
@@ -211,16 +213,15 @@ describe('REQ-009 / AT-009-2 — mobile drawer (accordion) preserved', () => {
   })
 })
 
-describe('M10 / REQ-005 — the desktop primary nav shows exactly the 8 shop entries', () => {
-  it('renders the 8 canonical primary entries plus the mega-menu trigger', async () => {
+describe('M10 / REQ-005 — the desktop primary nav shows exactly the operator-spec entries', () => {
+  // SUPERSEDED 2026-07-13 (Operator): die 8-Item-Leiste ist auf ZWEI
+  // Schnellzugriffe reduziert (Bestseller, Neuheiten) — Poster/TCM/Wuxing/
+  // Offers/Poster-Sets/Inspiration sind vollständig im Mega-Menü verankert.
+  it('renders the 2 operator-spec primary entries plus the mega-menu trigger', async () => {
     renderApp()
     await screen.findAllByRole('navigation')
     const primary = screen.getByTestId('primary-nav')
-    // REQ-005 (exact spec) SUPERSEDES the delta "≤6 top-level" budget: the primary
-    // bar carries exactly the 8 shop-oriented entries (data-nav-primary) plus the
-    // Personalize CTA + mega-menu trigger (data-nav-top). The deep taxonomy lives
-    // in the mega-menu panel, not the top bar — so the bar is not overloaded.
-    expect(primary.querySelectorAll('[data-nav-primary]').length).toBe(8)
+    expect(primary.querySelectorAll('[data-nav-primary]').length).toBe(2)
     expect(within(primary).getByTestId('mega-menu-trigger')).toBeInTheDocument()
   })
 })

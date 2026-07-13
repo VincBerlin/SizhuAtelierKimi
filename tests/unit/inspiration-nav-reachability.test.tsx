@@ -39,16 +39,16 @@ beforeEach(() => {
 // ── AT-011-4 — /inspiration is reachable from the production navigation ───────
 
 describe('REQ-011 / AT-011-4 — /inspiration is wired into production navigation', () => {
-  it('the desktop primary nav links to /inspiration', async () => {
+  // SUPERSEDED 2026-07-13 (Operator): Inspiration lebt nicht mehr in der
+  // Primärleiste, sondern in der Quick-Access-Zeile des Mega-Menüs (Desktop)
+  // bzw. als Quick-Link im Mobile-Drawer — die Reachability-Garantie aus dem
+  // persistenten Chrome bleibt identisch.
+  it('the desktop mega-menu quick access links to /inspiration', async () => {
     renderApp()
     await screen.findAllByRole('navigation')
 
-    // M10 — Inspiration is a shop-oriented PRIMARY nav entry (REQ-005), reachable
-    // directly from the top bar (no longer buried in a mega-menu "Featured" column).
-    const primary = screen.getByTestId('primary-nav')
-    const links = within(primary)
-      .getAllByRole('link')
-      .map((a) => a.getAttribute('href') ?? '')
+    const quickLinks = screen.getAllByTestId('mega-quick-item')
+    const links = quickLinks.map((a) => a.getAttribute('href') ?? '')
     expect(links).toContain('/inspiration')
   })
 
@@ -59,9 +59,9 @@ describe('REQ-011 / AT-011-4 — /inspiration is wired into production navigatio
     // open the mobile drawer via the hamburger (aria-label from nav.open)
     fireEvent.click(screen.getByLabelText(/open menu/i))
 
-    // M10 — Inspiration is a primary drawer entry (always rendered), not buried
-    // in the taxonomy accordion.
-    const drawerLinks = await screen.findAllByTestId('mobile-primary-link')
+    // Operator 2026-07-13: Inspiration ist mobil ein Quick-Link (immer
+    // gerendert), nicht in einem Taxonomie-Accordion vergraben.
+    const drawerLinks = await screen.findAllByTestId('mobile-quick-link')
     const hrefs = drawerLinks.map((a) => a.getAttribute('href') ?? '')
     expect(hrefs).toContain('/inspiration')
   })
