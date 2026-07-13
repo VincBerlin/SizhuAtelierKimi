@@ -32,13 +32,13 @@ function ModuleAnchor({ id, children }: { id: string; children: ReactNode }) {
  * vom kritischen Pfad komplett).
  */
 function HeroSection() {
-  // 100dvh (nicht 100dvh−Header): Announcement-Bar + Header sind FIXED und
-  // nehmen keinen Fluss-Platz ein — der Hero füllt den ganzen Viewport, seine
-  // oberen ~106px liegen hinter der transparenten Leiste (wie zuvor beim
-  // InkWave-Hero). [REAL-BROWSER]-Beweis: hero-megamenu.spec.ts (Fund vom
-  // ersten Lauf: calc-Variante ließ Produkte in den ersten Screen ragen).
+  // Operator-Vorgabe 2026-07-13: die MENÜ-GRENZE ist die Hero-Grenze. App.tsx
+  // gibt jetzt auch Home das Kopf-Padding (Announcement 34px + Header 72px =
+  // 106px, s. ANNOUNCEMENT_HEIGHT/NAV_HEIGHT in App.tsx) — der Hero beginnt
+  // exakt an der Unterkante des Menüs und füllt den REST des ersten Screens
+  // (kein Produkt sichtbar, Abnahme §11 bleibt erfüllt).
   return (
-    <section id="hero" data-testid="home-viewport-hero" style={{ height: '100dvh', minHeight: 620, overflow: 'hidden' }}>
+    <section id="hero" data-testid="home-viewport-hero" style={{ height: 'calc(100dvh - 106px)', minHeight: 560, overflow: 'hidden' }}>
       <SplitHero />
     </section>
   )

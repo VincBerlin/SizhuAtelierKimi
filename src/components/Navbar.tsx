@@ -434,6 +434,13 @@ export default function Navbar() {
             {PRIMARY_NAV.map((entry) => (
               <Link data-testid="mobile-primary-link" key={entry.href + entry.i18nKey} to={entry.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{t(entry.i18nKey)}</Link>
             ))}
+            {/* Operator 2026-07-13 (Mobile-First): die Quick-Access-Einträge des
+                Mega-Menüs (Offers, Inspiration, …) müssen auch mobil erreichbar
+                sein — die Primärleiste trägt sie nicht mehr. Dubletten zu
+                PRIMARY_NAV werden übersprungen. */}
+            {QUICK_ACCESS.filter((q) => !PRIMARY_NAV.some((p) => p.href === q.href)).map((q) => (
+              <Link data-testid="mobile-quick-link" key={q.id} to={q.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{tx(q.labelKey, q.label)}</Link>
+            ))}
           </nav>
           <div className="flex items-center" style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, gap: 10 }}>
             <div data-testid="mobile-menu-lang"><span data-testid="header-lang"><LangDropdown size={14} up align="left" /></span></div>

@@ -151,6 +151,18 @@ export const products: Product[] = [
     poster: mk('#1B1B1B', '#BC7A5E', 'TCM', '1990-01-01'),
     product_world: 'tcm', personalization_level: 'none', use_case: 'yoga', design_family: 'wabi_sabi',
   },
+  {
+    // Operator-Vorgabe 2026-07-13: ECHTES personalisiertes Paar-/Kompatibilitäts-
+    // Poster als Katalog-SKU (supersedet den „no invented couple SKU"-Vermerk in
+    // collections.ts — der Paar-Flow existiert vollständig: /personalize couple →
+    // /api/match → Paar-Design → Druck-PDF, live-bewiesen im Evidence-Ledger).
+    // Preis = ptype:couple-Basis (Server-Parität, ADR-001). Die PDP leitet für
+    // personalization_level 'couple' in den Paar-Flow (ProductView-Weiche).
+    id: 15, category: 'Paare', title: 'Paar-Kompatibilitäts-Poster — personalisiert', price: 69, anchor: 79, rating: 4.9, reviews: 0, sold: 0,
+    bullets: ['Beide Geburtscharts exakt berechnet auf EINEM Motiv (合婚)', 'Eure Element-Beziehung als kalligrafisches Relations-Label', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Aus euren echten Geburtsdaten — kein Standardmotiv'],
+    poster: mk('#B98A5E', '#E9DFCB', 'Mara & Tomas', '1990-06-15'),
+    product_world: 'bazi', personalization_level: 'couple', use_case: 'gift', design_family: 'classic_ink',
+  },
 ]
 
 // Featured lines on the home collection — a richer set so the mobile swipe

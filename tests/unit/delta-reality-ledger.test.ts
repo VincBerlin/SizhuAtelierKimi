@@ -116,7 +116,10 @@ describe('REQ-020 / AT-020-3 — every delta requirement has runnable evidence',
     'REQ-015': 'tests/unit/delta-es-locale.test.tsx',
     'REQ-016': 'tests/unit/display-currency.format.test.ts',
     'REQ-017': 'tests/unit/delta-color-tokens.test.ts',
-    'REQ-018': 'tests/unit/delta-poster-bg-palette.test.tsx',
+    // REQ-018 (Poster-Background-Palette) vom Operator 2026-07-13 GESTRICHEN —
+    // das Feature (5 Swatches) wurde entfernt, delta-poster-bg-palette.test.tsx
+    // mit ihm. Dieser Meta-Scan dokumentiert die Streichung als Evidenz.
+    'REQ-018': 'tests/unit/delta-reality-ledger.test.ts',
     'REQ-019': 'tests/unit/delta-newsletter-seo-trust-lock.test.tsx',
     'REQ-020': 'tests/unit/delta-reality-ledger.test.ts', // this meta-scan is REQ-020's own evidence
     'REQ-021': 'tests/unit/delta-announcement-bar.test.tsx',

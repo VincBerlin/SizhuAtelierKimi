@@ -89,6 +89,29 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   `delta-color-tokens.test.ts` (Datei-gebundene Ausnahme #A0522D NUR in
   `SplitHero.tsx`; Hover #B5652B bleibt überall verboten). Quelle: Plan-§4
   (Commit 44ed13a-Implementierung); Escalation-Regel gewahrt.
+- **Operator-Batch 2026-07-13 (Direktanweisung im Chat, supersedet mehrere
+  eingefrorene Verträge):**
+  1. *Hero-Grenze = Menü-Grenze:* App-Padding jetzt auch auf Home; Hero =
+     `calc(100dvh − 106px)`, beginnt an der Menü-Unterkante (supersedet die
+     100dvh-hinter-transparenter-Leiste-Lösung vom 2026-07-12; SplitHero-
+     pt-[130px]-Kopffreiheit damit obsolet und entfernt).
+  2. *Primärleiste reduziert:* Poster/TCM/Wuxing/Offers/Poster-Sets raus (im
+     Mega-Menü verankert), Inspiration → Mega-Menü-Quick-Access. Supersedet
+     die 8-Item-Leiste (REQ-003/REQ-005). Tests nachgezogen:
+     delta-primary-nav, exact-taxonomy, delta-offers-hub (AT-024-4 via
+     QUICK_ACCESS).
+  3. *Poster-Background-Palette (5 Swatches, REQ-018/T-404) GELÖSCHT* aus
+     tokens/Store/Personalize/Configurator/PDP; Test-Datei
+     delta-poster-bg-palette.test.tsx entfernt (Vertrag aufgehoben).
+  4. *Footer:* Versand-Zeile (shipNote „Climate-neutral … US & UK always
+     free") und Sprach-Umschalter entfernt (Sprache bleibt im Header).
+  5. *Echte Paar-SKU (Katalog id 15, 69 €):* personalisiertes Kompatibilitäts-
+     Poster — supersedet den „no invented couple SKU"-Vermerk; PDP leitet in
+     den Paar-Flow (/personalize?type=couple, neuer Query-Param), Warenkorb
+     über den live-bewiesenen 合婚-Pfad. Server-Preisspiegel 15:69
+     (Paritätstest gekoppelt).
+  6. *Shop-by-World + How-it-works* als vollbreite Bänder im Hero-Farbton
+     (--ink-black), Texte hell.
 - **FuFirE-Gate-Nachzug 2026-07-13 (kein Vertragswechsel, Testreparatur):**
   `delta-poster-bg-palette.test.tsx` (AT-018-3 Cart-Line) und
   `personalization-passthrough.test.tsx` (AT-004-1 Paar) stammten aus der

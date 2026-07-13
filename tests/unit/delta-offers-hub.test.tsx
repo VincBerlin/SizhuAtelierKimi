@@ -27,6 +27,7 @@ import { render, screen, within, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import { PRIMARY_NAV } from '../../src/components/Navbar'
+import { QUICK_ACCESS } from '../../src/lib/taxonomy'
 import { OFFERS_SECTIONS } from '../../src/lib/collections'
 
 const WEBP_RE = /\/images\/.*\.webp/i
@@ -165,17 +166,19 @@ describe('REQ-024 / AT-024-3 — hub image fields are asset-light placeholders (
   })
 })
 
-// ── AT-024-4 — the "Angebote" nav entry links to the hub (no dead link) ───────
+// ── AT-024-4 — der Angebote-Einstieg führt zum Hub (kein toter Link) ──────────
+// SUPERSEDED 2026-07-13 (Operator): Offers lebt nicht mehr in der Primärleiste,
+// sondern im Mega-Menü (Quick-Access) — die Reachability-Garantie bleibt gleich.
 
-describe('REQ-024 / AT-024-4 — "Angebote" nav entry targets the hub route', () => {
-  it('PRIMARY_NAV has an offers entry whose href is /offers', () => {
-    const offers = PRIMARY_NAV.find((e) => e.i18nKey === 'nav.primary.offers')
-    expect(offers, 'an offers primary-nav entry exists').toBeDefined()
-    expect(offers!.href).toBe('/offers')
+describe('REQ-024 / AT-024-4 — offers entry (mega-menu quick access) targets the hub route', () => {
+  it('QUICK_ACCESS has an offers entry whose href is /offers (and PRIMARY_NAV has none)', () => {
+    const offers = QUICK_ACCESS.find((e) => e.href === '/offers')
+    expect(offers, 'an offers quick-access entry exists').toBeDefined()
+    expect(PRIMARY_NAV.some((e) => e.href === '/offers')).toBe(false)
   })
 
-  it('navigating to the offers nav href renders the curated hub (not a dead link)', async () => {
-    const offers = PRIMARY_NAV.find((e) => e.i18nKey === 'nav.primary.offers')
+  it('navigating to the offers quick-access href renders the curated hub (not a dead link)', async () => {
+    const offers = QUICK_ACCESS.find((e) => e.href === '/offers')
     expect(offers).toBeDefined()
     render(
       <MemoryRouter initialEntries={[offers!.href]}>

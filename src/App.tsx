@@ -50,9 +50,9 @@ function AppShell() {
   const { t } = useT()
   const mainRef = useRef<HTMLDivElement>(null)
   const firstRender = useRef(true)
-  // Home keeps a full-viewport hero under the transparent fixed chrome;
-  // every other route needs clearance below the announcement bar + navbar.
-  const isHome = pathname === '/'
+  // Operator-Vorgabe 2026-07-13: JEDE Route (auch Home) beginnt unterhalb der
+  // Menü-Grenze — die frühere isHome-Sonderbehandlung (Hero hinter der
+  // transparenten Leiste) ist aufgehoben.
 
   // A11y (M18) — move focus to the main content region on route change so
   // keyboard / screen-reader users land on the new page instead of being
@@ -81,7 +81,10 @@ function AppShell() {
       </a>
       <AnnouncementBar />
       <Navbar />
-      <div id="main-content" ref={mainRef} tabIndex={-1} style={{ paddingTop: isHome ? 0 : ANNOUNCEMENT_HEIGHT + NAV_HEIGHT, outline: 'none' }}>
+      {/* Operator-Vorgabe 2026-07-13: der Hero endet an der MENÜ-GRENZE — auch
+          Home bekommt das Kopf-Padding; kein Inhalt liegt mehr hinter der
+          fixierten Leiste (vorher: isHome ? 0 : …, Hero lief unter das Menü). */}
+      <div id="main-content" ref={mainRef} tabIndex={-1} style={{ paddingTop: ANNOUNCEMENT_HEIGHT + NAV_HEIGHT, outline: 'none' }}>
         <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />

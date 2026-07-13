@@ -176,25 +176,28 @@ export interface PrimaryNavItem {
   readonly href: string
 }
 
+// Operator-Vorgabe 2026-07-13 (supersedes die 8-Item-Leiste aus M10/REQ-005):
+// Poster, TCM Poster, Wuxing, Angebote, Poster Sets fliegen aus der Leiste —
+// sie sind vollständig im Mega-Menü verankert (Spalten + Quick-Access).
+// Inspiration wandert ebenfalls ins Mega-Menü (Quick-Access-Zeile). In der
+// Leiste bleiben nur die zwei Schnellzugriffe neben Personalisieren +
+// Collections-Trigger.
 export const PRIMARY_NAV: readonly PrimaryNavItem[] = [
   { id: 'bestseller', labelKey: 'nav.primary.bestseller', label: 'Bestseller', href: '/collections/bazi-posters' },
   { id: 'new', labelKey: 'nav.primary.new', label: 'Neuheiten', href: '/collections/fire-horse-2026' },
-  { id: 'posters', labelKey: 'nav.primary.posters', label: 'Poster', href: '/collections' },
-  { id: 'tcm', labelKey: 'nav.primary.tcm', label: 'TCM Poster', href: '/collections/tcm-posters' },
-  { id: 'wuxing', labelKey: 'nav.primary.wuxing', label: 'Wuxing', href: '/collections/wuxing-posters' },
-  { id: 'offers', labelKey: 'nav.primary.offers', label: 'Angebote', href: '/offers' },
-  { id: 'poster-sets', labelKey: 'nav.primary.posterSets', label: 'Poster Sets', href: '/collections/bundles' },
-  { id: 'inspiration', labelKey: 'nav.primary.inspiration', label: 'Inspiration', href: '/inspiration' },
 ] as const
 
 /** Forbidden primary-nav destinations (REQ-005) — these belong in footer/secondary. */
 export const FORBIDDEN_PRIMARY_NAV = ['/faq', '/about', '/contact', '/blog'] as const
 
-/** Mega-menu quick-access shortcuts (REQ-006) — all live routes. */
+/** Mega-menu quick-access shortcuts (REQ-006) — all live routes.
+ *  Operator-Vorgabe 2026-07-13: Inspiration lebt jetzt HIER (aus der
+ *  Primärleiste ins Mega-Menü verschoben). */
 export const QUICK_ACCESS: readonly PrimaryNavItem[] = [
   { id: 'qa-bestseller', labelKey: 'taxonomy.quick.bestseller', label: 'Bestseller', href: '/collections/bazi-posters' },
   { id: 'qa-new', labelKey: 'taxonomy.quick.new', label: 'New Arrivals', href: '/collections/fire-horse-2026' },
   { id: 'qa-offers', labelKey: 'taxonomy.quick.offers', label: 'Offers', href: '/offers' },
+  { id: 'qa-inspiration', labelKey: 'nav.primary.inspiration', label: 'Inspiration', href: '/inspiration' },
 ]
 
 // ── Mega-menu visual tiles (REQ-013) — asset-light, non-final placeholders ───────

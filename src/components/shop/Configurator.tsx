@@ -3,7 +3,7 @@ import { frames, backgrounds, sizes } from '../../lib/bazi'
 import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'
-import { C, FONT_SANS, POSTER_BG_PALETTE } from '../../lib/tokens'
+import { C, FONT_SANS } from '../../lib/tokens'
 
 const inputStyle: CSSProperties = {
   border: `1px solid ${C.borderInput}`,
@@ -28,13 +28,9 @@ function Label({ text, children }: { text: string; children: ReactNode }) {
 }
 
 export default function Configurator() {
-  const { cfg, setCfg, posterBgHex, setPosterBgHex } = useShopStore()
+  const { cfg, setCfg } = useShopStore()
   const money = useMoney()
   const { t } = useT()
-  // REQ-018 / T-404 — poster background palette (EXACTLY the 5 frozen hex from
-  // tokens.ts), coupled to the SINGLE store source (`posterBgHex`). The PDP live
-  // preview (ProductView) and the order assembly both read that same store value,
-  // so a swatch click is no longer a dead local control (FM-15).
 
   return (
     <>
@@ -78,23 +74,8 @@ export default function Configurator() {
             })}
           </div>
         </div>
-        <div>
-          {/* REQ-018 / T-404 — poster background palette: EXACTLY the 5 frozen
-              hex from tokens.ts (no extra, none missing). */}
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t('personalize.posterBgHeading')}</div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {POSTER_BG_PALETTE.map((p) => {
-              const sel = p.hex === posterBgHex
-              return (
-                <span key={p.hex} data-testid="poster-bg-swatch" data-hex={p.hex}>
-                  <button type="button" onClick={() => setPosterBgHex(p.hex)} title={p.name} aria-label={p.name} aria-pressed={sel} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.12)', background: p.hex, cursor: 'pointer' }}>
-                    {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
-                  </button>
-                </span>
-              )
-            })}
-          </div>
-        </div>
+        {/* Poster-Background-Palette (REQ-018/T-404) entfernt —
+            Operator-Vorgabe 2026-07-13: keine 5-Swatch-Auswahl mehr. */}
         <div>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t('configurator.step4')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>

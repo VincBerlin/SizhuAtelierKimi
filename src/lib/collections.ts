@@ -172,9 +172,10 @@ export const COLLECTION_CONFIGS: CollectionConfig[] = [
     title: 'Kompatibilitäts-Poster für Paare',
     intro:
       'Zwei Geburtscharts auf einem Motiv — ein symbolisches Kunstwerk für Paare, inspiriert von euren Geburtsdaten.',
-    // Couple compatibility builds on the personalizable BaZi posters today
-    // (curated subset) — honest: no invented "couple SKU".
-    productIds: [1, 5, 3],
+    // Operator-Vorgabe 2026-07-13: es gibt jetzt eine ECHTE personalisierte
+    // Paar-SKU (catalog id 15, 合婚-Paar-Flow live-bewiesen) — sie führt die
+    // Collection an; der alte „no invented couple SKU"-Vermerk ist superseded.
+    productIds: [15, 1, 5, 3],
     heroLabel: 'Kompatibilität',
     seo: {
       heading: 'Kompatibilitäts-Poster für Paare online gestalten',

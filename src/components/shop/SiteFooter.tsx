@@ -1,7 +1,6 @@
 import { Link } from 'react-router'
-import { useT, LANGS } from '../../i18n/I18nProvider'
-import { C, FONT_SERIF, FONT_SANS, CONTAINER, BRAND_NAME, FREE_SHIP_THRESHOLD } from '../../lib/tokens'
-import { euro } from '../../lib/format'
+import { useT } from '../../i18n/I18nProvider'
+import { C, FONT_SERIF, FONT_SANS, CONTAINER, BRAND_NAME } from '../../lib/tokens'
 
 // M15 / REQ-024 — the footer is grouped into the required areas: service/help,
 // discover, legal, plus a bottom bar with a locale/country selector, payment
@@ -24,7 +23,7 @@ const PAYMENTS = ['PayPal', 'Apple Pay', 'Google Pay'] as const
 const headingStyle = { fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8a8072', margin: '0 0 12px' } as const
 
 export default function SiteFooter() {
-  const { t, lang, setLang } = useT()
+  const { t } = useT()
   return (
     <footer data-testid="site-footer" style={{ background: C.ink, color: '#A9A091' }}>
       <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '48px 32px 32px' }}>
@@ -51,19 +50,15 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        {/* Bottom bar — locale/country + payment methods + shipping note (REQ-024). */}
+        {/* Bottom bar — nur noch Zahlarten. Operator-Vorgabe 2026-07-13:
+            Sprach-Umschalter (footer-locale) und Versand-Zeile (shipNote,
+            „Climate-neutral shipping … US & UK always free") sind entfernt;
+            die Sprache wird weiterhin im Header gewechselt. */}
         <div data-testid="footer-bottom" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px 24px', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #2f2a22', marginTop: 28, paddingTop: 22 }}>
-          <div data-testid="footer-locale" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#7d756a' }}>{t('footer.locale')}</span>
-            {LANGS.map((l) => (
-              <button key={l} type="button" data-testid="footer-lang" aria-pressed={lang === l} onClick={() => setLang(l)} style={{ background: 'none', border: `1px solid ${lang === l ? '#A9A091' : '#3a342b'}`, color: lang === l ? '#F3EEE3' : '#A9A091', borderRadius: 6, padding: '4px 9px', fontSize: 12, cursor: 'pointer' }}>{l}</button>
-            ))}
-          </div>
           <div data-testid="footer-payments" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: '#7d756a' }}>{t('footer.payment')}</span>
             {PAYMENTS.map((p) => (<span key={p} style={{ fontSize: 12, color: '#A9A091', border: '1px solid #3a342b', borderRadius: 6, padding: '4px 9px' }}>{p}</span>))}
           </div>
-          <div data-testid="footer-shipping-note" style={{ fontSize: 12, color: '#7d756a', flexBasis: '100%' }}>{t('footer.shipNote', { amount: euro(FREE_SHIP_THRESHOLD) })}</div>
         </div>
       </div>
     </footer>

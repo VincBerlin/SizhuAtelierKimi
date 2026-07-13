@@ -28,6 +28,7 @@ export const DIGITAL_PRODUCT_PREFIX = 'digital:' // catalog.ts digitalProduct
 const POSTER_BASE_EUR = {
   1: 49, 2: 69, 3: 45, 4: 39, 5: 52, 6: 42, 7: 49, 8: 65,
   11: 39, 12: 49, 13: 45, 14: 45,
+  15: 69, // Paar-Kompatibilitäts-Poster personalisiert (Operator 2026-07-13; = ptype couple)
 }
 
 // Personalize product-type base prices in EUR (mirror of PRODUCT_TYPES).
