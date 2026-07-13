@@ -35,10 +35,37 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('EN')
 
   useEffect(() => {
+    // Sprach-Auflösung (Operator 2026-07-13): Basis ist ENGLISCH; eine
+    // gespeicherte Nutzerwahl gewinnt IMMER. Ohne Wahl: (1) Herkunftsland aus
+    // /api/region (liefert das Land nur, wenn am Edge ein vertrauenswürdiger
+    // Geo-Header konfiguriert ist — TRUSTED_GEO_HEADER, RL-GEO; DE→Deutsch),
+    // (2) sonst die Browser-Sprache (de/fr/es), (3) sonst EN. Ehrlich: ohne
+    // Edge-Geo-Header ist (1) leer und (2) greift — dokumentiert im Ledger.
     try {
       const s = localStorage.getItem(STORE_KEY) as Lang | null
-      if (s && LANGS.includes(s)) setLangState(s)
+      if (s && LANGS.includes(s)) {
+        setLangState(s)
+        return
+      }
     } catch { /* ignore */ }
+    const COUNTRY_LANG: Record<string, Lang> = { DE: 'DE', AT: 'DE', FR: 'FR', ES: 'ES' }
+    const BROWSER_LANG: Record<string, Lang> = { de: 'DE', fr: 'FR', es: 'ES' }
+    let cancelled = false
+    const applyBrowserLang = () => {
+      const nav = (typeof navigator !== 'undefined' ? navigator.language : '') || ''
+      const mapped = BROWSER_LANG[nav.slice(0, 2).toLowerCase()]
+      if (mapped && !cancelled) setLangState(mapped)
+    }
+    fetch('/api/region')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const mapped = j?.country ? COUNTRY_LANG[String(j.country).toUpperCase()] : undefined
+        if (cancelled) return
+        if (mapped) setLangState(mapped)
+        else applyBrowserLang()
+      })
+      .catch(() => { if (!cancelled) applyBrowserLang() })
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {

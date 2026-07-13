@@ -27,7 +27,10 @@ export default function ShopByWorldSection() {
           <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3.2vw,38px)', color: '#FBF8F1', margin: '0 0 10px', lineHeight: 1.15 }}>{t('home.world.title')}</h2>
           <p style={{ fontFamily: FONT_SANS, fontSize: 14, color: 'rgba(251,248,241,0.72)', maxWidth: 560, margin: '0 auto', lineHeight: 1.6 }}>{t('home.world.sub')}</p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
+        {/* Operator 2026-07-13: die Welt-Karten waren zu klein — jetzt große,
+            ECKIGE, einheitliche Kacheln (gleiche Höhe per stretch, mehr Fläche,
+            größere Titel), Desenio-artig. */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24, alignItems: 'stretch' }}>
           {WORLD_CARDS.map(({ key, slug }) => (
             <Link
               key={key}
@@ -36,11 +39,11 @@ export default function ShopByWorldSection() {
               // RL-EVENT RED).
               onClick={() => track(EVENTS.categoryClick, { world: key, slug })}
               className="transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-20px_rgba(0,0,0,0.6)]"
-              style={{ display: 'flex', flexDirection: 'column', gap: 10, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, textDecoration: 'none' }}
+              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 12, minHeight: 240, background: C.surface, border: `1px solid ${C.border}`, padding: 32, textDecoration: 'none' }}
             >
-              <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 22, margin: 0, lineHeight: 1.2, color: C.ink }}>{t(`home.world.cards.${key}.title`)}</h3>
-              <p style={{ fontFamily: FONT_SANS, fontSize: 14, lineHeight: 1.55, color: C.textMuted, margin: 0 }}>{t(`home.world.cards.${key}.desc`)}</p>
-              <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.accent, marginTop: 4 }}>{t('home.world.cta')} →</span>
+              <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 28, margin: 0, lineHeight: 1.15, color: C.ink }}>{t(`home.world.cards.${key}.title`)}</h3>
+              <p style={{ fontFamily: FONT_SANS, fontSize: 14.5, lineHeight: 1.55, color: C.textMuted, margin: 0 }}>{t(`home.world.cards.${key}.desc`)}</p>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13.5, fontWeight: 600, color: C.accent, marginTop: 4 }}>{t('home.world.cta')} →</span>
             </Link>
           ))}
         </div>

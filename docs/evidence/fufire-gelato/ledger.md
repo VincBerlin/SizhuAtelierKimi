@@ -19,6 +19,7 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 | GESAMTE Vitest-Suite grün — jsdom 611/611 (55 Dateien) + jsdom-isolated 8/8 (1 Datei) + node 72/72 (8 Dateien) = 691 Tests. Voraussetzungen auf dieser Maschine: warmer node_modules-Cache (iCloud) + sequenzieller Lauf. 9 vorgefundene jsdom-Rots geschlossen: 5 Operator-Supersession-Nachzüge (s. Vertrags-Änderungen), 2 FuFirE-Gate-Portierungen, 2 Umgebungs-Fixes (import.meta.url / Debounce-Datei-Isolation) — keine Assertion geschwächt | [INTEGRATION-FAKE]/[SHIPPED-SCAN] (echte Komponenten/Provider, nur externe APIs gemockt) | Vitest-Ausgabe 2026-07-13: `55 passed (55) · 611 passed (611)` + `1 passed (1) · 8 passed (8)` | `node ./node_modules/vitest/vitest.mjs run --project jsdom --isolate=false --maxWorkers=1 --no-file-parallelism` + `--project jsdom-isolated` + `--project node` | 2026-07-13 |
 | Live-Smokes mit Operator-Keys REPRODUZIERT: kanonischer Fall exakt 庚午\|壬午\|辛亥\|乙未, Pferd/Metall, engine 1.0.0-rc1-20260220 (exit 0) UND Paar-Match A konsistent + Relation Metall→nährt→Wasser (exit 0). Keys hinterlegt in lokaler `.env` (gitignored) + Railway-Service `sizhuatelier-shop` (FUFIRE_API_URL/KEY, GELATO_API_KEY, GELATO_ORDER_TYPE=draft; per CLI, --skip-deploys) | [REAL-BOUNDARY-LIVE] | `2026-07-12-bazi-live-response.json` / `2026-07-12-match-live-response.json` (frisch überschrieben 2026-07-13 01:12 lokal; Dateiname = UTC-Datum des Laufs) | `node --env-file=.env scripts/evidence/fufire-smoke.mjs` bzw. `…fufire-match-smoke.mjs` | 2026-07-13 |
 | Käufer-Flow LIVE im echten Browser: Geburtsdaten eingeben → Poster zeigt die exakt live-berechneten Säulen (庚壬辛乙亥未, PFERD, METALL) — personalize-exact.spec.ts gegen gebauten Server MIT echten FuFirE-Keys, 5/5 passed (inkl. Hero/Mega-Menü-Spec). Mobile-first-Fix bewiesen: H1 beginnt ≥106px (unter der fixierten Kopfzeile; Logo-Overlap-Fund behoben via pt-[130px], neue Assertion im Spec). Ink Black der Markenfläche jetzt aus kanonischer Quelle `--ink-black` (index.css) | [REAL-BROWSER]+[REAL-BOUNDARY-LIVE] | `personalize-exact-live.png` · `hero-mobile.png` (beide frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
+| Operator-Batch #2 im echten Chromium bewiesen (6/6): Mobile-Personalize — Poster-Vorschau klebt beim Scrollen SICHTBAR unter der Kopfzeile (y≈112, ≤36vh; Fund „Poster beim Ausfüllen unsichtbar" geschlossen, neue Spec-Assertion als Regressions-Schutz), SVG-Vorschau jetzt vollständig erkennbar (mm-Maße-Fund per CSS gezähmt); Sale-Banner unter dem Menü; 75-€-Announcement regional; eckige Buttons + Auswahlringe; Live-Käufer-Flow weiterhin grün | [REAL-BROWSER] | `personalize-mobile-sticky.png` · `hero-desktop.png` (frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
 | Gelato-Produkt-Mapping vollständig LIVE-VERIFIZIERT (2. Operator-Key, beide APIs 200): alle 6 Kombinationen A3/A2/A1 × Eiche natur/Schwarz matt existieren als exakte productUids im Katalog `framed-posters` (gefilterte products:search, Papier 250 gsm uncoated offwhite archival, Holzrahmen 12×22 mm, Plexiglas, Hochformat) und sind in `server/gelatoProducts.js` hinterlegt; Fulfillment-Test beweist GENAU EINEN Draft mit gemappter UID, idempotent (node 72/72) | [REAL-BOUNDARY-LIVE] | `2026-07-13-gelato-uid-mapping.json` + `2026-07-13-gelato-catalog-fine-art-framed-poster.json` (Erst-Scan, Fehlkatalog-Fund) | `node --env-file=.env scripts/evidence/gelato-catalog-verify.mjs` (exit 0) | 2026-07-13 |
 
 ## RED (offen, launch-relevant)
@@ -125,6 +126,41 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
      (Paritätstest gekoppelt).
   6. *Shop-by-World + How-it-works* als vollbreite Bänder im Hero-Farbton
      (--ink-black), Texte hell.
+- **Operator-Batch #2 2026-07-13 (Direktanweisung, UI/UX-Finale):**
+  1. *Commerce LIVE:* Railway `VITE_COMMERCE_ENABLED=true` (war false →
+     „Preview/launching soon" + „Coming soon" statt Preisen). Die regionale
+     Versand-Announcement (us/uk free · eu Schwelle, nie vermischt) war
+     bereits implementiert und wird durch das Flag sichtbar.
+  2. *Versandschwelle 80 € → 75 €* (tokens + server-Spiegel + i18n-Texte;
+     Paritätstest koppelt).
+  3. *Poster-Vorschau-Fund:* geteilte SVG-Vorlage trägt absolute mm-Maße
+     (420mm ≈ 1587px) → Browser-Vorschau überdimensional; CSS zähmt auf
+     Containerbreite + Höhen-Deckel (Druckquelle unangetastet).
+  4. *Mobile-Sticky-Fund:* im einspaltigen Grid war das Vorschau-Item seine
+     EIGENE Row → sticky wirkungslos, Poster beim Ausfüllen unsichtbar.
+     Layout <lg jetzt display:block + kompakte Sticky-Vorschau (36vh) unter
+     der Kopfzeile — Poster bleibt bei Rahmen/Format/Farben IMMER sichtbar.
+  5. *Karten:* Beschreibungszeile (card-claim) entfällt, Preis direkt unter
+     dem Titel (Test-Nachzug delta-product-card-asset-light als
+     Gegen-Assertion). Welt-Karten groß/eckig (min 240px, Titel 28).
+  6. *Eckig:* global `button/[role=button]/a.cta-square { border-radius: 0
+     !important }`.
+  7. *Inspiration-Teaser:* zweispaltig, größer, mit EHRLICH markierter
+     Platzhalter-Bildfläche (data-placeholder; finales Foto = Operator-Asset).
+  8. *Newsletter minimalistisch:* copy-Absatz + Benefits raus (i18n-Daten
+     bleiben; DSGVO-Consent unangetastet).
+  9. *Sale-Banner „Now save 20%"* unter dem Menü auf jeder Seite → /offers;
+     nur im Live-Commerce-Modus. Der 20%-Wert ist eine OPERATOR-VORGABE;
+     Träger ist die bestehende Streichpreis-Mechanik (catalog anchor) —
+     kein serverseitiger Rabatt-Code. Operator verantwortet die Preispflege
+     passend zum Claim (UWG).
+  10. *Sprach-Automatik:* Basis EN; gespeicherte Wahl gewinnt; sonst Land aus
+     /api/region (DE/AT→DE, FR→FR, ES→ES — wirkt, sobald am Edge
+     TRUSTED_GEO_HEADER konfiguriert ist), sonst Browser-Sprache. EHRLICH:
+     ohne Edge-Geo-Header entscheidet die Browser-Sprache, nicht die IP.
+  11. *personalize-entry-Sektion* direkt nach dem Hero (Einzel-BaZi +
+     Paar-Kompatibilität als große Einstiegskarten); Home-Sequenz-Test
+     fortgeschrieben (REQ-014-Reihenfolge + personalize-entry).
 - **FuFirE-Gate-Nachzug 2026-07-13 (kein Vertragswechsel, Testreparatur):**
   `delta-poster-bg-palette.test.tsx` (AT-018-3 Cart-Line) und
   `personalization-passthrough.test.tsx` (AT-004-1 Paar) stammten aus der

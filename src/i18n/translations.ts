@@ -150,6 +150,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     bundles: { eyebrow: 'Take more, pay less', title: 'Bundles', sub: 'Curated sets — posters and digital analysis combined, at a special price.', add: 'Add set to cart', save: 'Save' },
+    sale: { banner: 'Sale ✦ Now save 20% on selected posters' },
+    homeQuickstart: { eyebrow: 'Start now', title: 'Personalize your poster in minutes', bazi: { title: 'Your BaZi Poster', sub: 'Enter your birth data and watch your exact chart appear live.', cta: 'Personalize now' }, couple: { title: 'Couple Compatibility', sub: 'Two birth charts, one artwork — your elemental relationship, precisely calculated.', cta: 'Start together' } },
     newsletter: { eyebrow: 'The Atelier Circle', title: 'Atelier News — New Posters, Offers & Inspiration', copy: 'Be first to hear about new poster releases, seasonal offers, atelier stories and inspiration for your walls — straight to your inbox. As a gentle extra, we occasionally include a reflective Cosmic Pulse energy note. ✨ No spam, unsubscribe anytime.', benefits: ['New poster & collection launches', 'Seasonal offers & gift ideas', 'Atelier stories · occasional Cosmic Pulse note'], placeholder: 'Your email address', langPref: 'Emails in', button: 'Subscribe', consent: 'I agree to receive product news, new poster launches, seasonal offers and marketing emails from SizhuAtelier, with the occasional Cosmic Pulse energy note. I can unsubscribe at any time. See our', privacy: 'Privacy Policy', success: 'Welcome to the Atelier Circle — check your inbox to confirm your subscription.', error: 'Something went wrong — please try again.', consentErr: 'Please accept the terms to continue.', fine: 'Double opt-in · unsubscribe anytime' },
     wissen: { eyebrow: 'Blog', title: 'What lies behind BaZi', sub: 'Background for your consultations and for anyone who wants to understand their poster.', read: 'Read more →' },
     gifts: {
@@ -510,6 +512,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     bundles: { eyebrow: 'Mehr nehmen, weniger zahlen', title: 'Bundles', sub: 'Abgestimmte Sets — Poster und digitale Analyse kombiniert, zum Vorteilspreis.', add: 'Set in den Warenkorb', save: 'Spare' },
+    sale: { banner: 'Sale ✦ Jetzt 20% auf ausgewählte Poster sparen' },
+    homeQuickstart: { eyebrow: 'Jetzt starten', title: 'Personalisiere dein Poster in Minuten', bazi: { title: 'Dein BaZi-Poster', sub: 'Gib deine Geburtsdaten ein und sieh dein exaktes Chart live entstehen.', cta: 'Jetzt personalisieren' }, couple: { title: 'Paar-Kompatibilität', sub: 'Zwei Geburtscharts, ein Kunstwerk — eure Element-Beziehung, exakt berechnet.', cta: 'Gemeinsam starten' } },
     newsletter: { eyebrow: 'Der Atelier-Kreis', title: 'Atelier-News — Neue Poster, Angebote & Inspiration', copy: 'Erfahre als Erste:r von neuen Poster-Releases, saisonalen Angeboten, Atelier-Geschichten und Wand-Inspiration — direkt ins Postfach. Als kleines Extra legen wir gelegentlich eine besinnliche Cosmic-Pulse-Energienote bei. ✨ Kein Spam, jederzeit abbestellbar.', benefits: ['Neue Poster- & Kollektions-Launches', 'Saisonale Angebote & Geschenkideen', 'Atelier-Geschichten · gelegentliche Cosmic-Pulse-Note'], placeholder: 'Deine E-Mail-Adresse', langPref: 'E-Mails auf', button: 'Abonnieren', consent: 'Ich stimme zu, Produkt-News, neue Poster-Launches, saisonale Angebote und Marketing-E-Mails von SizhuAtelier zu erhalten, mit gelegentlicher Cosmic-Pulse-Energienote. Ich kann mich jederzeit abmelden. Siehe unsere', privacy: 'Datenschutzerklärung', success: 'Willkommen im Atelier-Kreis — prüfe dein Postfach, um dein Abo zu bestätigen.', error: 'Etwas ist schiefgelaufen — bitte erneut versuchen.', consentErr: 'Bitte akzeptiere die Bedingungen, um fortzufahren.', fine: 'Double-Opt-in · jederzeit abbestellbar' },
     wissen: { eyebrow: 'Blog', title: 'Was hinter BaZi steckt', sub: 'Hintergründe für deine Beratung und für alle, die ihr Poster verstehen möchten.', read: 'Weiterlesen →' },
     gifts: {
@@ -711,7 +715,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Wie entsteht mein BaZi-Poster?', a: 'Aus Geburtsdatum, -zeit und -ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Kunstwerk (Jahr, Monat, Tag, Stunde), das aufs Poster gebracht wird.' },
         { q: 'Welche Daten brauche ich für die Bestellung?', a: 'Geburtsdatum, möglichst genaue Geburtszeit und Geburtsort. Optional ein Name fürs Poster.' },
         { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja — wähle einfach „Ich kenne meine Geburtszeit nicht“ und wir verwenden 12:00 Uhr (Mittag) als Standardannahme. Dein Poster wird auf Grundlage dieses Ersatzwertes gestaltet.' },
-        { q: 'Wie lange dauern Produktion und Versand?', a: 'Auftragsfertigung plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
+        { q: 'Wie lange dauern Produktion und Versand?', a: 'Auftragsfertigung plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 75 €.' },
         { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
         { q: 'Auf welchem Papier wird gedruckt?', a: 'Archiv-Pigmentdruck in Museumsqualität, gefertigt in Deutschland.' },
         { q: 'Kann ich mein Poster vor dem Kauf sehen?', a: 'Ja, der Konfigurator zeigt eine Live-Vorschau mit deinen Daten, Rahmen und Hintergrund.' },
@@ -722,7 +726,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       faqDefs: {
         details: { q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier nummeriert.' },
         size: { q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
-        ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 80 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
+        ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 75 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
         bazi: { q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
       },
     },
@@ -869,6 +873,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     bundles: { eyebrow: 'Plus on prend, moins on paie', title: 'Coffrets', sub: 'Des ensembles assortis — posters et analyse digitale combinés, à prix avantageux.', add: 'Ajouter le coffret', save: 'Économisez' },
+    sale: { banner: 'Sale ✦ Économisez 20% sur une sélection de posters' },
+    homeQuickstart: { eyebrow: 'Commencez', title: 'Personnalisez votre poster en quelques minutes', bazi: { title: 'Votre poster BaZi', sub: 'Saisissez vos données de naissance et voyez votre carte exacte apparaître en direct.', cta: 'Personnaliser' }, couple: { title: 'Compatibilité de couple', sub: 'Deux cartes de naissance, une œuvre — votre relation élémentaire, calculée avec précision.', cta: 'Commencer à deux' } },
     newsletter: { eyebrow: 'Le Cercle de l’Atelier', title: 'Actus de l’Atelier — Nouveaux posters, offres & inspiration', copy: 'Soyez informé·e en avant-première des nouveaux posters, des offres saisonnières, des histoires de l’atelier et de l’inspiration déco — directement dans votre boîte mail. En petit bonus, nous glissons parfois une note énergétique Cosmic Pulse. ✨ Pas de spam, désinscription à tout moment.', benefits: ['Nouveaux posters & collections', 'Offres saisonnières & idées cadeaux', 'Histoires d’atelier · note Cosmic Pulse occasionnelle'], placeholder: 'Votre adresse e-mail', langPref: 'E-mails en', button: 'S’abonner', consent: 'J’accepte de recevoir des actualités produit, de nouveaux posters, des offres saisonnières et des e-mails marketing de SizhuAtelier, avec une note énergétique Cosmic Pulse occasionnelle. Je peux me désinscrire à tout moment. Voir notre', privacy: 'Politique de confidentialité', success: 'Bienvenue dans le Cercle de l’Atelier — vérifiez votre boîte mail pour confirmer.', error: 'Une erreur est survenue — veuillez réessayer.', consentErr: 'Veuillez accepter les conditions pour continuer.', fine: 'Double opt-in · désinscription à tout moment' },
     wissen: { eyebrow: 'Blog', title: 'Ce qui se cache derrière le BaZi', sub: 'Du contexte pour vos consultations et pour qui veut comprendre son poster.', read: 'Lire la suite →' },
     gifts: {
@@ -1070,7 +1076,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Comment ma carte BaZi est-elle créée ?', a: 'À partir de la date, de l’heure et du lieu de naissance que vous saisissez, nous composons une œuvre symbolique des quatre piliers (année, mois, jour, heure) mise en forme sur le poster.' },
         { q: 'Quelles données faut-il pour commander ?', a: 'Date de naissance, heure de naissance la plus précise possible, et lieu de naissance. En option, un nom pour le poster.' },
         { q: 'Je ne connais pas mon heure exacte de naissance — est-ce possible ?', a: 'Oui — cochez simplement « Je ne connais pas mon heure de naissance » et nous utilisons 12 h (midi) par défaut. Votre poster est composé sur la base de cette valeur.' },
-        { q: 'Combien de temps prennent la production et la livraison ?', a: 'Production sur commande plus 5–7 jours ouvrés de livraison, dans le monde entier. Livraison offerte dès 80 €.' },
+        { q: 'Combien de temps prennent la production et la livraison ?', a: 'Production sur commande plus 5–7 jours ouvrés de livraison, dans le monde entier. Livraison offerte dès 75 €.' },
         { q: 'Quels formats, cadres et couleurs proposez-vous ?', a: 'Plusieurs formats, couleurs de cadre et palettes de fond ; tout est sélectionnable dans le configurateur avec un aperçu en direct.' },
         { q: 'Sur quel papier imprimez-vous ?', a: 'Impression pigmentaire d’archivage qualité musée, fabriquée en Allemagne.' },
         { q: 'Puis-je voir mon poster avant l’achat ?', a: 'Oui, le configurateur affiche un aperçu en direct avec vos données, le cadre et le fond.' },
@@ -1081,7 +1087,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       faqDefs: {
         details: { q: 'Détails & matériau', a: 'Impression fine-art à grain fin sur papier naturel 250 g/m² sans acide, résistant à la lumière pendant des décennies. Cadre en bois massif avec véritable verre antireflet. Chaque poster est numéroté à l’atelier.' },
         size: { q: 'Guide des tailles', a: 'A3 (30×42 cm) pour niches & étagères, A2 (42×59 cm) le standard polyvalent pour les murs de cabinet, A1 (59×84 cm) pour une forte présence en accueil ou salle d’attente.' },
-        ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 80 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
+        ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 75 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
         bazi: { q: 'À propos de votre personnalisation', a: 'À partir de la date, de l’heure et du lieu que vous saisissez, nous composons une mise en page symbolique des quatre piliers avec troncs célestes et branches terrestres. Si vous ne connaissez pas votre heure de naissance, nous utilisons 12 h (midi) par défaut — cela peut influencer le résultat.' },
       },
     },
@@ -1524,6 +1530,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       add: 'Añadir set a la cesta',
       save: 'Ahorra'
     },
+    sale: { banner: 'Sale ✦ Ahorra un 20% en pósteres seleccionados' },
+    homeQuickstart: { eyebrow: 'Empieza ahora', title: 'Personaliza tu póster en minutos', bazi: { title: 'Tu póster BaZi', sub: 'Introduce tus datos de nacimiento y ve aparecer tu carta exacta en vivo.', cta: 'Personalizar ahora' }, couple: { title: 'Compatibilidad de pareja', sub: 'Dos cartas natales, una obra — vuestra relación elemental, calculada con precisión.', cta: 'Empezar juntos' } },
     newsletter: {
       eyebrow: 'El Círculo del Atelier',
       title: 'Novedades del Atelier — Nuevos pósters, ofertas e inspiración',
@@ -2258,7 +2266,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         },
         {
           q: '¿Cuánto tardan la producción y el envío?',
-          a: 'Producción por encargo más 5–7 días laborables de envío, a todo el mundo. Envío gratis a partir de 80 €.'
+          a: 'Producción por encargo más 5–7 días laborables de envío, a todo el mundo. Envío gratis a partir de 75 €.'
         },
         {
           q: '¿Qué formatos, marcos y colores están disponibles?',
@@ -2297,7 +2305,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         },
         ship: {
           q: 'Envío y producción',
-          a: 'Producción en 3 días laborables y luego envío climáticamente neutro (DE 1–2 días). Envío gratis a partir de 80 €. Los artículos personalizados se hacen por encargo — consulta nuestra Política de devoluciones; tus derechos legales se aplican a los artículos defectuosos.'
+          a: 'Producción en 3 días laborables y luego envío climáticamente neutro (DE 1–2 días). Envío gratis a partir de 75 €. Los artículos personalizados se hacen por encargo — consulta nuestra Política de devoluciones; tus derechos legales se aplican a los artículos defectuosos.'
         },
         bazi: {
           q: 'Sobre tu personalización',

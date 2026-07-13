@@ -28,6 +28,8 @@
  * real geocoder (the bundled list is the policy-conformant source, OQ-003).
  */
 import { describe, it, expect, beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { readFileSync } from 'node:fs'
@@ -74,21 +76,22 @@ describe('REQ-012 / AT-012-1 — sticky preview and inputs coexist in the DOM', 
 // ── AT-012-2 — sticky class + max-height rule on the preview container ────────
 
 describe('REQ-012 / AT-012-2 — preview carries a sticky + max-height rule', () => {
-  it('the rendered preview container declares position:sticky and a max-height', () => {
+  // Operator-Batch 2026-07-13: sticky + max-height leben jetzt in der
+  // geshippten Stylesheet-Klasse `.personalize-preview` (index.css) — der
+  // Grid-Row-Sticky-Fund machte das einspaltige Mobile-Layout zu
+  // display:block mit kompakter Sticky-Vorschau. Der Test prüft BEIDES: die
+  // Klasse hängt am gerenderten Element UND die geshippte CSS-Regel enthält
+  // position:sticky + max-height (kein Token-Dodge).
+  it('the rendered preview carries the sticky class whose shipped rule declares sticky + max-height', () => {
     render(<Personalize />, { wrapper: Providers })
     const preview = screen.getByTestId('poster-preview-sticky')
+    expect(preview.getAttribute('class') ?? '').toContain('personalize-preview')
 
-    // sticky positioning (inline style or className token)
-    const styleAttr = preview.getAttribute('style') ?? ''
-    const classAttr = preview.getAttribute('class') ?? ''
-    const stickyInStyle = /position:\s*sticky/i.test(styleAttr)
-    const stickyInClass = /sticky/.test(classAttr)
-    expect(stickyInStyle || stickyInClass, 'preview is sticky').toBe(true)
-
-    // a max-height rule (inline maxHeight or a max-h-* utility class)
-    const maxHInStyle = /max-height:/i.test(styleAttr)
-    const maxHInClass = /max-h/.test(classAttr)
-    expect(maxHInStyle || maxHInClass, 'preview has a max-height rule').toBe(true)
+    const css = readFileSync(join(process.cwd(), 'src/index.css'), 'utf8')
+    const rule = css.match(/\.personalize-preview\s*\{[^}]*\}/)?.[0] ?? ''
+    expect(rule, '.personalize-preview rule exists in shipped index.css').not.toBe('')
+    expect(rule).toMatch(/position:\s*sticky/i)
+    expect(rule).toMatch(/max-height:/i)
   })
 
   it('AT-012-2 (source) — Personalize source declares the sticky + max-h contract', () => {

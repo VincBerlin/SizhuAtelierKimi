@@ -32,26 +32,16 @@ export default function NewsletterSection() {
     setStatus('error')
   }
 
-  const benefits = (t('newsletter.benefits') as string[]) || []
-
   return (
     <section style={{ background: C.ink, color: C.inkOnDark }}>
       <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '56px 32px' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:items-center" style={{ gap: 48 }}>
-          {/* left — text */}
+          {/* left — text. Operator 2026-07-13: copy-Absatz + Benefits-Liste
+              entfernt (minimalistisch) — nur Eyebrow + Headline. Der
+              DSGVO-Consent am Formular bleibt unangetastet. */}
           <div>
             <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#C9A28E', marginBottom: 14 }}>{t('newsletter.eyebrow')}</div>
-            <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3vw,38px)', color: C.inkOnDark, margin: '0 0 14px', lineHeight: 1.15 }}>{t('newsletter.title')}</h2>
-            <p style={{ fontFamily: FONT_SANS, fontSize: 15, lineHeight: 1.65, color: '#A9A091', margin: '0 0 18px', maxWidth: 520 }}>{t('newsletter.copy')}</p>
-            {benefits.length > 0 && (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                {benefits.map((bnf) => (
-                  <li key={bnf} style={{ display: 'flex', gap: 9, fontFamily: FONT_SANS, fontSize: 13.5, color: '#D7CFC2' }}>
-                    <span style={{ color: C.accent }}>✦</span><span>{bnf}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3vw,38px)', color: C.inkOnDark, margin: 0, lineHeight: 1.15 }}>{t('newsletter.title')}</h2>
           </div>
 
           {/* right — subscribe form (vertically centred to the text via lg:items-center,

@@ -25,9 +25,11 @@ import path from 'node:path'
 import App from '../../src/App'
 
 // The exact homepage target sequence (REQ-014).
+// Operator 2026-07-13: `personalize-entry` (BaZi- + Paar-Schnellstart) steht
+// direkt nach dem Hero — die Personalisierung hat Vorrang vor dem Katalog.
 const EXPECTED = [
-  'hero', 'bestseller', 'category-banners', 'editorial', 'new-arrivals',
-  'campaign-row', 'inspiration', 'seo', 'trust', 'newsletter',
+  'hero', 'personalize-entry', 'bestseller', 'category-banners', 'editorial',
+  'new-arrivals', 'campaign-row', 'inspiration', 'seo', 'trust', 'newsletter',
 ]
 
 function renderHome() {
