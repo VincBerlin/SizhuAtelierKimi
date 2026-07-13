@@ -80,16 +80,20 @@ describe('M10 / REQ-035 — every mega-menu item is a real, non-dead route', () 
   })
 })
 
-describe('M10 / REQ-013 — mega-menu tiles are asset-light placeholders', () => {
-  it('renders ≥4 tiles, each with a marked placeholder image and no real .webp', async () => {
+// SUPERSEDED 2026-07-12 (Operator-Plan Hero/Mega-Menü §5.3, Ledger
+// „Vertrags-Änderungen" AT-004-3): statt ≥4 asset-light Platzhalter-Kacheln
+// verlangt der Operator GENAU ZWEI Editorial-Bildkarten MIT echten Bildern.
+// Der detaillierte neue Vertrag lebt in delta-mega-menu-tiles.test.tsx; hier
+// bleibt der Matrix-Spiegel (Anzahl + echtes Bild) erhalten.
+describe('M10 / REQ-013 — mega-menu editorial tiles (Operator-Plan §5.3)', () => {
+  it('renders exactly 2 tiles, each with a real /images/ image', async () => {
     const panel = await openMega()
     const tiles = within(panel).getAllByTestId('mega-tile')
-    expect(tiles.length).toBeGreaterThanOrEqual(4)
+    expect(tiles.length).toBe(2)
     for (const tile of tiles) {
-      expect(within(tile).getByTestId('mega-tile-image')).toHaveAttribute('data-placeholder', 'true')
-      for (const img of Array.from(tile.querySelectorAll('img'))) {
-        expect(/\/images\/.*\.webp/i.test(img.getAttribute('src') ?? '')).toBe(false)
-      }
+      const img = tile.querySelector('img')
+      expect(img, 'editorial tile must render a real image').not.toBeNull()
+      expect(img!.getAttribute('src') ?? '').toMatch(/^\/images\//)
     }
   })
 })

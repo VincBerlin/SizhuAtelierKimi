@@ -52,14 +52,16 @@ describe('precondition — the fake sink starts empty + is fake-only (RL-EVENT R
 
 describe('REQ-002 / AT-002-5 — the 5 funnel events fire through the fake sink (instrumentation only)', () => {
   it('1. hero CTA click emits hero_cta_click', async () => {
+    // SUPERSEDED 2026-07-12 (Operator-Plan Hero/Mega-Menü §4, VIS-032): der
+    // Split-Hero trägt GENAU EINEN CTA → /collections (statt /personalize im
+    // alten Hero). Das Funnel-Event hero_cta_click bleibt der Vertrag.
     renderAt('/')
-    const hero = await screen.findByTestId('home-module-hero', undefined, { timeout: 15000 })
+    const hero = await screen.findByTestId('home-viewport-hero', undefined, { timeout: 15000 })
     let cta!: HTMLElement
     await waitFor(() => {
-      cta = within(hero)
-        .getAllByRole('link')
-        .find((a) => a.getAttribute('href') === '/personalize') as HTMLElement
-      expect(cta, 'hero primary CTA to /personalize').toBeTruthy()
+      cta = within(hero).getByTestId('split-hero-cta')
+      expect(cta, 'split-hero primary CTA').toBeTruthy()
+      expect(cta.getAttribute('href'), 'CTA target per Operator-Plan §4').toBe('/collections')
     })
     expect(fired(EVENTS.heroCta)).toBe(false)
     fireEvent.click(cta)

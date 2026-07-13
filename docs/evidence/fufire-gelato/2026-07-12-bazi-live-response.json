@@ -1,0 +1,40 @@
+{
+  "request": {
+    "date": "1990-06-15T12:30:00",
+    "tz": "Europe/Berlin",
+    "lon": 13.405,
+    "lat": 52.52,
+    "standard": "TLST"
+  },
+  "normalized": {
+    "pillars": [
+      {
+        "label": "年",
+        "stem": "庚",
+        "branch": "午"
+      },
+      {
+        "label": "月",
+        "stem": "壬",
+        "branch": "午"
+      },
+      {
+        "label": "日",
+        "stem": "辛",
+        "branch": "亥"
+      },
+      {
+        "label": "時",
+        "stem": "乙",
+        "branch": "未"
+      }
+    ],
+    "animal": "Pferd",
+    "element": "Metall",
+    "provenance": {
+      "engine_version": "1.0.0-rc1-20260220",
+      "ruleset_id": "traditional_bazi_2026",
+      "tzdb_version_id": "2026.2"
+    }
+  }
+}

@@ -9,6 +9,10 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
+import { fufireEnabled, calculateBazi, geocodePlace, matchHehun } from './fufire.js'
+import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
+import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
+import { renderPosterPdf } from './pdf.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -123,6 +127,8 @@ if (process.env.DATABASE_URL) {
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`).catch((e) => console.error('[db] addresses init failed:', e.message))
   console.log('[db] Postgres connected')
+  // Print-Fulfillment-Tabellen (prints + orders.fulfillment_status), idempotent.
+  await ensurePrintTables(pool).catch((e) => console.error('[db] prints init failed:', e.message))
 }
 
 // ---- optional email (Resend) ----------------------------------------------
@@ -187,6 +193,20 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       await persistOrder(full, items, personalization)
       await sendEmails(full, items, personalization)
       console.log(`[order] ${full.id} · ${money(full.amount_total, full.currency)} · ${full.customer_details?.email}`)
+      // Print-Fulfillment: exakte Neu-Berechnung → Druck-PDF → Gelato-Draft.
+      // Fehler eskalieren als 'failed'-Status + Log, NIE als Webhook-4xx/5xx —
+      // Stripe darf nicht endlos retryen, der Operator wird benachrichtigt.
+      try {
+        const fr = await fulfillOrder({
+          session: full,
+          personalization,
+          deps: { pool, fufire, renderPdf: renderPosterPdf, gelato, publicUrl: PUBLIC_URL },
+        })
+        if (fr.failed.length > 0) console.error('[fulfillment] failed parts:', JSON.stringify(fr.failed))
+        else if (fr.printed.length > 0) console.log(`[fulfillment] ${full.id} printed=${fr.printed.length} submitted=${fr.submitted.length}`)
+      } catch (e) {
+        console.error('[fulfillment] fatal:', e.message)
+      }
     } catch (e) {
       console.error('[webhook] handling failed:', e.message)
     }
@@ -228,6 +248,106 @@ app.get('/api/region', (req, res) => {
   const country = countryFromRequest(req)
   const region = regionFromCountry(country, process.env.DEFAULT_REGION || 'eu')
   res.json({ region, country: country || null })
+})
+
+// ---- BaZi-Berechnung + Geocoding (FuFirE-Proxy) ------------------------------
+// Der Browser spricht NIE direkt mit FuFirE — der API-Key lebt nur hier
+// (Muster: STRIPE_SECRET_KEY). `let` + createApp-Override wie bei `stripe`,
+// damit die REALEN Routen mit gestubbtem Client testbar sind.
+// Ehrlichkeits-Regel (OQ-004): nicht konfiguriert/Upstream-Fehler → 503/502,
+// NIEMALS ein Platzhalter-Chart als echt ausliefern.
+let fufire = { enabled: fufireEnabled, calculateBazi, geocodePlace, matchHehun }
+// Gelato-Client — gleiches Override-Muster (createApp({ gelato })) für Tests.
+let gelato = { enabled: gelatoEnabled, createOrder: gelatoCreateOrder }
+
+// ---- geschützte Druck-PDF-Auslieferung (Gelato holt die Datei hier ab) ------
+// Token = randomUUID pro Print (server/fulfillment.js); Vergleich timing-safe.
+// Auf dem PDF stehen Geburtsdaten — ohne gültigen Token immer 404, nie ein
+// Hinweis, ob die Session existiert (Datenschutz).
+app.get('/prints/:sessionId/:token.pdf', async (req, res) => {
+  if (!pool) return res.status(404).end()
+  try {
+    const r = await pool.query('SELECT token, pdf FROM prints WHERE stripe_session=$1', [req.params.sessionId])
+    const given = Buffer.from(String(req.params.token))
+    for (const row of r.rows) {
+      const actual = Buffer.from(String(row.token))
+      if (given.length === actual.length && timingSafeEqual(given, actual)) {
+        res.setHeader('Content-Type', 'application/pdf')
+        res.setHeader('Cache-Control', 'private, no-store')
+        return res.send(row.pdf)
+      }
+    }
+    return res.status(404).end()
+  } catch (e) {
+    console.error('[prints] lookup failed:', e.message)
+    return res.status(404).end()
+  }
+})
+
+app.post('/api/bazi', async (req, res) => {
+  if (!fufire.enabled()) return res.status(503).json({ error: 'bazi_unavailable' })
+  if (rateLimited(req, 'bazi', 60, 60000)) return res.status(429).json({ error: 'rate_limited' })
+  const { date, time, lat, lon, tz, birthTimeUnknown } = req.body || {}
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return res.status(400).json({ error: 'invalid_date' })
+  if (!/^\d{2}:\d{2}$/.test(String(time || ''))) return res.status(400).json({ error: 'invalid_time' })
+  if (typeof lat !== 'number' || typeof lon !== 'number' || typeof tz !== 'string' || !tz) {
+    return res.status(400).json({ error: 'invalid_place' })
+  }
+  try {
+    const chart = await fufire.calculateBazi({
+      date: `${date}T${time}:00`,
+      tz,
+      lon,
+      lat,
+      birthTimeKnown: birthTimeUnknown !== true,
+    })
+    return res.json(chart)
+  } catch (e) {
+    console.error('[fufire] bazi failed:', e.message)
+    return res.status(502).json({ error: 'bazi_failed' })
+  }
+})
+
+// Paar-Analyse (合婚) für das Partner-Poster. Validierung je Person wie
+// /api/bazi; consent setzt der Server (Operator-Entscheidung), keine UI-Box.
+app.post('/api/match', async (req, res) => {
+  if (!fufire.enabled()) return res.status(503).json({ error: 'match_unavailable' })
+  if (rateLimited(req, 'match', 30, 60000)) return res.status(429).json({ error: 'rate_limited' })
+  const { a, b } = req.body || {}
+  for (const [label, p] of [['a', a], ['b', b]]) {
+    if (!p || typeof p !== 'object') return res.status(400).json({ error: `invalid_person_${label}` })
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''))) return res.status(400).json({ error: `invalid_date_${label}` })
+    if (!/^\d{2}:\d{2}$/.test(String(p.time || ''))) return res.status(400).json({ error: `invalid_time_${label}` })
+    if (typeof p.lat !== 'number' || typeof p.lon !== 'number' || typeof p.tz !== 'string' || !p.tz) {
+      return res.status(400).json({ error: `invalid_place_${label}` })
+    }
+  }
+  const toInput = (p) => ({
+    date: `${p.date}T${p.time}:00`,
+    tz: p.tz,
+    lon: p.lon,
+    lat: p.lat,
+    birthTimeKnown: p.birthTimeUnknown !== true,
+  })
+  try {
+    return res.json(await fufire.matchHehun(toInput(a), toInput(b)))
+  } catch (e) {
+    console.error('[fufire] match failed:', e.message)
+    return res.status(502).json({ error: 'match_failed' })
+  }
+})
+
+app.post('/api/geocode', async (req, res) => {
+  if (!fufire.enabled()) return res.status(503).json({ error: 'geocode_unavailable' })
+  if (rateLimited(req, 'geocode', 30, 60000)) return res.status(429).json({ error: 'rate_limited' })
+  const place = String((req.body || {}).place || '').trim()
+  if (!place || place.length > 200) return res.status(400).json({ error: 'invalid_place' })
+  try {
+    return res.json(await fufire.geocodePlace(place))
+  } catch (e) {
+    console.error('[fufire] geocode failed:', e.message)
+    return res.status(502).json({ error: 'geocode_failed' })
+  }
 })
 
 // ---- create checkout session ------------------------------------------------
@@ -800,6 +920,8 @@ if (fs.existsSync(DIST)) {
 export function createApp(overrides = {}) {
   if ('stripe' in overrides) stripe = overrides.stripe
   if ('pool' in overrides) pool = overrides.pool
+  if ('fufire' in overrides) fufire = overrides.fufire
+  if ('gelato' in overrides) gelato = overrides.gelato
   return app
 }
 
