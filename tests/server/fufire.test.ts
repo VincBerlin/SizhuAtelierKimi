@@ -7,7 +7,7 @@
  * scripts/evidence/fufire-smoke.mjs (Task 3).
  */
 import { describe, it, expect } from 'vitest'
-import { normalizeChart, calculateBazi, geocodePlace, FufireError } from '../../server/fufire.js'
+import { calculateWestern, normalizeChart, calculateBazi, geocodePlace, FufireError } from '../../server/fufire.js'
 
 const LIVE_FIXTURE = {
   pillars: {
@@ -127,5 +127,59 @@ describe('geocodePlace', () => {
   it('maps 404 place_not_found to not_found', async () => {
     const fetchImpl = async () => ({ ok: false, status: 404, json: async () => ({ error: 'place_not_found' }) })
     expect((await geocodePlace('Xyz', 'de', fetchImpl, env)).status).toBe('not_found')
+  })
+})
+
+// ── calculateWestern (/v1/calculate/western — Birth-Chart-Poster) ────────────
+
+describe('calculateWestern', () => {
+  const WESTERN_RAW = {
+    bodies: {
+      Sun: { zodiac_sign: 2, degree_in_sign: 24.069, is_retrograde: false },
+      Moon: { zodiac_sign: 11, degree_in_sign: 14.523, is_retrograde: false },
+      Mercury: { zodiac_sign: 2, degree_in_sign: 5.58, is_retrograde: false },
+      Venus: { zodiac_sign: 1, degree_in_sign: 18.7, is_retrograde: false },
+      Mars: { zodiac_sign: 0, degree_in_sign: 10.99, is_retrograde: false },
+      Jupiter: { zodiac_sign: 3, degree_in_sign: 15.87, is_retrograde: false },
+      Saturn: { zodiac_sign: 9, degree_in_sign: 24.0, is_retrograde: true },
+    },
+    angles: { Ascendant: 169.114, MC: 75.59 },
+    provenance: { engine_version: 'e', ruleset_id: 'r', tzdb_version_id: 'z' },
+  }
+  const okFetch = (json = WESTERN_RAW) => vi.fn(async () => new Response(JSON.stringify(json), { status: 200 }))
+  const ENV = { apiUrl: 'https://fufire.test', apiKey: 'k' }
+  const INPUT = { date: '1990-06-15T12:30:00', tz: 'Europe/Berlin', lon: 13.405, lat: 52.52, birthTimeKnown: true }
+
+  it('calls /v1/calculate/western with birth_time_known (snake_case)', async () => {
+    const f = okFetch()
+    await calculateWestern(INPUT, f as never, ENV as never)
+    const [url, init] = f.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('https://fufire.test/v1/calculate/western')
+    const body = JSON.parse(init.body as string)
+    expect(body.birth_time_known).toBe(true)
+    expect(body.date).toBe('1990-06-15T12:30:00')
+  })
+
+  it('normalizes Big Three + classical planets (sign index, rounded deg, retro)', async () => {
+    const w = await calculateWestern(INPUT, okFetch() as never, ENV as never)
+    expect(w.sun).toEqual({ signIndex: 2, deg: 24.1, retro: false })
+    expect(w.moon.signIndex).toBe(11)
+    // Ascendant 169.114° → Zeichen 5 (Jungfrau), 19.1° im Zeichen.
+    expect(w.ascendant).toEqual({ signIndex: 5, deg: 19.1, retro: false })
+    expect(w.planets.map((p: { key: string }) => p.key)).toEqual(['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'])
+    expect(w.planets[4].retro).toBe(true)
+    expect(w.provenance.engine_version).toBe('e')
+  })
+
+  it('EHRLICH: unknown birth time → ascendant is null (never guessed)', async () => {
+    const w = await calculateWestern({ ...INPUT, birthTimeKnown: false }, okFetch() as never, ENV as never)
+    expect(w.ascendant).toBeNull()
+  })
+
+  it('throws loudly on non-ok responses and on missing bodies', async () => {
+    const bad = vi.fn(async () => new Response('{}', { status: 500 }))
+    await expect(calculateWestern(INPUT, bad as never, ENV as never)).rejects.toThrow(/western failed/)
+    const empty = okFetch({ bodies: {}, angles: {}, provenance: {} } as never)
+    await expect(calculateWestern(INPUT, empty as never, ENV as never)).rejects.toThrow(/body Sun missing/)
   })
 })

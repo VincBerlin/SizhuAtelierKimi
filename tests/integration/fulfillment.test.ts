@@ -128,6 +128,40 @@ describe('fulfillOrder', () => {
     expect(r.failed).toHaveLength(1)
     expect(r.printed).toHaveLength(0)
   })
+  it('western designId → calculateWestern feeds the print (localized, honest no-ASC on unknown time)', async () => {
+    const pool = fakePool()
+    const western = {
+      sun: { signIndex: 2, deg: 24.1, retro: false },
+      moon: { signIndex: 11, deg: 14.5, retro: false },
+      ascendant: { signIndex: 5, deg: 19.1, retro: false },
+      planets: [
+        { key: 'Mercury', signIndex: 2, deg: 5.6, retro: false },
+        { key: 'Saturn', signIndex: 9, deg: 24, retro: true },
+      ],
+      provenance: { engine_version: 'e', ruleset_id: 'r', tzdb_version_id: 'z' },
+    }
+    const calcWestern = vi.fn(async () => western)
+    const deps = {
+      pool,
+      fufire: { ...fufireStub, calculateWestern: calcWestern },
+      renderPdf: renderPosterPdf,
+      gelato: null,
+      publicUrl: 'https://shop.test',
+    }
+    const westernLine = { ...P_LINE, designId: 'western-zodiac', language: 'EN' }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_western_1' }, personalization: { line1: westernLine }, deps })
+    expect(r.failed).toHaveLength(0)
+    expect(r.printed).toHaveLength(1)
+    expect(calcWestern).toHaveBeenCalledTimes(1)
+    expect(r.printed[0].bytes).toBeGreaterThan(10_000)
+
+    // Unbekannte Geburtszeit → Druck ohne Aszendent (kein Fehler, ehrlicher Entfall).
+    const unknownLine = { ...westernLine, birthTimeUnknown: 'true' }
+    const r2 = await fulfillOrder({ session: { ...session, id: 'cs_western_2' }, personalization: { line1: unknownLine }, deps })
+    expect(r2.failed).toHaveLength(0)
+    expect(r2.printed).toHaveLength(1)
+  })
+
 })
 
 describe('GET /prints/:sessionId/:token.pdf', () => {

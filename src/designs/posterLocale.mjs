@@ -39,6 +39,41 @@ const SUBTITLE_SINGLE = {
   ES: 'BAZI · CUATRO PILARES',
 }
 
+// Westlicher Tierkreis (Index 0=Widder … 11=Fische — FuFirE zodiac_sign).
+const ZODIAC = [
+  { DE: 'Widder', EN: 'Aries', FR: 'Bélier', ES: 'Aries' },
+  { DE: 'Stier', EN: 'Taurus', FR: 'Taureau', ES: 'Tauro' },
+  { DE: 'Zwillinge', EN: 'Gemini', FR: 'Gémeaux', ES: 'Géminis' },
+  { DE: 'Krebs', EN: 'Cancer', FR: 'Cancer', ES: 'Cáncer' },
+  { DE: 'Löwe', EN: 'Leo', FR: 'Lion', ES: 'Leo' },
+  { DE: 'Jungfrau', EN: 'Virgo', FR: 'Vierge', ES: 'Virgo' },
+  { DE: 'Waage', EN: 'Libra', FR: 'Balance', ES: 'Libra' },
+  { DE: 'Skorpion', EN: 'Scorpio', FR: 'Scorpion', ES: 'Escorpio' },
+  { DE: 'Schütze', EN: 'Sagittarius', FR: 'Sagittaire', ES: 'Sagitario' },
+  { DE: 'Steinbock', EN: 'Capricorn', FR: 'Capricorne', ES: 'Capricornio' },
+  { DE: 'Wassermann', EN: 'Aquarius', FR: 'Verseau', ES: 'Acuario' },
+  { DE: 'Fische', EN: 'Pisces', FR: 'Poissons', ES: 'Piscis' },
+]
+
+// Poster-Beschriftungen der westlichen Big Three + klassischen Planeten.
+const PLANETS = {
+  Sun: { DE: 'Sonne', EN: 'Sun', FR: 'Soleil', ES: 'Sol' },
+  Moon: { DE: 'Mond', EN: 'Moon', FR: 'Lune', ES: 'Luna' },
+  Ascendant: { DE: 'Aszendent', EN: 'Ascendant', FR: 'Ascendant', ES: 'Ascendente' },
+  Mercury: { DE: 'Merkur', EN: 'Mercury', FR: 'Mercure', ES: 'Mercurio' },
+  Venus: { DE: 'Venus', EN: 'Venus', FR: 'Vénus', ES: 'Venus' },
+  Mars: { DE: 'Mars', EN: 'Mars', FR: 'Mars', ES: 'Marte' },
+  Jupiter: { DE: 'Jupiter', EN: 'Jupiter', FR: 'Jupiter', ES: 'Júpiter' },
+  Saturn: { DE: 'Saturn', EN: 'Saturn', FR: 'Saturne', ES: 'Saturno' },
+}
+
+const SUBTITLE_WESTERN = {
+  DE: 'WESTERN · GEBURTSHOROSKOP',
+  EN: 'WESTERN · BIRTH CHART',
+  FR: 'WESTERN · THÈME NATAL',
+  ES: 'WESTERN · CARTA NATAL',
+}
+
 const SUBTITLE_PAIR = {
   DE: 'BAZI · PARTNERSCHAFT',
   EN: 'BAZI · PARTNERSHIP',
@@ -92,7 +127,21 @@ export function localizeAnimal(animal, lang) {
 
 export function posterSubtitle(kind, lang) {
   const l = norm(lang)
-  return (kind === 'pair' ? SUBTITLE_PAIR : SUBTITLE_SINGLE)[l]
+  const table = kind === 'pair' ? SUBTITLE_PAIR : kind === 'western' ? SUBTITLE_WESTERN : SUBTITLE_SINGLE
+  return table[l]
+}
+
+/** Tierkreiszeichen-Name (Index 0=Widder … 11=Fische) in der Poster-Sprache.
+ *  Unbekannter Index → '' (nie geraten). */
+export function zodiacName(index, lang) {
+  const z = ZODIAC[index]
+  return z ? z[norm(lang)] : ''
+}
+
+/** Planeten-/Achsen-Beschriftung (Sun/Moon/Ascendant/Mercury…) lokalisiert. */
+export function planetName(key, lang) {
+  const p = PLANETS[key]
+  return p ? p[norm(lang)] : String(key || '')
 }
 
 /** Relations-Label aus FuFirE-Relation (wuxingRelation + elementA/B, deutsch)

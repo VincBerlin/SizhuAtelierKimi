@@ -9,10 +9,14 @@
 // Bestellungen (Nachdruck/Reklamation) auflösbar — Einträge NIE löschen.
 import { render as klassik } from './klassik.mjs'
 import { render as paarHarmonie } from './paarHarmonie.mjs'
+import { render as westernZodiac } from './westernZodiac.mjs'
 
 export const DESIGNS = [
   { id: 'klassik', name: 'Klassik', active: true, kind: 'single', render: klassik },
   { id: 'paar-harmonie', name: 'Paar-Harmonie', active: true, kind: 'pair', render: paarHarmonie },
+  // Operator 2026-07-14: Birth-Chart-Poster = westliches Geburtshoroskop
+  // (FuFirE /v1/calculate/western, Swiss Ephemeris) mit eigenem Design.
+  { id: 'western-zodiac', name: 'Western', active: true, kind: 'western', render: westernZodiac },
 ]
 
 export function getDesign(id) {

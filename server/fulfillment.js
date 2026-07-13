@@ -18,7 +18,8 @@ import { shippingAddressFromSession } from './gelato.js'
 // Geteilte Poster-Lokalisierung (EINE Quelle mit der Browser-Vorschau —
 // Operator-Fund 2026-07-13: Druck/Vorschau zeigten Element/Tier immer deutsch,
 // unabhängig von der gewählten Poster-Sprache).
-import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement } from '../src/designs/posterLocale.mjs'
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement, zodiacName, planetName } from '../src/designs/posterLocale.mjs'
+import { getDesign } from '../src/designs/registry.mjs'
 
 export async function ensurePrintTables(pool) {
   if (!pool) return
@@ -61,6 +62,30 @@ function birthInput(p, suffix = '') {
 /** Poster-Daten für die Design-Vorlage — Einzel ODER Paar, exakt neu
  *  berechnet über FuFirE (deterministisch = identisch zur Vorschau). */
 async function posterDataFrom(p, fufire) {
+  // Western-Designs (Birth-Chart-Poster, Operator 2026-07-14): der Design-kind
+  // aus der Registry entscheidet den Berechnungspfad — identische Quelle wie
+  // die Browser-Vorschau (/api/western), lokalisiert über posterLocale.
+  if (getDesign(p.designId).kind === 'western') {
+    const w = await fufire.calculateWestern(birthInput(p))
+    const timeKnown = p.birthTimeUnknown !== 'true'
+    return {
+      data: {
+        frame: p.frameHex || '#1B1B1B',
+        bg: p.bgHex || '#E9DFCB',
+        name: p.name || '',
+        subtitle: posterSubtitle('western', p.language),
+        sunLabel: planetName('Sun', p.language),
+        moonLabel: planetName('Moon', p.language),
+        ascLabel: planetName('Ascendant', p.language),
+        sun: { sign: zodiacName(w.sun.signIndex, p.language), deg: w.sun.deg },
+        moon: { sign: zodiacName(w.moon.signIndex, p.language), deg: w.moon.deg },
+        // Ehrlichkeit: ohne bekannte Geburtszeit KEIN Aszendent auf dem Druck.
+        ascendant: timeKnown && w.ascendant ? { sign: zodiacName(w.ascendant.signIndex, p.language), deg: w.ascendant.deg } : null,
+        planets: w.planets.map((pl) => ({ label: planetName(pl.key, p.language), sign: zodiacName(pl.signIndex, p.language), deg: pl.deg, retro: pl.retro })),
+      },
+      provenance: w.provenance,
+    }
+  }
   if (p.dateB) {
     const pair = await fufire.matchHehun(birthInput(p), birthInput(p, 'B'))
     return {

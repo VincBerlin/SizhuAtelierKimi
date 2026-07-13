@@ -112,3 +112,46 @@ describe('POST /api/geocode', () => {
     expect((await request(app).post('/api/geocode').send({ place: 'Berlin' })).status).toBe(503)
   })
 })
+
+// ── /api/western (Birth-Chart-Poster, Operator 2026-07-14) ───────────────────
+
+describe('POST /api/western', () => {
+  const WESTERN = {
+    sun: { signIndex: 2, deg: 24.1, retro: false },
+    moon: { signIndex: 11, deg: 14.5, retro: false },
+    ascendant: { signIndex: 5, deg: 19.1, retro: false },
+    planets: [],
+    provenance: { engine_version: 'e', ruleset_id: 'r', tzdb_version_id: 'z' },
+  }
+  const VALID = { date: '1990-06-15', time: '12:30', lat: 52.52, lon: 13.405, tz: 'Europe/Berlin', birthTimeUnknown: false }
+
+  it('503 when fufire is not configured', async () => {
+    const app = createApp({ fufire: { enabled: () => false } })
+    const res = await request(app).post('/api/western').send(VALID)
+    expect(res.status).toBe(503)
+  })
+
+  it('400 on invalid date/time/place — fufire is never called', async () => {
+    const calc = vi.fn()
+    const app = createApp({ fufire: { enabled: () => true, calculateWestern: calc } })
+    expect((await request(app).post('/api/western').send({ ...VALID, date: 'kaputt' })).status).toBe(400)
+    expect((await request(app).post('/api/western').send({ ...VALID, time: '9:5' })).status).toBe(400)
+    expect((await request(app).post('/api/western').send({ ...VALID, lat: 'x' })).status).toBe(400)
+    expect(calc).not.toHaveBeenCalled()
+  })
+
+  it('200: proxies to calculateWestern with combined date+time and returns the chart', async () => {
+    const calc = vi.fn(async () => WESTERN)
+    const app = createApp({ fufire: { enabled: () => true, calculateWestern: calc } })
+    const res = await request(app).post('/api/western').send(VALID)
+    expect(res.status).toBe(200)
+    expect(res.body.sun.signIndex).toBe(2)
+    expect(calc).toHaveBeenCalledWith({ date: '1990-06-15T12:30:00', tz: 'Europe/Berlin', lon: 13.405, lat: 52.52, birthTimeKnown: true })
+  })
+
+  it('502 when the engine fails (no silent fallback)', async () => {
+    const calc = vi.fn(async () => { throw new Error('down') })
+    const app = createApp({ fufire: { enabled: () => true, calculateWestern: calc } })
+    expect((await request(app).post('/api/western').send(VALID)).status).toBe(502)
+  })
+})
