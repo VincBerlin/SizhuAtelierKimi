@@ -163,6 +163,27 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   11. *personalize-entry-Sektion* direkt nach dem Hero (Einzel-BaZi +
      Paar-Kompatibilität als große Einstiegskarten); Home-Sequenz-Test
      fortgeschrieben (REQ-014-Reihenfolge + personalize-entry).
+- **Operator-Batch #3 2026-07-13 (Personalisierungs-Review + Poster-Sprache):**
+  1. *Poster-Sprache-Fund:* FuFirE liefert Element/Tier KANONISCH DEUTSCH —
+     Vorschau UND Druck zeigten „METALL/PFERD" auch bei englischer
+     Poster-Sprache; der Subtitle („BAZI · VIER SÄULEN") war hardcoded.
+     NEU: geteiltes Modul `src/designs/posterLocale.mjs` (Elemente, 12 Tiere,
+     Subtitles single/pair, Relations-Label — EINE Quelle für Browser + PDF;
+     unbekannte Werte werden UNVERÄNDERT durchgereicht, nie geraten). Die
+     doppelt gepflegte RELATION_TEXT-Tabelle in fulfillment.js ist dedupliziert.
+     Designs nehmen `data.subtitle` (Fallback = bisheriger deutscher Text);
+     Design-TÜV-Fixture um Subtitle-Injektion erweitert.
+  2. *Tagesmeister + Säulen als Review:* neuer chart-review-Block in der
+     Personalisierung (erst bei fertigem exakten Chart, nie Platzhalter):
+     Tagesmeister (Tag-Stamm + lokalisiertes Element), Säulen-Zeile
+     (年 庚午 · …), Tierzeichen.
+  3. *Partner-Review (Paar):* beide Partner als Karten mit den KORREKTEN
+     eingegebenen Daten (Name, Datum, Zeit inkl. Noon-Fallback-Anzeige,
+     aufgelöster Ort) + je Tagesmeister (dayMasterA/B aus /api/match) +
+     Relations-Label; Summary um Partner-Datenzeile ergänzt.
+  4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
+     DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
+     METAL/FOUR PILLARS + Review-Assertions).
 - **FuFirE-Gate-Nachzug 2026-07-13 (kein Vertragswechsel, Testreparatur):**
   `delta-poster-bg-palette.test.tsx` (AT-018-3 Cart-Line) und
   `personalization-passthrough.test.tsx` (AT-004-1 Paar) stammten aus der

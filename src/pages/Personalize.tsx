@@ -7,6 +7,7 @@ import { useBaziChart, usePairChart } from '../hooks/useBaziChart'
 import { usePlaceResolution, type PlaceStatus } from '../hooks/usePlaceResolution'
 import PosterSvg from '../components/shop/PosterSvg'
 import { DESIGNS } from '../designs/registry.mjs'
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation } from '../designs/posterLocale.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT, LANGS } from '../i18n/I18nProvider'
 import { type Lang } from '../i18n/translations'
@@ -118,10 +119,15 @@ export default function Personalize() {
     { label: '日', stem: '—', branch: '—' },
     { label: '時', stem: '—', branch: '—' },
   ]
-  const livePoster: PosterData = {
+  // Poster-Texte in der GEWÄHLTEN POSTER-SPRACHE (Operator 2026-07-13):
+  // FuFirE liefert Element/Tier kanonisch deutsch — die geteilte
+  // posterLocale-Tabelle übersetzt für Vorschau UND Druck identisch.
+  const livePoster: PosterData & { subtitle: string } = {
     frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
-    element: chart?.element ?? '', animal: chart?.animal ?? '',
+    element: localizeElement(chart?.element ?? '', posterLang),
+    animal: localizeAnimal(chart?.animal ?? '', posterLang),
     pillars: chart?.pillars ?? EMPTY_PILLARS,
+    subtitle: posterSubtitle('single', posterLang),
   }
   const designKind = def.couple ? 'pair' : 'single'
   const activeDesigns = DESIGNS.filter((d) => d.active && d.kind === designKind)
@@ -129,15 +135,20 @@ export default function Personalize() {
     if (!activeDesigns.some((d) => d.id === designId) && activeDesigns[0]) setDesignId(activeDesigns[0].id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [designKind])
-  const relationLabel = pair?.relation.wuxingRelation
-    ? t(`personalize.relation.${pair.relation.wuxingRelation}`, { a: pair.relation.elementA ?? '', b: pair.relation.elementB ?? '' })
-    : ''
+  // Relations-Label in der POSTER-Sprache (nicht UI-Sprache) — geteilte
+  // Quelle mit dem Druck-PDF (posterLocale.localizeRelation).
+  const relationLabel = pair?.relation ? localizeRelation(pair.relation, posterLang) : ''
+  const locChart = (c: { pillars: Pillar[]; animal: string; element: string } | undefined) =>
+    c
+      ? { ...c, element: localizeElement(c.element, posterLang), animal: localizeAnimal(c.animal, posterLang) }
+      : { pillars: EMPTY_PILLARS, animal: '', element: '' }
   const livePairPoster = {
     frame: frameHex, bg: bgHex,
     nameA: a.name || t('configurator.namePh'), nameB: b.name || t('configurator.namePh'),
-    chartA: pair?.a ?? { pillars: EMPTY_PILLARS, animal: '', element: '' },
-    chartB: pair?.b ?? { pillars: EMPTY_PILLARS, animal: '', element: '' },
+    chartA: locChart(pair?.a),
+    chartB: locChart(pair?.b),
     relationLabel,
+    subtitle: posterSubtitle('pair', posterLang),
   }
   const previewData = (def.couple ? livePairPoster : livePoster) as PosterData
 
@@ -331,10 +342,52 @@ export default function Personalize() {
             )}
           </div>
 
+          {/* Chart-Review (Operator 2026-07-13): Tagesmeister + Säulen als
+              lesbare Zusammenfassung; beim Paar-Poster BEIDE Partner mit den
+              korrekten eingegebenen Daten. Erscheint erst, wenn das exakte
+              Chart fertig berechnet ist — nie Platzhalterwerte. */}
+          {def.poster && !def.couple && chartStatus === 'ready' && chart && (
+            <div data-testid="chart-review" style={cardStyle}>
+              <div style={headingStyle}>{t('personalize.review.heading')}</div>
+              <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 7, columnGap: 16, fontSize: 13 }}>
+                <SumRow label={t('personalize.review.dayMaster')} value={`${chart.pillars[2]?.stem ?? '—'} · ${localizeElement(chart.element, lang)}`} strong />
+                <SumRow label={t('personalize.review.pillars')} value={chart.pillars.map((pl) => `${pl.label} ${pl.stem}${pl.branch}`).join(' · ')} />
+                <SumRow label={t('personalize.review.animal')} value={localizeAnimal(chart.animal, lang)} />
+              </dl>
+            </div>
+          )}
+          {def.couple && pairStatus === 'ready' && pair && (
+            <div data-testid="chart-review" style={cardStyle}>
+              <div style={headingStyle}>{t('personalize.review.heading')}</div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {[
+                  { key: 'a', person: a, bt: btA, place: resolvedPlace, chart: pair.a, dm: pair.relation.dayMasterA },
+                  { key: 'b', person: b, bt: btB, place: placeB.place, chart: pair.b, dm: pair.relation.dayMasterB },
+                ].map(({ key, person, bt, place, chart: pc, dm }) => (
+                  <div key={key} data-testid={`partner-review-${key}`} style={{ border: `1px solid ${C.border}`, background: C.surfaceWarm, padding: 14 }}>
+                    <div style={{ fontFamily: FONT_SERIF, fontSize: 17, color: C.ink, marginBottom: 8 }}>{person.name || '—'}</div>
+                    <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 5, columnGap: 12, fontSize: 12.5 }}>
+                      <SumRow label={t('configurator.date')} value={person.date || '—'} />
+                      <SumRow label={t('configurator.time')} value={unknownTime ? t('personalize.timeUnknown') : bt.timeDisplay || '—'} />
+                      <SumRow label={t('configurator.place')} value={place ? `${place.resolvedName}, ${place.countryCode}` : person.place || '—'} />
+                      <SumRow label={t('personalize.review.dayMaster')} value={`${dm ?? pc.pillars[2]?.stem ?? '—'} · ${localizeElement(pc.element, lang)}`} strong />
+                      <SumRow label={t('personalize.review.pillars')} value={pc.pillars.map((pl) => `${pl.label} ${pl.stem}${pl.branch}`).join(' · ')} />
+                    </dl>
+                  </div>
+                ))}
+              </div>
+              {relationLabel && (
+                <div data-testid="pair-relation-review" style={{ marginTop: 12, fontSize: 13, color: C.accent, fontWeight: 600 }}>
+                  {localizeRelation(pair.relation, lang)}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Step 3 — poster language */}
           <div style={cardStyle}>
             <div style={headingStyle}>{t('personalize.langHeading')}</div>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div data-testid="poster-lang-picker" style={{ display: 'flex', gap: 10 }}>
               {LANGS.map((l) => {
                 const sel = l === posterLang
                 return (
@@ -424,6 +477,7 @@ export default function Personalize() {
               <SumRow label={t('personalize.sumType')} value={t(`personalize.types.${typeId}.name`)} />
               <SumRow label={t('configurator.name')} value={a.name || '—'} />
               {def.couple && <SumRow label={t('personalize.partnerName')} value={b.name || '—'} />}
+              {def.couple && <SumRow label={t('personalize.partnerData')} value={`${b.date || '—'} · ${unknownTime ? t('personalize.timeUnknown') : b.time || '—'} · ${b.place || '—'}`} />}
               <SumRow label={t('configurator.date')} value={a.date || '—'} />
               <SumRow label={t('configurator.time')} value={unknownTime ? t('personalize.timeUnknown') : a.time || '—'} />
               <SumRow label={t('configurator.place')} value={a.place || '—'} />

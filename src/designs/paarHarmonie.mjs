@@ -57,6 +57,6 @@ export function render(data, { widthMm, heightMm }) {
   <text x="${artX + artW / 2}" y="${artY + artH * 0.72}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.026}" letter-spacing="0.1em" fill="${ink}" opacity="0.85">${esc(data.relationLabel || '')}</text>
   <line x1="${artX + artW * 0.08}" y1="${artY + artH * 0.8}" x2="${artX + artW * 0.92}" y2="${artY + artH * 0.8}" stroke="${rule}" stroke-width="0.35"/>
   <text x="${artX + artW / 2}" y="${artY + artH * 0.88}" text-anchor="middle" font-family="Noto Serif SC" font-size="${artH * 0.052}" fill="${ink}">${esc(data.nameA || '')} · ${esc(data.nameB || '')}</text>
-  <text x="${artX + artW / 2}" y="${artY + artH * 0.93}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.019}" letter-spacing="0.24em" fill="${ink}" opacity="0.62">BAZI · PARTNERSCHAFT</text>
+  <text x="${artX + artW / 2}" y="${artY + artH * 0.93}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.019}" letter-spacing="0.24em" fill="${ink}" opacity="0.62">${esc(data.subtitle || 'BAZI · PARTNERSCHAFT')}</text>
 </svg>`
 }
