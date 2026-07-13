@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import SplitHero from '../components/home/SplitHero'
+import PersonalizeEntrySection from '../components/shop/PersonalizeEntrySection'
 import CatalogSection from '../components/shop/CatalogSection'
 import NewsletterSection from '../components/shop/NewsletterSection'
 import HowItWorksSection from '../components/shop/HowItWorksSection'
@@ -70,6 +71,9 @@ export default function Home() {
   return (
     <main data-testid="home">
       <ModuleAnchor id="hero"><HeroSection /></ModuleAnchor>
+      {/* Operator 2026-07-13: die BaZi-Personalisierung steht im VORDERGRUND —
+          Schnellstart (Einzel + Paar-Kompatibilität) direkt nach dem Hero. */}
+      <ModuleAnchor id="personalize-entry"><PersonalizeEntrySection /></ModuleAnchor>
       <ModuleAnchor id="bestseller"><CatalogSection /></ModuleAnchor>
       <ModuleAnchor id="category-banners"><ShopByWorldSection /></ModuleAnchor>
       <ModuleAnchor id="editorial"><HowItWorksSection /></ModuleAnchor>

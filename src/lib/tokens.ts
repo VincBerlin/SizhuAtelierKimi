@@ -46,7 +46,7 @@ export const FONT_SANS = "'Inter', sans-serif"
 // eine feste neutrale Fläche. Bestehende Bestell-Metadaten (`posterBg`) älterer
 // Carts werden serverseitig weiterhin toleriert (nie gelesen fürs Rendering).
 
-export const FREE_SHIP_THRESHOLD = 80 // € — EU free-shipping threshold (US/UK ship free; see §13)
+export const FREE_SHIP_THRESHOLD = 75 // € — EU-Schwelle (Operator 2026-07-13, vorher 80); US/UK versandfrei
 export const BRAND_NAME = 'SizhuAtelier'
 
 export const ACCENT_CTA_SHADOW = '0 14px 28px -12px rgba(192,73,46,0.6)'

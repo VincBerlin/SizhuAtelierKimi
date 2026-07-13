@@ -92,9 +92,10 @@ function expectCardAnatomy(root: HTMLElement, product: typeof products[number], 
   const title = within(root).getByTestId('card-title')
   expect(title.textContent?.trim().length ?? 0, `${label}: non-empty title`).toBeGreaterThan(0)
 
-  // (3) short claim — non-empty, present on EVERY card (incl. non-personalizable)
-  const claim = within(root).getByTestId('card-claim')
-  expect(claim.textContent?.trim().length ?? 0, `${label}: non-empty claim`).toBeGreaterThan(0)
+  // (3) SUPERSEDED 2026-07-13 (Operator): die Beschreibungszeile (card-claim)
+  // entfällt — unter dem Titel steht direkt der Preis. Gegen-Assertion: die
+  // Karte darf KEINE claim-Zeile mehr rendern.
+  expect(within(root).queryByTestId('card-claim'), `${label}: no claim line`).toBeNull()
 
   // (4) price — the formatted price string is rendered
   const price = within(root).getByTestId('card-price')
@@ -245,9 +246,9 @@ describe('REQ-023 — real-boundary: rendered TCM collection grid cards', () => 
       const cta = within(card).getByTestId('card-cta')
       expect(cta.getAttribute('href') ?? '').toMatch(/^\/product\/\d+$/)
       expect(within(card).getAllByRole('link').length, 'one CTA link per card').toBe(1)
-      // title + claim + price present
+      // title + price present; claim SUPERSEDED weg (Operator 2026-07-13)
       expect(within(card).getByTestId('card-title').textContent?.trim().length ?? 0).toBeGreaterThan(0)
-      expect(within(card).getByTestId('card-claim').textContent?.trim().length ?? 0).toBeGreaterThan(0)
+      expect(within(card).queryByTestId('card-claim')).toBeNull()
       expect(within(card).getByTestId('card-price').textContent?.trim().length ?? 0).toBeGreaterThan(0)
     }
   })

@@ -29,6 +29,7 @@ const Inspiration = lazy(() => import('./pages/Inspiration'))
 const Offers = lazy(() => import('./pages/Offers'))
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
+import SaleBanner from './components/shop/SaleBanner'
 import SiteFooter from './components/shop/SiteFooter'
 import CartDrawer from './components/shop/CartDrawer'
 import ArticleOverlay from './components/shop/ArticleOverlay'
@@ -85,6 +86,9 @@ function AppShell() {
           Home bekommt das Kopf-Padding; kein Inhalt liegt mehr hinter der
           fixierten Leiste (vorher: isHome ? 0 : …, Hero lief unter das Menü). */}
       <div id="main-content" ref={mainRef} tabIndex={-1} style={{ paddingTop: ANNOUNCEMENT_HEIGHT + NAV_HEIGHT, outline: 'none' }}>
+        {/* Operator 2026-07-13: Rabatt-Banner direkt unter dem Mega-Menü,
+            auf jeder Seite; scrollt mit (fixe Kopf-Geometrie unangetastet). */}
+        <SaleBanner />
         <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />

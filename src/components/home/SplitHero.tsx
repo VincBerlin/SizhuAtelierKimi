@@ -64,7 +64,7 @@ export default function SplitHero() {
             to="/collections"
             data-testid="split-hero-cta"
             onClick={() => track(EVENTS.heroCta, { cta: 'collections' })}
-            className="inline-block transition-[filter] hover:brightness-110"
+            className="cta-square inline-block transition-[filter] hover:brightness-110"
             style={{
               background: BRAND_TERRACOTTA,
               color: BRAND_IVORY,

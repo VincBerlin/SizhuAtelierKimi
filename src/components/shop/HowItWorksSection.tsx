@@ -28,7 +28,7 @@ export default function HowItWorksSection() {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: 32 }}>
-          <Link to="/personalize" className="transition-[filter] hover:brightness-110" style={{ display: 'inline-block', background: C.accent, color: '#fff', textDecoration: 'none', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, padding: '13px 28px', borderRadius: 4 }}>{t('howItWorks.cta')}</Link>
+          <Link to="/personalize" className="cta-square transition-[filter] hover:brightness-110" style={{ display: 'inline-block', background: C.accent, color: '#fff', textDecoration: 'none', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 600, padding: '13px 28px' }}>{t('howItWorks.cta')}</Link>
         </div>
       </div>
     </section>

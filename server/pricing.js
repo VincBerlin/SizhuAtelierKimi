@@ -12,7 +12,7 @@
 //   - size deltas      → `src/lib/bazi.ts`     `sizes[].delta`
 //   - product types    → `src/pages/Personalize.tsx` `PRODUCT_TYPES[].basePrice`
 //   - PDF add-on       → `src/pages/Personalize.tsx` `PDF_ADDON_PRICE`
-//   - shipping rule    → `src/store/ShopStore.tsx` (FREE_SHIP_THRESHOLD = 80 €)
+//   - shipping rule    → `src/store/ShopStore.tsx` (FREE_SHIP_THRESHOLD = 75 €)
 // The operator replaces these with real prices later; the Client display values
 // must keep matching this table (AT-001-4 / AT-002-4 parity tests).
 
@@ -56,7 +56,7 @@ const ADDON_BASE_EUR = { a1: 9, a2: 6, a3: 7, a4: 5 }
 // Standalone digital PDF product (mirror of catalog.ts `digitalProduct`).
 const DIGITAL_BASE_EUR = { 'digital-bazi': 39 }
 
-const FREE_SHIP_THRESHOLD_CENTS = 8000 // 80 € (tokens.ts FREE_SHIP_THRESHOLD)
+const FREE_SHIP_THRESHOLD_CENTS = 7500 // 75 € (tokens.ts FREE_SHIP_THRESHOLD; Operator 2026-07-13, vorher 80)
 const FLAT_SHIP_CENTS = 490 //            4.90 € (ShopStore.tsx)
 
 // Parse a `variantId` like "size=A2;frame=#B98A5E;pdf=1" into a plain object.

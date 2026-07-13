@@ -251,16 +251,18 @@ export default function Personalize() {
         <p style={{ fontSize: 15, color: C.textMuted, maxWidth: 560, lineHeight: 1.6, margin: 0 }}>{t('personalize.intro')}</p>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        {/* ---- LEFT: live preview (sticky) ----
-            REQ-012 / T-402: the preview is `position: sticky` with a bounded
-            `maxHeight` so on a narrow mobile viewport it pins above the inputs
-            WITHOUT growing tall enough to cover an input field (RISK-002). The
-            real no-overlap proof at 360px is Playwright [REAL-BROWSER-PLANNED]. */}
+      {/* ---- Layout + sticky preview (Operator-Fund 2026-07-13, Mobile-First):
+          im einspaltigen Grid war das Preview-Item seine EIGENE Row → sticky
+          wirkungslos, der Käufer sah beim Ausfüllen sein Poster nicht. Das
+          Layout ist unterhalb lg jetzt display:block (.personalize-layout,
+          index.css) und die Vorschau klebt kompakt unter der Kopfzeile
+          (.personalize-preview) — das Poster bleibt bei Rahmen-/Format-/
+          Farbwahl IMMER sichtbar. Desktop unverändert 2-spaltig. */}
+      <div className="personalize-layout">
         <div
           data-testid="poster-preview-sticky"
-          className="lg:top-24"
-          style={{ position: 'sticky', top: 16, maxHeight: '70vh', overflow: 'auto', background: C.surfaceWarm, borderRadius: 6, padding: 8 }}
+          className="personalize-preview"
+          style={{ background: C.surfaceWarm, padding: 8 }}
         >
           {def.poster ? (
             <PosterSvg data={previewData} designId={designId} />

@@ -1865,3 +1865,63 @@
     column-count: 2;
   }
 }
+
+/* ── Operator-Batch 2026-07-13 (final) ─────────────────────────────────────── */
+
+/* 1. Poster-Vorschau responsiv: die geteilte SVG-Vorlage trägt absolute
+   mm-Maße (width="420mm" ≈ 1587px — Druckquelle, NICHT anfassen); im Browser
+   wird sie hier auf die Containerbreite gezähmt und in der Höhe gedeckelt,
+   damit das Poster IMMER vollständig erkennbar ist (Operator-Fund: Vorschau
+   überdimensional, mobil unbrauchbar). */
+[data-testid='poster-svg-preview'] svg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 30vh;
+  margin: 0 auto;
+}
+@media (min-width: 1024px) {
+  [data-testid='poster-svg-preview'] svg {
+    max-height: 64vh;
+  }
+}
+
+/* 2. Eckige Buttons (Operator: „jeder Button eckig, nicht abgerundet").
+   Stylesheet-!important schlägt die verstreuten Inline-border-radius. */
+button,
+button span,
+[role='button'],
+a.cta-square {
+  border-radius: 0 !important;
+}
+
+/* 3. Mobile-first Personalize: das Poster bleibt beim Ausfüllen IMMER sichtbar.
+   Im einspaltigen Layout ist der Grid-Sticky wirkungslos (das Item ist seine
+   eigene Row) — deshalb wird das Layout unterhalb lg zu display:block und die
+   Vorschau klebt unter der fixierten Kopfzeile (34+72=106px + Luft), kompakt
+   gedeckelt, damit die Eingaben darunter Platz behalten. */
+.personalize-layout {
+  display: block;
+}
+.personalize-preview {
+  position: sticky;
+  top: 112px;
+  z-index: 5;
+  max-height: 36vh;
+  overflow: auto;
+  margin-bottom: 18px;
+}
+@media (min-width: 1024px) {
+  .personalize-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 3rem;
+    align-items: start;
+  }
+  .personalize-preview {
+    top: 96px;
+    max-height: 72vh;
+    margin-bottom: 0;
+  }
+}
