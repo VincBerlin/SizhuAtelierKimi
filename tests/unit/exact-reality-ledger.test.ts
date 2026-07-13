@@ -15,6 +15,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { translations, type Lang } from '../../src/i18n/translations'
 import { TAXONOMY } from '../../src/lib/taxonomy'
 
@@ -27,7 +28,9 @@ function collect(value: unknown, out: string[] = []): string[] {
   return out
 }
 
-const gapReport = readFileSync(new URL('../../docs/reality/sizhuatelier-desenio-exact-architecture.gap-closure.md', import.meta.url), 'utf8')
+// process.cwd() statt import.meta.url: im jsdom-Environment von Vitest 4 ist
+// import.meta.url keine file://-URL mehr (new URL/readFileSync scheitern daran).
+const gapReport = readFileSync(join(process.cwd(), 'docs/reality/sizhuatelier-desenio-exact-architecture.gap-closure.md'), 'utf8')
 
 describe('M15 / REQ-036 — Gap-Closure Report names the RED carries + claims NO completion', () => {
   it('names every standing RED carry', () => {

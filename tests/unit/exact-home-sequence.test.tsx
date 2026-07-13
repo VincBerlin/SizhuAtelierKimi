@@ -111,13 +111,18 @@ describe('M11 / REQ-018/019/022 — new modules present', () => {
 })
 
 describe('M11 — surviving delta invariants under the new structure', () => {
-  it('the hero is FIRST and keeps the lazy InkWave Suspense split (perf preserved)', async () => {
+  // SUPERSEDED 2026-07-12 (Operator-Plan Hero/Mega-Menü §2/§4, Ledger
+  // „Vertrags-Änderungen" VIS-032): der Three.js-InkWave-Hero ist durch den
+  // Split-Hero in der Viewport-Shell ersetzt. Perf-Invariante neu: Home lädt
+  // KEIN InkWave/Three.js mehr (weder lazy noch statisch) — der schwere Chunk
+  // entfällt ersatzlos; der Hero bleibt das ERSTE Modul.
+  it('the hero is FIRST and is the SplitHero (no InkWave/Three.js load on Home)', async () => {
     renderHome()
     const order = await settledModules()
     expect(order[0]).toBe('hero')
     const src = readFileSync(path.resolve(__dirname, '../../src/pages/Home.tsx'), 'utf8')
-    expect(src).toMatch(/lazy\(\s*\(\)\s*=>\s*import\(['"][^'"]*InkWave['"]\)\s*\)/)
-    expect(src).toContain('<Suspense')
+    expect(src).toMatch(/import\s+SplitHero\s+from\s+['"][^'"]*components\/home\/SplitHero['"]/)
+    expect(src).not.toMatch(/import\(['"][^'"]*InkWave['"]\)/)
     expect(src).not.toMatch(/^\s*import\s+InkWave\s+from/m)
   })
 

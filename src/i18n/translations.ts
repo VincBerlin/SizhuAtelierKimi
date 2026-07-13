@@ -61,7 +61,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         tcm: { eyebrow: 'Ready to ship', title: 'TCM Knowledge Posters', text: 'Curated teaching graphics for practice and home — standard products, no birth data, ships right away.', cta: 'Shop TCM posters' },
       },
     },
-    hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections' },
+    hero: { eyebrow: 'PERSONALIZED ASTROLOGY POSTERS', title1: 'Your', title2: 'Birth Chart', subtitle: 'Enter your birth details and create a premium personalized BaZi or Birth Chart poster designed specifically for you.', cta1: 'Start Personalizing', cta2: 'Explore Collections', imageAlt: 'Framed BaZi poster in a calm, minimalist interior' },
     personalize: {
       eyebrow: 'Personalize', title: 'Create your personalized poster', intro: 'Enter your birth details, choose your design and we generate a premium poster made specifically for you.',
       chooseType: '1 · Choose your poster', from: 'from',
@@ -83,6 +83,13 @@ export const translations: Record<Lang, Record<string, any>> = {
       trustData: 'Created from your birth data', trustLogic: 'Composed into a symbolic artwork', trustPreview: 'Preview before ordering', trustPremium: 'Premium print quality',
       errFix: 'Please complete the highlighted birth-data fields before adding to cart.',
       addToCart: 'Add Personalized Poster to Cart',
+      chartLoading: 'Calculating your exact chart …',
+      chartError: 'The exact calculation is temporarily unavailable. Please try again in a moment.',
+      chartNotReady: 'Your exact chart has not finished calculating yet — please check your birth data.',
+      placeResolvedAs: 'Calculated for: {name}',
+      placeAmbiguous: 'Multiple places found — please pick yours:',
+      placeNotFound: 'Place not found. Please choose the nearest larger town — astronomically the result is identical.',
+      relation: { a_generates_b: '{a} nourishes {b}', b_generates_a: '{b} nourishes {a}', a_controls_b: '{a} controls {b}', b_controls_a: '{b} controls {a}', same_element: 'Shared element', same: 'Shared element' },
     },
     trust: {
       apiTitle: 'Made from your data', apiSub: 'A symbolic artwork inspired by your birth data',
@@ -413,7 +420,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         tcm: { eyebrow: 'Direkt versandfertig', title: 'TCM-Wissensposter', text: 'Kuratierte Lehrgrafiken für Praxis und Zuhause — Standardprodukte, keine Geburtsdaten, direkt versandfertig.', cta: 'TCM-Poster ansehen' },
       },
     },
-    hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken' },
+    hero: { eyebrow: 'PERSONALISIERTE ASTROLOGIE-POSTER', title1: 'Dein', title2: 'Geburtschart', subtitle: 'Gib deine Geburtsdaten ein und gestalte ein hochwertiges, personalisiertes BaZi- oder Geburtschart-Poster, das eigens für dich entworfen wird.', cta1: 'Personalisierung starten', cta2: 'Kollektionen entdecken', imageAlt: 'Gerahmtes BaZi-Poster in ruhigem, minimalistischem Interieur' },
     personalize: {
       eyebrow: 'Personalisieren', title: 'Gestalte dein personalisiertes Poster', intro: 'Gib deine Geburtsdaten ein, wähle dein Design und wir erstellen ein hochwertiges Poster, das eigens für dich gemacht ist.',
       chooseType: '1 · Wähle dein Poster', from: 'ab',
@@ -435,6 +442,13 @@ export const translations: Record<Lang, Record<string, any>> = {
       trustData: 'Aus deinen Geburtsdaten erstellt', trustLogic: 'Zu einem symbolischen Kunstwerk komponiert', trustPreview: 'Vorschau vor der Bestellung', trustPremium: 'Premium-Druckqualität',
       errFix: 'Bitte fülle die markierten Geburtsdaten-Felder aus, bevor du in den Warenkorb legst.',
       addToCart: 'Personalisiertes Poster in den Warenkorb',
+      chartLoading: 'Dein exaktes Chart wird berechnet …',
+      chartError: 'Die exakte Berechnung ist gerade nicht verfügbar. Bitte versuche es gleich noch einmal.',
+      chartNotReady: 'Dein exaktes Chart ist noch nicht fertig berechnet — bitte prüfe deine Geburtsdaten.',
+      placeResolvedAs: 'Berechnet für: {name}',
+      placeAmbiguous: 'Mehrere Orte gefunden — bitte wähle deinen:',
+      placeNotFound: 'Ort nicht gefunden. Bitte wähle den nächstgrößeren Ort — astronomisch ist das Ergebnis identisch.',
+      relation: { a_generates_b: '{a} nährt {b}', b_generates_a: '{b} nährt {a}', a_controls_b: '{a} kontrolliert {b}', b_controls_a: '{b} kontrolliert {a}', same_element: 'Gemeinsames Element', same: 'Gemeinsames Element' },
     },
     trust: {
       apiTitle: 'Aus deinen Daten', apiSub: 'Ein symbolisches Kunstwerk, inspiriert von deinen Geburtsdaten',
@@ -764,7 +778,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         tcm: { eyebrow: 'Prêt à expédier', title: 'Posters de savoir MTC', text: 'Des graphiques pédagogiques curés pour le cabinet et la maison — produits standard, sans données de naissance, expédiés tout de suite.', cta: 'Voir les posters MTC' },
       },
     },
-    hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections' },
+    hero: { eyebrow: 'POSTERS ASTROLOGIQUES PERSONNALISÉS', title1: 'Votre', title2: 'Carte du Ciel', subtitle: 'Saisissez vos données de naissance et créez un poster BaZi ou carte du ciel personnalisé haut de gamme, conçu spécialement pour vous.', cta1: 'Commencer la personnalisation', cta2: 'Découvrir les collections', imageAlt: 'Poster BaZi encadré dans un intérieur calme et minimaliste' },
     personalize: {
       eyebrow: 'Personnaliser', title: 'Créez votre poster personnalisé', intro: 'Saisissez vos données de naissance, choisissez votre design et nous générons un poster haut de gamme conçu spécialement pour vous.',
       chooseType: '1 · Choisissez votre poster', from: 'dès',
@@ -786,6 +800,13 @@ export const translations: Record<Lang, Record<string, any>> = {
       trustData: 'Créé à partir de vos données de naissance', trustLogic: 'Composé en une œuvre symbolique', trustPreview: 'Aperçu avant la commande', trustPremium: 'Qualité d’impression premium',
       errFix: 'Veuillez compléter les champs de naissance surlignés avant d’ajouter au panier.',
       addToCart: 'Ajouter le poster personnalisé au panier',
+      chartLoading: 'Calcul de votre thème exact …',
+      chartError: 'Le calcul exact est momentanément indisponible. Veuillez réessayer dans un instant.',
+      chartNotReady: 'Votre thème exact n’est pas encore calculé — veuillez vérifier vos données de naissance.',
+      placeResolvedAs: 'Calculé pour : {name}',
+      placeAmbiguous: 'Plusieurs lieux trouvés — choisissez le vôtre :',
+      placeNotFound: 'Lieu introuvable. Choisissez la ville voisine la plus proche — le résultat astronomique est identique.',
+      relation: { a_generates_b: '{a} nourrit {b}', b_generates_a: '{b} nourrit {a}', a_controls_b: '{a} contrôle {b}', b_controls_a: '{b} contrôle {a}', same_element: 'Élément commun', same: 'Élément commun' },
     },
     trust: {
       apiTitle: 'À partir de vos données', apiSub: 'Une œuvre symbolique inspirée de vos données de naissance',
@@ -1226,7 +1247,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       title2: 'Carta natal',
       subtitle: 'Introduce tus datos de nacimiento y crea un póster BaZi o de carta natal personalizado premium diseñado específicamente para ti.',
       cta1: 'Empieza a personalizar',
-      cta2: 'Explorar colecciones'
+      cta2: 'Explorar colecciones', imageAlt: 'Póster BaZi enmarcado en un interior sereno y minimalista'
     },
     personalize: {
       eyebrow: 'Personalizar',
@@ -1288,7 +1309,14 @@ export const translations: Record<Lang, Record<string, any>> = {
       trustPreview: 'Vista previa antes de pedir',
       trustPremium: 'Calidad de impresión premium',
       errFix: 'Por favor, completa los campos de datos de nacimiento resaltados antes de añadir a la cesta.',
-      addToCart: 'Añadir póster personalizado a la cesta'
+      addToCart: 'Añadir póster personalizado a la cesta',
+      chartLoading: 'Calculando tu carta exacta …',
+      chartError: 'El cálculo exacto no está disponible en este momento. Inténtalo de nuevo en un instante.',
+      chartNotReady: 'Tu carta exacta aún no se ha calculado — revisa tus datos de nacimiento.',
+      placeResolvedAs: 'Calculado para: {name}',
+      placeAmbiguous: 'Se encontraron varios lugares — elige el tuyo:',
+      placeNotFound: 'Lugar no encontrado. Elige la ciudad más cercana — el resultado astronómico es idéntico.',
+      relation: { a_generates_b: '{a} nutre {b}', b_generates_a: '{b} nutre {a}', a_controls_b: '{a} controla {b}', b_controls_a: '{b} controla {a}', same_element: 'Elemento común', same: 'Elemento común' },
     },
     trust: {
       apiTitle: 'Hecho a partir de tus datos',

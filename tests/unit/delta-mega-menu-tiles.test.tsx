@@ -1,27 +1,12 @@
 /**
- * DELTA T-203 — Mega-menu asset-light tiles (REQ-004). `[REAL-BOUNDARY-jsdom]`.
- *
- * Acceptance contracts (docs/tests/desenio-acceptance-design.md §REQ-004):
- *   AT-004-1  the mega-menu opens from the REAL Navbar trigger; the relevant
- *             columns (Poster / TCM / Wuxing) each show ≥2 tiles.
- *   AT-004-2  each tile has a non-empty title, a CTA, and an href on a real
- *             /collections/* or product route.
- *   AT-004-3  ASSET-LIGHT proof — each tile image field is a generic placeholder
- *             marked data-placeholder and renders NO <img src=/images/*.webp>
- *             product image; the placeholder must not look like a real product
- *             photo (FM-11 / CAN-014 / RISK-001).
- *   AT-004-4  Playwright hover/tap navigation = PLANNED (BLK-CHROMIUM).
- *
- * Beat-0 Gegenthese (acceptance-design §REQ-004): tiles may exist but show a
- * placeholder image that LOOKS like a real product photo (CAN-014 breach) — the
- * customer thinks it is the finished product; or a tile may have a dead CTA. So
- * this drives the REAL src/App.tsx, opens the mega-menu, and asserts every tile
- * is text-forward (title + CTA + live href) and image-light (data-placeholder,
- * no real .webp product image).
- *
- * RED-line discipline (RL-IMAGES / OQ-001): real product imagery is launch-
- * blocking and intentionally absent in this run. These tests pin the asset-light
- * contract, never a final visual.
+ * Mega-Menü Editorial-Bildkarten — VERTRAG AKTUALISIERT durch den
+ * Operator-Plan Hero/Mega-Menü (2026-07-12, §5.3): die Editorial-Spalte zeigt
+ * GENAU ZWEI große Bildkarten (Personalized BaZi + Fire Horse) MIT echten
+ * Bildern aus /images/ — der alte asset-light/data-placeholder-Vertrag
+ * (DELTA T-203 / AT-004-3, RL-IMAGES) ist damit vom Operator superseded
+ * (Begründung im Evidence-Ledger docs/evidence/fufire-gelato/ledger.md).
+ * Erhalten bleibt der Kern von AT-004-2: jede Karte hat Titel + CTA + echte
+ * Route — keine toten Links, keine leeren Karten.
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, within, fireEvent, waitFor } from '@testing-library/react'
@@ -32,7 +17,7 @@ import { COLLECTION_SLUGS } from '../../src/lib/collections'
 // M10 (supersedes the delta per-column tiles): the mega-menu now renders a flat
 // asset-light promo tile strip (MEGA_TILES from src/lib/taxonomy.ts). We assert
 // ≥MIN_TILES tiles, each text-forward + placeholder-imaged (REQ-013).
-const MIN_TILES = 4
+const EXACT_TILES = 2
 
 const VALID_TILE_HREFS = new Set<string>([
   ...COLLECTION_SLUGS.map((s) => `/collections/${s}`),
@@ -62,11 +47,11 @@ beforeEach(() => {
 
 // ── AT-004-1 — relevant columns each show ≥2 tiles ────────────────────────────
 
-describe('REQ-013 / AT-004-1 — mega-menu renders the asset-light promo tile strip', () => {
-  it('opens the mega-menu and renders ≥4 flat promo tiles', async () => {
+describe('Operator-Plan §5.3 — editorial column renders EXACTLY two image cards', () => {
+  it('opens the mega-menu and renders exactly 2 editorial cards', async () => {
     const panel = await openMegaMenu()
     const tiles = within(panel).getAllByTestId('mega-tile')
-    expect(tiles.length, 'mega-menu must render the promo tile strip').toBeGreaterThanOrEqual(MIN_TILES)
+    expect(tiles).toHaveLength(EXACT_TILES)
   })
 })
 
@@ -76,7 +61,7 @@ describe('REQ-004 / AT-004-2 — each tile has title + CTA + live target', () =>
   it('every tile has a non-empty title, a CTA, and an href on a real route', async () => {
     const panel = await openMegaMenu()
     const tiles = within(panel).getAllByTestId('mega-tile')
-    expect(tiles.length).toBeGreaterThanOrEqual(MIN_TILES)
+    expect(tiles).toHaveLength(EXACT_TILES)
 
     for (const tile of tiles) {
       // title
@@ -93,34 +78,17 @@ describe('REQ-004 / AT-004-2 — each tile has title + CTA + live target', () =>
   })
 })
 
-// ── AT-004-3 — ASSET-LIGHT: data-placeholder, no real .webp product image ─────
+// ── Operator-Plan §5.3 — Bildkarten tragen ECHTE Bilder ─────────────────────
 
-describe('REQ-004 / AT-004-3 — tiles are asset-light, not fake product photos (FM-11)', () => {
-  it('every tile image field is a marked placeholder, never a /images/*.webp product img', async () => {
+describe('Operator-Plan §5.3 — editorial cards carry real images', () => {
+  it('every card renders an <img> from /images/ with cover styling', async () => {
     const panel = await openMegaMenu()
     const tiles = within(panel).getAllByTestId('mega-tile')
-
+    expect(tiles).toHaveLength(EXACT_TILES)
     for (const tile of tiles) {
-      // an explicit generic placeholder field is present
-      const placeholder = within(tile).getByTestId('mega-tile-image')
-      expect(placeholder).toHaveAttribute('data-placeholder', 'true')
-
-      // it does NOT render a real product image (no <img src=/images/...webp>)
-      const imgs = tile.querySelectorAll('img')
-      for (const img of Array.from(imgs)) {
-        const src = img.getAttribute('src') ?? ''
-        expect(/\/images\/.*\.webp/i.test(src), `tile must not use a real product image (${src})`).toBe(false)
-      }
-    }
-  })
-
-  it('the placeholder fields are generic (no inline background-image of a real .webp)', async () => {
-    const panel = await openMegaMenu()
-    const placeholders = within(panel).getAllByTestId('mega-tile-image')
-    expect(placeholders.length).toBeGreaterThanOrEqual(MIN_TILES)
-    for (const ph of placeholders) {
-      const style = ph.getAttribute('style') ?? ''
-      expect(/\/images\/.*\.webp/i.test(style)).toBe(false)
+      const img = tile.querySelector('img')
+      expect(img, 'editorial card must render a real image').not.toBeNull()
+      expect(img!.getAttribute('src') ?? '').toMatch(/^\/images\//)
     }
   })
 })

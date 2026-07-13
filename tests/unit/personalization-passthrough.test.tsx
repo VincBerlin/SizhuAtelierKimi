@@ -19,7 +19,7 @@
  * is INDEPENDENT of place (no "image varies with location" claim).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, render, screen, fireEvent, act } from '@testing-library/react'
+import { renderHook, render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { ShopStoreProvider, useShopStore, type CartLine } from '../../src/store/ShopStore'
 import { I18nProvider } from '../../src/i18n/I18nProvider'
@@ -248,10 +248,60 @@ function fillByLabel(label: string, value: string, index = 0) {
   fireEvent.change(inputs[index], { target: { value } })
 }
 
+// FuFirE-Ehrlichkeits-Gate (049338d): das Paar-Poster braucht BEIDE Orte
+// aufgelöst + das fertige exakte Paar-Chart, sonst blockt addToCart. Nur
+// fetch ist gemockt (/api/geocode + /api/match) — die echte Match-Route ist
+// in tests/integration/bazi-routes.test.ts bewiesen, die echte API im Ledger
+// ([REAL-BOUNDARY-LIVE], 2026-07-12-match-live-response.json).
+const MOCK_EXACT = {
+  pillars: [
+    { label: '年', stem: '庚', branch: '午' },
+    { label: '月', stem: '壬', branch: '午' },
+    { label: '日', stem: '辛', branch: '亥' },
+    { label: '時', stem: '乙', branch: '未' },
+  ],
+  animal: 'Pferd',
+  element: 'Metall',
+  provenance: { engine_version: 'test', ruleset_id: 'test', tzdb_version_id: 'test' },
+}
+function mockPairApi() {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
+    const u = String(url)
+    if (u === '/api/geocode') {
+      const q = init?.body ? JSON.parse(init.body as string).place : ''
+      const isLisbon = /liss/i.test(String(q))
+      return new Response(
+        JSON.stringify({
+          status: 'ok',
+          lat: isLisbon ? 38.72 : 48.14,
+          lon: isLisbon ? -9.14 : 11.58,
+          tz: isLisbon ? 'Europe/Lisbon' : 'Europe/Berlin',
+          resolvedName: isLisbon ? 'Lissabon' : 'München',
+          countryCode: isLisbon ? 'PT' : 'DE',
+        }),
+        { status: 200 },
+      )
+    }
+    if (u === '/api/match') {
+      return new Response(
+        JSON.stringify({
+          a: MOCK_EXACT,
+          b: { ...MOCK_EXACT, animal: 'Drache', element: 'Wasser' },
+          relation: { dayMasterA: '辛', dayMasterB: '癸', elementA: 'Metall', elementB: 'Wasser', wuxingRelation: 'a_generates_b' },
+          vectors: { order: null, a: null, b: null },
+        }),
+        { status: 200 },
+      )
+    }
+    return new Response('{}', { status: 404 })
+  })
+}
+
 describe('REQ-004 / AT-004-1 (couple) — person B noon-fallback provenance reaches the payload', () => {
   it('mirrors the A-side fallback fields for person B when the birth time is unknown', async () => {
     localStorage.setItem('sizhu_lang', 'EN')
     storeRef = null
+    mockPairApi()
 
     render(
       <>
@@ -274,9 +324,26 @@ describe('REQ-004 / AT-004-1 (couple) — person B noon-fallback provenance reac
     fillByLabel(EN_LABELS.place, 'Lissabon', 1)
     fillByLabel(EN_LABELS.date, '1988-03-02', 1)
 
+    // BEIDE Orte auflösen (blur → /api/geocode) — Gate-Voraussetzung. Nur das
+    // A-Input trägt die testid; beide Felder werden daher über ihr Label
+    // gegriffen (gleiche Selektorik wie fillByLabel).
+    const placeEls = screen
+      .getAllByText(EN_LABELS.place)
+      .map((el) => el.closest('label'))
+      .filter((l): l is HTMLLabelElement => !!l && !!l.querySelector('input'))
+      .map((l) => l.querySelector('input') as HTMLInputElement)
+    fireEvent.blur(placeEls[0])
+    fireEvent.blur(placeEls[1])
+    await screen.findByTestId('place-resolved-note')
+    await screen.findByTestId('place-b-resolved-note')
+
     // Mark the (shared) birth-time-unknown toggle → both charts take the disclosed
     // noon fallback. The first checkbox is the unknown-time toggle.
     fireEvent.click(screen.getAllByRole('checkbox')[0])
+
+    // Exaktes Paar-Chart abwarten (Debounce + /api/match-Mock) — erst dann
+    // lässt das Ehrlichkeits-Gate den Kauf zu.
+    await waitFor(() => expect(screen.getAllByText('庚').length).toBeGreaterThan(0), { timeout: 5000 })
 
     // Click the real add-to-cart CTA.
     fireEvent.click(screen.getByText(new RegExp(escapeRe(EN.addToCart))))
