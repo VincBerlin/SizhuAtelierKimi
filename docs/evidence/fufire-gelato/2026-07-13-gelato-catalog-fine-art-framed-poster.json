@@ -1,0 +1,624 @@
+{
+  "catalogUid": "fine-art-framed-poster",
+  "title": "Fine Art Framed Poster",
+  "productAttributes": [
+    {
+      "productAttributeUid": "CoatingType",
+      "title": "CoatingType",
+      "values": [
+        {
+          "productAttributeValueUid": "none",
+          "title": "No coating"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "ProductModel",
+      "title": "ProductModel",
+      "values": {
+        "framed_fine_arts_poster_geo_simplified_product": {
+          "productAttributeValueUid": "framed_fine_arts_poster_geo_simplified_product",
+          "title": "framed_fine_arts_poster_geo_simplified_product"
+        }
+      }
+    },
+    {
+      "productAttributeUid": "State",
+      "title": "State",
+      "values": [
+        {
+          "productAttributeValueUid": "published",
+          "title": "Published"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "UnifiedPaperType",
+      "title": "UnifiedPaperType",
+      "values": [
+        {
+          "productAttributeValueUid": "200-gsm-80lb-enhanced-uncoated",
+          "title": "200-gsm-80lb-enhanced-uncoated"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "FrameColor",
+      "title": "FrameColor",
+      "values": [
+        {
+          "productAttributeValueUid": "black",
+          "title": "Black"
+        },
+        {
+          "productAttributeValueUid": "dark-wood",
+          "title": "Dark Wood"
+        },
+        {
+          "productAttributeValueUid": "natural-wood",
+          "title": "Natural Wood"
+        },
+        {
+          "productAttributeValueUid": "white",
+          "title": "White"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "UnifiedFrameSize",
+      "title": "UnifiedFrameSize",
+      "values": [
+        {
+          "productAttributeValueUid": "14x14-inch-350x350-mm",
+          "title": "14x14-inch-350x350-mm"
+        },
+        {
+          "productAttributeValueUid": "450x600-mm-18x24-inch",
+          "title": "45x60cm / 18x24\""
+        },
+        {
+          "productAttributeValueUid": "16x16-inch-400x400-mm",
+          "title": "16x16-inch-400x400-mm"
+        },
+        {
+          "productAttributeValueUid": "280x430-mm-xl",
+          "title": "280x430-mm-xl"
+        },
+        {
+          "productAttributeValueUid": "400x400-mm-16x16-inch",
+          "title": "400x400-mm-16x16-inch"
+        },
+        {
+          "productAttributeValueUid": "40x60-inch-1000x1500-mm",
+          "title": "40x60\" / 100x150cm"
+        },
+        {
+          "productAttributeValueUid": "a1",
+          "title": "a1"
+        },
+        {
+          "productAttributeValueUid": "450x450-mm-18x18-inch",
+          "title": "450x450-mm-18x18-inch"
+        },
+        {
+          "productAttributeValueUid": "16x24-inch-400x600-mm",
+          "title": "16x24\" / 40x60cm"
+        },
+        {
+          "productAttributeValueUid": "24x32-inch-600x800-mm",
+          "title": "24x32\" / 60x80cm"
+        },
+        {
+          "productAttributeValueUid": "200x500-mm-8x20-inch",
+          "title": "200x500-mm-8x20-inch"
+        },
+        {
+          "productAttributeValueUid": "24x36-inch-600x900-mm",
+          "title": "24x36\" / 60x90cm"
+        },
+        {
+          "productAttributeValueUid": "270x350-mm-11x14-inch",
+          "title": "270x350-mm-11x14-inch"
+        },
+        {
+          "productAttributeValueUid": "12x12-inch-300x300-mm",
+          "title": "12x12\" / 30x30cm"
+        },
+        {
+          "productAttributeValueUid": "150x200-mm-6x8-inch",
+          "title": "15x20cm / 6x8\""
+        },
+        {
+          "productAttributeValueUid": "6x8-inch-150x200-mm",
+          "title": "6x8\" / 15x20cm"
+        },
+        {
+          "productAttributeValueUid": "300x450-mm-12x18-inch",
+          "title": "30x45cm / 12x18\""
+        },
+        {
+          "productAttributeValueUid": "300x400-mm-12x16-inch",
+          "title": "30x40cm / 12x16\""
+        },
+        {
+          "productAttributeValueUid": "750x1000-mm-30x40-inch",
+          "title": "750x1000-mm-30x40-inch"
+        },
+        {
+          "productAttributeValueUid": "1000x1500-mm-40x60-inch",
+          "title": "100x150cm / 40x60\""
+        },
+        {
+          "productAttributeValueUid": "400x500-mm-16x20-inch",
+          "title": "40x50cm / 16x20\""
+        },
+        {
+          "productAttributeValueUid": "a0",
+          "title": "a0"
+        },
+        {
+          "productAttributeValueUid": "200x250-mm-8x10-inch",
+          "title": "200x250-mm-8x10-inch"
+        },
+        {
+          "productAttributeValueUid": "300x300-mm-12x12-inch",
+          "title": "30x30cm / 12x12\""
+        },
+        {
+          "productAttributeValueUid": "30x40-inch-750x1000-mm",
+          "title": "30x40-inch-750x1000-mm"
+        },
+        {
+          "productAttributeValueUid": "1000x1000-mm-40x40-inch",
+          "title": "100x100cm / 40x40\""
+        },
+        {
+          "productAttributeValueUid": "250x250-mm-10x10-inch",
+          "title": "25x25cm / 10x10\""
+        },
+        {
+          "productAttributeValueUid": "28x28-inch-700x700-mm",
+          "title": "28x28\" / 70x70cm"
+        },
+        {
+          "productAttributeValueUid": "12x18-inch-300x450-mm",
+          "title": "12x18\" / 30x45cm"
+        },
+        {
+          "productAttributeValueUid": "700x700-mm-28x28-inch",
+          "title": "70x70cm / 28x28\""
+        },
+        {
+          "productAttributeValueUid": "8x10-inch-200x250-mm",
+          "title": "8x10-inch-200x250-mm"
+        },
+        {
+          "productAttributeValueUid": "xl-280x430-mm",
+          "title": "xl-280x430-mm"
+        },
+        {
+          "productAttributeValueUid": "250x600-mm-10x24-inch",
+          "title": "250x600-mm-10x24-inch"
+        },
+        {
+          "productAttributeValueUid": "130x180-mm-5r",
+          "title": "130x180-mm-5r"
+        },
+        {
+          "productAttributeValueUid": "20x20-inch-500x500-mm",
+          "title": "20x20\" / 50x50cm"
+        },
+        {
+          "productAttributeValueUid": "11x14-inch-270x350-mm",
+          "title": "11x14-inch-270x350-mm"
+        },
+        {
+          "productAttributeValueUid": "18x24-inch-450x600-mm",
+          "title": "18x24\" / 45x60cm"
+        },
+        {
+          "productAttributeValueUid": "a2",
+          "title": "a2"
+        },
+        {
+          "productAttributeValueUid": "400x600-mm-16x24-inch",
+          "title": "40x60cm / 16x24\""
+        },
+        {
+          "productAttributeValueUid": "20x28-inch-500x700-mm",
+          "title": "20x28\" / 50x70cm"
+        },
+        {
+          "productAttributeValueUid": "500x700-mm-20x28-inch",
+          "title": "50x70cm / 20x28\""
+        },
+        {
+          "productAttributeValueUid": "350x350-mm-14x14-inch",
+          "title": "350x350-mm-14x14-inch"
+        },
+        {
+          "productAttributeValueUid": "8x12-inch-a4",
+          "title": "8x12-inch-a4"
+        },
+        {
+          "productAttributeValueUid": "12x16-inch-300x400-mm",
+          "title": "12x16\" / 30x40cm"
+        },
+        {
+          "productAttributeValueUid": "8x20-inch-200x500-mm",
+          "title": "8x20-inch-200x500-mm"
+        },
+        {
+          "productAttributeValueUid": "10x10-inch-250x250-mm",
+          "title": "10x10\" / 25x25cm"
+        },
+        {
+          "productAttributeValueUid": "40x40-inch-1000x1000-mm",
+          "title": "40x40\" / 100x100cm"
+        },
+        {
+          "productAttributeValueUid": "5r-130x180-mm",
+          "title": "5r-130x180-mm"
+        },
+        {
+          "productAttributeValueUid": "a3",
+          "title": "a3"
+        },
+        {
+          "productAttributeValueUid": "a4-8x12-inch",
+          "title": "a4-8x12-inch"
+        },
+        {
+          "productAttributeValueUid": "700x1000-mm-28x40-inch",
+          "title": "70x100cm / 28x40\""
+        },
+        {
+          "productAttributeValueUid": "18x18-inch-450x450-mm",
+          "title": "18x18-inch-450x450-mm"
+        },
+        {
+          "productAttributeValueUid": "600x800-mm-24x32-inch",
+          "title": "60x80cm / 24x32\""
+        },
+        {
+          "productAttributeValueUid": "600x900-mm-24x36-inch",
+          "title": "60x90cm / 24x36\""
+        },
+        {
+          "productAttributeValueUid": "500x500-mm-20x20-inch",
+          "title": "50x50cm / 20x20\""
+        },
+        {
+          "productAttributeValueUid": "28x40-inch-700x1000-mm",
+          "title": "28x40\" / 70x100cm"
+        },
+        {
+          "productAttributeValueUid": "16x20-inch-400x500-mm",
+          "title": "16x20\" / 40x50cm"
+        },
+        {
+          "productAttributeValueUid": "10x24-inch-250x600-mm",
+          "title": "10x24-inch-250x600-mm"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "FrameMaterial",
+      "title": "FrameMaterial",
+      "values": [
+        {
+          "productAttributeValueUid": "aluminum",
+          "title": "Aluminum"
+        },
+        {
+          "productAttributeValueUid": "wood",
+          "title": "Wood"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "UnifiedPaperFormat",
+      "title": "UnifiedPaperFormat",
+      "values": [
+        {
+          "productAttributeValueUid": "350x350-mm-14x14-inch",
+          "title": "35x35cm / 14x14\""
+        },
+        {
+          "productAttributeValueUid": "400x400-mm-16x16-inch",
+          "title": "40x40cm / 16x16\""
+        },
+        {
+          "productAttributeValueUid": "600x900-mm-24x36-inch",
+          "title": "60x90cm / 24x36\""
+        },
+        {
+          "productAttributeValueUid": "700x1000-mm-28x40-inch",
+          "title": "70x100cm / 28x40\""
+        },
+        {
+          "productAttributeValueUid": "200x500-mm-8x20-inch",
+          "title": "20x50cm / 8x20\""
+        },
+        {
+          "productAttributeValueUid": "24x32-inch-600x800-mm",
+          "title": "24x32\" / 60x80cm"
+        },
+        {
+          "productAttributeValueUid": "450x600-mm-18x24-inch",
+          "title": "45x60cm / 18x24\""
+        },
+        {
+          "productAttributeValueUid": "1000x1500-mm-40x60-inch",
+          "title": "100x150cm / 40x60\""
+        },
+        {
+          "productAttributeValueUid": "8x12-inch-a4",
+          "title": "8x12\" / 21x29.7cm"
+        },
+        {
+          "productAttributeValueUid": "250x250-mm-10x10-inch",
+          "title": "25x25cm / 10x10\""
+        },
+        {
+          "productAttributeValueUid": "750x1000-mm-30x40-inch",
+          "title": "75x100cm / 30x40\""
+        },
+        {
+          "productAttributeValueUid": "12x16-inch-300x400-mm",
+          "title": "12x16\" / 30x40cm"
+        },
+        {
+          "productAttributeValueUid": "a3",
+          "title": "A3 (29.7 x 42 cm)"
+        },
+        {
+          "productAttributeValueUid": "8x10-inch-200x250-mm",
+          "title": "8x10\" / 20x25cm"
+        },
+        {
+          "productAttributeValueUid": "xl-280x430-mm",
+          "title": "XL (11x17\") / 28x43 cm"
+        },
+        {
+          "productAttributeValueUid": "a0",
+          "title": "A0 (84.1 x 118.9 cm)"
+        },
+        {
+          "productAttributeValueUid": "28x40-inch-700x1000-mm",
+          "title": "28x40\" / 70x100cm"
+        },
+        {
+          "productAttributeValueUid": "600x800-mm-24x32-inch",
+          "title": "60x80cm / 24x32\""
+        },
+        {
+          "productAttributeValueUid": "10x24-inch-250x600-mm",
+          "title": "10x24\" / 25x60cm"
+        },
+        {
+          "productAttributeValueUid": "11x14-inch-270x350-mm",
+          "title": "11x14\" / 27x35cm"
+        },
+        {
+          "productAttributeValueUid": "16x16-inch-400x400-mm",
+          "title": "16x16\" / 40x40cm"
+        },
+        {
+          "productAttributeValueUid": "5r-130x180-mm",
+          "title": "5x7\" / 13x18cm"
+        },
+        {
+          "productAttributeValueUid": "28x28-inch-700x700-mm",
+          "title": "28x28\" / 70x70cm"
+        },
+        {
+          "productAttributeValueUid": "40x40-inch-1000x1000-mm",
+          "title": "40x40\" / 100x100cm"
+        },
+        {
+          "productAttributeValueUid": "30x40-inch-750x1000-mm",
+          "title": "30x40\" / 75x100cm"
+        },
+        {
+          "productAttributeValueUid": "300x300-mm-12x12-inch",
+          "title": "30x30cm / 12x12\""
+        },
+        {
+          "productAttributeValueUid": "270x350-mm-11x14-inch",
+          "title": "27x35cm / 11x14\""
+        },
+        {
+          "productAttributeValueUid": "1000x1000-mm-40x40-inch",
+          "title": "100x100cm / 40x40\""
+        },
+        {
+          "productAttributeValueUid": "200x250-mm-8x10-inch",
+          "title": "20x25cm / 8x10\""
+        },
+        {
+          "productAttributeValueUid": "400x500-mm-16x20-inch",
+          "title": "40x50cm / 16x20\""
+        },
+        {
+          "productAttributeValueUid": "8x20-inch-200x500-mm",
+          "title": "8x20\" / 20x50cm"
+        },
+        {
+          "productAttributeValueUid": "6x8-inch-150x200-mm",
+          "title": "6x8\" / 15x20cm"
+        },
+        {
+          "productAttributeValueUid": "a2",
+          "title": "A2 (42 x 59.4 cm)"
+        },
+        {
+          "productAttributeValueUid": "250x600-mm-10x24-inch",
+          "title": "25x60cm / 10x24\""
+        },
+        {
+          "productAttributeValueUid": "40x60-inch-1000x1500-mm",
+          "title": "40x60\" / 100x150cm"
+        },
+        {
+          "productAttributeValueUid": "500x500-mm-20x20-inch",
+          "title": "50x50cm / 20x20\""
+        },
+        {
+          "productAttributeValueUid": "12x12-inch-300x300-mm",
+          "title": "12x12\" / 30x30cm"
+        },
+        {
+          "productAttributeValueUid": "24x36-inch-600x900-mm",
+          "title": "24x36\" / 60x90cm"
+        },
+        {
+          "productAttributeValueUid": "130x180-mm-5r",
+          "title": "13x18cm / 5x7\""
+        },
+        {
+          "productAttributeValueUid": "16x24-inch-400x600-mm",
+          "title": "16x24\" / 40x60cm"
+        },
+        {
+          "productAttributeValueUid": "20x28-inch-500x700-mm",
+          "title": "20x28\" / 50x70cm"
+        },
+        {
+          "productAttributeValueUid": "450x450-mm-18x18-inch",
+          "title": "45x45cm / 18x18\""
+        },
+        {
+          "productAttributeValueUid": "150x200-mm-6x8-inch",
+          "title": "15x20cm / 6x8\""
+        },
+        {
+          "productAttributeValueUid": "12x18-inch-300x450-mm",
+          "title": "12x18\" / 30x45cm"
+        },
+        {
+          "productAttributeValueUid": "280x430-mm-xl",
+          "title": "28x43 cm / XL (11x17\")"
+        },
+        {
+          "productAttributeValueUid": "700x700-mm-28x28-inch",
+          "title": "70x70cm / 28x28\""
+        },
+        {
+          "productAttributeValueUid": "14x14-inch-350x350-mm",
+          "title": "14x14\" / 35x35cm"
+        },
+        {
+          "productAttributeValueUid": "18x18-inch-450x450-mm",
+          "title": "18x18\" / 45x45cm"
+        },
+        {
+          "productAttributeValueUid": "10x10-inch-250x250-mm",
+          "title": "10x10\" / 25x25cm"
+        },
+        {
+          "productAttributeValueUid": "300x450-mm-12x18-inch",
+          "title": "30x45cm / 12x18\""
+        },
+        {
+          "productAttributeValueUid": "500x700-mm-20x28-inch",
+          "title": "50x70cm / 20x28\""
+        },
+        {
+          "productAttributeValueUid": "a1",
+          "title": "A1 (59.4 x 84.1 cm)"
+        },
+        {
+          "productAttributeValueUid": "18x24-inch-450x600-mm",
+          "title": "18x24\" / 45x60cm"
+        },
+        {
+          "productAttributeValueUid": "16x20-inch-400x500-mm",
+          "title": "16x20\" / 40x50cm"
+        },
+        {
+          "productAttributeValueUid": "300x400-mm-12x16-inch",
+          "title": "30x40cm / 12x16\""
+        },
+        {
+          "productAttributeValueUid": "20x20-inch-500x500-mm",
+          "title": "20x20\" / 50x50cm"
+        },
+        {
+          "productAttributeValueUid": "400x600-mm-16x24-inch",
+          "title": "40x60cm / 16x24\""
+        },
+        {
+          "productAttributeValueUid": "a4-8x12-inch",
+          "title": "A4 21x29.7cm / 8x12\""
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "ColorType",
+      "title": "ColorType",
+      "values": [
+        {
+          "productAttributeValueUid": "12-0",
+          "title": "12-0"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "ProductStatus",
+      "title": "ProductStatus",
+      "values": [
+        {
+          "productAttributeValueUid": "deactivated",
+          "title": "Deactivated"
+        },
+        {
+          "productAttributeValueUid": "activated",
+          "title": "Activated"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "GlassType",
+      "title": "GlassType",
+      "values": [
+        {
+          "productAttributeValueUid": "plexiglass",
+          "title": "Plexiglass"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "FrameProperties",
+      "title": "FrameProperties",
+      "values": [
+        {
+          "productAttributeValueUid": "w12xt22-mm",
+          "title": "Frame width 12mm - thickness 22mm"
+        },
+        {
+          "productAttributeValueUid": "w20xt20-mm",
+          "title": "Frame width 20mm - thickness 20mm"
+        },
+        {
+          "productAttributeValueUid": "w10xt22-mm",
+          "title": "Frame width 10mm - thickness 22mm"
+        }
+      ]
+    },
+    {
+      "productAttributeUid": "Orientation",
+      "title": "Orientation",
+      "values": [
+        {
+          "productAttributeValueUid": "ver",
+          "title": "Vertical (portrait) orientation"
+        },
+        {
+          "productAttributeValueUid": "hor",
+          "title": "Horizontal (landscape) orientation"
+        }
+      ]
+    }
+  ]
+}

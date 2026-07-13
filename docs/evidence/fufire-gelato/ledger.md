@@ -19,6 +19,7 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 | GESAMTE Vitest-Suite grün — jsdom 611/611 (55 Dateien) + jsdom-isolated 8/8 (1 Datei) + node 72/72 (8 Dateien) = 691 Tests. Voraussetzungen auf dieser Maschine: warmer node_modules-Cache (iCloud) + sequenzieller Lauf. 9 vorgefundene jsdom-Rots geschlossen: 5 Operator-Supersession-Nachzüge (s. Vertrags-Änderungen), 2 FuFirE-Gate-Portierungen, 2 Umgebungs-Fixes (import.meta.url / Debounce-Datei-Isolation) — keine Assertion geschwächt | [INTEGRATION-FAKE]/[SHIPPED-SCAN] (echte Komponenten/Provider, nur externe APIs gemockt) | Vitest-Ausgabe 2026-07-13: `55 passed (55) · 611 passed (611)` + `1 passed (1) · 8 passed (8)` | `node ./node_modules/vitest/vitest.mjs run --project jsdom --isolate=false --maxWorkers=1 --no-file-parallelism` + `--project jsdom-isolated` + `--project node` | 2026-07-13 |
 | Live-Smokes mit Operator-Keys REPRODUZIERT: kanonischer Fall exakt 庚午\|壬午\|辛亥\|乙未, Pferd/Metall, engine 1.0.0-rc1-20260220 (exit 0) UND Paar-Match A konsistent + Relation Metall→nährt→Wasser (exit 0). Keys hinterlegt in lokaler `.env` (gitignored) + Railway-Service `sizhuatelier-shop` (FUFIRE_API_URL/KEY, GELATO_API_KEY, GELATO_ORDER_TYPE=draft; per CLI, --skip-deploys) | [REAL-BOUNDARY-LIVE] | `2026-07-12-bazi-live-response.json` / `2026-07-12-match-live-response.json` (frisch überschrieben 2026-07-13 01:12 lokal; Dateiname = UTC-Datum des Laufs) | `node --env-file=.env scripts/evidence/fufire-smoke.mjs` bzw. `…fufire-match-smoke.mjs` | 2026-07-13 |
 | Käufer-Flow LIVE im echten Browser: Geburtsdaten eingeben → Poster zeigt die exakt live-berechneten Säulen (庚壬辛乙亥未, PFERD, METALL) — personalize-exact.spec.ts gegen gebauten Server MIT echten FuFirE-Keys, 5/5 passed (inkl. Hero/Mega-Menü-Spec). Mobile-first-Fix bewiesen: H1 beginnt ≥106px (unter der fixierten Kopfzeile; Logo-Overlap-Fund behoben via pt-[130px], neue Assertion im Spec). Ink Black der Markenfläche jetzt aus kanonischer Quelle `--ink-black` (index.css) | [REAL-BROWSER]+[REAL-BOUNDARY-LIVE] | `personalize-exact-live.png` · `hero-mobile.png` (beide frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
+| Gelato-Produkt-Mapping vollständig LIVE-VERIFIZIERT (2. Operator-Key, beide APIs 200): alle 6 Kombinationen A3/A2/A1 × Eiche natur/Schwarz matt existieren als exakte productUids im Katalog `framed-posters` (gefilterte products:search, Papier 250 gsm uncoated offwhite archival, Holzrahmen 12×22 mm, Plexiglas, Hochformat) und sind in `server/gelatoProducts.js` hinterlegt; Fulfillment-Test beweist GENAU EINEN Draft mit gemappter UID, idempotent (node 72/72) | [REAL-BOUNDARY-LIVE] | `2026-07-13-gelato-uid-mapping.json` + `2026-07-13-gelato-catalog-fine-art-framed-poster.json` (Erst-Scan, Fehlkatalog-Fund) | `node --env-file=.env scripts/evidence/gelato-catalog-verify.mjs` (exit 0) | 2026-07-13 |
 
 ## RED (offen, launch-relevant)
 
@@ -48,14 +49,26 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 - **OQ-TLST** — Zi-Grenzfall-Konvention (TLST/boundary) vom Operator gegen die
   FuFirE-Snapshot-Suite (`tests/snapshots/moseph/zi_*.json` im FuFirE-Repo)
   zu bestätigen. Bis dahin gilt gepinnt: `standard=TLST`, `boundary=midnight`.
-- **RL-GELATO** — Gelato-Fluss unbewiesen. STAND 2026-07-13: Operator-Key liegt
-  vor (lokal `.env` + Railway hinterlegt), aber BEIDE Gelato-APIs lehnen ihn ab
-  (Product-API v3 `GET /catalogs` → 401, Order-API v4 `GET /orders` → 401;
-  Format sauber: 69 Zeichen, 4 Bindestriche, kein Whitespace/CR). Der Key ist
-  damit ungültig/inaktiv — Operator: im Gelato-Dashboard unter API-Keys einen
-  gültigen Key erzeugen/kopieren, `.env` UND Railway aktualisieren, dann
-  `node --env-file=.env scripts/evidence/gelato-catalog-verify.mjs` (füllt die
-  6 productUids). `PRODUCT_UIDS` bleibt bis dahin LEER — nichts wird geraten.
+- **RL-GELATO** — WEITGEHEND GESCHLOSSEN 2026-07-13 (zweiter Operator-Key,
+  beide APIs 200; alter Key war ungültig, 401 überall):
+  1. Alle 6 productUids (A3/A2/A1 × Eiche natur/Schwarz matt) über die
+     GEFILTERTE products:search des Katalogs `framed-posters` live verifiziert
+     (attributeFilters FrameSize×FrameColor×Orientation=ver) und in
+     `server/gelatoProducts.js` eingetragen. Artefakt:
+     `2026-07-13-gelato-uid-mapping.json`. Fund dabei behoben: die alte
+     Substring-Suche traf den FALSCHEN Katalog (fine-art) und verwechselte
+     Zoll mit Zentimetern („30x40-inch" ≠ A3) — Script auf Attribut-Filter
+     umgestellt, verifiziert jetzt die hinterlegte Tabelle gegen live.
+  2. Gewählte Konstanten (Operator-review-bar): Papier
+     `250-gsm-uncoated-offwhite-archival` (= Shop-Zusage „Naturpapier,
+     säurefrei & lichtecht"), Holzrahmen 12×22 mm, Plexiglas, Hochformat.
+     „Eiche natur"→natural-wood, „Schwarz matt"→black.
+  3. Fulfillment-Test fortgeschrieben: GENAU EIN Draft mit der gemappten UID,
+     idempotent bei Webhook-Replay (72/72 node grün).
+  OFFEN bleibt der [HUMAN-VERIFIED]-Schlussstein: ein echter Test-Draft im
+  Gelato-Dashboard (braucht Stripe-TEST-Kette ODER Session-Fixture direkt
+  gegen fulfillOrder mit realem Gelato-Client + DB) — vom Operator zu
+  sichten/abzuzeichnen, GELATO_ORDER_TYPE=draft schützt vor Auto-Produktion.
 - **RL-STRIPE-CHAIN** — Volle Zahlungskette (Checkout→Webhook) unbewiesen bis
   Stripe-TEST-Keys lokal vorliegen; Fallback für H1/H2: Session-Fixture direkt
   gegen `fulfillOrder` (Stripe-Schritt dann `[INTEGRATION-FAKE]`, Rest real).
