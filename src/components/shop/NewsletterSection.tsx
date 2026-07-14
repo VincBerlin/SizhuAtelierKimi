@@ -4,7 +4,9 @@ import { useT, LANGS } from '../../i18n/I18nProvider'
 import { subscribeNewsletter } from '../../lib/newsletter'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
 
-type Status = 'idle' | 'submitting' | 'success' | 'error'
+// 'success-confirm' = Double-Opt-In-Mail wurde WIRKLICH versendet (Server
+// meldet confirmSent) — nur dann zeigt die UI „prüfe dein Postfach".
+type Status = 'idle' | 'submitting' | 'success' | 'success-confirm' | 'error'
 
 /**
  * Shop newsletter (M15 / REQ-023): a shop-oriented opt-in — new poster releases,
@@ -27,7 +29,7 @@ export default function NewsletterSection() {
     if (!consent) { setErrKey('newsletter.consentErr'); setStatus('error'); return }
     setStatus('submitting')
     const r = await subscribeNewsletter(email.trim(), consent, prefLang.toLowerCase(), 'newsletter_home_cosmic_pulse')
-    if (r.ok) { setStatus('success'); return }
+    if (r.ok) { setStatus(r.confirmSent ? 'success-confirm' : 'success'); return }
     setErrKey(r.error === 'consent_required' ? 'newsletter.consentErr' : 'newsletter.error')
     setStatus('error')
   }
@@ -47,8 +49,8 @@ export default function NewsletterSection() {
           {/* right — subscribe form (vertically centred to the text via lg:items-center,
               left-aligned and width-constrained so it stays on the left of its column) */}
           <div style={{ maxWidth: 420, width: '100%' }}>
-            {status === 'success' ? (
-              <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: '#C9A28E', margin: 0, lineHeight: 1.6 }}>✦ {t('newsletter.success')}</p>
+            {status === 'success' || status === 'success-confirm' ? (
+              <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: '#C9A28E', margin: 0, lineHeight: 1.6 }}>✦ {t(status === 'success-confirm' ? 'newsletter.successConfirm' : 'newsletter.success')}</p>
             ) : (
               <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div className="flex flex-col sm:flex-row" style={{ gap: 10, alignItems: 'stretch' }}>

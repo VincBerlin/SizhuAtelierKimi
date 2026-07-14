@@ -170,7 +170,8 @@ export default function CartDrawer() {
             {incomplete && <div style={{ fontSize: 12, color: C.accent, marginBottom: 12 }}>{t('cart.incompleteWarn')}</div>}
             <button onClick={goCheckout} disabled={!canCheckout} className="transition-[filter] hover:brightness-110" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: canCheckout ? 'pointer' : 'not-allowed', opacity: canCheckout ? 1 : 0.5, padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: '0 12px 24px -12px rgba(192,73,46,0.6)' }}>{t('cart.checkout')}</button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 14, fontSize: 11, color: C.textMuted3 }}>
-              <span style={{ fontWeight: 600, color: C.textMuted }}>PayPal</span><span style={{ fontWeight: 600, color: C.textMuted }}> Pay</span><span style={{ fontWeight: 600, color: C.textMuted }}>G Pay</span><span>{t('cart.ssl')}</span>
+              {/* Operator-Batch #8: nur real angebotene Wallets (kein PayPal). */}
+              <span style={{ fontWeight: 600, color: C.textMuted }}> Pay</span><span style={{ fontWeight: 600, color: C.textMuted }}>G Pay</span><span style={{ fontWeight: 600, color: C.textMuted }}>amazon pay</span><span>{t('cart.ssl')}</span>
             </div>
           </div>
         )}
