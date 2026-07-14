@@ -53,7 +53,10 @@ export default function Personalize() {
   const [typeId, setTypeId] = useState<ProductTypeId>(initialType)
   const [a, setA] = useState<Person>(emptyPerson)
   const [b, setB] = useState<Person>(emptyPerson)
-  const [unknownTime, setUnknownTime] = useState(false)
+  // Operator 2026-07-14: „Geburtszeit unbekannt" ist JE PERSON einstellbar —
+  // beim Paar-Poster kennt vielleicht nur einer seine Zeit nicht.
+  const [unknownTimeA, setUnknownTimeA] = useState(false)
+  const [unknownTimeB, setUnknownTimeB] = useState(false)
   const [posterLang, setPosterLang] = useState<Lang>(lang)
   const [frameHex, setFrameHex] = useState(frames[0].hex)
   const [bgHex, setBgHex] = useState(backgrounds[0].hex)
@@ -101,9 +104,9 @@ export default function Personalize() {
   // erst, wenn Datum + Zeit (oder Zeit-unbekannt-Fallback) + AUFGELÖSTER Ort
   // vorliegen. Bis dahin zeigt das Poster ehrliche Striche — nie einen
   // Platzhalter, der wie eine echte Berechnung aussieht.
-  const btA = birthTimeMeta(a.time, unknownTime)
-  const baziInput = a.date && (unknownTime || a.time) && resolvedPlace
-    ? { date: a.date, time: btA.time, place: resolvedPlace, birthTimeUnknown: unknownTime }
+  const btA = birthTimeMeta(a.time, unknownTimeA)
+  const baziInput = a.date && (unknownTimeA || a.time) && resolvedPlace
+    ? { date: a.date, time: btA.time, place: resolvedPlace, birthTimeUnknown: unknownTimeA }
     : null
   // Birth-Chart-Poster (Operator 2026-07-14) = WESTLICHES Geburtshoroskop
   // über /api/western (FuFirE Swiss Ephemeris) — eigener Datenpfad + Design.
@@ -111,9 +114,9 @@ export default function Personalize() {
   const { chart, status: chartStatus } = useBaziChart(def.couple || isWestern ? null : baziInput)
   const { western, status: westernStatus } = useWesternChart(isWestern ? baziInput : null)
   // Paar-Poster: beide Personen vollständig → EINE /api/match-Berechnung.
-  const btB = birthTimeMeta(b.time, unknownTime)
-  const baziInputB = def.couple && b.date && (unknownTime || b.time) && placeB.place
-    ? { date: b.date, time: btB.time, place: placeB.place, birthTimeUnknown: unknownTime }
+  const btB = birthTimeMeta(b.time, unknownTimeB)
+  const baziInputB = def.couple && b.date && (unknownTimeB || b.time) && placeB.place
+    ? { date: b.date, time: btB.time, place: placeB.place, birthTimeUnknown: unknownTimeB }
     : null
   const { pair, status: pairStatus } = usePairChart(def.couple ? baziInput : null, baziInputB)
   const activeStatus = def.couple ? pairStatus : isWestern ? westernStatus : chartStatus
@@ -178,10 +181,10 @@ export default function Personalize() {
   const previewData = (def.couple ? livePairPoster : isWestern ? liveWesternPoster : livePoster) as PosterData
 
   /* ---- validation (REQ-009/010/016) ---- */
-  const personValid = (p: Person) => p.name.trim() !== '' && p.date !== '' && p.place.trim() !== '' && (unknownTime || p.time !== '')
-  const errA = { name: a.name.trim() === '', date: a.date === '', place: a.place.trim() === '', time: !unknownTime && a.time === '' }
-  const errB = { name: b.name.trim() === '', date: b.date === '', place: b.place.trim() === '', time: !unknownTime && b.time === '' }
-  const valid = personValid(a) && (!def.couple || personValid(b))
+  const personValid = (p: Person, unknown: boolean) => p.name.trim() !== '' && p.date !== '' && p.place.trim() !== '' && (unknown || p.time !== '')
+  const errA = { name: a.name.trim() === '', date: a.date === '', place: a.place.trim() === '', time: !unknownTimeA && a.time === '' }
+  const errB = { name: b.name.trim() === '', date: b.date === '', place: b.place.trim() === '', time: !unknownTimeB && b.time === '' }
+  const valid = personValid(a, unknownTimeA) && (!def.couple || personValid(b, unknownTimeB))
 
   const posterLangLabel = posterLang
   const designLabel = def.poster ? `${t(`options.backgrounds.${bgHex}`)} · ${t(`options.frames.${frameHex}`)}` : '—'
@@ -343,29 +346,36 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
-            <PersonFields person={a} setPerson={setA} unknownTime={unknownTime} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={placeA.resolve} />
+            <PersonFields person={a} setPerson={setA} unknownTime={unknownTimeA} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={placeA.resolve} />
             {/* Orts-Auflösungs-Status (Exaktheits-Transparenz): der Käufer sieht
                 IMMER, für welchen aufgelösten Ort gerechnet wird — nichts wird
                 still angenommen. Mehrdeutig → Kandidaten; nicht gefunden →
                 Nachbarort-Hinweis (astronomisch identisch). */}
             <PlaceResolutionStatus status={placeA.status} place={placeA.place} candidates={placeA.candidates} onPick={pickCandidateA} t={t} testPrefix="place" />
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 14, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
+              <input data-testid="unknown-time-a" type="checkbox" checked={unknownTimeA} onChange={(e) => setUnknownTimeA(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
+              <span>{t('personalize.unknownTime')}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.unknownTimeHint')}</span></span>
+            </label>
+            {unknownTimeA && (
+              <div data-testid="noon-fallback-field-hint" role="note" style={{ marginTop: 12, background: C.accentSoftBg, color: C.accent, padding: '10px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+                {t('noonFallback.fieldHint')}
+              </div>
+            )}
             {def.couple && (
               <>
                 <div style={{ ...headingStyle, marginTop: 22 }}>{t('personalize.birthHeadingB')}</div>
-                <PersonFields person={b} setPerson={setB} unknownTime={unknownTime} err={errB} showErrors={showErrors} t={t} onCommitPlace={placeB.resolve} />
+                <PersonFields person={b} setPerson={setB} unknownTime={unknownTimeB} err={errB} showErrors={showErrors} t={t} onCommitPlace={placeB.resolve} />
                 <PlaceResolutionStatus status={placeB.status} place={placeB.place} candidates={placeB.candidates} onPick={pickCandidateB} t={t} testPrefix="place-b" />
-              </>
-            )}
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
-              <input type="checkbox" checked={unknownTime} onChange={(e) => setUnknownTime(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 14, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
+              <input data-testid="unknown-time-b" type="checkbox" checked={unknownTimeB} onChange={(e) => setUnknownTimeB(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
               <span>{t('personalize.unknownTime')}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.unknownTimeHint')}</span></span>
             </label>
-            {/* REQ-018 AK-2 — disclosed noon fallback at the birth-time field (no
-                silent default). Shown only when the buyer marks the time unknown. */}
-            {unknownTime && (
-              <div data-testid="noon-fallback-field-hint" role="note" style={{ marginTop: 12, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '10px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+            {unknownTimeB && (
+              <div data-testid="noon-fallback-field-hint-b" role="note" style={{ marginTop: 12, background: C.accentSoftBg, color: C.accent, padding: '10px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
                 {t('noonFallback.fieldHint')}
               </div>
+            )}
+              </>
             )}
           </div>
 
@@ -430,14 +440,14 @@ export default function Personalize() {
                   // dayMaster-Anzeige nutzt die GLYPHE aus pillars[2].stem —
                   // die API liefert relation.dayMasterA/B als Pinyin (Fund
                   // 2026-07-14: „Xin"/„Bing"), Poster + Review zeigen Glyphen.
-                  { key: 'a', person: a, bt: btA, place: resolvedPlace, chart: pair.a },
-                  { key: 'b', person: b, bt: btB, place: placeB.place, chart: pair.b },
-                ].map(({ key, person, bt, place, chart: pc }) => (
+                  { key: 'a', person: a, bt: btA, unknown: unknownTimeA, place: resolvedPlace, chart: pair.a },
+                  { key: 'b', person: b, bt: btB, unknown: unknownTimeB, place: placeB.place, chart: pair.b },
+                ].map(({ key, person, bt, unknown, place, chart: pc }) => (
                   <div key={key} data-testid={`partner-review-${key}`} style={{ border: `1px solid ${C.border}`, background: C.surfaceWarm, padding: 14 }}>
                     <div style={{ fontFamily: FONT_SERIF, fontSize: 17, color: C.ink, marginBottom: 8 }}>{person.name || '—'}</div>
                     <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 5, columnGap: 12, fontSize: 12.5 }}>
                       <SumRow label={t('configurator.date')} value={person.date || '—'} />
-                      <SumRow label={t('configurator.time')} value={unknownTime ? t('personalize.timeUnknown') : bt.timeDisplay || '—'} />
+                      <SumRow label={t('configurator.time')} value={unknown ? t('personalize.timeUnknown') : bt.timeDisplay || '—'} />
                       <SumRow label={t('configurator.place')} value={place ? `${place.resolvedName}, ${place.countryCode}` : person.place || '—'} />
                       <SumRow label={t('personalize.review.dayMaster')} value={`${pc.pillars[2]?.stem ?? '—'} · ${localizeElement(stemElement(pc.pillars[2]?.stem ?? ''), lang)}`} strong />
                       <SumRow label={t('personalize.review.animal')} value={localizeAnimal(pc.animal, lang)} />
@@ -517,7 +527,8 @@ export default function Personalize() {
                     const sel = d.id === designId
                     return (
                       <button key={d.id} data-testid="design-swatch" data-design={d.id} onClick={() => setDesignId(d.id)} style={{ position: 'relative', width: 84, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: 6, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}>
-                        <PosterSvg data={previewData} designId={d.id} />
+                        {/* Swatch-Mini-Vorschau mit EIGENER testid — die Hauptvorschau (poster-svg-preview) bleibt eindeutig. */}
+                        <PosterSvg data={previewData} designId={d.id} testId={`design-swatch-preview-${d.id}`} />
                         <div style={{ marginTop: 4 }}>{d.name}</div>
                         {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
                       </button>
@@ -581,9 +592,9 @@ export default function Personalize() {
               <SumRow label={t('personalize.sumType')} value={t(`personalize.types.${typeId}.name`)} />
               <SumRow label={t('configurator.name')} value={a.name || '—'} />
               {def.couple && <SumRow label={t('personalize.partnerName')} value={b.name || '—'} />}
-              {def.couple && <SumRow label={t('personalize.partnerData')} value={`${b.date || '—'} · ${unknownTime ? t('personalize.timeUnknown') : b.time || '—'} · ${b.place || '—'}`} />}
+              {def.couple && <SumRow label={t('personalize.partnerData')} value={`${b.date || '—'} · ${unknownTimeB ? t('personalize.timeUnknown') : b.time || '—'} · ${b.place || '—'}`} />}
               <SumRow label={t('configurator.date')} value={a.date || '—'} />
-              <SumRow label={t('configurator.time')} value={unknownTime ? t('personalize.timeUnknown') : a.time || '—'} />
+              <SumRow label={t('configurator.time')} value={unknownTimeA ? t('personalize.timeUnknown') : a.time || '—'} />
               <SumRow label={t('configurator.place')} value={a.place || '—'} />
               <SumRow label={t('personalize.sumLang')} value={posterLangLabel} />
               {def.poster && <SumRow label={t('personalize.sumDesign')} value={designLabel} />}
@@ -591,7 +602,7 @@ export default function Personalize() {
               {COMMERCE_ENABLED && <SumRow label={t('personalize.sumPrice')} value={money(price)} strong />}
             </dl>
             {/* REQ-018 AK-3 — disclosed noon fallback in the personalization summary. */}
-            {unknownTime && (
+            {(unknownTimeA || (def.couple && unknownTimeB)) && (
               <div data-testid="noon-fallback-summary-notice" role="note" style={{ marginTop: 12, color: C.accent, fontSize: 12.5, lineHeight: 1.5 }}>
                 {t('noonFallback.summaryNotice')}
               </div>

@@ -184,6 +184,27 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #6 2026-07-14 (Inputs eckig · getrennte Geburtszeit-Toggles
+  · Scrollbalken weg · Template-Beweis):**
+  1. *Eingabefelder eckig:* globale CSS-Regel erweitert (input/select/textarea
+     radius 0 !important — konsistent mit der Button-Regel).
+  2. *„Geburtszeit unbekannt" JE PERSON:* der geteilte Toggle ist in
+     unknownTimeA/B aufgetrennt (eigene Checkbox unter jedem Personen-Block,
+     testids unknown-time-a/b; eigener Noon-Hint je Person). Gate, Validierung,
+     Summary, Partner-Review und Metadaten (birthTimeUnknown/B) laufen je
+     Person; Druckweg war bereits getrennt. Tests von Checkbox-Index auf
+     testids gehärtet (passthrough, noon-fallback-render).
+  3. *Scrollbalken der Poster-Vorschau entfernt:* .personalize-preview ohne
+     max-height/overflow — das SVG selbst bleibt höhengedeckelt, der Container
+     wächst mit (Platz unter dem Poster für spätere Operator-Mockups).
+     Mobile-config-Test als Gegen-Assertion fortgeschrieben (kein
+     overflow:auto mehr erlaubt).
+  4. *Design-Template-Beweis:* zweites Einzel-Design `ink-minimal` (Datei +
+     EINE Registry-Zeile) — erschien automatisch im Wähler, läuft durch den
+     Design-TÜV, rendert Vorschau+Druck aus derselben Funktion. FUND dabei:
+     die Swatch-Mini-Vorschauen trugen dieselbe testid wie die Hauptvorschau
+     (mit nur einem Single-Design unsichtbar) — PosterSvg hat jetzt eine
+     testId-Prop, Swatches nutzen design-swatch-preview-<id>.
 - **Operator-Batch #5 2026-07-14 (Western Zodiac + Daymaster-Rahmen + Tier +
   ausführliche Erklärungen):**
   1. *API-Discovery:* FuFirE bietet `POST /v1/calculate/western` (OpenAPI-Spec

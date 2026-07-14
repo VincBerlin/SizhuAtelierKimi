@@ -53,7 +53,7 @@ describe('REQ-018 / AT-018-2 — noon-fallback disclosure renders at the birth-t
       expect(screen.queryByTestId('noon-fallback-field-hint')).toBeNull()
 
       // First checkbox on the page is the "I don't know my birth time" toggle.
-      const checkbox = screen.getAllByRole('checkbox')[0]
+      const checkbox = screen.getByTestId('unknown-time-a')
       fireEvent.click(checkbox)
 
       const hint = screen.getByTestId('noon-fallback-field-hint')
@@ -73,7 +73,7 @@ describe('REQ-018 / AT-018-3 — noon-fallback disclosure renders in the summary
       localStorage.setItem('sizhu_lang', lang)
       render(<Personalize />, { wrapper: Providers })
 
-      fireEvent.click(screen.getAllByRole('checkbox')[0])
+      fireEvent.click(screen.getByTestId('unknown-time-a'))
 
       const notice = screen.getByTestId('noon-fallback-summary-notice')
       expect(notice).toBeInTheDocument()

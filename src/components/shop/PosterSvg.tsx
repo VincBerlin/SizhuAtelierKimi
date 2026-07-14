@@ -12,11 +12,11 @@ import { getDesign } from '@/designs/registry.mjs'
  * (tests/unit/design-registry-tuev.test.ts) erzwingt das mit einem
  * Injektions-Fixture für jedes registrierte Design.
  */
-export default function PosterSvg({ data, designId }: { data: PosterData; designId: string }) {
+export default function PosterSvg({ data, designId, testId = 'poster-svg-preview' }: { data: PosterData; designId: string; testId?: string }) {
   const svg = useMemo(() => getDesign(designId).render(data, { widthMm: 420, heightMm: 594 }), [data, designId])
   return (
     <div
-      data-testid="poster-svg-preview"
+      data-testid={testId}
       data-design-id={designId}
       style={{ width: '100%', lineHeight: 0 }}
       dangerouslySetInnerHTML={{ __html: svg }}

@@ -337,9 +337,11 @@ describe('REQ-004 / AT-004-1 (couple) — person B noon-fallback provenance reac
     await screen.findByTestId('place-resolved-note')
     await screen.findByTestId('place-b-resolved-note')
 
-    // Mark the (shared) birth-time-unknown toggle → both charts take the disclosed
-    // noon fallback. The first checkbox is the unknown-time toggle.
-    fireEvent.click(screen.getAllByRole('checkbox')[0])
+    // Operator 2026-07-14: „Geburtszeit unbekannt" ist JE PERSON einstellbar —
+    // beide Toggles setzen, damit beide Charts den offengelegten Noon-Fallback
+    // nehmen (stabile testids statt Checkbox-Index).
+    fireEvent.click(screen.getByTestId('unknown-time-a'))
+    fireEvent.click(screen.getByTestId('unknown-time-b'))
 
     // Exaktes Paar-Chart abwarten (Debounce + /api/match-Mock) — erst dann
     // lässt das Ehrlichkeits-Gate den Kauf zu.
