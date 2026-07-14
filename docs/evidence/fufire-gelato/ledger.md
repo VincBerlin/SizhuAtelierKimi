@@ -84,8 +84,12 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   (zeigt aktive Zahlarten: Apple Pay/Klarna/Link/Amazon Pay-Express +
   Card/Klarna/MB WAY/Bancontact), `stripe-chain-card-filled.png`,
   `stripe-chain-success.png`. Stripe-Setup per API: Payment-Method-Config
-  `pmc_1Tsu3g0y…` (card/apple_pay/google_pay/link/klarna on, sepa_debit
-  bewusst OFF — verzögerte Zahlarten passen nicht zum completed-only-Webhook),
+  `pmc_1Tsu3g0y…` (card/apple_pay/google_pay/link on, sepa_debit
+  bewusst OFF — verzögerte Zahlarten passen nicht zum completed-only-Webhook;
+  klarna zunächst on, dann per OPERATOR-Entscheidung 2026-07-14 „klarna
+  möchten wir nicht anbieten" auf off — Beweis:
+  `stripe-checkout-no-klarna.png`, frische Hosted-Checkout-Session ohne
+  Klarna-Treffer im Seitentext),
   Webhook-Endpoint `we_1Tt3BX0y…` auf `/api/webhook`. NEBENFUND aus dem
   Success-Screenshot: der Footer-Claim trug noch „climate-neutral shipping"
   (Operator-Anweisung Batch #2: raus) — in allen 4 Sprachen auf
