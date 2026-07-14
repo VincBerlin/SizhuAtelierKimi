@@ -205,6 +205,16 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
      die Swatch-Mini-Vorschauen trugen dieselbe testid wie die Hauptvorschau
      (mit nur einem Single-Design unsichtbar) — PosterSvg hat jetzt eine
      testId-Prop, Swatches nutzen design-swatch-preview-<id>.
+  5. *Prod-Verifikation `[REAL-BROWSER]` + FOLGE-FUND:* personalize-exact
+     (3 Tests, live FuFirE) gegen die Prod-URL grün; Screenshot-Skript belegt
+     computed border-radius 0px auf Inputs, overflowY visible auf der
+     Vorschau, beide Toggles + ink-minimal-Swatch sichtbar
+     (docs/evidence/screenshots/prod-b6-*.png). Der Prod-Screenshot deckte
+     eine Regression auf: durch die testid-Trennung (Fund 4) verloren die
+     Swatch-SVGs die Zähm-Regel `[data-testid='poster-svg-preview'] svg` und
+     renderten in Naturgröße über den 84px-Knopf hinaus — eigene Regel
+     `[data-testid^='design-swatch-preview-'] svg { width:100%; height:auto }`
+     + Regressionstest im Picker-Test nachgeschoben und erneut deployt.
 - **Operator-Batch #5 2026-07-14 (Western Zodiac + Daymaster-Rahmen + Tier +
   ausführliche Erklärungen):**
   1. *API-Discovery:* FuFirE bietet `POST /v1/calculate/western` (OpenAPI-Spec

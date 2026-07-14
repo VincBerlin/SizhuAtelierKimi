@@ -44,4 +44,18 @@ describe('Personalize design picker', () => {
       expect(swatches).toHaveLength(0) // ein Design → kein Wähler nötig
     }
   })
+
+  // Operator-Batch #6 (Prod-Screenshot-Fund): die Swatch-Mini-Vorschauen
+  // tragen seit der testid-Trennung NICHT mehr die poster-svg-preview-Regel —
+  // ohne eigene Zähmung rendert die mm-SVG in Naturgröße über den 84px-Knopf
+  // hinaus. Die geshippte CSS-Regel muss die Swatch-SVGs deckeln.
+  it('shipped CSS tames the swatch mini-preview SVGs (natural-size regression)', async () => {
+    const { readFileSync } = await import('node:fs')
+    const { join } = await import('node:path')
+    const css = readFileSync(join(process.cwd(), 'src/index.css'), 'utf8')
+    const rule = css.match(/\[data-testid\^='design-swatch-preview-'\]\s*svg\s*\{[^}]*\}/)?.[0] ?? ''
+    expect(rule, 'swatch-preview svg rule exists in shipped index.css').not.toBe('')
+    expect(rule).toMatch(/width:\s*100%/)
+    expect(rule).toMatch(/height:\s*auto/)
+  })
 })
