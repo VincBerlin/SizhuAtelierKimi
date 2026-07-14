@@ -261,8 +261,9 @@ export default function Navbar() {
             </Link>
             <button data-testid="header-cart" onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
               <ShoppingBag size={20} strokeWidth={1.5} />
+              {/* Operator-Batch #8: nackte Zahl in Akzentfarbe — kein Kasten/Pill. */}
               {cartCount > 0 && (
-                <span data-testid="cart-badge" className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
+                <span data-testid="cart-badge" className="absolute -top-1.5 -right-1" style={{ fontSize: 11, fontWeight: 700, color: C.accent, background: 'none', lineHeight: 1 }}>{cartCount}</span>
               )}
             </button>
           </div>

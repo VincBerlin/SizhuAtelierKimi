@@ -209,6 +209,38 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #8 2026-07-14 (Kassen-UX · ehrliche Zahlarten · Badge ·
+  Newsletter-Double-Opt-In):**
+  1. *Bestätigung intelligenter:* Die Personalisierungs-Bestätigung ist jetzt
+     eine eigene Card GANZ OBEN an der Kasse — mit Review-Kasten der
+     abgegebenen Daten je personalisierter Position (Name(n), Datum, Zeit
+     inkl. 12:00-Disclosure via timeDisplay, aufgelöster Ort, Poster-Sprache).
+     Express + Gast-Weg schalten gemeinsam frei; Hinweis „bitte zuerst
+     bestätigen" statt stumm ausgegrauter Buttons.
+  2. *Checkbox NUR bei personalisierten Artikeln:* Warenkörbe ohne
+     Personalisierung checken sofort aus (kein Häkchen, canPlace sofort true).
+     Gate bleibt an der Order-Grenze (REQ-017/042 unverändert erzwungen).
+  3. *Ehrliche Zahlarten mit Logos:* Express-Buttons sind jetzt Apple Pay
+     (Apfel-Logo), Google Pay (Farb-G) und Amazon Pay (Smile) — die
+     PayPal-Attrappe ist ENTFERNT (PayPal wird via Stripe nicht angeboten).
+     FUND des neuen Tests: PayPal stand auch im Footer („We accept") und im
+     CartDrawer — beide bereinigt (Footer: Visa/Mastercard/Amex/Apple/
+     Google/Amazon Pay).
+  4. *Warenkorb-Badge:* nackte Zahl in Akzentfarbe statt Pill/Kasten.
+  5. *Newsletter-Double-Opt-In real:* /api/newsletter sendet jetzt die
+     Bestätigungs-Mail (Resend, env-gated, 4 Sprachen; RETURNING-Token —
+     bestätigte Adressen werden nie erneut gemailt oder degradiert); neue
+     Route GET /api/newsletter/confirm?token= setzt status=confirmed und
+     antwortet mit Marken-HTML. EHRLICHKEITS-FIX dabei: der bisherige
+     UI-Erfolgstext behauptete „check your inbox", obwohl NIE eine Mail
+     versendet wurde — jetzt zwei Texte: „du stehst auf der Liste" (kein
+     Mailer) vs. „prüfe dein Postfach" NUR bei confirmSent=true vom Server.
+     Bestell-Bestätigungsmail (sendEmails/Resend) existierte bereits —
+     scharfgeschaltet wird beides erst durch RESEND_API_KEY (RED-Carry
+     RL-EMAIL: Operator legt Resend-Konto an, verifiziert Absender-Domain,
+     Key in .env+Railway; bis dahin health email:false).
+  Tests: tests/server/newsletter-doi.test.ts (5, mit injizierbarem mailer via
+  createApp) + tests/unit/checkout-confirm-gate.test.tsx (4).
 - **Operator-Batch #6 2026-07-14 (Inputs eckig · getrennte Geburtszeit-Toggles
   · Scrollbalken weg · Template-Beweis):**
   1. *Eingabefelder eckig:* globale CSS-Regel erweitert (input/select/textarea

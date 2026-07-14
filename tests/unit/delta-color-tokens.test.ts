@@ -174,13 +174,17 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
   })
 
   // 2c — HSL sweep over the CHROME inline-styles; only documented exceptions allowed.
-  it('2c: the only saturated orange/gold hex in chrome inline-styles is the documented PayPal brand gold (+ SplitHero BRAND_TERRACOTTA per Operator-Plan §4)', () => {
-    // Documented allow-list (exceptionRegister): PayPal brand gold is brand-required.
-    const ALLOW = new Set(['#FFC439'])
-    // Datei-gebundene Operator-Ausnahme (2026-07-12, Hero/Mega-Menü-Plan §4):
-    // BRAND_TERRACOTTA #A0522D ausschließlich im Split-Hero-CTA.
+  it('2c: the only saturated orange/gold hexes in chrome inline-styles are documented wallet-brand colors (+ SplitHero BRAND_TERRACOTTA per Operator-Plan §4)', () => {
+    // Operator-Batch #8 (2026-07-14): PayPal wird nicht angeboten — die
+    // PayPal-Gold-Ausnahme (#FFC439) ist GESTRICHEN. Neu brand-required:
+    // Amazon-Pay-Gold + Smile-Orange, dateigebunden an die Kasse.
+    const ALLOW = new Set<string>()
+    // Datei-gebundene Operator-Ausnahmen:
+    // - BRAND_TERRACOTTA #A0522D ausschließlich im Split-Hero-CTA (Plan §4).
+    // - Amazon-Pay-Markenfarben ausschließlich im Express-Button der Kasse.
     const FILE_ALLOW: Record<string, Set<string>> = {
       'src/components/home/SplitHero.tsx': new Set(['#A0522D']),
+      'src/pages/Checkout.tsx': new Set(['#FFD814', '#E8C400', '#F90', '#FBBC05']),
     }
     const flagged = new Set<string>()
     for (const f of CHROME_FILES) {

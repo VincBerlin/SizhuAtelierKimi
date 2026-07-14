@@ -18,7 +18,9 @@ const GROUPS = [
 ] as const
 
 const CONTACT_EMAIL = 'hello@sizhuatelier.shop'
-const PAYMENTS = ['PayPal', 'Apple Pay', 'Google Pay'] as const
+// Operator-Batch #8: nur real angebotene Zahlarten bewerben (Stripe-Config:
+// Karten + Wallets — PayPal wird NICHT angeboten).
+const PAYMENTS = ['Visa', 'Mastercard', 'Amex', 'Apple Pay', 'Google Pay', 'Amazon Pay'] as const
 
 const headingStyle = { fontFamily: FONT_SANS, fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8a8072', margin: '0 0 12px' } as const
 

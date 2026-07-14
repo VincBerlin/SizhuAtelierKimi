@@ -13,6 +13,7 @@ import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehu
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
+import { buildConfirmEmail, confirmResultHtml } from './newsletter.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -474,20 +475,54 @@ app.post('/api/newsletter', async (req, res) => {
   const src = typeof source === 'string' ? source.slice(0, 80) : 'newsletter'
   if (!pool) { console.log('[newsletter] (no DB) signup:', e, lang, src); return res.json({ ok: true, persisted: false }) }
   try {
-    // Double-opt-in ready: store pending + a confirm token + the marketing-consent
-    // timestamp + source tag. A confirmation email would be sent here once an ESP
-    // is wired (no real send in this MVP).
+    // Double-opt-in (Operator-Batch #8): store pending + confirm token, then send
+    // the confirmation email via Resend. RETURNING yields the ROW token (an
+    // existing signup keeps its token) and the status, so a re-signup of an
+    // already-confirmed address is never downgraded and never re-mailed.
     const token = randomUUID()
-    await pool.query(
+    const r = await pool.query(
       `INSERT INTO newsletter_signups (email, language, consent, marketing_consent_at, source, status, confirm_token)
        VALUES ($1,$2,$3,$4,$5,'pending',$6)
-       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent, marketing_consent_at = EXCLUDED.marketing_consent_at, source = EXCLUDED.source`,
+       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent, marketing_consent_at = EXCLUDED.marketing_consent_at, source = EXCLUDED.source
+       RETURNING confirm_token, status`,
       [e, lang, true, new Date(), src, token],
     )
-    return res.json({ ok: true, persisted: true })
+    const row = r.rows?.[0] || { confirm_token: token, status: 'pending' }
+    let confirmSent = false
+    if (resend && row.status === 'pending' && row.confirm_token) {
+      try {
+        const mail = buildConfirmEmail({ language: lang, token: row.confirm_token, publicUrl: PUBLIC_URL || `${req.protocol}://${req.get('host')}` })
+        await resend.emails.send({ from: FROM_EMAIL, to: e, subject: mail.subject, text: mail.text })
+        confirmSent = true
+      } catch (err) {
+        console.error('[newsletter] confirm mail failed:', err.message)
+      }
+    }
+    return res.json({ ok: true, persisted: true, confirmSent })
   } catch (err) {
     console.error('[newsletter] persist failed:', err.message)
     return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+// ---- newsletter double-opt-in confirm (link from the email) -----------------
+app.get('/api/newsletter/confirm', async (req, res) => {
+  const token = String(req.query.token || '')
+  if (!pool || !token || token.length > 100) {
+    return res.status(400).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
+  }
+  try {
+    const r = await pool.query(
+      `UPDATE newsletter_signups SET status = 'confirmed' WHERE confirm_token = $1 AND status = 'pending' RETURNING email, language`,
+      [token],
+    )
+    const row = r.rows?.[0]
+    if (!row) return res.status(400).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
+    console.log('[newsletter] confirmed:', row.email)
+    return res.type('html').send(confirmResultHtml({ language: row.language, ok: true }))
+  } catch (err) {
+    console.error('[newsletter] confirm failed:', err.message)
+    return res.status(500).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
   }
 })
 
@@ -948,6 +983,7 @@ export function createApp(overrides = {}) {
   if ('pool' in overrides) pool = overrides.pool
   if ('fufire' in overrides) fufire = overrides.fufire
   if ('gelato' in overrides) gelato = overrides.gelato
+  if ('mailer' in overrides) resend = overrides.mailer
   return app
 }
 
