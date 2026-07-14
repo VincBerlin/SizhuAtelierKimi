@@ -1886,6 +1886,14 @@
     max-height: 64vh;
   }
 }
+/* 1b. Design-Swatch-Mini-Vorschauen (eigene testid seit Operator-Batch #6):
+   dieselbe mm-SVG-Quelle muss in den 84px-Wähler-Knopf passen — ohne diese
+   Regel rendert sie in Naturgröße (Prod-Screenshot-Fund). */
+[data-testid^='design-swatch-preview-'] svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
 /* 2. Eckige Buttons (Operator: „jeder Button eckig, nicht abgerundet").
    Stylesheet-!important schlägt die verstreuten Inline-border-radius. */
