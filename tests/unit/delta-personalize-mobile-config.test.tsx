@@ -32,7 +32,6 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { I18nProvider } from '../../src/i18n/I18nProvider'
 import { ShopStoreProvider } from '../../src/store/ShopStore'
@@ -91,7 +90,10 @@ describe('REQ-012 / AT-012-2 — preview carries a sticky + max-height rule', ()
     const rule = css.match(/\.personalize-preview\s*\{[^}]*\}/)?.[0] ?? ''
     expect(rule, '.personalize-preview rule exists in shipped index.css').not.toBe('')
     expect(rule).toMatch(/position:\s*sticky/i)
-    expect(rule).toMatch(/max-height:/i)
+    // Operator 2026-07-14: KEIN Scrollbalken mehr — der Container darf weder
+    // max-height noch overflow:auto tragen (das SVG selbst ist gedeckelt).
+    expect(rule).not.toMatch(/max-height:/i)
+    expect(rule).not.toMatch(/overflow:\s*auto/i)
   })
 
   it('AT-012-2 (source) — Personalize source declares the sticky + max-h contract', () => {

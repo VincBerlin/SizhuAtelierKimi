@@ -1892,7 +1892,10 @@
 button,
 button span,
 [role='button'],
-a.cta-square {
+a.cta-square,
+input,
+select,
+textarea {
   border-radius: 0 !important;
 }
 
@@ -1908,8 +1911,9 @@ a.cta-square {
   position: sticky;
   top: 112px;
   z-index: 5;
-  max-height: 36vh;
-  overflow: auto;
+  /* Kein max-height/overflow mehr (Operator 2026-07-14): der Scrollbalken
+     irritierte — das SVG selbst ist höhengedeckelt, der Container wächst mit.
+     Unter dem Poster ist Platz für spätere Mockups reserviert. */
   margin-bottom: 18px;
 }
 @media (min-width: 1024px) {
@@ -1921,7 +1925,6 @@ a.cta-square {
   }
   .personalize-preview {
     top: 96px;
-    max-height: 72vh;
     margin-bottom: 0;
   }
 }
