@@ -72,9 +72,30 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   Datei von Gelato gezogen, 3 Previews erzeugt, orderType=draft). OFFEN
   bleibt nur noch die [HUMAN-VERIFIED]-Abzeichnung: Operator sichtet den
   Draft im Gelato-Dashboard (löschen oder bewusst bestätigen).
-- **RL-STRIPE-CHAIN** — Volle Zahlungskette (Checkout→Webhook) unbewiesen bis
-  Stripe-TEST-Keys lokal vorliegen; Fallback für H1/H2: Session-Fixture direkt
-  gegen `fulfillOrder` (Stripe-Schritt dann `[INTEGRATION-FAKE]`, Rest real).
+- **RL-STRIPE-CHAIN — GESCHLOSSEN 2026-07-14 `[REAL-BOUNDARY-LIVE]` +
+  `[REAL-BROWSER]`:** Volle Zahlungskette end-to-end in PROD bewiesen
+  (Test-Modus, sk_test): Live-Personalisierung (exakte Säulen 庚…) →
+  `/api/checkout` (server-repriced €53.90) → Stripe-Hosted-Checkout
+  (Session `cs_test_b1nAmHF8…`) → Testkarte 4242 bezahlt →
+  `checkout.session.completed`-Webhook signaturverifiziert →
+  `fulfillOrder` → Druck-PDF → Gelato-Draft `baf606f4-56aa-4539-8d7f-80e34ea394e7`
+  (orderType=draft) → PDF von Gelatos S3 zurückgeladen: HTTP 200,
+  61 282 Bytes, `%PDF`-Header. Artefakte: `stripe-chain-hosted-checkout.png`
+  (zeigt aktive Zahlarten: Apple Pay/Klarna/Link/Amazon Pay-Express +
+  Card/Klarna/MB WAY/Bancontact), `stripe-chain-card-filled.png`,
+  `stripe-chain-success.png`. Stripe-Setup per API: Payment-Method-Config
+  `pmc_1Tsu3g0y…` (card/apple_pay/google_pay/link/klarna on, sepa_debit
+  bewusst OFF — verzögerte Zahlarten passen nicht zum completed-only-Webhook),
+  Webhook-Endpoint `we_1Tt3BX0y…` auf `/api/webhook`. NEBENFUND aus dem
+  Success-Screenshot: der Footer-Claim trug noch „climate-neutral shipping"
+  (Operator-Anweisung Batch #2: raus) — in allen 4 Sprachen auf
+  „Personalized from your birth data" gekürzt; gleichlautende Klima-Aussagen
+  in FAQ/Quickstart-Texten bestehen weiter und liegen beim Operator zur
+  Entscheidung. NEUER RED-CARRY
+  **RL-STRIPE-LIVE**: Account ist Test-Modus (charges_enabled=false,
+  details_submitted=false) — vor Launch: Stripe-Aktivierung abschließen,
+  sk_live-Keys + Live-Webhook-Endpoint (neues whsec) setzen, eine echte
+  Kleinbetrag-Bestellung verifizieren.
 - **HERO-ASSET** — Finales Hero-Foto ist Operator-Asset (Phase 8 des
   Hero/Mega-Menü-Plans); bis dahin bestes vorhandenes Asset aus `public/images/`.
 
