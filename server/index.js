@@ -140,6 +140,9 @@ if (process.env.RESEND_API_KEY) {
   console.log('[mail] Resend ready')
 }
 const FROM_EMAIL = process.env.ORDER_FROM_EMAIL || 'SizhuAtelier <orders@sizhuatelier.shop>'
+// Operator 2026-07-15: Newsletter-Mails kommen von einer EIGENEN Absenderadresse
+// (newsletter@…), Bestell-/Konto-Mails von orders@… — beide env-überschreibbar.
+const NEWSLETTER_FROM_EMAIL = process.env.NEWSLETTER_FROM_EMAIL || 'SizhuAtelier <newsletter@sizhuatelier.shop>'
 const NOTIFY_EMAIL = process.env.ORDER_NOTIFY_EMAIL || ''
 
 const app = express()
@@ -492,7 +495,7 @@ app.post('/api/newsletter', async (req, res) => {
     if (resend && row.status === 'pending' && row.confirm_token) {
       try {
         const mail = buildConfirmEmail({ language: lang, token: row.confirm_token, publicUrl: PUBLIC_URL || `${req.protocol}://${req.get('host')}` })
-        await resend.emails.send({ from: FROM_EMAIL, to: e, subject: mail.subject, text: mail.text })
+        await resend.emails.send({ from: NEWSLETTER_FROM_EMAIL, to: e, subject: mail.subject, text: mail.text })
         confirmSent = true
       } catch (err) {
         console.error('[newsletter] confirm mail failed:', err.message)
