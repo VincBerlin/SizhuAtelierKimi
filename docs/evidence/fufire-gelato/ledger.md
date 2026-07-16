@@ -209,6 +209,34 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #10 2026-07-16 (Papier-Entscheid · realistische Rahmen ·
+  Kassen-Vereinfachung · Kreise · Badge):**
+  1. *RL-PAPER-CLAIM GESCHLOSSEN (Operator-Entscheid):* „ausschließlich
+     museum-quality matte paper wood framed poster". Sämtliche nicht
+     belegbaren Material-Claims ersetzt (4 Sprachen, i18n + catalog):
+     Hahnemühle/„308gsm Baumwolle", „acid-free/säurefrei & lichtecht",
+     „Archiv-Pigmentdruck", „FSC-Recyclingpapier", „Museumsglas/Echtglas"
+     (Produkt hat PLEXIGLAS lt. verifizierter Gelato-UID), „made in Germany"
+     → „lokal in deiner Region gedruckt" (Gelato-Routing). Neue einheitliche
+     Wahrheit: Museum-quality mattes Papier (200 g/m²), Massivholzrahmen
+     12×22 mm, schützendes Plexiglas.
+  2. *Rahmen-Architektur-FUND + Fix:* Die Druckdatei malte einen 5%-Rahmen-
+     rand AUF das Poster — zusammen mit dem physischen Gelato-Rahmen wäre
+     das doppelt. Jetzt: Druckdaten rahmenfrei (frame = bg in fulfillment,
+     3 Pfade), die Vorschau rendert stattdessen einen REALISTISCHEN
+     CSS-Rahmen (Holzmaserungs-/Mattschwarz-Gradient, Falz, Tiefenschatten —
+     PosterSvg frameName-Prop, Klassen real-frame--oak/--black).
+  3. *Kasse vereinfacht (Operator-Frage beantwortet):* Die 3 Wallet-Buttons
+     führten alle zum selben Stripe-Checkout → entfernt. Genau EIN
+     Order-CTA; Wallets als ehrliche Logo-Trust-Zeile darunter
+     (wallet-trust-row). Test fortgeschrieben.
+  4. *Farb-Swatches sind Kreise* (color-swatch-circle, !important-Ausnahme
+     von der globalen Eckig-Regel) — Rahmenfarben + Hintergrund-Palette.
+  5. *Warenkorb-Zahl:* größer (13.5px) und direkt am Icon.
+  6. *Claude-Anbindung Newsletter:* Projekt-Command
+     `.claude/commands/newsletter-cosmic.md` — jede Claude-Code-Instanz im
+     Repo kann per /newsletter-cosmic die Ausgabe erzeugen (kein MCP nötig;
+     Regeln + Freigabe-Schleife im Command festgeschrieben).
 - **Operator-Batch #9 2026-07-15/16 (Resend live · Newsletter-Werkstatt ·
   Premium-Analyse 195 € · neue Poster-Formate):**
   1. *E-Mail scharf:* RESEND_API_KEY (reiner Sende-Key) in .env+Railway —

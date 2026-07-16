@@ -70,7 +70,9 @@ async function posterDataFrom(p, fufire) {
     const timeKnown = p.birthTimeUnknown !== 'true'
     return {
       data: {
-        frame: p.frameHex || '#1B1B1B',
+        // Operator 2026-07-16: der Rahmen kommt PHYSISCH von Gelato — die
+        // Druckdatei malt KEINEN Rahmenrand mehr auf (frame = bg-Fläche).
+        frame: p.bgHex || '#E9DFCB',
         bg: p.bgHex || '#E9DFCB',
         name: p.name || '',
         subtitle: posterSubtitle('western', p.language),
@@ -90,7 +92,9 @@ async function posterDataFrom(p, fufire) {
     const pair = await fufire.matchHehun(birthInput(p), birthInput(p, 'B'))
     return {
       data: {
-        frame: p.frameHex || '#1B1B1B',
+        // Operator 2026-07-16: der Rahmen kommt PHYSISCH von Gelato — die
+        // Druckdatei malt KEINEN Rahmenrand mehr auf (frame = bg-Fläche).
+        frame: p.bgHex || '#E9DFCB',
         bg: p.bgHex || '#E9DFCB',
         nameA: p.name || '',
         nameB: p.nameB || '',
@@ -109,7 +113,8 @@ async function posterDataFrom(p, fufire) {
   const chart = await fufire.calculateBazi(birthInput(p))
   return {
     data: {
-      frame: p.frameHex || '#1B1B1B',
+      // Operator 2026-07-16: kein aufgemalter Rahmen im Druck (s. oben).
+      frame: p.bgHex || '#E9DFCB',
       bg: p.bgHex || '#E9DFCB',
       name: p.name || '',
       element: localizeElement(chart.element, p.language),
