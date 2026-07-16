@@ -1900,10 +1900,16 @@
    stattdessen einen Holz-/Mattschwarz-Rahmen mit Falz und Tiefe UM das SVG.
    Optik orientiert an Gelatos Holzrahmen 12×22 mm mit Plexiglas. */
 .real-frame {
-  padding: 4.2%;
+  /* Rahmen umschließt EXAKT das Poster (fit-content) — nie Container-Breite. */
+  width: fit-content;
+  margin: 0 auto;
+  padding: 14px;
   box-shadow:
     0 22px 44px -18px rgba(42, 38, 32, 0.45),
     0 6px 14px -6px rgba(42, 38, 32, 0.3);
+}
+.real-frame > div {
+  width: auto;
 }
 .real-frame > div {
   /* Falz + Glasschatten zwischen Rahmenleiste und Poster */
