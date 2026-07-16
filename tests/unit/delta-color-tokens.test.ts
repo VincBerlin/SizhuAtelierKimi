@@ -212,7 +212,7 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
     // Operator-Batch #10: + die Holzmaserungs-Töne des realistischen
     // Eiche-natur-Rahmens (.real-frame--oak) — Repräsentation des echten
     // Gelato-Holzrahmens, gleiche Ausnahme-Klasse wie das Poster-Artwork.
-    const ARTWORK_GOLD = new Set(['#8A6830', '#C4A265', '#C8A24F', '#C39A6B', '#B3854F', '#C89B6B', '#A97A48', '#BF9563'])
+    const ARTWORK_GOLD = new Set(['#8A6830', '#C4A265', '#C8A24F', '#C09468', '#B78A58', '#C49A6C', '#B0824F', '#BD9161'])
     const flagged = new Set<string>()
     for (const hex of hexesIn(INDEX_CSS)) {
       if (isSaturatedOrangeGold(hex) && !ARTWORK_GOLD.has(hex)) flagged.add(hex)
