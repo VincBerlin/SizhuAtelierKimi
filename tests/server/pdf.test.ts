@@ -36,8 +36,10 @@ describe('renderPosterPdf', () => {
     expect(buf.length).toBeGreaterThan(50_000)
   })
 
-  it('produces every shop size (A3/A2/A1) with matching dimensions', async () => {
-    for (const sizeId of ['A3', 'A2', 'A1'] as const) {
+  it('produces every shop size (A-Serie + Operator-cm-Formate) with matching dimensions', async () => {
+    // Operator 2026-07-15: 30x40/50x70/70x100 sind die neuen Personalize-Formate;
+    // die A-Serie bleibt reprintfähig für Alt-Bestellungen.
+    for (const sizeId of ['A3', 'A2', 'A1', '30x40', '50x70', '70x100'] as const) {
       const buf = await renderPosterPdf({ designId: 'klassik', data: DATA, sizeId })
       const w = (PRINT_SPECS[sizeId].widthMm + 2 * BLEED_MM) * MM_TO_PT
       const mediaBox = buf.toString('latin1').match(/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)/)

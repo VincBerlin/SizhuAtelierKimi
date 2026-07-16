@@ -209,6 +209,40 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #9 2026-07-15/16 (Resend live · Newsletter-Werkstatt ·
+  Premium-Analyse 195 € · neue Poster-Formate):**
+  1. *E-Mail scharf:* RESEND_API_KEY (reiner Sende-Key) in .env+Railway —
+     Health `email:true` `[REAL-BOUNDARY-LIVE]`. Absender getrennt:
+     orders@ (Bestell-/Konto-Mails) vs. newsletter@ (NEWSLETTER_FROM_EMAIL).
+  2. *Newsletter-Werkstatt (vorbereitet, NICHT aktiviert):* EIN Marken-
+     Template (scripts/newsletter/template.mjs, Blöcke: heading/text/poster/
+     facts/cta) — jede Ausgabe unterscheidet sich nur im Inhalt.
+     generate-cosmic.mjs zieht ECHTE Planetenstände aus /v1/transit/now
+     (eigene Engine) und erzeugte 4 Live-Entwürfe
+     (docs/newsletter-drafts/2026-07-16-cosmic-*.html) mit sichtbarer
+     [ENTWURF]-Markierung; send-test.mjs sendet an genau EINE
+     Operator-Adresse. Broadcast/Audience-Sync + Zeitplan: eigener Batch
+     nach Operator-Startfreigabe (README dokumentiert die Regeln).
+  3. *Premium-Analyse:* digital 39 → 195 € (standalone) auf BEIDEN Seiten
+     (productTypes.ts/catalog.ts ↔ pricing.js, Parity-Tests); Add-on zum
+     personalisierten Poster = −25 % → 146,25 € (PDF_ADDON), Label mit
+     Streichpreis + Rabatt-Badge in 4 Sprachen. Umfang lt. Operator zunächst
+     Dayun + Wuxing (Western/Fusion getrennt); Endpunkte live bestätigt
+     (/v1/calculate/bazi/dayun · /v1/calculate/wuxing). PDF-Generator +
+     Premium-Darstellung: nächster Batch (RL-PREMIUM-PDF offen).
+  4. *Neue Formate personalisierter Poster (Operator: 30×40 / 50×70 /
+     70×100 vertikal):* personalizedSizes in bazi.ts (explizite
+     protected-surface-Anweisung), Personalize-Wähler + Default 50×70;
+     Katalog/Legacy behalten die A-Serie (beide Preisachsen server-gültig,
+     alte Warenkörbe/Bestellungen bleiben reprintfähig). printSpecs
+     300×400/500×700/700×1000 mm; Gelato: alle 12 Kombinationen (6 alt + 6
+     neu) LIVE-VERIFIZIERT via attributeFilters
+     (Artefakt 2026-07-16-gelato-uid-mapping.json). PAPIER-FUND → **neuer
+     RED-Carry RL-PAPER-CLAIM:** das archival-Papier der A-Serie existiert
+     für cm-Formate NICHT; gewählt `200-gsm-uncoated` (bestes Naturpapier-
+     Äquivalent). Shop-Copy behauptet stellenweise „Hahnemühle" /
+     „acid-free & lightfast" / „Museum-grade archival" — für die neuen
+     Formate nicht belegbar, Operator entscheidet Text vs. Papier-Upgrade.
 - **Operator-Batch #8 2026-07-14 (Kassen-UX · ehrliche Zahlarten · Badge ·
   Newsletter-Double-Opt-In):**
   1. *Bestätigung intelligenter:* Die Personalisierungs-Bestätigung ist jetzt
