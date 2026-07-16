@@ -30,7 +30,7 @@ import {
 // server/pricing.js turns the parity test RED (no silent mischarge). NEVER
 // hardcode the expected cents here — derive them from these imports.
 import { products, bundles, digitalBundle, addons, digitalProduct } from '../../src/lib/catalog'
-import { sizes } from '../../src/lib/bazi'
+import { sizes, personalizedSizes } from '../../src/lib/bazi'
 import { PRODUCT_TYPES, PDF_ADDON_PRICE } from '../../src/lib/productTypes'
 import { FREE_SHIP_THRESHOLD } from '../../src/lib/tokens'
 import {
@@ -331,7 +331,10 @@ describe('[UNIT] price/shipping source-of-truth PARITY (server == client, drift 
         continue
       }
 
-      for (const s of sizes) {
+      // Operator 2026-07-15: der Personalize-Flow verkauft die cm-Formate,
+      // Katalog/Legacy weiter die A-Serie — BEIDE Achsen müssen server-seitig
+      // exakt bepreist sein (alte Warenkörbe bleiben gültig).
+      for (const s of [...sizes, ...personalizedSizes]) {
         // Poster type, no PDF add-on selected → base + size delta.
         const base = buildVariantId({ size: s.id })
         expect(priceLineItemCents(productId, base)).toBe(

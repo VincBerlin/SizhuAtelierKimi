@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
-import { frames, backgrounds, sizes, type PosterData, type Pillar } from '../lib/bazi'
+import { frames, backgrounds, personalizedSizes as sizes, type PosterData, type Pillar } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { type PlaceCandidate } from '../lib/baziClient'
 import { useBaziChart, usePairChart, useWesternChart } from '../hooks/useBaziChart'
@@ -17,7 +17,7 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/t
 import { searchCities } from '../lib/cities'
 // Single client source of truth for product-type base prices + PDF add-on price.
 // server/pricing.js mirrors these 1:1; the parity test couples to this module.
-import { PRODUCT_TYPES, PDF_ADDON_PRICE, type ProductTypeId } from '../lib/productTypes'
+import { PRODUCT_TYPES, PDF_ADDON_PRICE, DIGITAL_ANALYSIS_PRICE, type ProductTypeId } from '../lib/productTypes'
 
 interface Person { name: string; date: string; time: string; place: string }
 const emptyPerson: Person = { name: '', date: '', time: '', place: '' }
@@ -67,7 +67,7 @@ export default function Personalize() {
   // pair-Designs, Einzel-Produkte single-Designs — Wechsel des Produkttyps
   // setzt das Design auf den ersten aktiven Eintrag der passenden Art.
   const [designId, setDesignId] = useState(DESIGNS.find((d) => d.active && d.kind === 'single')?.id ?? 'klassik')
-  const [sizeId, setSizeId] = useState('A2')
+  const [sizeId, setSizeId] = useState('50x70')
   const [pdfAddon, setPdfAddon] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
   // Orts-Auflösung (REQ-013 + Exaktheit): der getippte Ort wird bei AUSWAHL/BLUR
@@ -579,7 +579,16 @@ export default function Personalize() {
               {!def.pdfIncluded && (
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 18, cursor: 'pointer', fontSize: 13, color: C.textMuted }}>
                   <input type="checkbox" checked={pdfAddon} onChange={(e) => setPdfAddon(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, accentColor: C.accent }} />
-                  <span>{t('personalize.pdfAddon')}{COMMERCE_ENABLED && <> (+ {money(PDF_ADDON_PRICE)})</>}<br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.pdfNote')}</span></span>
+                  <span>
+                    {t('personalize.pdfAddon')}
+                    {COMMERCE_ENABLED && (
+                      <>
+                        {' '}(+ {money(PDF_ADDON_PRICE)} <s style={{ color: C.textMuted3 }}>{money(DIGITAL_ANALYSIS_PRICE)}</s>
+                        {' '}<span style={{ color: C.accent, fontWeight: 600 }}>{t('personalize.pdfAddonSave')}</span>)
+                      </>
+                    )}
+                    <br /><span style={{ fontSize: 12, color: C.textMuted3 }}>{t('personalize.pdfNote')}</span>
+                  </span>
                 </label>
               )}
             </div>

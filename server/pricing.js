@@ -36,7 +36,7 @@ const PTYPE_BASE_EUR = {
   bazi: 49,
   birthchart: 49,
   couple: 69,
-  digital: 39,
+  digital: 195, // Operator 2026-07-15: Premium-Analyse (vorher 39-€-Platzhalter)
   bundle: 79,
 }
 // Which product types are physical posters (carry size/pdf axes) vs digital-only.
@@ -44,17 +44,21 @@ const PTYPE_IS_POSTER = { bazi: true, birthchart: true, couple: true, digital: f
 // Bundles already include the PDF → no separate add-on is priced for them.
 const PTYPE_PDF_INCLUDED = { bazi: false, birthchart: false, couple: false, digital: true, bundle: true }
 
-// Size deltas in EUR (mirror of bazi.ts `sizes`).
-const SIZE_DELTA_EUR = { A3: -10, A2: 0, A1: 20 }
+// Size deltas in EUR (mirror of bazi.ts `sizes` + `personalizedSizes`).
+// Operator 2026-07-15: cm-Formate für personalisierte Poster; A-Serie bleibt
+// für Katalog-Poster und alte Warenkörbe gültig.
+const SIZE_DELTA_EUR = { A3: -10, A2: 0, A1: 20, '30x40': -10, '50x70': 0, '70x100': 20 }
 
-const PDF_ADDON_EUR = 30 // Personalize.tsx PDF_ADDON_PRICE
+// Operator 2026-07-15: Analyse-PDF ist Premium (195 € standalone); als Add-on
+// zum personalisierten Poster gilt −25 % → 146,25 € (Spiegel: productTypes.ts).
+const PDF_ADDON_EUR = 146.25
 
 // Bundle prices in EUR (mirror of catalog.ts `bundles` + digitalBundle).
 const BUNDLE_BASE_EUR = { b1: 129, b2: 119, 'b-digital': 79 }
 // Add-on prices in EUR (mirror of catalog.ts `addons`).
 const ADDON_BASE_EUR = { a1: 9, a2: 6, a3: 7, a4: 5 }
 // Standalone digital PDF product (mirror of catalog.ts `digitalProduct`).
-const DIGITAL_BASE_EUR = { 'digital-bazi': 39 }
+const DIGITAL_BASE_EUR = { 'digital-bazi': 195 } // Operator 2026-07-15: Premium
 
 const FREE_SHIP_THRESHOLD_CENTS = 7500 // 75 € (tokens.ts FREE_SHIP_THRESHOLD; Operator 2026-07-13, vorher 80)
 const FLAT_SHIP_CENTS = 490 //            4.90 € (ShopStore.tsx)

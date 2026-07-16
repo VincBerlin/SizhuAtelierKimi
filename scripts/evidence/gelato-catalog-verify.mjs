@@ -28,7 +28,8 @@ const SEARCH_URL = `https://product.gelatoapis.com/v3/catalogs/${CATALOG}/produc
 const headers = { 'X-API-KEY': KEY, 'Content-Type': 'application/json' }
 
 // Shop-Achsen → Gelato-Attributwerte (bazi.ts frames[].name / sizes[].id).
-const SIZE_ATTR = { A3: 'a3', A2: 'a2', A1: 'a1' }
+// Operator 2026-07-15: + cm-Formate der personalisierten Poster (12 Kombis).
+const SIZE_ATTR = { A3: 'a3', A2: 'a2', A1: 'a1', '30x40': '300x400-mm', '50x70': '500x700-mm', '70x100': '700x1000-mm' }
 const FRAME_ATTR = { 'Eiche natur': 'natural-wood', 'Schwarz matt': 'black' }
 
 async function search(size, color) {
@@ -67,5 +68,6 @@ writeFileSync(
   `docs/evidence/fufire-gelato/${stamp}-gelato-uid-mapping.json`,
   JSON.stringify({ catalog: CATALOG, verified_at: stamp, mapping: evidence }, null, 2),
 )
-console.log(failures === 0 ? '\nAlle 6 Kombinationen LIVE-VERIFIZIERT — Artefakt gespeichert.' : `\n${failures} Kombination(en) NICHT verifiziert — Ledger-RED.`)
+const total = Object.keys(SIZE_ATTR).length * Object.keys(FRAME_ATTR).length
+console.log(failures === 0 ? `\nAlle ${total} Kombinationen LIVE-VERIFIZIERT — Artefakt gespeichert.` : `\n${failures} Kombination(en) NICHT verifiziert — Ledger-RED.`)
 process.exit(failures === 0 ? 0 : 1)

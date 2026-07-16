@@ -18,15 +18,20 @@ export interface PTDef {
   pdfIncluded: boolean
 }
 
+// Operator 2026-07-15: Die Analyse-PDF ist ein PREMIUM-Produkt — 195 €
+// standalone; als Add-on zum personalisierten Poster gilt −25 % (146,25 €).
+export const DIGITAL_ANALYSIS_PRICE = 195
+export const PDF_ADDON_DISCOUNT = 0.25
+
 export const PRODUCT_TYPES: PTDef[] = [
   { id: 'bazi', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
   { id: 'birthchart', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
   { id: 'couple', basePrice: 69, couple: true, poster: true, pdfIncluded: false },
-  { id: 'digital', basePrice: 39, couple: false, poster: false, pdfIncluded: true },
+  { id: 'digital', basePrice: DIGITAL_ANALYSIS_PRICE, couple: false, poster: false, pdfIncluded: true },
   { id: 'bundle', basePrice: 79, couple: false, poster: true, pdfIncluded: true },
 ]
 
-export const PDF_ADDON_PRICE = 30
+export const PDF_ADDON_PRICE = DIGITAL_ANALYSIS_PRICE * (1 - PDF_ADDON_DISCOUNT) // 146.25
 
 // ── Personalization gating (REQ-007 / REQ-025) ────────────────────────────────
 //

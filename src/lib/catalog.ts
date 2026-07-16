@@ -179,15 +179,17 @@ export const newArrivalsIds = [11, 12, 13, 14, 8]
 export const categories = ['Alle', 'TCM', 'Praxen', 'Wellness', 'Yoga']
 
 // Digital product (PDF) — standalone, not a poster; surfaced on /digital and
-// as a bundle. Placeholder pricing/copy.
+// as a bundle. Operator 2026-07-15: PREMIUM-Analyse, 195 € (−25 % als Add-on
+// zum personalisierten Poster). Umfang zunächst: Dayun-Lebensphasen + Wuxing
+// (Western/Fusion bewusst getrennt, spätere Ausbaustufe).
 export const digitalProduct = {
   id: 'digital-bazi',
-  title: 'Digitale BaZi-Chart-Analyse',
-  subtitle: '10–15 Seiten PDF',
-  price: 39,
+  title: 'Premium BaZi-Tiefenanalyse',
+  subtitle: 'Persönliche PDF-Analyse · Dayun-Lebensphasen & Fünf-Elemente-Balance',
+  price: 195,
   description: [
-    'Eine persönliche, ausführliche PDF-Auswertung deines BaZi-Charts: die vier Säulen, dein Tagesmeister, die Balance der fünf Elemente und was sie für dich bedeuten.',
-    'Sofort nach Fertigstellung als Download — einzeln oder vergünstigt im Bundle mit einem Poster.',
+    'Eine persönliche, sorgfältig erstellte PDF-Tiefenanalyse deines BaZi-Charts: die vier Säulen, dein Tagesmeister, die Balance der fünf Elemente (Wuxing) und deine Dayun-Lebensphasen — berechnet aus deinen exakten Geburtsdaten.',
+    'Einzeln erhältlich — oder mit 25 % Rabatt direkt zu deinem personalisierten Poster dazubuchen.',
   ],
 }
 
