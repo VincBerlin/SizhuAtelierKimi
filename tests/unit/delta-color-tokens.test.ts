@@ -209,7 +209,10 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
     // exceptionRegister (artwork, empirically the only banded golds in index.css):
     // .bazi-grid pillar #8A6830, .wuxing-diagram .earth #C8A24F, decorative
     // .shimmer gold-foil #C4A265 — representational poster art, not site chrome.
-    const ARTWORK_GOLD = new Set(['#8A6830', '#C4A265', '#C8A24F'])
+    // Operator-Batch #10: + die Holzmaserungs-Töne des realistischen
+    // Eiche-natur-Rahmens (.real-frame--oak) — Repräsentation des echten
+    // Gelato-Holzrahmens, gleiche Ausnahme-Klasse wie das Poster-Artwork.
+    const ARTWORK_GOLD = new Set(['#8A6830', '#C4A265', '#C8A24F', '#C39A6B', '#B3854F', '#C89B6B', '#A97A48', '#BF9563'])
     const flagged = new Set<string>()
     for (const hex of hexesIn(INDEX_CSS)) {
       if (isSaturatedOrangeGold(hex) && !ARTWORK_GOLD.has(hex)) flagged.add(hex)

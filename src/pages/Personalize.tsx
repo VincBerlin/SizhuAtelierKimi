@@ -130,14 +130,14 @@ export default function Personalize() {
   // FuFirE liefert Element/Tier kanonisch deutsch — die geteilte
   // posterLocale-Tabelle übersetzt für Vorschau UND Druck identisch.
   const livePoster: PosterData & { subtitle: string } = {
-    frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
+    frame: bgHex, bg: bgHex, name: a.name || t('configurator.namePh'),
     element: localizeElement(chart?.element ?? '', posterLang),
     animal: localizeAnimal(chart?.animal ?? '', posterLang),
     pillars: chart?.pillars ?? EMPTY_PILLARS,
     subtitle: posterSubtitle('single', posterLang),
   }
   const liveWesternPoster = {
-    frame: frameHex, bg: bgHex, name: a.name || t('configurator.namePh'),
+    frame: bgHex, bg: bgHex, name: a.name || t('configurator.namePh'),
     subtitle: posterSubtitle('western', posterLang),
     sunLabel: planetName('Sun', posterLang),
     moonLabel: planetName('Moon', posterLang),
@@ -171,7 +171,7 @@ export default function Personalize() {
         }
       : { pillars: EMPTY_PILLARS, animal: '', element: '', dayMaster: '' }
   const livePairPoster = {
-    frame: frameHex, bg: bgHex,
+    frame: bgHex, bg: bgHex,
     nameA: a.name || t('configurator.namePh'), nameB: b.name || t('configurator.namePh'),
     chartA: locChart(pair?.a),
     chartB: locChart(pair?.b),
@@ -306,7 +306,7 @@ export default function Personalize() {
           style={{ background: C.surfaceWarm, padding: 8 }}
         >
           {def.poster ? (
-            <PosterSvg data={previewData} designId={designId} />
+            <PosterSvg data={previewData} designId={designId} frameName={frame.name} />
           ) : (
             <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 40 }}>◇</div>
@@ -542,7 +542,7 @@ export default function Personalize() {
                   const sel = f.hex === frameHex
                   return (
                     <button key={f.hex} onClick={() => setFrameHex(f.hex)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '8px 14px 8px 8px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 13, color: '#4A4438' }}>
-                      <span style={{ width: 26, height: 26, borderRadius: 6, background: f.hex, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.08)' }} />{t(`options.frames.${f.hex}`)}
+                      <span className="color-swatch-circle" style={{ width: 26, height: 26, background: f.hex, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.08)' }} />{t(`options.frames.${f.hex}`)}
                       {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
                     </button>
                   )
@@ -553,8 +553,8 @@ export default function Personalize() {
                 {backgrounds.map((x) => {
                   const sel = x.hex === bgHex
                   return (
-                    <button key={x.hex} onClick={() => setBgHex(x.hex)} title={t(`options.backgrounds.${x.hex}`)} style={{ position: 'relative', width: 44, height: 44, borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', background: x.hex, cursor: 'pointer' }}>
-                      {sel && <span style={{ position: 'absolute', inset: -3, border: `2px solid ${C.accent}`, borderRadius: 13, pointerEvents: 'none' }} />}
+                    <button key={x.hex} onClick={() => setBgHex(x.hex)} title={t(`options.backgrounds.${x.hex}`)} className="color-swatch-circle" style={{ position: 'relative', width: 44, height: 44, border: '1px solid rgba(0,0,0,0.08)', background: x.hex, cursor: 'pointer' }}>
+                      {sel && <span className="color-swatch-circle" style={{ position: 'absolute', inset: -4, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                     </button>
                   )
                 })}

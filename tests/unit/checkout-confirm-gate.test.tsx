@@ -102,13 +102,21 @@ describe('nicht-personalisierter Warenkorb — sofortiger Checkout ohne Häkchen
   })
 })
 
-describe('Express-Zahlarten — echte Wallets mit Logos, kein PayPal', () => {
-  it('offers Apple Pay / Google Pay / Amazon Pay buttons and never mentions PayPal', async () => {
+describe('Zahlarten — ehrliche Trust-Zeile statt Fake-Express-Buttons', () => {
+  // Operator-Batch #10: die drei Wallet-BUTTONS führten alle zum selben
+  // Stripe-Checkout (Fake-Differenzierung) — es gibt genau EINEN Order-CTA;
+  // die Wallets erscheinen als Logos in einer Trust-Zeile.
+  it('shows ONE order CTA plus a wallet trust row (no wallet buttons, no PayPal)', async () => {
     renderCheckout([tcmLine])
     await screen.findByRole('button', { name: /Place order now/i })
-    expect(screen.getByRole('button', { name: 'Apple Pay' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Google Pay' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Amazon Pay' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /Place order now/i })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: 'Apple Pay' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Google Pay' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Amazon Pay' })).toBeNull()
+    const trust = screen.getByTestId('wallet-trust-row')
+    expect(trust.querySelector('[aria-label="Apple Pay"]')).not.toBeNull()
+    expect(trust.querySelector('[aria-label="Google Pay"]')).not.toBeNull()
+    expect(trust.querySelector('[aria-label="Amazon Pay"]')).not.toBeNull()
     // PayPal wird bei Stripe NICHT angeboten — die Kasse darf es nicht bewerben.
     expect(document.body.textContent).not.toMatch(/PayPal/i)
   })

@@ -71,19 +71,19 @@ const mk = (frame: string, bg: string, name: string, date: string): PosterData =
 export const products: Product[] = [
   {
     id: 1, category: 'TCM', title: 'BaZi Geburtschart — Vier Säulen', price: 49, anchor: 59, rating: 4.9, reviews: 318, sold: 2140,
-    bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Massivholzrahmen mit entspiegeltem Glas', 'Produktion in 3 Werktagen, nummeriert'],
+    bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Museum-quality mattes Papier', 'Massivholzrahmen mit schützendem Plexiglas', 'Produktion in 3 Werktagen, nummeriert'],
     poster: mk('#B98A5E', '#E9DFCB', 'Mara Lindqvist', '1990-07-21'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'classic_ink',
   },
   {
     id: 2, category: 'Praxen', title: 'BaZi Praxis-Edition', price: 69, anchor: 79, rating: 4.8, reviews: 196, sold: 870,
-    bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Abwischbares Museumsglas, hygienefreundlich', 'Optional mit Praxisname statt Personenname'],
+    bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Schützendes Plexiglas — hygienisch abwischbar', 'Optional mit Praxisname statt Personenname'],
     poster: mk('#1B1B1B', '#2C3A57', 'Praxis Anand', '1985-03-09'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'practice', design_family: 'minimal',
   },
   {
     id: 3, category: 'Wellness', title: 'BaZi Elemente-Poster', price: 45, anchor: 55, rating: 4.9, reviews: 241, sold: 1320,
-    bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Nachhaltiges Recyclingpapier, FSC-zertifiziert', 'Auch als Gutschein-Geschenk beliebt'],
+    bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Museum-quality mattes Papier', 'Auch als Gutschein-Geschenk beliebt'],
     poster: mk('#B98A5E', '#AFBCA6', 'Lina Sommer', '1992-11-02'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'wellness', design_family: 'japandi',
   },
@@ -107,7 +107,7 @@ export const products: Product[] = [
   },
   {
     id: 7, category: 'Wuxing', title: 'Wuxing Fünf-Elemente Poster', price: 49, anchor: 59, rating: 4.8, reviews: 142, sold: 760,
-    bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Archiv-Pigmentdruck in Museumsqualität'],
+    bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Museum-quality mattes Papier im Holzrahmen'],
     // Wuxing is a curated knowledge graphic, NOT personalized (REQ-007/REQ-025) —
     // explicit opt-out so it never shows birth-data UI (was missing pre-delta).
     personalizable: false,
@@ -125,14 +125,14 @@ export const products: Product[] = [
   //    images/prices/copy before launch). No birth data; plain Add to Cart. ──
   {
     id: 11, category: 'TCM', title: 'TCM Educational Poster', price: 39, rating: 4.9, reviews: 0, sold: 0,
-    bullets: ['Lehrtafel der Fünf Elemente — Holz, Feuer, Erde, Metall, Wasser', 'Klare Vektorgrafik für Unterricht & Veranschaulichung', 'Archiv-Pigmentdruck in Museumsqualität', 'Kein personalisiertes Motiv — direkt versandfertig'],
+    bullets: ['Lehrtafel der Fünf Elemente — Holz, Feuer, Erde, Metall, Wasser', 'Klare Vektorgrafik für Unterricht & Veranschaulichung', 'Museum-quality mattes Papier im Holzrahmen', 'Kein personalisiertes Motiv — direkt versandfertig'],
     personalizable: false, usage: 'educational', image: '/images/posters/tcm-elements.webp',
     poster: mk('#1B1B1B', '#AFBCA6', 'TCM', '1990-01-01'),
     product_world: 'tcm', personalization_level: 'none', use_case: 'educational', design_family: 'minimal',
   },
   {
     id: 12, category: 'Praxen', title: 'TCM Practice Poster', price: 49, rating: 4.9, reviews: 0, sold: 0,
-    bullets: ['Lehrposter für TCM-Praxen & Behandlungsräume', 'Ruhige Fernwirkung, erdet den Raum', 'Abwischbares Museumsglas, hygienefreundlich', 'Standardprodukt — keine Geburtsdaten nötig'],
+    bullets: ['Lehrposter für TCM-Praxen & Behandlungsräume', 'Ruhige Fernwirkung, erdet den Raum', 'Schützendes Plexiglas — hygienisch abwischbar', 'Standardprodukt — keine Geburtsdaten nötig'],
     personalizable: false, usage: 'practice', image: '/images/categories/tcm.webp',
     poster: mk('#1B1B1B', '#2C3A57', 'TCM', '1990-01-01'),
     product_world: 'tcm', personalization_level: 'none', use_case: 'practice', design_family: 'minimal',
@@ -159,7 +159,7 @@ export const products: Product[] = [
     // Preis = ptype:couple-Basis (Server-Parität, ADR-001). Die PDP leitet für
     // personalization_level 'couple' in den Paar-Flow (ProductView-Weiche).
     id: 15, category: 'Paare', title: 'Paar-Kompatibilitäts-Poster — personalisiert', price: 69, anchor: 79, rating: 4.9, reviews: 0, sold: 0,
-    bullets: ['Beide Geburtscharts exakt berechnet auf EINEM Motiv (合婚)', 'Eure Element-Beziehung als kalligrafisches Relations-Label', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Aus euren echten Geburtsdaten — kein Standardmotiv'],
+    bullets: ['Beide Geburtscharts exakt berechnet auf EINEM Motiv (合婚)', 'Eure Element-Beziehung als kalligrafisches Relations-Label', 'Museum-quality mattes Papier', 'Aus euren echten Geburtsdaten — kein Standardmotiv'],
     poster: mk('#B98A5E', '#E9DFCB', 'Mara & Tomas', '1990-06-15'),
     product_world: 'bazi', personalization_level: 'couple', use_case: 'gift', design_family: 'classic_ink',
   },
@@ -336,7 +336,7 @@ export const shopFaqs: ShopFaq[] = [
   { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja — wähle „Ich kenne meine Geburtszeit nicht“ und wir verwenden 12:00 Uhr (Mittag) als Standardannahme. Das kann das Ergebnis beeinflussen; dein Poster wird auf Grundlage dieses Ersatzwertes gestaltet.' },
   { q: 'Wie lange dauern Produktion und Versand?', a: 'Auftragsfertigung plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
   { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
-  { q: 'Auf welchem Papier wird gedruckt?', a: 'Archiv-Pigmentdruck in Museumsqualität, gefertigt in Deutschland.' },
+  { q: 'Auf welchem Papier wird gedruckt?', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen, lokal in deiner Region gedruckt.' },
   { q: 'Kann ich mein Poster vor dem Kauf sehen?', a: 'Ja, der Konfigurator zeigt eine Live-Vorschau mit deinen Daten, Rahmen und Hintergrund.' },
   { q: 'Was ist die digitale BaZi-Chart-Analyse?', a: 'Eine persönliche 10–15-seitige PDF-Auswertung deines Charts, einzeln oder als Bundle erhältlich.' },
   { q: 'Wie sicher ist die Zahlung?', a: 'Verschlüsselte Bezahlung über PayPal, Apple Pay und Google Pay.' },
@@ -344,7 +344,7 @@ export const shopFaqs: ShopFaq[] = [
 ]
 
 export const faqDefs: FaqDef[] = [
-  { id: 'details', q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier nummeriert.' },
+  { id: 'details', q: 'Details & Material', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen (12×22 mm) mit schützendem Plexiglas. Jedes Poster wird im Atelier nummeriert.' },
   { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
   { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie.' },
   { id: 'bazi', q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
