@@ -1912,15 +1912,18 @@
     inset 0 0 1px rgba(0, 0, 0, 0.5);
 }
 .real-frame--oak {
+  /* feine Eichen-Maserung — schmale Streuung statt Bretter-Optik */
   background:
-    linear-gradient(115deg, rgba(255, 255, 255, 0.14) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.12) 100%),
-    repeating-linear-gradient(95deg, #c39a6b 0px, #b3854f 7px, #c89b6b 9px, #a97a48 15px, #bf9563 22px);
+    linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0%, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.14) 100%),
+    repeating-linear-gradient(93deg, #c09468 0px, #b78a58 1.5px, #c49a6c 3px, #b0824f 4.5px, #bd9161 6px);
   background-blend-mode: overlay, normal;
+  border: 1px solid rgba(90, 62, 32, 0.55);
 }
 .real-frame--black {
   background:
     linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 35%, rgba(0, 0, 0, 0.25) 100%),
     linear-gradient(#1c1b19, #131211);
+  border: 1px solid rgba(0, 0, 0, 0.7);
 }
 
 /* 1d. Farb-Swatches sind KREISE (Operator-Batch #10) — gewinnt gegen die
