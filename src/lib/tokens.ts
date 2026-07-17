@@ -3,7 +3,7 @@
 // older Tailwind brand palette here (different hex values).
 
 export const C = {
-  bg: '#FBF8F1',
+  bg: '#FFFFFF',
   ink: '#2A2620',
   accent: '#C0492E',
   // Hover/active state of the one canonical Terracotta accent — a DARKER shade of
@@ -15,8 +15,8 @@ export const C = {
   // terracotta-hue, not orange/gold), so not part of this milestone.
   accentHover: '#A0341F',
   surface: '#FFFFFF',
-  surfaceWarm: '#F5F0E6',
-  surfaceInput: '#FBF8F1',
+  surfaceWarm: '#F6F6F6',
+  surfaceInput: '#FFFFFF',
   border: '#ECE5D8',
   borderInput: '#E2DACB',
   borderWarm: '#E7DFCF',
