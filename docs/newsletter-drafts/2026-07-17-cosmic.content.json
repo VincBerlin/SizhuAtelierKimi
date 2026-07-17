@@ -1,0 +1,250 @@
+{
+  "kind": "cosmic-fusion",
+  "date": "2026-07-17",
+  "computedAt": "2026-07-17T09:12:26Z",
+  "ctaHref": "https://sizhuatelier-shop-production.up.railway.app/personalize",
+  "bazi": {
+    "raw": {
+      "year": {
+        "stamm": "Bing",
+        "zweig": "Wu",
+        "tier": "Pferd",
+        "element": "Feuer"
+      },
+      "month": {
+        "stamm": "Yi",
+        "zweig": "Wei",
+        "tier": "Ziege",
+        "element": "Holz"
+      },
+      "day": {
+        "stamm": "Ren",
+        "zweig": "Chen",
+        "tier": "Drache",
+        "element": "Wasser"
+      },
+      "hour": {
+        "stamm": "Bing",
+        "zweig": "Wu",
+        "tier": "Pferd",
+        "element": "Feuer"
+      }
+    },
+    "rows": {
+      "en": [
+        [
+          "Year pillar",
+          "Fire · Horse"
+        ],
+        [
+          "Month pillar",
+          "Wood · Goat"
+        ],
+        [
+          "Day pillar",
+          "Water · Dragon"
+        ]
+      ],
+      "de": [
+        [
+          "Jahressäule",
+          "Feuer · Pferd"
+        ],
+        [
+          "Monatssäule",
+          "Holz · Ziege"
+        ],
+        [
+          "Tagessäule",
+          "Wasser · Drache"
+        ]
+      ],
+      "fr": [
+        [
+          "Pilier de l’année",
+          "Feu · Cheval"
+        ],
+        [
+          "Pilier du mois",
+          "Bois · Chèvre"
+        ],
+        [
+          "Pilier du jour",
+          "Eau · Dragon"
+        ]
+      ],
+      "es": [
+        [
+          "Pilar del año",
+          "Fuego · Caballo"
+        ],
+        [
+          "Pilar del mes",
+          "Madera · Cabra"
+        ],
+        [
+          "Pilar del día",
+          "Agua · Dragón"
+        ]
+      ]
+    }
+  },
+  "western": {
+    "rows": {
+      "en": [
+        [
+          "Sun",
+          "Cancer 24.8°"
+        ],
+        [
+          "Moon",
+          "Virgo 5.3°"
+        ],
+        [
+          "Mercury",
+          "Cancer 18.1° · retrograde"
+        ],
+        [
+          "Venus",
+          "Virgo 8.5°"
+        ],
+        [
+          "Mars",
+          "Gemini 13.1°"
+        ],
+        [
+          "Jupiter",
+          "Leo 3.7°"
+        ],
+        [
+          "Saturn",
+          "Aries 14.7°"
+        ]
+      ],
+      "de": [
+        [
+          "Sonne",
+          "Krebs 24.8°"
+        ],
+        [
+          "Mond",
+          "Jungfrau 5.3°"
+        ],
+        [
+          "Merkur",
+          "Krebs 18.1° · rückläufig"
+        ],
+        [
+          "Venus",
+          "Jungfrau 8.5°"
+        ],
+        [
+          "Mars",
+          "Zwillinge 13.1°"
+        ],
+        [
+          "Jupiter",
+          "Löwe 3.7°"
+        ],
+        [
+          "Saturn",
+          "Widder 14.7°"
+        ]
+      ],
+      "fr": [
+        [
+          "Soleil",
+          "Cancer 24.8°"
+        ],
+        [
+          "Lune",
+          "Vierge 5.3°"
+        ],
+        [
+          "Mercure",
+          "Cancer 18.1° · rétrograde"
+        ],
+        [
+          "Vénus",
+          "Vierge 8.5°"
+        ],
+        [
+          "Mars",
+          "Gémeaux 13.1°"
+        ],
+        [
+          "Jupiter",
+          "Lion 3.7°"
+        ],
+        [
+          "Saturne",
+          "Bélier 14.7°"
+        ]
+      ],
+      "es": [
+        [
+          "Sol",
+          "Cáncer 24.8°"
+        ],
+        [
+          "Luna",
+          "Virgo 5.3°"
+        ],
+        [
+          "Mercurio",
+          "Cáncer 18.1° · retrógrado"
+        ],
+        [
+          "Venus",
+          "Virgo 8.5°"
+        ],
+        [
+          "Marte",
+          "Géminis 13.1°"
+        ],
+        [
+          "Júpiter",
+          "Leo 3.7°"
+        ],
+        [
+          "Saturno",
+          "Aries 14.7°"
+        ]
+      ]
+    }
+  },
+  "editions": {
+    "en": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — BaZi & the Western sky, 2026-07-17",
+      "title": "BaZi & the Western sky — 2026-07-17",
+      "intro": "One moment, two traditions: the Four-Pillars view of today and the Western planetary sky — both computed live by the same engine that composes every personalized poster.",
+      "interpretation": "[DRAFT: editorial interpretation to be added before approval]",
+      "ctaText": "Your own chart, as art"
+    },
+    "de": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — BaZi & der westliche Himmel, 2026-07-17",
+      "title": "BaZi & der westliche Himmel — 2026-07-17",
+      "intro": "Ein Moment, zwei Traditionen: die Vier-Säulen-Sicht auf den heutigen Tag und der westliche Planetenhimmel — beides live berechnet von derselben Engine, die jedes personalisierte Poster komponiert.",
+      "interpretation": "[ENTWURF: redaktionelle Deutung wird vor der Freigabe ergänzt]",
+      "ctaText": "Dein eigenes Chart, als Kunstwerk"
+    },
+    "fr": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — BaZi & le ciel occidental, 2026-07-17",
+      "title": "BaZi & le ciel occidental — 2026-07-17",
+      "intro": "Un instant, deux traditions : la lecture des Quatre Piliers du jour et le ciel planétaire occidental — calculés en direct par le moteur qui compose chaque poster personnalisé.",
+      "interpretation": "[BROUILLON : interprétation éditoriale à ajouter avant validation]",
+      "ctaText": "Votre thème, en œuvre d’art"
+    },
+    "es": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — BaZi y el cielo occidental, 2026-07-17",
+      "title": "BaZi y el cielo occidental — 2026-07-17",
+      "intro": "Un instante, dos tradiciones: la mirada de los Cuatro Pilares de hoy y el cielo planetario occidental — ambos calculados en vivo por el mismo motor que compone cada póster personalizado.",
+      "interpretation": "[BORRADOR: interpretación editorial pendiente de aprobación]",
+      "ctaText": "Tu propia carta, como obra de arte"
+    }
+  }
+}
