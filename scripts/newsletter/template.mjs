@@ -48,6 +48,16 @@ function renderBlock(b) {
             <td style="padding:9px 16px;font-family:Helvetica,Arial,sans-serif;font-size:12.5px;color:${MUTED};border-bottom:1px solid #eee4d4">${esc(r[1])}</td>
           </tr>`).join('')}
         </table></td></tr>`
+    case 'code':
+      // Rabattcode-Kasten (Operator 2026-07-18) — Code groß, gestrichelt
+      // umrandet; Konditionen darunter.
+      return `<tr><td align="center" style="padding:20px 32px">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="border:2px dashed ${ACCENT};background:#fff"><tr>
+          <td style="padding:18px 34px;text-align:center">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:26px;font-weight:700;letter-spacing:0.14em;color:${INK}">${esc(b.code)}</div>
+            ${b.note ? `<div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:${MUTED};margin-top:6px">${esc(b.note)}</div>` : ''}
+          </td>
+        </tr></table></td></tr>`
     case 'cta':
       return `<tr><td align="center" style="padding:24px 32px"><a href="${esc(b.href || SHOP_URL)}" style="display:inline-block;background:${ACCENT};color:#ffffff;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;padding:14px 26px">${esc(b.text)}</a></td></tr>`
     case 'divider':

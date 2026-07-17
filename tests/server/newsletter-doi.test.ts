@@ -110,3 +110,26 @@ describe('GET /api/newsletter/confirm — the link from the email', () => {
     expect(res.text).not.toContain('bestätigt ✦')
   })
 })
+
+describe('GET /api/newsletter/unsubscribe — eigener Abmelde-Link (Operator 2026-07-18)', () => {
+  it('unsubscribes a known token and answers with the localized HTML page', async () => {
+    const pool = makePool([
+      { match: /UPDATE newsletter_signups SET status = 'unsubscribed'/i, rows: [{ email: 'doi-test@example.com', language: 'de' }] },
+    ])
+    const app = createApp({ pool, mailer: makeMailer() })
+    const res = await request(app).get('/api/newsletter/unsubscribe?token=tok-row-123')
+    expect(res.status).toBe(200)
+    expect(res.text).toContain('abgemeldet')
+    const upd = pool.calls.find((c) => /status = 'unsubscribed'/.test(c.sql))
+    expect(upd?.params).toEqual(['tok-row-123'])
+  })
+
+  it('rejects an unknown token with 400 (no false unsubscribe claim)', async () => {
+    const pool = makePool([
+      { match: /UPDATE newsletter_signups SET status = 'unsubscribed'/i, rows: [] },
+    ])
+    const app = createApp({ pool, mailer: makeMailer() })
+    const res = await request(app).get('/api/newsletter/unsubscribe?token=nope')
+    expect(res.status).toBe(400)
+  })
+})

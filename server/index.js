@@ -13,7 +13,7 @@ import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehu
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
-import { buildConfirmEmail, confirmResultHtml } from './newsletter.js'
+import { buildConfirmEmail, confirmResultHtml, unsubscribeResultHtml } from './newsletter.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -451,6 +451,10 @@ app.post('/api/checkout', async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items,
+      // Operator 2026-07-18 (Rabattcode-Newsletter): Promo-Codes sind an der
+      // Stripe-Kasse einlösbar — Codes selbst entstehen NUR über
+      // scripts/newsletter/create-promo.mjs (nie im Client erfunden).
+      allow_promotion_codes: true,
       locale: ['en', 'de', 'fr'].includes((locale || '').toLowerCase()) ? locale.toLowerCase() : 'auto',
       ...(customerId ? { customer: customerId } : (email ? { customer_email: String(email).slice(0, 200) } : {})),
       billing_address_collection: 'auto',
@@ -526,6 +530,27 @@ app.get('/api/newsletter/confirm', async (req, res) => {
   } catch (err) {
     console.error('[newsletter] confirm failed:', err.message)
     return res.status(500).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
+  }
+})
+
+// ---- newsletter unsubscribe (Operator 2026-07-18: eigener Abmelde-Link) -----
+app.get('/api/newsletter/unsubscribe', async (req, res) => {
+  const token = String(req.query.token || '')
+  if (!pool || !token || token.length > 100) {
+    return res.status(400).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
+  }
+  try {
+    const r = await pool.query(
+      `UPDATE newsletter_signups SET status = 'unsubscribed' WHERE confirm_token = $1 AND status <> 'unsubscribed' RETURNING email, language`,
+      [token],
+    )
+    const row = r.rows?.[0]
+    if (!row) return res.status(400).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
+    console.log('[newsletter] unsubscribed:', row.email)
+    return res.type('html').send(unsubscribeResultHtml({ language: row.language, ok: true }))
+  } catch (err) {
+    console.error('[newsletter] unsubscribe failed:', err.message)
+    return res.status(500).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
   }
 })
 

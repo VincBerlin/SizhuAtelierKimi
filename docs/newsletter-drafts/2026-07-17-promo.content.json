@@ -1,0 +1,48 @@
+{
+  "kind": "promo",
+  "date": "2026-07-17",
+  "promo": {
+    "code": "WELCOME10",
+    "percent": 10,
+    "until": "2026-07-31"
+  },
+  "ctaHref": "https://sizhuatelier-shop-production.up.railway.app",
+  "editions": {
+    "en": {
+      "eyebrow": "Atelier",
+      "subject": "10 % off — your atelier code inside",
+      "title": "Your 10 % atelier code",
+      "intro": "A small thank-you from the atelier — enter this code at checkout:",
+      "note": "Valid until 2026-07-31 · one use per order · enter at the secure Stripe checkout",
+      "interpretation": "[DRAFT: one warm editorial sentence, to be added before approval]",
+      "ctaText": "Redeem in the shop"
+    },
+    "de": {
+      "eyebrow": "Atelier",
+      "subject": "10 % Rabatt — dein Atelier-Code liegt bei",
+      "title": "Dein 10-%-Atelier-Code",
+      "intro": "Ein kleines Dankeschön aus dem Atelier — gib diesen Code an der Kasse ein:",
+      "note": "Gültig bis 2026-07-31 · einmal pro Bestellung · Eingabe an der sicheren Stripe-Kasse",
+      "interpretation": "[ENTWURF: ein warmer redaktioneller Satz — vor Freigabe ergänzen]",
+      "ctaText": "Im Shop einlösen"
+    },
+    "fr": {
+      "eyebrow": "Atelier",
+      "subject": "10 % de remise — votre code atelier",
+      "title": "Votre code atelier de 10 %",
+      "intro": "Un petit merci de l’atelier — saisissez ce code au paiement :",
+      "note": "Valable jusqu’au 2026-07-31 · une utilisation par commande · à saisir au paiement sécurisé Stripe",
+      "interpretation": "[BROUILLON : une phrase éditoriale chaleureuse à ajouter avant validation]",
+      "ctaText": "Utiliser dans la boutique"
+    },
+    "es": {
+      "eyebrow": "Atelier",
+      "subject": "10 % de descuento — tu código del atelier",
+      "title": "Tu código del atelier del 10 %",
+      "intro": "Un pequeño agradecimiento del atelier — introduce este código al pagar:",
+      "note": "Válido hasta 2026-07-31 · un uso por pedido · se introduce en el pago seguro de Stripe",
+      "interpretation": "[BORRADOR: una frase editorial cálida pendiente de aprobación]",
+      "ctaText": "Canjear en la tienda"
+    }
+  }
+}
