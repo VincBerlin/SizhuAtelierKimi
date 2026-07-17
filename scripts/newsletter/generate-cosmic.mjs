@@ -89,11 +89,16 @@ for (const lang of ['en', 'de', 'fr', 'es']) {
   }).filter(Boolean)
 }
 
+// Operator 2026-07-17: die Serie heißt TAGESIMPULS — die Fusion-Deutung
+// (interpretation) IST der Impuls und steht im Layout ganz oben. Der
+// Platzhalter wird je Ausgabe durch den redaktionellen Impuls ersetzt
+// (Claude-Lauf /newsletter-cosmic oder Editor) — kurz, einfangend, nur aus
+// den berechneten Fakten abgeleitet.
 const COPY = {
-  en: { subject: `Cosmic Pulse — BaZi & the Western sky, ${stamp}`, title: `BaZi & the Western sky — ${stamp}`, intro: 'One moment, two traditions: the Four-Pillars view of today and the Western planetary sky — both computed live by the same engine that composes every personalized poster.', interpretation: '[DRAFT: editorial interpretation to be added before approval]', ctaText: 'Your own chart, as art' },
-  de: { subject: `Cosmic Pulse — BaZi & der westliche Himmel, ${stamp}`, title: `BaZi & der westliche Himmel — ${stamp}`, intro: 'Ein Moment, zwei Traditionen: die Vier-Säulen-Sicht auf den heutigen Tag und der westliche Planetenhimmel — beides live berechnet von derselben Engine, die jedes personalisierte Poster komponiert.', interpretation: '[ENTWURF: redaktionelle Deutung wird vor der Freigabe ergänzt]', ctaText: 'Dein eigenes Chart, als Kunstwerk' },
-  fr: { subject: `Cosmic Pulse — BaZi & le ciel occidental, ${stamp}`, title: `BaZi & le ciel occidental — ${stamp}`, intro: 'Un instant, deux traditions : la lecture des Quatre Piliers du jour et le ciel planétaire occidental — calculés en direct par le moteur qui compose chaque poster personnalisé.', interpretation: '[BROUILLON : interprétation éditoriale à ajouter avant validation]', ctaText: 'Votre thème, en œuvre d’art' },
-  es: { subject: `Cosmic Pulse — BaZi y el cielo occidental, ${stamp}`, title: `BaZi y el cielo occidental — ${stamp}`, intro: 'Un instante, dos tradiciones: la mirada de los Cuatro Pilares de hoy y el cielo planetario occidental — ambos calculados en vivo por el mismo motor que compone cada póster personalizado.', interpretation: '[BORRADOR: interpretación editorial pendiente de aprobación]', ctaText: 'Tu propia carta, como obra de arte' },
+  en: { subject: `Cosmic Pulse — your impulse for today, ${stamp}`, title: `Your impulse for today — ${stamp}`, intro: 'BaZi and the Western sky, fused into one daily reading — computed live by the same engine that composes your poster.', interpretation: '[DRAFT: today’s fusion impulse to be added before approval]', ctaText: 'Your own chart, as art' },
+  de: { subject: `Cosmic Pulse — dein Tagesimpuls, ${stamp}`, title: `Dein Tagesimpuls — ${stamp}`, intro: 'BaZi und der westliche Himmel, fusioniert zu einer täglichen Lesung — live berechnet von derselben Engine, die auch dein Poster komponiert.', interpretation: '[ENTWURF: der heutige Fusions-Impuls wird vor der Freigabe ergänzt]', ctaText: 'Dein eigenes Chart, als Kunstwerk' },
+  fr: { subject: `Cosmic Pulse — votre impulsion du jour, ${stamp}`, title: `Votre impulsion du jour — ${stamp}`, intro: 'Le BaZi et le ciel occidental, fusionnés en une lecture quotidienne — calculée en direct par le moteur qui compose votre poster.', interpretation: '[BROUILLON : l’impulsion fusion du jour sera ajoutée avant validation]', ctaText: 'Votre thème, en œuvre d’art' },
+  es: { subject: `Cosmic Pulse — tu impulso de hoy, ${stamp}`, title: `Tu impulso de hoy — ${stamp}`, intro: 'El BaZi y el cielo occidental, fusionados en una lectura diaria — calculada en vivo por el mismo motor que compone tu póster.', interpretation: '[BORRADOR: el impulso de fusión de hoy se añadirá antes de la aprobación]', ctaText: 'Tu propia carta, como obra de arte' },
 }
 
 const content = {
