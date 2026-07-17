@@ -7,6 +7,18 @@
 import { createServer } from 'node:http'
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
 import { renderCosmicEdition } from './render-cosmic.mjs'
+import { renderOfferEdition } from './render-offer.mjs'
+import { renderPromoEdition } from './render-promo.mjs'
+
+// Serien-Dispatch: jede Inhaltsdatei trägt ihr `kind` — der Editor bedient
+// alle Serien (cosmic-fusion | offer | promo) mit derselben Oberfläche.
+const RENDERERS = { 'cosmic-fusion': renderCosmicEdition, offer: renderOfferEdition, promo: renderPromoEdition }
+const renderEdition = (path) => {
+  const kind = JSON.parse(readFileSync(path, 'utf8')).kind
+  const fn = RENDERERS[kind]
+  if (!fn) throw new Error(`unbekannte Serie: ${kind}`)
+  return fn(path)
+}
 
 const DIR = 'docs/newsletter-drafts'
 const PORT = 3220
@@ -87,7 +99,7 @@ const server = createServer((req, res) => {
           if (v !== null) c.editions[lang][k] = v
         }
         writeFileSync(path, JSON.stringify(c, null, 2))
-        renderCosmicEdition(path)
+        renderEdition(path)
         res.statusCode = 303
         res.setHeader('Location', `/edit?f=${encodeURIComponent(f)}&lang=${lang}`)
         res.end()

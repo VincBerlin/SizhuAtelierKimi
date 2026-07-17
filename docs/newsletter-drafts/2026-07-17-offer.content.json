@@ -1,0 +1,61 @@
+{
+  "kind": "offer",
+  "date": "2026-07-17",
+  "week": 29,
+  "offer": {
+    "key": "tcm-elements",
+    "priceRef": [
+      "poster:11",
+      ""
+    ],
+    "href": "https://sizhuatelier-shop-production.up.railway.app/product/11",
+    "image": "https://sizhuatelier-shop-production.up.railway.app/images/posters/tcm-elements.webp",
+    "title": {
+      "en": "TCM Five Elements — Educational Poster",
+      "de": "TCM Fünf Elemente — Lehrposter",
+      "fr": "MTC Cinq Éléments — poster pédagogique",
+      "es": "MTC Cinco Elementos — póster educativo"
+    },
+    "subtitle": {
+      "en": "For practices, studios & teaching",
+      "de": "Für Praxen, Studios & Lehre",
+      "fr": "Pour cabinets, studios & enseignement",
+      "es": "Para consultas, estudios y enseñanza"
+    },
+    "priceDisplay": "39,00 €"
+  },
+  "editions": {
+    "en": {
+      "eyebrow": "Atelier",
+      "subject": "This week at the atelier: TCM Five Elements — Educational Poster",
+      "title": "The offer of the week",
+      "intro": "Hand-picked from the atelier — one piece, one week.",
+      "interpretation": "[DRAFT: short editorial note on why this piece, to be added before approval]",
+      "ctaText": "View in the shop"
+    },
+    "de": {
+      "eyebrow": "Atelier",
+      "subject": "Diese Woche im Atelier: TCM Fünf Elemente — Lehrposter",
+      "title": "Das Angebot der Woche",
+      "intro": "Handverlesen aus dem Atelier — ein Stück, eine Woche.",
+      "interpretation": "[ENTWURF: kurze redaktionelle Notiz, warum dieses Stück — vor Freigabe ergänzen]",
+      "ctaText": "Im Shop ansehen"
+    },
+    "fr": {
+      "eyebrow": "Atelier",
+      "subject": "Cette semaine à l’atelier : MTC Cinq Éléments — poster pédagogique",
+      "title": "L’offre de la semaine",
+      "intro": "Sélectionné à l’atelier — une pièce, une semaine.",
+      "interpretation": "[BROUILLON : brève note éditoriale à ajouter avant validation]",
+      "ctaText": "Voir dans la boutique"
+    },
+    "es": {
+      "eyebrow": "Atelier",
+      "subject": "Esta semana en el atelier: MTC Cinco Elementos — póster educativo",
+      "title": "La oferta de la semana",
+      "intro": "Seleccionado en el atelier — una pieza, una semana.",
+      "interpretation": "[BORRADOR: breve nota editorial pendiente de aprobación]",
+      "ctaText": "Ver en la tienda"
+    }
+  }
+}

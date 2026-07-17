@@ -209,6 +209,34 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
      DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
      METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #11 2026-07-17/18 (Domain verifiziert · 3 Newsletter-Serien
+  · Abmeldung · einlösbare Rabattcodes):**
+  1. *Resend-Domain VERIFIZIERT `[REAL-BOUNDARY-LIVE]`:* alle 4 DNS-Records
+     (DKIM/SPF-TXT/SPF-MX/Tracking-CNAME) live im öffentlichen DNS + Status
+     „verified" via API. Beweis-Mails EXTERN zugestellt: newsletter@ →
+     Gmail (f69bd771…), orders@ → Gmail (0976c754…) — Bestellbestätigung,
+     Double-Opt-In und Passwort-Reset sind damit scharf. RL-EMAIL geschlossen.
+  2. *Tagesimpuls (Cosmic Fusion):* Impuls-Text steht GANZ OBEN (Operator:
+     „muss den Leser einfangen, spannend aber kurz"); heutige Impulse in 4
+     Sprachen redaktionell geschrieben — ausschließlich aus den berechneten
+     Fakten (Feuer-Pferd-Jahr, Wasser-Drache-Tag, Merkur rückläufig in Krebs).
+  3. *Angebot der Woche:* generate-offer.mjs rotiert deterministisch per
+     ISO-Kalenderwoche über 6 kuratierte Shop-SKUs; Preise verbindlich via
+     server/pricing.js priceLineItemCents (KW 29 → TCM-Poster 39,00 €,
+     Testmail 61ecc62d…). Wochen-Zeitplan: vorbereitet, Aktivierung auf
+     Operator-Zuruf.
+  4. *Rabattcode-Serie EHRLICH:* /api/checkout hat jetzt
+     allow_promotion_codes — beworben wird nur, was einlösbar ist.
+     create-promo.mjs legt Coupon+Code per Stripe-API an (neue verschachtelte
+     promotion-Syntax; Test-Code WELCOME10 −10 % bis 2026-07-31, livemode
+     false, promo_1TuL6B…); generate-promo.mjs rendert den Code-Kasten
+     (Testmail 3b50cee0…).
+  5. *Abmeldung:* GET /api/newsletter/unsubscribe?token= setzt
+     status='unsubscribed' + lokalisierte Marken-HTML (2 neue node-Tests,
+     88/88 grün).
+  6. *Editor bedient alle 3 Serien* (kind-Dispatch) — eine Oberfläche für
+     Kontrolle/Eingriff; Commands /newsletter-cosmic, /newsletter-offer,
+     /newsletter-promo.
 - **Operator-Batch #10 2026-07-16 (Papier-Entscheid · realistische Rahmen ·
   Kassen-Vereinfachung · Kreise · Badge):**
   1. *RL-PAPER-CLAIM GESCHLOSSEN (Operator-Entscheid):* „ausschließlich

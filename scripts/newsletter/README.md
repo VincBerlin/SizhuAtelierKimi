@@ -1,10 +1,18 @@
 # Newsletter-Werkstatt (Operator-Batch #9/#11 — vorbereitet, NICHT aktiviert)
 
 EIN festes Marken-Template (`template.mjs`), jede Ausgabe unterscheidet sich
-nur durch ihre Inhaltsblöcke. Zwei Serien geplant: **Shop-News** (Poster,
-Angebote) und **Cosmic Pulse FUSION** (Operator 2026-07-17: BaZi + Western,
-weil der Shop beide Chart-Welten anbietet — BaZi-Tagessäulen via
-`/v1/calculate/bazi`, Planetenstände via `/v1/transit/now`; nichts erfunden).
+nur durch ihre Inhaltsblöcke. DREI Serien (Operator 2026-07-18), alle über
+dieselbe Inhaltsdatei-Struktur + denselben Editor (edit.mjs → :3220):
+
+| Serie | Generator | Inhalt |
+|---|---|---|
+| **Cosmic Pulse** (Tagesimpuls) | `generate-cosmic.mjs` | Fusion BaZi-Tagessäulen (`/v1/calculate/bazi`) + Planetenstände (`/v1/transit/now`) — nichts erfunden |
+| **Angebot der Woche** | `generate-offer.mjs` | Rotation per ISO-Kalenderwoche über kuratierte Shop-SKUs; Preise verbindlich aus `server/pricing.js` |
+| **Rabattcode** | `create-promo.mjs` → `generate-promo.mjs` | bewirbt NUR echte, an der Stripe-Kasse einlösbare Codes (allow_promotion_codes aktiv) |
+
+Transaktions-Mails (bereits im Server, Domain verifiziert): Bestellbestätigung
++ Operator-Kopie (orders@), Newsletter-Double-Opt-In (newsletter@),
+Passwort-Reset (orders@), Abmeldung via GET /api/newsletter/unsubscribe.
 
 ## Ablauf einer Ausgabe (Freigabe-Schleife)
 
