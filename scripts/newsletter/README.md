@@ -30,9 +30,24 @@ node scripts/newsletter/render-cosmic.mjs docs/newsletter-drafts/<datum>-cosmic.
 # 3. Testmail NUR an den Operator
 node scripts/newsletter/send-test.mjs docs/newsletter-drafts/<datei>-de.html du@deine-mail
 
-# 4. Nach Freigabe: Versand als Resend-Broadcast an die Audience
-#    (Audience-Sync + Broadcast-Schritt folgen in einem eigenen Batch)
+# 4. Nach Freigabe: Broadcast an die bestätigten Abonnenten (siehe unten)
 ```
+
+## Broadcast (VORBEREITET — Aktivierungs-Gate, Stand 2026-07-18)
+
+Server-Route `POST /api/newsletter/broadcast` versendet eine Ausgabe an alle
+BESTÄTIGTEN Abonnenten aus der eigenen Datenbank — jede:r in der eigenen
+Sprache, mit PERSONALISIERTEM Abmeldelink. Solange
+`NEWSLETTER_BROADCAST_SECRET` nicht gesetzt ist, antwortet die Route 503:
+**der Broadcast ist damit bewusst deaktiviert.**
+
+Aktivierung (nur der Operator):
+1. Starkes Secret erzeugen (z. B. `openssl rand -hex 24`).
+2. `NEWSLETTER_BROADCAST_SECRET=…` in `Shop/.env` UND als Railway-Variable.
+3. Probelauf (zählt nur, sendet nichts):
+   `node scripts/newsletter/broadcast.mjs cosmic 2026-07-17`
+4. Echter Versand (bewusstes --send):
+   `node scripts/newsletter/broadcast.mjs cosmic 2026-07-17 --send`
 
 ## Automatisierung (bewusst noch aus)
 

@@ -14,6 +14,7 @@ import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
 import { buildConfirmEmail, confirmResultHtml, unsubscribeResultHtml } from './newsletter.js'
+import { runBroadcast, BROADCAST_SERIES } from './broadcast.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -551,6 +552,34 @@ app.get('/api/newsletter/unsubscribe', async (req, res) => {
   } catch (err) {
     console.error('[newsletter] unsubscribe failed:', err.message)
     return res.status(500).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
+  }
+})
+
+// ---- newsletter broadcast (Operator 2026-07-18: VORBEREITET, nicht aktiv) ---
+// Aktivierung ausschließlich durch Setzen von NEWSLETTER_BROADCAST_SECRET —
+// ohne Secret 503. dryRun ist der Standard; echter Versand nur mit
+// {"dryRun":false} UND korrektem X-Broadcast-Secret-Header.
+app.post('/api/newsletter/broadcast', async (req, res) => {
+  const secret = process.env.NEWSLETTER_BROADCAST_SECRET || ''
+  if (!secret || !resend || !pool) return res.status(503).json({ error: 'broadcast not configured' })
+  const given = String(req.headers['x-broadcast-secret'] || '')
+  const a = Buffer.from(given)
+  const b = Buffer.from(secret)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return res.status(403).json({ error: 'forbidden' })
+  const { series, date, dryRun } = req.body || {}
+  if (!BROADCAST_SERIES.includes(series) || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
+    return res.status(400).json({ error: 'series (cosmic|offer|promo) und date (YYYY-MM-DD) erforderlich' })
+  }
+  try {
+    const result = await runBroadcast({
+      pool, resend, publicUrl: PUBLIC_URL || `${req.protocol}://${req.get('host')}`,
+      from: NEWSLETTER_FROM_EMAIL, series, date, dryRun: dryRun !== false,
+    })
+    console.log(`[broadcast] ${series} ${date} dryRun=${result.dryRun} total=${result.total} sent=${result.sent} failures=${result.failures.length}`)
+    return res.json(result)
+  } catch (err) {
+    console.error('[broadcast] failed:', err.message)
+    return res.status(400).json({ error: err.message })
   }
 })
 
