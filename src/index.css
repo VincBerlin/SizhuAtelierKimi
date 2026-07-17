@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --parchment: #E8E1D6;
+    --parchment: #FFFFFF;
     --ink-black: #2C2420;
     /* REQ-017 / FM-09: the canonical Terracotta accent. Was a SIENNA naming-lie
        (hex A0522D — "terracotta" in name only, actually a brown sienna). Unified to
