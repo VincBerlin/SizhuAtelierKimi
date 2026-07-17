@@ -1,20 +1,26 @@
-# Newsletter-Werkstatt (Operator-Batch #9 — vorbereitet, NICHT aktiviert)
+# Newsletter-Werkstatt (Operator-Batch #9/#11 — vorbereitet, NICHT aktiviert)
 
 EIN festes Marken-Template (`template.mjs`), jede Ausgabe unterscheidet sich
 nur durch ihre Inhaltsblöcke. Zwei Serien geplant: **Shop-News** (Poster,
-Angebote) und **Cosmic Pulse** (echte Planetenstände aus der eigenen
-FuFirE-Engine — nichts erfunden).
+Angebote) und **Cosmic Pulse FUSION** (Operator 2026-07-17: BaZi + Western,
+weil der Shop beide Chart-Welten anbietet — BaZi-Tagessäulen via
+`/v1/calculate/bazi`, Planetenstände via `/v1/transit/now`; nichts erfunden).
 
 ## Ablauf einer Ausgabe (Freigabe-Schleife)
 
 ```bash
-# 1. Entwurf erzeugen (4 Sprachen → docs/newsletter-drafts/)
+# 1. Ausgabe erzeugen: editierbare Inhaltsdatei + 4 Sprach-HTMLs
 node scripts/newsletter/generate-cosmic.mjs
 
-# 2. Entwurf prüfen/verfeinern (Deutungstext ersetzt die [ENTWURF]-Markierung)
+# 2. MANUELL EINGREIFEN (Operator-Oberfläche): Texte je Sprache bearbeiten,
+#    Live-Vorschau, Speichern rendert sofort neu
+node scripts/newsletter/edit.mjs        # → http://localhost:3220
+
+#    (alternativ: <datum>-cosmic.content.json editieren und neu rendern:)
+node scripts/newsletter/render-cosmic.mjs docs/newsletter-drafts/<datum>-cosmic.content.json
 
 # 3. Testmail NUR an den Operator
-node scripts/newsletter/send-test.mjs docs/newsletter-drafts/<datei>.html du@deine-mail
+node scripts/newsletter/send-test.mjs docs/newsletter-drafts/<datei>-de.html du@deine-mail
 
 # 4. Nach Freigabe: Versand als Resend-Broadcast an die Audience
 #    (Audience-Sync + Broadcast-Schritt folgen in einem eigenen Batch)
