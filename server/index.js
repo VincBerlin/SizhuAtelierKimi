@@ -429,7 +429,17 @@ app.post('/api/checkout', async (req, res) => {
           product_data: { name: String(it.title || 'Poster').slice(0, 120), ...(it.meta ? { description: String(it.meta).slice(0, 200) } : {}) },
         },
       })
-      if (it.personalization) personalization[`line${i + 1}`] = it.personalization
+      // R5 (#9): JEDE Line bekommt einen Metadaten-Datensatz (productId,
+      // variantId, qty) — vorher trugen die Metadaten NUR personalisierte
+      // Lines, und bezahlte Katalog-Poster wurden vom Fulfillment still
+      // übersprungen. Die Identitätsfelder stehen NACH dem Spread, damit
+      // Client-personalization sie nie überschreiben kann (server-authoritativ).
+      personalization[`line${i + 1}`] = {
+        ...(it.personalization && typeof it.personalization === 'object' ? it.personalization : {}),
+        productId: String(it.productId),
+        variantId: String(it.variantId || ''),
+        qty: String(qty),
+      }
     }
 
     // Shipping is computed server-side from region (CDN header) + subtotal,
@@ -477,6 +487,36 @@ app.post('/api/checkout', async (req, res) => {
   } catch (e) {
     console.error('[checkout] failed:', e.message)
     res.status(500).json({ error: 'Could not start checkout.' })
+  }
+})
+
+// ---- fulfillment retry (Batch #12 R5, #9 — „Retry möglich") ----------------
+// Der Operator stößt eine gescheiterte Fulfillment-Runde erneut an (z. B.
+// nachdem ein fehlendes Druck-Asset registriert oder FuFirE wieder erreichbar
+// ist). Gleiche Gating-Disziplin wie der Newsletter-Broadcast: ohne
+// FULFILLMENT_RETRY_SECRET ist die Route 503, falsches Secret → 403.
+// Doppel-Produktion ist technisch ausgeschlossen — fulfillOrder ist idempotent
+// (UNIQUE(stripe_session,line_key) + gelato_order_id-Check).
+app.post('/api/fulfillment/retry/:sessionId', async (req, res) => {
+  const secret = process.env.FULFILLMENT_RETRY_SECRET || ''
+  if (!secret || !stripe || !pool) return res.status(503).json({ error: 'fulfillment retry not configured' })
+  const given = String(req.headers['x-retry-secret'] || '')
+  const a = Buffer.from(given)
+  const b = Buffer.from(secret)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return res.status(403).json({ error: 'forbidden' })
+  try {
+    const full = await stripe.checkout.sessions.retrieve(String(req.params.sessionId), { expand: ['line_items'] })
+    const personalization = readPersonalizationMetadata(full.metadata)
+    const fr = await fulfillOrder({
+      session: full,
+      personalization,
+      deps: { pool, fufire, renderPdf: renderPosterPdf, gelato, publicUrl: PUBLIC_URL },
+    })
+    if (fr.failed.length > 0) console.error('[fulfillment-retry] failed parts:', JSON.stringify(fr.failed))
+    return res.json(fr)
+  } catch (e) {
+    console.error('[fulfillment-retry] failed:', e.message)
+    return res.status(500).json({ error: 'retry failed' })
   }
 })
 

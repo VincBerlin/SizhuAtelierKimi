@@ -68,7 +68,9 @@ const FLAT_SHIP_CENTS = 490 //            4.90 € (ShopStore.tsx)
 
 // Parse a `variantId` like "size=A2;frame=#B98A5E;pdf=1" into a plain object.
 // Frame is identity-only (does not affect price); size + pdf are priced axes.
-function parseVariant(variantId) {
+// Exportiert seit R5 (#9): das Fulfillment liest Format+Rahmen der
+// Katalog-Poster-Lines aus DERSELBEN Variant-Grammatik (keine zweite Quelle).
+export function parseVariant(variantId) {
   const out = {}
   for (const part of String(variantId || '').split(';')) {
     const i = part.indexOf('=')

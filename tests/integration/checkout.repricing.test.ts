@@ -246,7 +246,16 @@ describe('[INTEGRATION-FAKE] REQ-003 — existing checkout invariants do not reg
     const md = params.metadata
     // Reassemble exactly the way the webhook does (chunked numbered keys).
     const reassembled = readPersonalizationMetadata(md)
-    expect(reassembled.line1).toEqual(personalization)
+    // Supersession (Batch #12 R5, #9): der Server reichert JEDE Line
+    // server-authoritativ um productId/variantId/qty an, damit auch
+    // nicht-personalisierte Katalog-Poster das Fulfillment erreichen. Der
+    // VERLUSTFREI-Vertrag bleibt: jedes Client-Feld kommt unverändert an.
+    expect(reassembled.line1).toEqual({
+      ...personalization,
+      productId: VALID_POSTER.productId,
+      variantId: VALID_POSTER.variantId,
+      qty: '1',
+    })
   })
 
   it('AT-003-3: qty clamping (0→1, 1000→99) and empty cart → 400', async () => {

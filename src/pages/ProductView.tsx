@@ -9,7 +9,7 @@ import { isPersonalizable, productKind } from '../lib/productTypes'
 // Batch #12 R4 (#10): EIN Format-System — auch Katalog-PDPs verkaufen die
 // cm-Formate (30×40/50×70/70×100); die A-Serie bleibt nur server-seitig für
 // Alt-Warenkörbe gültig (pricing.js kennt beide).
-import { computeChart, personalizedSizes as sizes, type PosterData } from '../lib/bazi'
+import { computeChart, personalizedSizes as sizes, frames, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
@@ -29,6 +29,10 @@ export default function ProductView() {
   // SKUs). Personalizable products carry size in the configurator (cfg.size).
   // Size availability/pricing stays NON-FINAL (OQ-001).
   const [pdpSize, setPdpSize] = useState('50x70')
+  // Batch #12 R5 (#9): Rahmen-Achse auch für Ready-to-ship-Poster — ohne sie
+  // ist die Gelato-Produkt-Variante (PRODUCT_UIDS: Format×Rahmen) nicht
+  // bestimmbar. Preisneutral (server/pricing.js ignoriert die frame-Achse).
+  const [pdpFrameHex, setPdpFrameHex] = useState(frames[0].hex)
 
   const prod = getProduct(Number(id)) ?? products[0]
   // Batch #12 (#4/#14): stillgelegte Personalisierungs-Duplikate leiten auf die
@@ -47,7 +51,7 @@ export default function ProductView() {
   // catalog's placeholder `rating`/`reviews` are never surfaced as social proof.
   const showReviews = REVIEWS_ENABLED && prod.reviews > 0
 
-  useEffect(() => { window.scrollTo(0, 0); setPdpSize('50x70') }, [id])
+  useEffect(() => { window.scrollTo(0, 0); setPdpSize('50x70'); setPdpFrameHex(frames[0].hex) }, [id])
 
   // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
   // the resolved product id so it fires once per product view, not per re-render.
@@ -93,10 +97,11 @@ export default function ProductView() {
     }
     if (!personalizable) {
       // Non-personalizable (Fire Horse / TCM lehrposter): NO birth data, but M13
-      // gives it a first-class size axis. The size is carried in the variantId so
-      // the server (server/pricing.js) prices base + size delta authoritatively —
-      // same money path as personalizable posters (default A2 = base, no change).
-      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: `${prod.category} · ${size.label}`, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id }) })
+      // gives it a first-class size axis. Size + frame travel in the variantId so
+      // the server prices authoritatively AND the fulfillment can resolve the
+      // Gelato productUid (Format×Rahmen) — R5 (#9).
+      const frameName = t(`options.frames.${pdpFrameHex}`)
+      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: `${prod.category} · ${size.label} · ${frameName}`, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: pdpFrameHex }) })
       showToast(t('cart.toastAdded'))
       return
     }
@@ -226,6 +231,28 @@ export default function ProductView() {
               into the cart. The axis is NON-FINAL (OQ-001): real per-product size
               availability/pricing is operator-owned; every A3/A2/A1 is available
               for now and none is offered as an unavailable-but-purchasable size. */}
+          {/* R5 (#9): Rahmen-Achse für Ready-to-ship-Poster — die Wahl wandert
+              (preisneutral) in die Variante, damit die Gelato-Zuordnung
+              (Format×Rahmen) bestimmbar ist. Gleiche Optik wie /personalize. */}
+          {!personalizable && (
+            <div data-testid="pdp-frame-selector" style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 10px' }}>
+                {t('configurator.step2').replace(/^\d+ · /, '')} — {t(`options.frames.${pdpFrameHex}`)}
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                {frames.map((f) => {
+                  const sel = f.hex === pdpFrameHex
+                  return (
+                    <button key={f.hex} type="button" data-testid="pdp-frame-option" data-frame={f.hex} aria-pressed={sel} onClick={() => setPdpFrameHex(f.hex)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, padding: '8px 14px 8px 8px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 13, color: '#4A4438' }}>
+                      <span className="color-swatch-circle" style={{ width: 26, height: 26, background: f.hex, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.08)' }} />{t(`options.frames.${f.hex}`)}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {!personalizable && (
             <div data-testid="pdp-size-selector" data-nonfinal="true" style={{ marginBottom: 20 }}>
               <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 10px' }}>

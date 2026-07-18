@@ -48,6 +48,26 @@ describe('M13 / REQ-028 — every PDP exposes a size selector', () => {
   // AKTIVEN, nicht-personalisierbaren PDPs (standalone Selektor, Tests unten).
 })
 
+describe('Batch#12 R5 (#9) — Rahmen-Achse auch auf Ready-to-ship-PDPs', () => {
+  it('zeigt beide Rahmen-Optionen; die Wahl wandert in die Cart-Line-Variante (Gelato-UID-Bestimmung)', async () => {
+    // Ohne Rahmen-Achse war die Gelato-Produkt-Variante eines Katalog-Posters
+    // unbestimmbar (PRODUCT_UIDS ist über Format×Rahmen gekeyt) — der Rahmen
+    // ist preisneutral (server/pricing.js ignoriert die frame-Achse).
+    renderPdp('11')
+    const pdp = await findPdp()
+    const frames = within(pdp).getAllByTestId('pdp-frame-option')
+    expect(frames).toHaveLength(2)
+    expect(frames[0]).toHaveAttribute('aria-pressed', 'true') // Default Eiche
+    fireEvent.click(frames[1]) // Schwarz matt
+    expect(frames[1]).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(within(pdp).getByTestId('pdp-add-to-cart'))
+    const cart = JSON.parse(localStorage.getItem('sizhu_cart') || '[]')
+    expect(cart).toHaveLength(1)
+    expect(cart[0].variantId).toContain('size=50x70')
+    expect(cart[0].variantId).toContain('frame=#1B1B1B')
+  })
+})
+
 describe('M13 / REQ-030 — BaZi-only personalization gate preserved', () => {
   it('the non-personalizable PDP shows NO birth data / chart preview / configurator', async () => {
     renderPdp('11')

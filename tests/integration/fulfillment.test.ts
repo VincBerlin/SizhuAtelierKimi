@@ -10,7 +10,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import request from 'supertest'
-import { fulfillOrder, posterLinesFrom } from '../../server/fulfillment.js'
+import { fulfillOrder, posterLinesFrom, catalogPosterLinesFrom } from '../../server/fulfillment.js'
 import { renderPosterPdf } from '../../server/pdf.js'
 import { PRODUCT_UIDS } from '../../server/gelatoProducts.js'
 import { createApp } from '../../server/index.js'
@@ -184,6 +184,75 @@ describe('fulfillOrder', () => {
     expect(r2.printed).toHaveLength(1)
   })
 
+})
+
+describe('Batch#12 R5 (#9) — Gelato für ALLE Poster: Katalog-Lines werden produziert oder scheitern LAUT', () => {
+  // Metadaten-Datensatz einer nicht-personalisierten Katalog-Poster-Line, wie
+  // /api/checkout ihn seit R5 für JEDE Line schreibt.
+  const CATALOG_LINE = { productId: 'poster:11', variantId: 'size=50x70;frame=#1B1B1B', qty: '1' }
+  const FAKE_PDF = Buffer.from('%PDF-1.4 fake-print-asset')
+  interface GelatoOrderStub { items: Array<{ itemReferenceId: string; productUid: string; quantity: number; fileUrl: string }> }
+
+  it('catalogPosterLinesFrom wählt poster:-Lines ohne designId; posterLinesFrom ignoriert sie', () => {
+    const meta = { line1: P_LINE, line2: CATALOG_LINE, line3: { productId: 'bundle:b1', variantId: '', qty: '1' } }
+    const catalog = catalogPosterLinesFrom(meta)
+    expect(catalog).toHaveLength(1)
+    expect(catalog[0].lineKey).toBe('line2')
+    expect(posterLinesFrom(meta).map((l) => l.lineKey)).toEqual(['line1'])
+  })
+
+  it('Katalog-Line mit registriertem Druck-Asset → Print gespeichert + Gelato-Draft mit korrekt gemappter UID', async () => {
+    const pool = fakePool()
+    const orders: GelatoOrderStub[] = []
+    const gelato = { enabled: () => true, createOrder: async (o: GelatoOrderStub) => { orders.push(o); return { id: 'g-cat-1', orderType: 'draft' } } }
+    // Injectable wie alle Externen (createApp-Muster): der Test stellt das
+    // validierte Druck-Asset; die REALE leere Registry ist der Fail-Fall unten.
+    const printAsset = async (productId: string) => {
+      if (productId === 'poster:11') return FAKE_PDF
+      throw new Error(`print asset not registered for: ${productId}`)
+    }
+    const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato, publicUrl: 'https://shop.test', printAsset }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_cat_1' }, personalization: { line1: CATALOG_LINE }, deps })
+    expect(r.failed).toHaveLength(0)
+    expect(r.printed).toHaveLength(1)
+    expect(pool.prints[0].size_id).toBe('50x70')
+    expect(pool.prints[0].pdf.subarray(0, 5).toString()).toBe('%PDF-')
+    expect(orders).toHaveLength(1)
+    // Rahmen-Hex #1B1B1B → „Schwarz matt" → verifizierte 50x70-UID.
+    expect(orders[0].items[0].productUid).toBe(PRODUCT_UIDS['50x70|Schwarz matt'])
+  })
+
+  it('OHNE registriertes Druck-Asset → failed LAUT (nie stille Nicht-Produktion), kein Gelato-Draft', async () => {
+    const pool = fakePool()
+    const orders: GelatoOrderStub[] = []
+    const gelato = { enabled: () => true, createOrder: async (o: GelatoOrderStub) => { orders.push(o); return { id: 'g-x', orderType: 'draft' } } }
+    // KEIN printAsset-Stub → fulfillment nutzt die reale (leere) Registry.
+    const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato, publicUrl: 'https://shop.test' }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_cat_2' }, personalization: { line1: CATALOG_LINE }, deps })
+    expect(r.failed).toHaveLength(1)
+    expect(String(r.failed[0].reason)).toMatch(/print asset/i)
+    expect(r.printed).toHaveLength(0)
+    expect(orders).toHaveLength(0)
+  })
+
+  it('gemischte Bestellung (personalisiert + Katalog): EIN Draft mit BEIDEN Items, idempotent', async () => {
+    const pool = fakePool()
+    const orders: GelatoOrderStub[] = []
+    const gelato = { enabled: () => true, createOrder: async (o: GelatoOrderStub) => { orders.push(o); return { id: 'g-mix-1', orderType: 'draft' } } }
+    const printAsset = async () => FAKE_PDF
+    const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato, publicUrl: 'https://shop.test', printAsset }
+    const meta = { line1: P_LINE, line2: CATALOG_LINE }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_mix_1' }, personalization: meta, deps })
+    expect(r.failed).toHaveLength(0)
+    expect(r.printed).toHaveLength(2)
+    expect(orders).toHaveLength(1)
+    expect(orders[0].items).toHaveLength(2)
+    // Webhook-Replay: nichts doppelt (weder Druck noch Draft).
+    const r2 = await fulfillOrder({ session: { ...session, id: 'cs_mix_1' }, personalization: meta, deps })
+    expect(orders).toHaveLength(1)
+    expect(r2.failed).toHaveLength(0)
+    expect(pool.prints).toHaveLength(2)
+  })
 })
 
 describe('GET /prints/:sessionId/:token.pdf', () => {
