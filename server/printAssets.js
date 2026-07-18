@@ -15,26 +15,30 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class PrintAssetMissingError extends Error {
-  constructor(productId) {
+  constructor(key) {
     super(
-      `print asset not registered for: ${productId} — druckfertige PDF unter print-assets/ ablegen und in server/printAssets.js PRINT_ASSETS registrieren`,
+      `print asset not registered for: ${key} — druckfertige PDF (Endformat + 3 mm Beschnitt, siehe print-assets/README.md) unter print-assets/ ablegen und in server/printAssets.js PRINT_ASSETS registrieren`,
     )
     this.name = 'PrintAssetMissingError'
   }
 }
 
-// productId ('poster:11') → Dateiname unter Shop/print-assets/.
+// 'productId|sizeId' ('poster:11|50x70') → Dateiname unter Shop/print-assets/.
+// PRO FORMAT (Operator-Fund R5): die drei Formate haben UNTERSCHIEDLICHE
+// Seitenverhältnisse (3:4 / 5:7 / 7:10) — eine Datei kann nie alle bedienen.
+// Namenskonvention: poster-<id>-<format>.pdf (z. B. poster-11-50x70.pdf).
 // BEWUSST LEER — Befüllung nur durch den Operator mit validierten Dateien.
 export const PRINT_ASSETS = {}
 
-/** Lädt die registrierte Druck-PDF einer Katalog-Poster-Line — oder wirft
- *  LAUT (PrintAssetMissingError / kein-PDF-Fehler). */
-export async function printAssetPdf(productId) {
-  const file = PRINT_ASSETS[String(productId || '')]
-  if (!file) throw new PrintAssetMissingError(productId)
+/** Lädt die registrierte Druck-PDF einer Katalog-Poster-Line für GENAU das
+ *  bestellte Format — oder wirft LAUT (PrintAssetMissingError / kein PDF). */
+export async function printAssetPdf(productId, sizeId) {
+  const key = `${String(productId || '')}|${String(sizeId || '')}`
+  const file = PRINT_ASSETS[key]
+  if (!file) throw new PrintAssetMissingError(key)
   const buf = await fs.readFile(path.resolve(__dirname, '..', 'print-assets', file))
   if (buf.subarray(0, 5).toString() !== '%PDF-') {
-    throw new Error(`print asset for ${productId} is not a PDF: ${file}`)
+    throw new Error(`print asset for ${key} is not a PDF: ${file}`)
   }
   return buf
 }

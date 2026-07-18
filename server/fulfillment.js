@@ -200,7 +200,9 @@ export async function fulfillOrder({ session, personalization, deps }) {
       const v = parseVariant(p.variantId)
       const sizeId = resolvePrintSizeId(v.size)
       if (!sizeId) throw new Error(`Unknown print size: ${v.size}`)
-      const pdf = await loadPrintAsset(p.productId)
+      // PRO FORMAT laden (Operator-Fund R5): die Formate haben verschiedene
+      // Seitenverhältnisse — nie eine Datei für ein anderes Format verwenden.
+      const pdf = await loadPrintAsset(p.productId, sizeId)
       const token = randomUUID()
       await pool.query(
         'INSERT INTO prints (stripe_session, line_key, token, design_id, size_id, pdf) VALUES ($1,$2,$3,$4,$5,$6)',

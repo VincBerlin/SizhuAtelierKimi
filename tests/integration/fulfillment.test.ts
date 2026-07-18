@@ -207,9 +207,12 @@ describe('Batch#12 R5 (#9) — Gelato für ALLE Poster: Katalog-Lines werden pro
     const gelato = { enabled: () => true, createOrder: async (o: GelatoOrderStub) => { orders.push(o); return { id: 'g-cat-1', orderType: 'draft' } } }
     // Injectable wie alle Externen (createApp-Muster): der Test stellt das
     // validierte Druck-Asset; die REALE leere Registry ist der Fail-Fall unten.
-    const printAsset = async (productId: string) => {
-      if (productId === 'poster:11') return FAKE_PDF
-      throw new Error(`print asset not registered for: ${productId}`)
+    // PRO FORMAT (Operator-Fund R5: die drei Formate haben unterschiedliche
+    // Seitenverhältnisse — eine Datei kann nie alle bedienen): der Lookup
+    // MUSS productId UND sizeId tragen.
+    const printAsset = async (productId: string, sizeId: string) => {
+      if (productId === 'poster:11' && sizeId === '50x70') return FAKE_PDF
+      throw new Error(`print asset not registered for: ${productId}|${sizeId}`)
     }
     const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato, publicUrl: 'https://shop.test', printAsset }
     const r = await fulfillOrder({ session: { ...session, id: 'cs_cat_1' }, personalization: { line1: CATALOG_LINE }, deps })
@@ -220,6 +223,19 @@ describe('Batch#12 R5 (#9) — Gelato für ALLE Poster: Katalog-Lines werden pro
     expect(orders).toHaveLength(1)
     // Rahmen-Hex #1B1B1B → „Schwarz matt" → verifizierte 50x70-UID.
     expect(orders[0].items[0].productUid).toBe(PRODUCT_UIDS['50x70|Schwarz matt'])
+  })
+
+  it('registriertes Asset im FALSCHEN Format → failed LAUT (nie die falsche Datei drucken)', async () => {
+    const pool = fakePool()
+    // Asset existiert nur für 30x40 — bestellt ist 50x70.
+    const printAsset = async (productId: string, sizeId: string) => {
+      if (productId === 'poster:11' && sizeId === '30x40') return FAKE_PDF
+      throw new Error(`print asset not registered for: ${productId}|${sizeId}`)
+    }
+    const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato: null, publicUrl: 'https://shop.test', printAsset }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_cat_wrongsize' }, personalization: { line1: CATALOG_LINE }, deps })
+    expect(r.failed).toHaveLength(1)
+    expect(r.printed).toHaveLength(0)
   })
 
   it('OHNE registriertes Druck-Asset → failed LAUT (nie stille Nicht-Produktion), kein Gelato-Draft', async () => {

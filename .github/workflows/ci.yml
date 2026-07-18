@@ -1,0 +1,39 @@
+# CI — Build + Test-Suite für jeden Push/PR (Operator-Auftrag 2026-07-18:
+# „für die PR-Commits waren keine GitHub-Actions-Workflow-Runs eingerichtet").
+#
+# Vitest läuft SEQUENZIELL (--no-file-parallelism): die parallele Ausführung
+# zeigt maschinenabhängige Worker-Interferenz (RL-VITEST-ENV im Evidence-
+# Ledger) — der sequenzielle Lauf ist die verlässliche Referenz.
+name: CI
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (tsc + vite)
+        run: npm run build
+
+      - name: Test (vitest, sequential)
+        run: npx vitest run --no-file-parallelism
+
+      # Lint ist NICHT gate-fähig: ~70 vorbestehende `any`-Befunde in
+      # Test-Stubs (dokumentierte Alt-Last). Läuft informativ mit, bricht
+      # den Build nicht — neue Runden halten ihr Lint-Delta bei null.
+      - name: Lint (informational)
+        run: npm run lint
+        continue-on-error: true
