@@ -61,6 +61,10 @@ export interface Product {
   use_case: string
   /** Visual design family the artwork belongs to. */
   design_family: DesignFamily
+  /** Batch #12 (#4/#14): true = aus UI/Suche/Navigation entfernt (Duplikat der
+   *  zentralen Personalisierungsseite bzw. eingestellte Kollektion). Daten und
+   *  Server-Preise bleiben — alte Warenkörbe/Bestellungen bleiben gültig. */
+  retired?: boolean
 }
 
 const mk = (frame: string, bg: string, name: string, date: string): PosterData => {
@@ -70,37 +74,37 @@ const mk = (frame: string, bg: string, name: string, date: string): PosterData =
 
 export const products: Product[] = [
   {
-    id: 1, category: 'TCM', title: 'BaZi Geburtschart — Vier Säulen', price: 49, anchor: 59, rating: 4.9, reviews: 318, sold: 2140,
+    id: 1, retired: true, category: 'TCM', title: 'BaZi Geburtschart — Vier Säulen', price: 49, anchor: 59, rating: 4.9, reviews: 318, sold: 2140,
     bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Museum-quality mattes Papier', 'Massivholzrahmen mit schützendem Plexiglas', 'Produktion in 3 Werktagen, nummeriert'],
     poster: mk('#B98A5E', '#E9DFCB', 'Mara Lindqvist', '1990-07-21'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'classic_ink',
   },
   {
-    id: 2, category: 'Praxen', title: 'BaZi Praxis-Edition', price: 69, anchor: 79, rating: 4.8, reviews: 196, sold: 870,
+    id: 2, retired: true, category: 'Praxen', title: 'BaZi Praxis-Edition', price: 69, anchor: 79, rating: 4.8, reviews: 196, sold: 870,
     bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Schützendes Plexiglas — hygienisch abwischbar', 'Optional mit Praxisname statt Personenname'],
     poster: mk('#1B1B1B', '#2C3A57', 'Praxis Anand', '1985-03-09'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'practice', design_family: 'minimal',
   },
   {
-    id: 3, category: 'Wellness', title: 'BaZi Elemente-Poster', price: 45, anchor: 55, rating: 4.9, reviews: 241, sold: 1320,
+    id: 3, retired: true, category: 'Wellness', title: 'BaZi Elemente-Poster', price: 45, anchor: 55, rating: 4.9, reviews: 241, sold: 1320,
     bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Museum-quality mattes Papier', 'Auch als Gutschein-Geschenk beliebt'],
     poster: mk('#B98A5E', '#AFBCA6', 'Lina Sommer', '1992-11-02'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'wellness', design_family: 'japandi',
   },
   {
-    id: 4, category: 'Yoga', title: 'BaZi Yoga-Flow Chart', price: 39, anchor: 49, rating: 4.7, reviews: 158, sold: 990,
+    id: 4, retired: true, category: 'Yoga', title: 'BaZi Yoga-Flow Chart', price: 39, anchor: 49, rating: 4.7, reviews: 158, sold: 990,
     bullets: ['Erdiges Terracotta — passt zu Holz & Pflanzen', 'Kompaktes Format für Studio-Wände', 'Leichter Rahmen, einfache Wandmontage', 'Set-Rabatt für mehrere Studio-Räume'],
     poster: mk('#B98A5E', '#BC7A5E', 'Yara Khan', '1994-05-18'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'yoga', design_family: 'wabi_sabi',
   },
   {
-    id: 5, category: 'Wellness', title: 'BaZi Mond & Sterne', price: 52, rating: 4.9, reviews: 134, sold: 640,
+    id: 5, retired: true, category: 'Wellness', title: 'BaZi Mond & Sterne', price: 52, rating: 4.9, reviews: 134, sold: 640,
     bullets: ['Tiefes Anthrazit für eine elegante, ruhige Wirkung', 'Premium-Schwarzrahmen, matt', 'Goldfarbene Akzentschrift optional', 'Hochwertiges Geschenk zum Jahreswechsel'],
     poster: mk('#1B1B1B', '#2A2A2C', 'Noah Berger', '1988-12-30'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'gift', design_family: 'classic_ink',
   },
   {
-    id: 6, category: 'TCM', title: 'BaZi Minimal', price: 42, anchor: 52, rating: 4.8, reviews: 205, sold: 1510,
+    id: 6, retired: true, category: 'TCM', title: 'BaZi Minimal', price: 42, anchor: 52, rating: 4.8, reviews: 205, sold: 1510,
     bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'],
     poster: mk('#1B1B1B', '#E9DFCB', 'Sofia Reuter', '1991-09-14'),
     product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'minimal',
@@ -158,7 +162,7 @@ export const products: Product[] = [
     // /api/match → Paar-Design → Druck-PDF, live-bewiesen im Evidence-Ledger).
     // Preis = ptype:couple-Basis (Server-Parität, ADR-001). Die PDP leitet für
     // personalization_level 'couple' in den Paar-Flow (ProductView-Weiche).
-    id: 15, category: 'Paare', title: 'Paar-Kompatibilitäts-Poster — personalisiert', price: 69, anchor: 79, rating: 4.9, reviews: 0, sold: 0,
+    id: 15, retired: true, category: 'Paare', title: 'Paar-Kompatibilitäts-Poster — personalisiert', price: 69, anchor: 79, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Beide Geburtscharts exakt berechnet auf EINEM Motiv (合婚)', 'Eure Element-Beziehung als kalligrafisches Relations-Label', 'Museum-quality mattes Papier', 'Aus euren echten Geburtsdaten — kein Standardmotiv'],
     poster: mk('#B98A5E', '#E9DFCB', 'Mara & Tomas', '1990-06-15'),
     product_world: 'bazi', personalization_level: 'couple', use_case: 'gift', design_family: 'classic_ink',
@@ -167,7 +171,7 @@ export const products: Product[] = [
 
 // Featured lines on the home collection — a richer set so the mobile swipe
 // carousel has something to discover (personalizable + ready-to-ship mix).
-export const featuredIds = [1, 7, 8, 11, 3, 2]
+export const featuredIds = [7, 8, 11, 12] // Batch #12: 1/2/3 retired (Personalisierungs-Duplikate)
 
 // M11 / REQ-018 — "New Arrivals" is a SEPARATE home slider (not merged into
 // Bestseller). Curated from REAL catalog ids — the most recently added SKUs
@@ -224,9 +228,13 @@ export function filterByWorld(
 /** Resolve a fixed, ordered list of products by id — used by curated
  *  collections (fire horse / bundles / analysis PDFs) that span worlds.
  *  Total: ids with no matching product are skipped (never throws). */
+/** Batch #12: Alle UI-Listen (Kollektionen, Slider, Suche, Empfehlungen)
+ *  konsumieren NUR aktive Produkte. */
+export const activeProducts: Product[] = products.filter((p) => !p.retired)
+
 export function productsByIds(ids: readonly number[]): Product[] {
   return ids
-    .map((id) => products.find((p) => p.id === id))
+    .map((id) => activeProducts.find((p) => p.id === id))
     .filter((p): p is Product => p != null)
 }
 

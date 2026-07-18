@@ -39,14 +39,17 @@ interface InspirationTile {
 const collPath = (slug: string) => `/collections/${slug}`
 
 const TILES: InspirationTile[] = [
-  { href: collPath('bazi-posters'), context: 'Wohnzimmer', caption: 'Persönliches BaZi-Poster über dem Sofa', tint: '#E9DFCB', placeholder: true },
+  // Batch #12 (#4): personalisierte Ziele führen auf die ZENTRALE
+  // Personalisierungsseite; die 10–15-Seiten-Behauptung der alten Analyse-Kachel
+  // ist gestrichen (Premium-Analyse, RL-PREMIUM-PDF).
+  { href: '/personalize', context: 'Wohnzimmer', caption: 'Persönliches BaZi-Poster über dem Sofa', tint: '#E9DFCB', placeholder: true },
   { href: collPath('tcm-posters'), context: 'Behandlungsraum', caption: 'TCM-Lehrtafel im Praxisflur', tint: '#AFBCA6', placeholder: true },
   { href: collPath('wuxing-posters'), context: 'Ruheraum', caption: 'Wuxing-Fünf-Elemente in der Wellness-Ecke', tint: '#C8B89A', placeholder: true },
-  { href: collPath('compatibility-posters'), context: 'Schlafzimmer', caption: 'Paar-Kompatibilität als Geschenk zum Einzug', tint: '#D8C3B4', placeholder: true },
+  { href: '/personalize?type=couple', context: 'Schlafzimmer', caption: 'Paar-Kompatibilität als Geschenk zum Einzug', tint: '#D8C3B4', placeholder: true },
   { href: collPath('fire-horse-2026'), context: 'Arbeitszimmer', caption: 'Feuerpferd 2026 — Limited Edition an der Galeriewand', tint: '#BC7A5E', placeholder: true },
-  { href: collPath('analysis-pdfs'), context: 'Digital', caption: 'Digitale BaZi-Analyse als 10–15-seitiges PDF', tint: '#D9D0C1', placeholder: true },
-  { href: collPath('personalized-posters'), context: 'Eingangsbereich', caption: 'Personalisiertes Motiv als Blickfang im Flur', tint: '#E2DACB', placeholder: true },
-  { href: collPath('bundles'), context: 'Studio', caption: 'Stimmiges Poster-Set für Studio & Wartebereich', tint: '#CFC4B2', placeholder: true },
+  { href: '/digital', context: 'Digital', caption: 'Premium-BaZi-Tiefenanalyse als persönliches PDF', tint: '#D9D0C1', placeholder: true },
+  { href: '/personalize?type=birthchart', context: 'Eingangsbereich', caption: 'Personalisiertes Geburtshoroskop als Blickfang im Flur', tint: '#E2DACB', placeholder: true },
+  { href: '/bundles', context: 'Studio', caption: 'Stimmiges Poster-Set für Studio & Wartebereich', tint: '#CFC4B2', placeholder: true },
 ]
 
 // Safety net: every tile destination must be a known route. Filtering here keeps
@@ -56,8 +59,10 @@ const KNOWN_COLLECTION_PATHS = new Set<string>([
   '/collections',
 ])
 
+const KNOWN_ROUTES = new Set(['/personalize', '/digital', '/bundles'])
 function isLiveTile(t: InspirationTile): boolean {
   if (t.href.startsWith('/collections')) return KNOWN_COLLECTION_PATHS.has(t.href)
+  if (KNOWN_ROUTES.has(t.href.split('?')[0])) return true
   return /^\/product\/\d+$/.test(t.href)
 }
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { X } from 'lucide-react'
-import { products } from '../../lib/catalog'
+import { activeProducts as products } from '../../lib/catalog'
 import { useT } from '../../i18n/I18nProvider'
 import { C, FONT_SANS } from '../../lib/tokens'
 
@@ -35,13 +35,11 @@ export default function HeaderSearch({ onClose }: { onClose: () => void }) {
       { key: 'c-fire', label: t('coll.cards.firehorse.title'), to: '/product/8', kw: ['fire horse', 'feuerpferd', 'cheval de feu', '2026'] },
       { key: 'c-digital', label: t('coll.cards.digital.title'), to: '/digital', kw: ['digital', 'pdf', 'analysis', 'analyse'] },
       { key: 'c-bundles', label: t('coll.cards.bundles.title'), to: '/bundles', kw: ['bundle', 'coffret', 'set', 'combo'] },
-      { key: 'c-gifts', label: t('coll.cards.gifts.title'), to: '/gifts', kw: ['gift', 'gifts', 'geschenk', 'cadeau', 'present'] },
     ]
     const gifts: Entry[] = [
-      { key: 'g-wedding', label: t('search.gifts.wedding'), to: '/gifts', kw: ['wedding', 'hochzeit', 'mariage', 'marriage'] },
-      { key: 'g-birthday', label: t('search.gifts.birthday'), to: '/gifts', kw: ['birthday', 'geburtstag', 'anniversaire'] },
-      { key: 'g-anniv', label: t('search.gifts.anniversary'), to: '/gifts', kw: ['anniversary', 'jahrestag', 'anniversaire'] },
-      { key: 'g-baby', label: t('search.gifts.baby'), to: '/gifts', kw: ['baby', 'baby shower', 'geburt', 'naissance', 'newborn'] },
+
+
+
       { key: 'g-new', label: t('search.gifts.newbeginning'), to: '/gifts', kw: ['new beginning', 'neuanfang', 'housewarming', 'einzug', 'reset', 'move'] },
       { key: 'g-studio', label: t('search.gifts.studio'), to: '/gifts', kw: ['yoga', 'studio', 'wellness', 'tcm', 'practice', 'praxis', 'spiritual', 'clinic'] },
     ]

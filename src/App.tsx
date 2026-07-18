@@ -11,7 +11,6 @@ const Personalize = lazy(() => import('./pages/Personalize'))
 const Legal = lazy(() => import('./pages/Legal'))
 const Faq = lazy(() => import('./pages/Faq'))
 const Account = lazy(() => import('./pages/Account'))
-const Gifts = lazy(() => import('./pages/Gifts'))
 const HowItWorks = lazy(() => import('./pages/HowItWorks'))
 const Checkout = lazy(() => import('./pages/Checkout'))
 const OrderResult = lazy(() => import('./pages/OrderResult'))
@@ -110,7 +109,8 @@ function AppShell() {
           {/* Offers / Sale hub (REQ-024 / T-305) — the full curated hub is live:
               ≥2 curated sections, each onward-linking to a real collection route. */}
           <Route path="/offers" element={<Offers />} />
-          <Route path="/gifts" element={<Gifts />} />
+          {/* Batch #12 (#4): Geschenkkollektion entfernt — Deep-Links bleiben ohne 404. */}
+          <Route path="/gifts" element={<Navigate to="/personalize" replace />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tcm" element={<TcmOverview />} />
           <Route path="/bundles" element={<BundlesPage />} />

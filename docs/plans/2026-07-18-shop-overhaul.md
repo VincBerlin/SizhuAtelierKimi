@@ -16,7 +16,7 @@ keine Duplikate · bestehende funktionierende Features dürfen nicht brechen.
 | 1 | Mobile-First-Sweep (Nav, Hero, Karten, PDP, Formulare, Cart, Checkout, Touch, kein H-Scroll) | ☐ |
 | 2 | Einheitliches Designsystem (eckig überall, auch Editions/Aktionen; einheitliche Abstände/Schatten; konsistente Poster-Proportionen) | ◐ R1 (71 Rundungen → eckig, nur 2–5px-Minimalradien übrig; Proportionen/Abstände folgen) |
 | 3 | Mega-Menü komplett WEISS (auch Hover/Container); mobil klare Hierarchie; keine Doppel-Links | ✅ R1 (weiß; Mobil-Hierarchie in R2 geprüft) |
-| 4 | Navigation/Kollektionen bereinigen: NUR „Personalisierung" als zentrale personalisierte Kategorie; ENTFERNEN: BaZi-Geburtschart-Kollektion, BaZi Elemente Poster, BaZi Praxis Edition, Geschenkkollektion, Rahmen & Zubehör (+ Filter, Suche, tote Links) | ☐ |
+| 4 | Navigation/Kollektionen bereinigen … | ✅ R2 (Soft-Retire 1–6+15; Gifts/Zubehör raus aus UI+Suche+Nav; Legacy-Slugs & /product-Links = Redirects, keine 404; Preise für Alt-Warenkörbe erhalten) |
 | 5 | EINE zentrale Personalisierungsseite mit 5 Angeboten (BaZi, Geburtschart, Paar, Premium-Analyse, Poster+Analyse) | ☐ |
 | 6 | Geburtschart-Präsentation (Poster+Rahmen+Hintergrund als EIN Modul) in Personalisierungsseite; Sticky bezieht sich auf den ganzen Produktcontainer, hängt nicht am Hero | ☐ |
 | 7 | Einheitliche PDP-Struktur AUCH für personalisierte Produkte (Mockups, Details, Material, Rahmenansichten, Formate, Beschreibung, Liefer-/Produktions-/Personalisierungs-Infos, Empfehlungen) | ☐ |
@@ -26,7 +26,7 @@ keine Duplikate · bestehende funktionierende Features dürfen nicht brechen.
 | 11 | „Wird oft zusammen gekauft" auf JEDER Produktseite (passend, existent, mobil bedienbar) | ☐ |
 | 12 | Neuheiten/Alle ansehen/Editions/Aktionen: Karten, Links, Bilder, Buttons, Hover vereinheitlichen; keine leeren/doppelten/toten Inhalte | ☐ |
 | 13 | Warenkorb-Badge direkt am Icon (gemeinsame Komponente, positionsstabil, korrekt bei 0 und hohen Zahlen) | ✅ R1 (Icon-Block, 99+-Kappung, kein Badge bei 0) |
-| 14 | Doppelte Inhalte vollständig entfernen (Kategorien, Produkte, Links, Karten, Komponenten, API-Calls, Gelato-Übertragungen) | ☐ |
+| 14 | Doppelte Inhalte vollständig entfernen … | ◐ R2 (Kategorien/Produkte/Links/Karten/Suche ✓; API-/Gelato-Dubletten in R-Gelato) |
 | 15 | Technik-QS: Konsole/Netzwerk sauber, keine 404, Lade-/Fehlerzustände, Validierung, Preis-/Variantenlogik, responsive Bilder, Performance, A11y (Tastatur, Fokus, Semantik), Meta-Daten, kein CLS | ☐ |
 
 ## Akzeptanzkriterien (17)

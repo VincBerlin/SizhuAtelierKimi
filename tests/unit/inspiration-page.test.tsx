@@ -97,13 +97,17 @@ describe('REQ-011 / AT-011-2 — tiles link to real collection/product routes', 
 
     const tiles = await findTiles(page)
 
+    // Batch #12: personalisierte Ziele führen auf die zentrale
+    // Personalisierungsseite (+ /digital, /bundles) — ebenfalls lebende Routen.
+    const validPages = new Set(['/personalize', '/digital', '/bundles'])
     for (const tile of tiles) {
       const link = within(tile).getByRole('link')
       const href = link.getAttribute('href') ?? ''
       const isCollection = validCollections.has(href)
+      const isPage = validPages.has(href.split('?')[0])
       const productMatch = href.match(/^\/product\/(\d+)$/)
       const isProduct = productMatch != null && validProductIds.has(Number(productMatch[1]))
-      expect(isCollection || isProduct).toBe(true)
+      expect(isCollection || isPage || isProduct, href).toBe(true)
     }
   })
 

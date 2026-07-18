@@ -29,7 +29,8 @@ import { sizes } from '../../src/lib/bazi'
 
 const allEntries: TaxonomyEntry[] = TAXONOMY_AXES.flatMap((a) => [...TAXONOMY[a]])
 const realUseCases = new Set(products.map((p) => p.use_case))
-const KNOWN_ROUTES = new Set(['/collections', '/offers', '/inspiration', '/personalize'])
+// Batch #12: + /digital, /bundles (Sets/Analyse-Achsen führen auf lebende Seiten)
+const KNOWN_ROUTES = new Set(['/collections', '/offers', '/inspiration', '/personalize', '/digital', '/bundles'])
 
 describe('M9 · canonical taxonomy completeness (REQ-006)', () => {
   it('defines all six mandatory axes, each with at least one entry', () => {
@@ -110,7 +111,7 @@ describe('M9 · no dead links (every entry grounds on real data)', () => {
     for (const e of allEntries) {
       if (e.link.kind === 'route') {
         expect(e.link.path.startsWith('/')).toBe(true)
-        expect(KNOWN_ROUTES, `route ${e.link.path} (entry ${e.id})`).toContain(e.link.path)
+        expect(KNOWN_ROUTES, `route ${e.link.path} (entry ${e.id})`).toContain(e.link.path.split('?')[0])
       }
     }
   })
