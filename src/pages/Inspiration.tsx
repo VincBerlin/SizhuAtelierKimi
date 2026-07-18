@@ -47,7 +47,7 @@ const TILES: InspirationTile[] = [
   { href: collPath('wuxing-posters'), context: 'Ruheraum', caption: 'Wuxing-Fünf-Elemente in der Wellness-Ecke', tint: '#C8B89A', placeholder: true },
   { href: '/personalize?type=couple', context: 'Schlafzimmer', caption: 'Paar-Kompatibilität als Geschenk zum Einzug', tint: '#D8C3B4', placeholder: true },
   { href: collPath('fire-horse-2026'), context: 'Arbeitszimmer', caption: 'Feuerpferd 2026 — Limited Edition an der Galeriewand', tint: '#BC7A5E', placeholder: true },
-  { href: '/digital', context: 'Digital', caption: 'Premium-BaZi-Tiefenanalyse als persönliches PDF', tint: '#D9D0C1', placeholder: true },
+  { href: '/personalize?type=digital', context: 'Digital', caption: 'Premium-BaZi-Tiefenanalyse als persönliches PDF', tint: '#D9D0C1', placeholder: true },
   { href: '/personalize?type=birthchart', context: 'Eingangsbereich', caption: 'Personalisiertes Geburtshoroskop als Blickfang im Flur', tint: '#E2DACB', placeholder: true },
   { href: '/bundles', context: 'Studio', caption: 'Stimmiges Poster-Set für Studio & Wartebereich', tint: '#CFC4B2', placeholder: true },
 ]
@@ -59,7 +59,9 @@ const KNOWN_COLLECTION_PATHS = new Set<string>([
   '/collections',
 ])
 
-const KNOWN_ROUTES = new Set(['/personalize', '/digital', '/bundles'])
+// Batch #12 R3 (#5): /digital ist nur noch ein Redirect — Kacheln zielen direkt
+// auf die zentrale Personalisierungsseite statt auf das frühere Duplikat.
+const KNOWN_ROUTES = new Set(['/personalize', '/bundles'])
 function isLiveTile(t: InspirationTile): boolean {
   if (t.href.startsWith('/collections')) return KNOWN_COLLECTION_PATHS.has(t.href)
   if (KNOWN_ROUTES.has(t.href.split('?')[0])) return true

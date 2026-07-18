@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
+import { personalizationGateError } from './personalizationGate.js'
 import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun } from './fufire.js'
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
@@ -411,6 +412,13 @@ app.post('/api/checkout', async (req, res) => {
       const cents = priceLineItemCents(it.productId, it.variantId)
       if (cents === null || !Number.isInteger(cents) || cents <= 0) {
         return res.status(400).json({ error: 'Unknown product or variant.' })
+      }
+      // Order-Gate (Batch #12 R3, Bereich 8): personalisierte Produkte ohne
+      // Pflicht-Geburtsdaten werden VOR Stripe abgelehnt — eine bezahlte, aber
+      // unerfüllbare Bestellung darf es nie geben (server/personalizationGate.js).
+      const gateError = personalizationGateError(it.productId, it.personalization)
+      if (gateError) {
+        return res.status(400).json({ error: `Missing required personalization data (${gateError}).` })
       }
       subtotalCents += cents * qty
       line_items.push({

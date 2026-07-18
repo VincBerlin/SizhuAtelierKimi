@@ -1,11 +1,17 @@
 import { FileText } from 'lucide-react'
+import { Link } from 'react-router'
 import Poster from '../Poster'
 import { bundles, digitalBundle } from '../../lib/catalog'
 import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'
 import { bundleProductId } from '../../lib/checkout'
+import { PRODUCT_TYPES } from '../../lib/productTypes'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
+
+// Basispreis „Poster + Analyse" aus der EINEN Client-Preisquelle (ADR-001):
+// dieselbe Zahl, die der /personalize-Flow anzeigt und der Server nachpreist.
+const bundleBasePrice = PRODUCT_TYPES.find((p) => p.id === 'bundle')!.basePrice
 
 export default function BundlesSection() {
   const { addItem, showToast } = useShopStore()
@@ -16,10 +22,10 @@ export default function BundlesSection() {
     addItem({ title: t(`content.bundles.${b.id}.title`), price: b.price, qty: 1, poster: b.p1, meta: t('content.bundleMeta3'), productId: bundleProductId(b.id), variantId: '' })
     showToast(t('cart.toastSet'))
   }
-  const addDigital = () => {
-    addItem({ title: t('content.digitalBundle.title'), price: digitalBundle.price, qty: 1, poster: digitalBundle.poster, meta: t('content.bundleMeta'), productId: bundleProductId(digitalBundle.id), variantId: '' })
-    showToast(t('cart.toastSet'))
-  }
+  // Batch #12 R3 (#5/#8): „Poster + Analyse" ist ein PERSONALISIERTES Angebot —
+  // der frühere Direkt-Kauf-Button legte es OHNE Geburtsdaten in den Warenkorb
+  // (unerfüllbar; das Server-Order-Gate lehnt so eine Line inzwischen ab). Die
+  // Karte führt jetzt in den zentralen Personalisierungs-Flow.
 
   return (
     <section style={{ background: C.ink, color: C.inkOnDark }}>
@@ -50,7 +56,8 @@ export default function BundlesSection() {
                       <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: '#8f8576', textDecoration: 'line-through' }}>{money(b.anchor)}</span>
                       <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: '#E4B89F' }}>{t('bundles.save')} {money(b.anchor - b.price)}</span>
                     </div>
-                    <button onClick={() => addPosterBundle(b)} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '11px 20px', borderRadius: 999, fontSize: 13, fontWeight: 500, fontFamily: FONT_SANS }}>{t('bundles.add')}</button>
+                    {/* Batch #12 R1/R3 (#2/#13): eckige Formensprache — kein Pill-Radius. */}
+                    <button onClick={() => addPosterBundle(b)} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '11px 20px', fontSize: 13, fontWeight: 500, fontFamily: FONT_SANS }}>{t('bundles.add')}</button>
                   </>
                 ) : (
                   <span style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.04em', color: '#A9A091' }}>{t('preview.soon')}</span>
@@ -73,11 +80,19 @@ export default function BundlesSection() {
               {COMMERCE_ENABLED ? (
                 <>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, marginBottom: 14 }}>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: '#fff' }}>{money(digitalBundle.price)}</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 14, color: '#8f8576', textDecoration: 'line-through' }}>{money(digitalBundle.anchor)}</span>
-                    <span style={{ fontFamily: FONT_SANS, fontSize: 12, fontWeight: 600, color: '#E4B89F' }}>{t('bundles.save')} {money(digitalBundle.anchor - digitalBundle.price)}</span>
+                    {/* Preis aus PRODUCT_TYPES — dieselbe Quelle, aus der der
+                        Personalize-Flow (und via Parity-Test der Server) preist. */}
+                    <span style={{ fontFamily: FONT_SANS, fontSize: 20, fontWeight: 600, color: '#fff' }}>{t('personalize.from')} {money(bundleBasePrice)}</span>
                   </div>
-                  <button onClick={addDigital} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '11px 20px', borderRadius: 999, fontSize: 13, fontWeight: 500, fontFamily: FONT_SANS }}>{t('bundles.add')}</button>
+                  <Link
+                    data-testid="bundle-digital-personalize-link"
+                    to="/personalize?type=bundle"
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="transition-[filter] hover:brightness-110"
+                    style={{ display: 'inline-block', background: C.accent, color: '#fff', textDecoration: 'none', padding: '11px 20px', fontSize: 13, fontWeight: 500, fontFamily: FONT_SANS }}
+                  >
+                    {t('bundles.personalizeCta')}
+                  </Link>
                 </>
               ) : (
                 <span style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.04em', color: '#A9A091' }}>{t('preview.soon')}</span>

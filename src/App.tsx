@@ -18,7 +18,6 @@ const Blog = lazy(() => import('./pages/Blog'))
 const Article = lazy(() => import('./pages/Article'))
 const TcmOverview = lazy(() => import('./pages/TcmOverview'))
 const BundlesPage = lazy(() => import('./pages/BundlesPage'))
-const DigitalPage = lazy(() => import('./pages/DigitalPage'))
 const Kollektion = lazy(() => import('./pages/Kollektion'))
 const Collection = lazy(() => import('./pages/Collection'))
 const Inspiration = lazy(() => import('./pages/Inspiration'))
@@ -114,7 +113,10 @@ function AppShell() {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tcm" element={<TcmOverview />} />
           <Route path="/bundles" element={<BundlesPage />} />
-          <Route path="/digital" element={<DigitalPage />} />
+          {/* Batch #12 R3 (#5/#8): /digital verkaufte die Premium-Analyse OHNE
+              Geburtsdaten (unerfüllbar) und doppelte das Personalize-Angebot —
+              Deep-Links bleiben ohne 404 und landen im richtigen Flow. */}
+          <Route path="/digital" element={<Navigate to="/personalize?type=digital" replace />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           {/* Legal + info pages (Iteration 8) */}

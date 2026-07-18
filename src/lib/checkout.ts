@@ -32,13 +32,28 @@ export function buildVariantId(opts: { size?: string; frame?: string; pdf?: bool
   return parts.join(';')
 }
 
+// Batch #12 R3 (#8): Produkt-Identitäten, die vollständige Geburtsdaten
+// ERFORDERN — Spiegel des Server-Order-Gates (server/personalizationGate.js).
+// bundle:b1/b2 sind kuratierte, nicht personalisierte Poster-Sets.
+const PERSONALIZED_BUNDLE_IDS = new Set(['bundle:b-digital'])
+export function requiresPersonalization(productId: string): boolean {
+  return (
+    productId.startsWith(PTYPE_PRODUCT_PREFIX) ||
+    productId.startsWith(DIGITAL_PRODUCT_PREFIX) ||
+    PERSONALIZED_BUNDLE_IDS.has(productId)
+  )
+}
+
 // Single source of truth for the checkout completeness gate (REQ-016): true when
 // any personalized line is missing required birth data. Used by both the cart
 // drawer and the Checkout page so the two gates can never silently desync.
 export function cartHasIncompletePersonalization(cart: CartLine[]): boolean {
   return cart.some((l) => {
     const p = l.personalization
-    if (!p) return false
+    // R3 (#8): eine Line eines personalisierten Produkts ganz OHNE
+    // personalization-Daten ist unvollständig (der frühere /digital-Pfad
+    // erzeugte genau solche Lines — der Server lehnt sie inzwischen mit 400 ab).
+    if (!p) return l.productId != null && requiresPersonalization(l.productId)
     // Person A — always required.
     if (!p.name || !p.date || !p.place) return true
     // Birth time — required unless explicitly marked unknown. Only enforced when

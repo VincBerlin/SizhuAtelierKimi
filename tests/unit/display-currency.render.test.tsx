@@ -2,27 +2,30 @@
  * [REAL-BOUNDARY] REQ-016 / VIS-016 — a customer-facing price page renders in the
  * REGION currency, driven by the SAME wiring the app uses in production.
  *
- * We mount a real shop page (DigitalPage) inside the real provider tree
- * (I18nProvider → ShopStoreProvider). ShopStoreProvider derives the region from
- * GET /api/region on mount — exactly as the promo / announcement bar does — so
- * stubbing that one boundary lets us prove the end-to-end display path: region →
- * useMoney() → formatMoney → the rendered price symbol.
+ * Supersession (Batch #12 R3, Bereich 5): dieses Fixture mountete früher die
+ * DigitalPage — die ist entfernt, weil sie die Premium-Analyse OHNE
+ * Geburtsdaten verkaufte (/digital ist jetzt ein Redirect auf
+ * /personalize?type=digital). Der geprüfte Vertrag ist UNVERÄNDERT: Region →
+ * useMoney() → formatMoney → gerendertes Währungssymbol; Träger ist jetzt die
+ * BundlesPage (reale Shop-Seite mit echten Katalogpreisen).
  *
- * The amount is the placeholder prototype price (OQ-002); only the SYMBOL is
- * asserted. The pre-fix bug (US/UK seeing € while the server charges $/£) would
- * fail the us/uk cases here.
+ * ShopStoreProvider derives the region from GET /api/region on mount — exactly
+ * as the promo / announcement bar does — so stubbing that one boundary lets us
+ * prove the end-to-end display path. The pre-fix bug (US/UK seeing € while the
+ * server charges $/£) would fail the us/uk cases here.
  */
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { I18nProvider } from '../../src/i18n/I18nProvider'
 import { ShopStoreProvider } from '../../src/store/ShopStore'
-import DigitalPage from '../../src/pages/DigitalPage'
-import { digitalProduct } from '../../src/lib/catalog'
+import BundlesPage from '../../src/pages/BundlesPage'
+import { bundles } from '../../src/lib/catalog'
 
-// jsdom has no real scroll; DigitalPage scrolls to top on mount.
+// jsdom has no real scroll; BundlesPage scrolls to top on mount.
 window.scrollTo = () => {}
 
-const price = digitalProduct.price
+const price = bundles[0].price
 const USD = '$' + price.toFixed(2)
 const GBP = '£' + price.toFixed(2)
 const EUR = price.toFixed(2).replace('.', ',') + ' €'
@@ -40,11 +43,13 @@ function stubRegion(region: string) {
   )
 }
 
-function renderDigital() {
+function renderBundles() {
   return render(
     <I18nProvider>
       <ShopStoreProvider>
-        <DigitalPage />
+        <MemoryRouter initialEntries={['/bundles']}>
+          <BundlesPage />
+        </MemoryRouter>
       </ShopStoreProvider>
     </I18nProvider>,
   )
@@ -57,7 +62,7 @@ afterEach(() => {
 describe('[REAL-BOUNDARY] price display follows the shipping region', () => {
   it('US region → price in $ (USD), never €', async () => {
     stubRegion('us')
-    renderDigital()
+    renderBundles()
     // findByText polls until the async region update repaints the price in $.
     expect(await screen.findByText(USD)).toBeInTheDocument()
     expect(screen.queryByText(EUR)).toBeNull()
@@ -65,14 +70,14 @@ describe('[REAL-BOUNDARY] price display follows the shipping region', () => {
 
   it('UK region → price in £ (GBP), never €', async () => {
     stubRegion('uk')
-    renderDigital()
+    renderBundles()
     expect(await screen.findByText(GBP)).toBeInTheDocument()
     expect(screen.queryByText(EUR)).toBeNull()
   })
 
   it('EU region → price in € (EUR)', async () => {
     stubRegion('eu')
-    renderDigital()
+    renderBundles()
     expect(await screen.findByText(EUR)).toBeInTheDocument()
     expect(screen.queryByText(USD)).toBeNull()
   })

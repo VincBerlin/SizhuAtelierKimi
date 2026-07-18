@@ -29,10 +29,13 @@ const inputStyle = {
 const cardStyle = { border: `1px solid ${C.border}`, padding: 22, background: '#fff', marginBottom: 18 }
 const headingStyle = { fontSize: 13, fontWeight: 600 as const, letterSpacing: '0.02em', marginBottom: 14, color: C.ink }
 
-function Field({ label, error, children }: { label: string; error?: boolean; children: ReactNode }) {
+function Field({ label, error, required, children }: { label: string; error?: boolean; required?: boolean; children: ReactNode }) {
+  // Batch #12 R3 (#8): Pflichtfelder sind ALS Pflichtfelder markiert (Sternchen
+  // im Label + Legende darunter) — nicht erst nach einem gescheiterten
+  // Kaufversuch über die Fehlerfarbe erkennbar.
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: error ? C.accent : C.textMuted2, minWidth: 0 }}>
-      {label}{children}
+      <span>{label}{required && <span aria-hidden="true"> *</span>}</span>{children}
     </label>
   )
 }
@@ -303,17 +306,26 @@ export default function Personalize() {
         <div
           data-testid="poster-preview-sticky"
           className="personalize-preview"
-          style={{ background: C.surfaceWarm, padding: 8 }}
+          // Opaker Grund (Seitenweiß): das Sticky-Modul MUSS den darunter
+          // durchscrollenden Inhalt maskieren — auch unter dem Szene-Kasten
+          // (Hinweis-/Statuszeilen), sonst scheinen Formular-Karten durch.
+          style={{ background: C.bg }}
         >
-          {def.poster ? (
-            <PosterSvg data={previewData} designId={designId} frameName={frame.name} />
-          ) : (
-            <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
-              <div style={{ fontSize: 40 }}>◇</div>
-              <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink }}>{t('personalize.pdfBadge')}</div>
-              <div style={{ fontSize: 13, color: C.textMuted2 }}>{t('personalize.types.digital.sub')}</div>
-            </div>
-          )}
+          {/* Batch #12 R3 (#6): EIN Präsentations-Modul — das Poster (mit
+              gewähltem Hintergrund) sitzt im realistischen Rahmen auf einer
+              Wandfläche, wie in der PDP-Galerie; auch die Digital-Kachel lebt
+              im selben Modul, damit der Wechsel der Typen ruhig bleibt. */}
+          <div data-testid="personalize-scene" className="personalize-scene">
+            {def.poster ? (
+              <PosterSvg data={previewData} designId={designId} frameName={frame.name} />
+            ) : (
+              <div style={{ aspectRatio: '4 / 5', background: '#fff', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
+                <div style={{ fontSize: 40 }}>◇</div>
+                <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink }}>{t('personalize.pdfBadge')}</div>
+                <div style={{ fontSize: 13, color: C.textMuted2 }}>{t('personalize.types.digital.sub')}</div>
+              </div>
+            )}
+          </div>
           <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('personalize.previewCertainty')}</p>
           {activeStatus === 'loading' && (
             <p data-testid="chart-status-loading" style={{ fontSize: 12, color: C.textMuted3, margin: '6px 2px 0' }}>{t('personalize.chartLoading')}</p>
@@ -346,6 +358,9 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
+            {/* Batch #12 R3 (#8): Pflichtfeld-Legende — die Sternchen in den
+                Labels sind VOR dem ersten Kaufversuch erklärt. */}
+            <p data-testid="required-fields-hint" style={{ fontSize: 12, color: C.textMuted3, margin: '0 0 12px' }}>{t('personalize.requiredHint')}</p>
             <PersonFields person={a} setPerson={setA} unknownTime={unknownTimeA} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={placeA.resolve} />
             {/* Orts-Auflösungs-Status (Exaktheits-Transparenz): der Käufer sieht
                 IMMER, für welchen aufgelösten Ort gerechnet wird — nichts wird
@@ -643,16 +658,18 @@ function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, prim
   const e = (cond: boolean) => showErrors && cond
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
-      <Field label={t('configurator.name')} error={e(err.name)}><input type="text" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
+      <Field label={t('configurator.name')} error={e(err.name)} required><input type="text" aria-required="true" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
       {/* REQ-013 / T-403 — Place-of-Birth autocomplete from the bundled cities
           list (src/lib/cities.ts). NEVER calls a public geocoder per keystroke.
           Die EXAKTE Auflösung (lat/lon/tz) passiert erst bei Auswahl/Blur über
           die EIGENE Route /api/geocode (onCommitPlace) — Policy AT-013-3 bleibt. */}
-      <Field label={t('configurator.place')} error={e(err.place)}>
+      <Field label={t('configurator.place')} error={e(err.place)} required>
         <PlaceAutocomplete value={person.place} onChange={(v) => setPerson({ ...person, place: v })} placeholder={t('configurator.placePh')} primary={primary} onCommit={onCommitPlace} />
       </Field>
-      <Field label={t('configurator.date')} error={e(err.date)}><input type="date" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
-      <Field label={t('configurator.time')} error={e(err.time)}><input type="time" value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
+      <Field label={t('configurator.date')} error={e(err.date)} required><input type="date" aria-required="true" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
+      {/* Zeit ist Pflicht, solange sie nicht ausdrücklich als unbekannt markiert
+          ist (dann greift der offengelegte 12:00-Fallback). */}
+      <Field label={t('configurator.time')} error={e(err.time)} required={!unknownTime}><input type="time" aria-required={!unknownTime} value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
     </div>
   )
 }
@@ -673,6 +690,7 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
       <input
         type="text"
         role="combobox"
+        aria-required="true"
         aria-expanded={show}
         aria-autocomplete="list"
         data-testid={primary ? 'place-of-birth-input' : 'place-of-birth-input-b'}

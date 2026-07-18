@@ -101,7 +101,8 @@ export default function Collection() {
     return <Navigate to="/personalize?type=couple" replace />
   }
   if (slug === 'analysis-pdfs') {
-    return <Navigate to="/digital" replace />
+    // Batch #12 R3 (#5): Premium-Analyse lebt auf der Personalisierungsseite.
+    return <Navigate to="/personalize?type=digital" replace />
   }
   if (slug === 'bundles') {
     return <Navigate to="/bundles" replace />

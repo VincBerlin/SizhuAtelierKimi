@@ -144,7 +144,9 @@ const SIZE_ENTRIES: readonly TaxonomyEntry[] = sizes.map((s) => ({
 const SET_ENTRIES: readonly TaxonomyEntry[] = [
   { id: 'poster-sets', labelKey: 'taxonomy.set.poster_sets', label: 'Poster Sets', link: { kind: 'route', path: '/bundles' } },
   { id: 'couples-set', labelKey: 'taxonomy.set.couples', label: 'Couples Set', link: { kind: 'route', path: '/personalize?type=couple' } },
-  { id: 'analysis-bundle', labelKey: 'taxonomy.set.analysis', label: 'Poster + Analysis Bundle', link: { kind: 'route', path: '/digital' } },
+  // Batch #12 R3 (#5): das personalisierte Kombi-Angebot lebt auf der zentralen
+  // Personalisierungsseite — nicht mehr auf dem /digital-Duplikat.
+  { id: 'analysis-bundle', labelKey: 'taxonomy.set.analysis', label: 'Poster + Analysis Bundle', link: { kind: 'route', path: '/personalize?type=bundle' } },
 ]
 
 // ── Axis: trends / campaigns (REQ-012) — ONLY real campaigns (no invention) ──────
