@@ -34,7 +34,7 @@ export default function DigitalPage() {
         <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textMuted2, marginBottom: 22 }}>{subtitle}</div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24, alignItems: 'start' }}>
-          <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ background: '#fff', border: `1px solid ${C.border}`, padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <FileText size={48} strokeWidth={1.2} style={{ color: C.accent }} />
             <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink, marginTop: 14 }}>{t('pages.digitalHeroTitle')}</div>
             <div style={{ fontFamily: FONT_SANS, fontSize: 13, color: C.textMuted2, marginTop: 4 }}>{subtitle}</div>
@@ -54,7 +54,7 @@ export default function DigitalPage() {
             {COMMERCE_ENABLED ? (
               <>
                 <div style={{ fontFamily: FONT_SANS, fontSize: 28, fontWeight: 600, color: C.ink, marginBottom: 14 }}>{money(digitalProduct.price)}</div>
-                <button onClick={add} className="transition-[filter] hover:brightness-110" style={{ width: '100%', maxWidth: 360, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>
+                <button onClick={add} className="transition-[filter] hover:brightness-110" style={{ width: '100%', maxWidth: 360, background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 16, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>
                   {t('pages.digitalAdd')} · {money(digitalProduct.price)}
                 </button>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontFamily: FONT_SANS, fontSize: 12.5, color: C.textMuted2 }}>
@@ -62,7 +62,7 @@ export default function DigitalPage() {
                 </div>
               </>
             ) : (
-              <div style={{ maxWidth: 360, textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
+              <div style={{ maxWidth: 360, textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
             )}
           </div>
         </div>

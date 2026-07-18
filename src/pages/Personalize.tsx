@@ -23,10 +23,10 @@ interface Person { name: string; date: string; time: string; place: string }
 const emptyPerson: Person = { name: '', date: '', time: '', place: '' }
 
 const inputStyle = {
-  border: `1px solid ${C.borderInput}`, borderRadius: 9, padding: '11px 12px', fontSize: 14,
+  border: `1px solid ${C.borderInput}`, padding: '11px 12px', fontSize: 14,
   fontFamily: FONT_SANS, color: C.ink, background: C.surfaceInput, width: '100%', minWidth: 0, boxSizing: 'border-box' as const,
 }
-const cardStyle = { border: `1px solid ${C.border}`, borderRadius: 14, padding: 22, background: '#fff', marginBottom: 18 }
+const cardStyle = { border: `1px solid ${C.border}`, padding: 22, background: '#fff', marginBottom: 18 }
 const headingStyle = { fontSize: 13, fontWeight: 600 as const, letterSpacing: '0.02em', marginBottom: 14, color: C.ink }
 
 function Field({ label, error, children }: { label: string; error?: boolean; children: ReactNode }) {
@@ -332,11 +332,11 @@ export default function Personalize() {
               {PRODUCT_TYPES.map((p) => {
                 const sel = p.id === typeId
                 return (
-                  <button key={p.id} onClick={() => setTypeId(p.id)} style={{ position: 'relative', textAlign: 'left', border: `1px solid ${C.borderInput}`, background: sel ? C.accentSoftBg : C.surfaceInput, borderRadius: 10, padding: '12px 14px', cursor: 'pointer', fontFamily: FONT_SANS }}>
+                  <button key={p.id} onClick={() => setTypeId(p.id)} style={{ position: 'relative', textAlign: 'left', border: `1px solid ${C.borderInput}`, background: sel ? C.accentSoftBg : C.surfaceInput, padding: '12px 14px', cursor: 'pointer', fontFamily: FONT_SANS }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, lineHeight: 1.25 }}>{t(`personalize.types.${p.id}.name`)}</div>
                     <div style={{ fontSize: 11, color: C.textMuted2, marginTop: 4, lineHeight: 1.35 }}>{t(`personalize.types.${p.id}.sub`)}</div>
                     {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600, marginTop: 6 }}>{t('personalize.from')} {money(p.basePrice)}</div>}
-                    {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                    {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                   </button>
                 )
               })}
@@ -505,9 +505,9 @@ export default function Personalize() {
               {LANGS.map((l) => {
                 const sel = l === posterLang
                 return (
-                  <button key={l} onClick={() => setPosterLang(l)} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: sel ? C.accentSoftBg : C.surfaceInput, borderRadius: 10, padding: '10px 20px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 14, fontWeight: sel ? 600 : 400, color: C.ink }}>
+                  <button key={l} onClick={() => setPosterLang(l)} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: sel ? C.accentSoftBg : C.surfaceInput, padding: '10px 20px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 14, fontWeight: sel ? 600 : 400, color: C.ink }}>
                     {l}
-                    {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                    {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                   </button>
                 )
               })}
@@ -526,11 +526,11 @@ export default function Personalize() {
                   {activeDesigns.map((d) => {
                     const sel = d.id === designId
                     return (
-                      <button key={d.id} data-testid="design-swatch" data-design={d.id} onClick={() => setDesignId(d.id)} style={{ position: 'relative', width: 84, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: 6, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}>
+                      <button key={d.id} data-testid="design-swatch" data-design={d.id} onClick={() => setDesignId(d.id)} style={{ position: 'relative', width: 84, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, padding: 6, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}>
                         {/* Swatch-Mini-Vorschau mit EIGENER testid — die Hauptvorschau (poster-svg-preview) bleibt eindeutig. */}
                         <PosterSvg data={previewData} designId={d.id} testId={`design-swatch-preview-${d.id}`} />
                         <div style={{ marginTop: 4 }}>{d.name}</div>
-                        {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                        {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                       </button>
                     )
                   })}
@@ -541,9 +541,9 @@ export default function Personalize() {
                 {frames.map((f) => {
                   const sel = f.hex === frameHex
                   return (
-                    <button key={f.hex} onClick={() => setFrameHex(f.hex)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '8px 14px 8px 8px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 13, color: '#4A4438' }}>
+                    <button key={f.hex} onClick={() => setFrameHex(f.hex)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, padding: '8px 14px 8px 8px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 13, color: '#4A4438' }}>
                       <span className="color-swatch-circle" style={{ width: 26, height: 26, background: f.hex, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.08)' }} />{t(`options.frames.${f.hex}`)}
-                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                     </button>
                   )
                 })}
@@ -567,11 +567,11 @@ export default function Personalize() {
                   const sel = z.id === sizeId
                   const deltaText = z.delta > 0 ? '+ ' + money(z.delta) : z.delta < 0 ? '− ' + money(-z.delta) : t('configurator.inclusive')
                   return (
-                    <button key={z.id} onClick={() => setSizeId(z.id)} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
+                    <button key={z.id} onClick={() => setSizeId(z.id)} style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: C.surfaceInput, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
                       <div style={{ fontSize: 11, color: C.textMuted3, margin: '3px 0 4px' }}>{z.sub}</div>
                       {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>{deltaText}</div>}
-                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                     </button>
                   )
                 })}
@@ -627,10 +627,10 @@ export default function Personalize() {
           </div>
 
           {showErrors && !valid && (
-            <div style={{ background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '12px 14px', fontSize: 13, marginBottom: 12 }}>{t('personalize.errFix')}</div>
+            <div style={{ background: C.accentSoftBg, color: C.accent, padding: '12px 14px', fontSize: 13, marginBottom: 12 }}>{t('personalize.errFix')}</div>
           )}
 
-          <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
+          <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
             {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {money(price)}</>}
           </button>
         </div>
@@ -684,10 +684,10 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
         style={inputStyle}
       />
       {show && (
-        <ul data-testid={primary ? 'place-suggestions' : undefined} role="listbox" style={{ position: 'absolute', zIndex: 5, top: 'calc(100% + 4px)', left: 0, right: 0, listStyle: 'none', margin: 0, padding: 4, maxHeight: 220, overflowY: 'auto', background: '#fff', border: `1px solid ${C.borderInput}`, borderRadius: 9, boxShadow: '0 12px 24px -14px rgba(0,0,0,0.3)' }}>
+        <ul data-testid={primary ? 'place-suggestions' : undefined} role="listbox" style={{ position: 'absolute', zIndex: 5, top: 'calc(100% + 4px)', left: 0, right: 0, listStyle: 'none', margin: 0, padding: 4, maxHeight: 220, overflowY: 'auto', background: '#fff', border: `1px solid ${C.borderInput}`, boxShadow: '0 12px 24px -14px rgba(0,0,0,0.3)' }}>
           {suggestions.map((city) => (
             <li key={city} role="option" aria-selected={city === value}>
-              <button type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => pick(city)} style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', background: 'transparent', cursor: 'pointer', padding: '8px 10px', borderRadius: 6, fontFamily: FONT_SANS, fontSize: 13, color: C.ink }}>
+              <button type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => pick(city)} style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', background: 'transparent', cursor: 'pointer', padding: '8px 10px', fontFamily: FONT_SANS, fontSize: 13, color: C.ink }}>
                 {city}
               </button>
             </li>
@@ -714,7 +714,7 @@ function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefi
         <div style={{ fontSize: 12.5, color: C.textMuted2, marginBottom: 6 }}>{t('personalize.placeAmbiguous')}</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {candidates.map((c, i) => (
-            <button key={`${c.name}-${i}`} type="button" onClick={() => onPick(c)} style={{ border: `1px solid ${C.borderInput}`, background: C.surfaceInput, borderRadius: 9, padding: '7px 12px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 12.5, color: C.ink }}>
+            <button key={`${c.name}-${i}`} type="button" onClick={() => onPick(c)} style={{ border: `1px solid ${C.borderInput}`, background: C.surfaceInput, padding: '7px 12px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 12.5, color: C.ink }}>
               {c.name}, {c.countryCode}
             </button>
           ))}
@@ -724,7 +724,7 @@ function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefi
   }
   if (status === 'not_found') {
     return (
-      <div data-testid={`${testPrefix}-not-found-note`} role="note" style={{ marginTop: 10, background: C.accentSoftBg, color: C.accent, borderRadius: 10, padding: '9px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
+      <div data-testid={`${testPrefix}-not-found-note`} role="note" style={{ marginTop: 10, background: C.accentSoftBg, color: C.accent, padding: '9px 12px', fontSize: 12.5, lineHeight: 1.5 }}>
         {t('personalize.placeNotFound')}
       </div>
     )

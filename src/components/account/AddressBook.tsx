@@ -50,7 +50,7 @@ export default function AddressBook({ type, onChange }: { type: 'shipping' | 'bi
       {editing === null && list.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {list.map((a) => (
-            <div key={a.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div key={a.id} style={{ border: `1px solid ${C.border}`, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.5 }}>
                 <div style={{ fontWeight: 600, color: C.ink }}>
                   {a.full_name || '—'}
