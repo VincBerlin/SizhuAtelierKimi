@@ -174,13 +174,17 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
   })
 
   // 2c — HSL sweep over the CHROME inline-styles; only documented exceptions allowed.
-  it('2c: the only saturated orange/gold hex in chrome inline-styles is the documented PayPal brand gold (+ SplitHero BRAND_TERRACOTTA per Operator-Plan §4)', () => {
-    // Documented allow-list (exceptionRegister): PayPal brand gold is brand-required.
-    const ALLOW = new Set(['#FFC439'])
-    // Datei-gebundene Operator-Ausnahme (2026-07-12, Hero/Mega-Menü-Plan §4):
-    // BRAND_TERRACOTTA #A0522D ausschließlich im Split-Hero-CTA.
+  it('2c: the only saturated orange/gold hexes in chrome inline-styles are documented wallet-brand colors (+ SplitHero BRAND_TERRACOTTA per Operator-Plan §4)', () => {
+    // Operator-Batch #8 (2026-07-14): PayPal wird nicht angeboten — die
+    // PayPal-Gold-Ausnahme (#FFC439) ist GESTRICHEN. Neu brand-required:
+    // Amazon-Pay-Gold + Smile-Orange, dateigebunden an die Kasse.
+    const ALLOW = new Set<string>()
+    // Datei-gebundene Operator-Ausnahmen:
+    // - BRAND_TERRACOTTA #A0522D ausschließlich im Split-Hero-CTA (Plan §4).
+    // - Amazon-Pay-Markenfarben ausschließlich im Express-Button der Kasse.
     const FILE_ALLOW: Record<string, Set<string>> = {
       'src/components/home/SplitHero.tsx': new Set(['#A0522D']),
+      'src/pages/Checkout.tsx': new Set(['#FFD814', '#E8C400', '#F90', '#FBBC05']),
     }
     const flagged = new Set<string>()
     for (const f of CHROME_FILES) {
@@ -205,7 +209,10 @@ describe('REQ-017 / AT-017-COLOR-2 — no orange/gold accent survives in the UI 
     // exceptionRegister (artwork, empirically the only banded golds in index.css):
     // .bazi-grid pillar #8A6830, .wuxing-diagram .earth #C8A24F, decorative
     // .shimmer gold-foil #C4A265 — representational poster art, not site chrome.
-    const ARTWORK_GOLD = new Set(['#8A6830', '#C4A265', '#C8A24F'])
+    // Operator-Batch #10: + die Holzmaserungs-Töne des realistischen
+    // Eiche-natur-Rahmens (.real-frame--oak) — Repräsentation des echten
+    // Gelato-Holzrahmens, gleiche Ausnahme-Klasse wie das Poster-Artwork.
+    const ARTWORK_GOLD = new Set(['#8A6830', '#C4A265', '#C8A24F', '#C09468', '#B78A58', '#C49A6C', '#B0824F', '#BD9161'])
     const flagged = new Set<string>()
     for (const hex of hexesIn(INDEX_CSS)) {
       if (isSaturatedOrangeGold(hex) && !ARTWORK_GOLD.has(hex)) flagged.add(hex)

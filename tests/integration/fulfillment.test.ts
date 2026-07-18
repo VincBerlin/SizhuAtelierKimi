@@ -12,6 +12,7 @@ import { describe, it, expect } from 'vitest'
 import request from 'supertest'
 import { fulfillOrder, posterLinesFrom } from '../../server/fulfillment.js'
 import { renderPosterPdf } from '../../server/pdf.js'
+import { PRODUCT_UIDS } from '../../server/gelatoProducts.js'
 import { createApp } from '../../server/index.js'
 
 const CHART = {
@@ -98,12 +99,26 @@ describe('fulfillOrder', () => {
     const pool = fakePool()
     const orders: any[] = []
     const gelato = { enabled: () => true, createOrder: async (o: any) => { orders.push(o); return { id: 'g-1', orderType: 'draft' } } }
-    // Mapping-Tabelle ist bewusst leer bis zur Katalog-Verifikation → dieser
-    // Test stubbt productUidFor NICHT: er erwartet den LAUTEN Fehler.
+    // Seit 2026-07-13 ist PRODUCT_UIDS live-verifiziert befüllt (RL-GELATO,
+    // Artefakt 2026-07-13-gelato-uid-mapping.json) — der Test beweist jetzt den
+    // Ziel-Vertrag: GENAU EIN Draft, mit der korrekt GEMAPPTEN productUid
+    // (A2 + Schwarz matt → frs_a2 × frc_black), idempotent bei Webhook-Replay.
     const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato, publicUrl: 'https://shop.test' }
     const r = await fulfillOrder({ session, personalization: { line1: P_LINE }, deps })
-    expect(r.failed.some((f: any) => String(f.reason).includes('not verified'))).toBe(true)
-    expect(orders).toHaveLength(0) // kein Draft mit ungeprüfter productUid
+    expect(r.failed).toHaveLength(0)
+    expect(orders).toHaveLength(1)
+    const item = orders[0].items[0]
+    expect(item.productUid).toBe(PRODUCT_UIDS['A2|Schwarz matt'])
+    expect(item.productUid).toContain('frs_a2')
+    expect(item.productUid).toContain('frc_black')
+    // fulfillOrder übergibt fileUrl; das files[]-Mapping macht erst der echte
+    // Gelato-Client (server/gelato.js createOrder) — hier ist er gestubbt.
+    expect(item.fileUrl).toMatch(/^https:\/\/shop\.test\/prints\//)
+    expect(r.submitted).toHaveLength(1)
+    // Webhook-Replay: kein zweiter Druck, kein zweiter Draft (Idempotenz).
+    const r2 = await fulfillOrder({ session, personalization: { line1: P_LINE }, deps })
+    expect(orders).toHaveLength(1)
+    expect(r2.failed).toHaveLength(0)
   })
 
   it('marks failure loudly when fufire is down (no silent wrong print)', async () => {
@@ -113,6 +128,40 @@ describe('fulfillOrder', () => {
     expect(r.failed).toHaveLength(1)
     expect(r.printed).toHaveLength(0)
   })
+  it('western designId → calculateWestern feeds the print (localized, honest no-ASC on unknown time)', async () => {
+    const pool = fakePool()
+    const western = {
+      sun: { signIndex: 2, deg: 24.1, retro: false },
+      moon: { signIndex: 11, deg: 14.5, retro: false },
+      ascendant: { signIndex: 5, deg: 19.1, retro: false },
+      planets: [
+        { key: 'Mercury', signIndex: 2, deg: 5.6, retro: false },
+        { key: 'Saturn', signIndex: 9, deg: 24, retro: true },
+      ],
+      provenance: { engine_version: 'e', ruleset_id: 'r', tzdb_version_id: 'z' },
+    }
+    const calcWestern = vi.fn(async () => western)
+    const deps = {
+      pool,
+      fufire: { ...fufireStub, calculateWestern: calcWestern },
+      renderPdf: renderPosterPdf,
+      gelato: null,
+      publicUrl: 'https://shop.test',
+    }
+    const westernLine = { ...P_LINE, designId: 'western-zodiac', language: 'EN' }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_western_1' }, personalization: { line1: westernLine }, deps })
+    expect(r.failed).toHaveLength(0)
+    expect(r.printed).toHaveLength(1)
+    expect(calcWestern).toHaveBeenCalledTimes(1)
+    expect(r.printed[0].bytes).toBeGreaterThan(10_000)
+
+    // Unbekannte Geburtszeit → Druck ohne Aszendent (kein Fehler, ehrlicher Entfall).
+    const unknownLine = { ...westernLine, birthTimeUnknown: 'true' }
+    const r2 = await fulfillOrder({ session: { ...session, id: 'cs_western_2' }, personalization: { line1: unknownLine }, deps })
+    expect(r2.failed).toHaveLength(0)
+    expect(r2.printed).toHaveLength(1)
+  })
+
 })
 
 describe('GET /prints/:sessionId/:token.pdf', () => {

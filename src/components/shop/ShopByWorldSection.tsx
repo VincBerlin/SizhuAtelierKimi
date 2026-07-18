@@ -17,28 +17,36 @@ const WORLD_CARDS = [
 export default function ShopByWorldSection() {
   const { t } = useT()
   return (
-    <section style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '56px 32px 16px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 36 }}>
-        <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: C.accent, marginBottom: 12 }}>{t('home.world.eyebrow')}</div>
-        <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3.2vw,38px)', color: C.ink, margin: '0 0 10px', lineHeight: 1.15 }}>{t('home.world.title')}</h2>
-        <p style={{ fontFamily: FONT_SANS, fontSize: 14, color: C.textMuted, maxWidth: 560, margin: '0 auto', lineHeight: 1.6 }}>{t('home.world.sub')}</p>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
-        {WORLD_CARDS.map(({ key, slug }) => (
-          <Link
-            key={key}
-            to={collectionPath(slug)}
-            // Category-banner click funnel event (T-701, instrumentation only —
-            // RL-EVENT RED).
-            onClick={() => track(EVENTS.categoryClick, { world: key, slug })}
-            className="transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-20px_rgba(42,38,32,0.4)]"
-            style={{ display: 'flex', flexDirection: 'column', gap: 10, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, textDecoration: 'none' }}
-          >
-            <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 22, margin: 0, lineHeight: 1.2, color: C.ink }}>{t(`home.world.cards.${key}.title`)}</h3>
-            <p style={{ fontFamily: FONT_SANS, fontSize: 14, lineHeight: 1.55, color: C.textMuted, margin: 0 }}>{t(`home.world.cards.${key}.desc`)}</p>
-            <span style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, color: C.accent, marginTop: 4 }}>{t('home.world.cta')} →</span>
-          </Link>
-        ))}
+    // Operator-Vorgabe 2026-07-13: Sektion im Hero-Farbton (Ink Black,
+    // kanonische Quelle --ink-black) als vollbreites Band; Überschriften hell,
+    // die hellen Karten setzen sich vom dunklen Grund ab.
+    <section style={{ background: 'var(--ink-black, #2C2420)' }}>
+      <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '56px 32px 56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{ fontFamily: FONT_SANS, fontSize: 12, letterSpacing: '0.28em', textTransform: 'uppercase', color: C.accent, marginBottom: 12 }}>{t('home.world.eyebrow')}</div>
+          <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(26px,3.2vw,38px)', color: '#FBF8F1', margin: '0 0 10px', lineHeight: 1.15 }}>{t('home.world.title')}</h2>
+          <p style={{ fontFamily: FONT_SANS, fontSize: 14, color: 'rgba(251,248,241,0.72)', maxWidth: 560, margin: '0 auto', lineHeight: 1.6 }}>{t('home.world.sub')}</p>
+        </div>
+        {/* Operator 2026-07-13: die Welt-Karten waren zu klein — jetzt große,
+            ECKIGE, einheitliche Kacheln (gleiche Höhe per stretch, mehr Fläche,
+            größere Titel), Desenio-artig. */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24, alignItems: 'stretch' }}>
+          {WORLD_CARDS.map(({ key, slug }) => (
+            <Link
+              key={key}
+              to={collectionPath(slug)}
+              // Category-banner click funnel event (T-701, instrumentation only —
+              // RL-EVENT RED).
+              onClick={() => track(EVENTS.categoryClick, { world: key, slug })}
+              className="transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-20px_rgba(0,0,0,0.6)]"
+              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 12, minHeight: 240, background: C.surface, border: `1px solid ${C.border}`, padding: 32, textDecoration: 'none' }}
+            >
+              <h3 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 28, margin: 0, lineHeight: 1.15, color: C.ink }}>{t(`home.world.cards.${key}.title`)}</h3>
+              <p style={{ fontFamily: FONT_SANS, fontSize: 14.5, lineHeight: 1.55, color: C.textMuted, margin: 0 }}>{t(`home.world.cards.${key}.desc`)}</p>
+              <span style={{ fontFamily: FONT_SANS, fontSize: 13.5, fontWeight: 600, color: C.accent, marginTop: 4 }}>{t('home.world.cta')} →</span>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   )

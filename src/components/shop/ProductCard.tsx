@@ -40,9 +40,8 @@ export default function ProductCard({ product, onClick }: { product: Product; on
   const showReviews = REVIEWS_ENABLED && product.reviews > 0
   const starPct = (product.rating / 5) * 100 + '%'
   const personalizable = product.personalizable !== false
-  // Short claim on EVERY card: the personalization line for personalizable SKUs,
-  // else the product's own first catalog bullet (real copy — nothing invented).
-  const claim = personalizable ? t('card.personalLine') : product.bullets[0] ?? ''
+  // Operator 2026-07-13: die Beschreibungszeile (card-claim) entfällt auf der
+  // Karte — unter dem Titel steht direkt der PREIS (COMMERCE_ENABLED live).
 
   const badge =
     COMMERCE_ENABLED && hasAnchor ? (
@@ -89,7 +88,7 @@ export default function ProductCard({ product, onClick }: { product: Product; on
       <div style={{ padding: '16px 2px 0' }}>
         <div style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.textMuted4, marginBottom: 5 }}>{product.category}</div>
         <h3 data-testid="card-title" style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 21, margin: '0 0 6px', lineHeight: 1.15 }}>{t(`content.products.${product.id}.title`)}</h3>
-        <p data-testid="card-claim" style={{ fontSize: 12.5, color: C.textMuted2, margin: '0 0 10px', lineHeight: 1.45 }}>{claim}</p>
+        {/* card-claim (Beschreibung) entfernt — Operator 2026-07-13: Preis direkt unter dem Titel. */}
         {showReviews && (
           <div data-testid="card-social-proof" style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
             <StarRating pct={starPct} />

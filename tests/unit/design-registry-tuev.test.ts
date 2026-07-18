@@ -11,6 +11,9 @@ const DATA = {
   frame: '#B98A5E',
   bg: '#E9DFCB',
   name: 'Anna <Müller> & Söhne',
+  // subtitle ist lokalisierbarer Text (posterLocale) — mit Injektions-Fixture,
+  // damit der TÜV unescaped Einbettung sofort rot macht (invalides XML).
+  subtitle: 'BAZI · <FOUR> & "PILLARS"',
   element: 'Metall',
   animal: 'Pferd',
   pillars: [
@@ -23,6 +26,10 @@ const DATA = {
 
 describe.each(DESIGNS.filter((d) => d.kind === 'single'))('design $id', (design) => {
   const svg = design.render(DATA, { widthMm: 420, heightMm: 594 })
+
+  it('outlines the day pillar (Tagesmeister-Umrandung, Operator 2026-07-14)', () => {
+    expect(svg).toMatch(/<rect[^>]*fill="none"[^>]*stroke=/)
+  })
 
   it('renders a complete svg with mm viewBox', () => {
     expect(svg.startsWith('<svg')).toBe(true)

@@ -40,12 +40,10 @@ describe('M13 / REQ-028 — every PDP exposes a size selector', () => {
     expect(opts.map((o) => o.getAttribute('data-size'))).toEqual(['A3', 'A2', 'A1'])
   })
 
-  it('a personalizable (BaZi) PDP carries size in the configurator (no duplicate standalone selector)', async () => {
-    renderPdp('1') // BaZi, personalizable
-    const pdp = await findPdp()
-    expect(within(pdp).getByTestId('pdp-configurator')).toBeInTheDocument()
-    expect(within(pdp).queryByTestId('pdp-size-selector')).toBeNull()
-  })
+  // SUPERSEDED (Operator-Batch #12): personalisierbare PDPs sind Redirects —
+  // die Größenachse der personalisierten Poster lebt im /personalize-Wähler
+  // (30×40/50×70/70×100, delta-personalize-Tests). Hier bleibt der Vertrag der
+  // AKTIVEN, nicht-personalisierbaren PDPs (standalone Selektor, Tests unten).
 })
 
 describe('M13 / REQ-030 — BaZi-only personalization gate preserved', () => {

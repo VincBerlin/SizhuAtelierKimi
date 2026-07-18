@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, Navigate, useParams, useSearchParams } from 'react-router'
-import { products, filterByWorld, productsByIds, type Product } from '../lib/catalog'
+import { activeProducts, filterByWorld, productsByIds, type Product } from '../lib/catalog'
 import { getCollectionConfig, type CollectionConfig } from '../lib/collections'
 import ProductCard from '../components/shop/ProductCard'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
@@ -38,7 +38,7 @@ const PAGE_SIZE = 4
 /** Resolve the product grid for a config — curated ids win, else world filter. */
 function resolveProducts(cfg: CollectionConfig): Product[] {
   if (cfg.productIds && cfg.productIds.length > 0) return productsByIds(cfg.productIds)
-  if (cfg.world) return filterByWorld(products, cfg.world)
+  if (cfg.world) return filterByWorld(activeProducts, cfg.world)
   return []
 }
 
@@ -92,11 +92,24 @@ function Chip({ active, nonFinal, onClick, children }: { active: boolean; nonFin
 
 export default function Collection() {
   const { slug } = useParams<{ slug: string }>()
+  // Batch #12 (#4): Kollektionen, deren Produkte auf die zentrale
+  // Personalisierungsseite umgezogen sind — Deep-Links bleiben ohne 404.
+  if (slug === 'bazi-posters' || slug === 'personalized-posters') {
+    return <Navigate to="/personalize" replace />
+  }
+  if (slug === 'compatibility-posters') {
+    return <Navigate to="/personalize?type=couple" replace />
+  }
+  if (slug === 'analysis-pdfs') {
+    return <Navigate to="/digital" replace />
+  }
+  if (slug === 'bundles') {
+    return <Navigate to="/bundles" replace />
+  }
   const cfg = slug ? getCollectionConfig(slug) : undefined
 
   const { t } = useT()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [personalizableOnly, setPersonalizableOnly] = useState(false)
   // M17 — the facet matrix (style/room/price) is URL-DRIVEN: the query string is
   // the source of truth, so a filtered view is shareable + back/forward-navigable
   // and consistent with the M16 hub deep-link contract (?style/?room[/?price]).
@@ -108,7 +121,7 @@ export default function Collection() {
   // collection or any filter changes so the count never carries over stale state.
   const [shownCount, setShownCount] = useState(PAGE_SIZE)
 
-  const anyFilter = personalizableOnly || !!styleFilter || !!roomFilter || !!priceFilter
+  const anyFilter = !!styleFilter || !!roomFilter || !!priceFilter
 
   // Toggle a facet in the URL (immutable update). Clearing a facet removes its
   // param entirely so the URL stays clean; every change snaps pagination back.
@@ -130,7 +143,6 @@ export default function Collection() {
       next.delete('price')
       return next
     })
-    setPersonalizableOnly(false)
     setShownCount(PAGE_SIZE)
   }
 
@@ -140,7 +152,6 @@ export default function Collection() {
     // (style/room/price) are intentionally left intact so a deep-link like
     // /collections/x?style=minimal is honored on load. In-app links that carry no
     // query naturally clear the facets (empty search → null filters).
-    setPersonalizableOnly(false)
     setSort('featured')
     setShownCount(PAGE_SIZE)
   }, [slug])
@@ -159,7 +170,6 @@ export default function Collection() {
   // the size refinement is non-final (see the PRICE_BUCKETS note above).
   const sorted = useMemo(() => {
     let filtered = base
-    if (personalizableOnly) filtered = filtered.filter((p) => p.personalizable !== false)
     if (styleFilter) filtered = filtered.filter((p) => p.design_family === styleFilter)
     if (roomFilter) filtered = filtered.filter((p) => p.use_case === roomFilter)
     if (priceFilter) {
@@ -170,22 +180,15 @@ export default function Collection() {
     // (REQ-010 AK-3 — bad slug / empty world). With a user filter active, show the
     // REAL filtered result (which may be empty → an explicit empty state), NEVER
     // silently the full set — a fallback there would defeat the user's filter.
-    const active = personalizableOnly || !!styleFilter || !!roomFilter || !!priceFilter
+    const active = !!styleFilter || !!roomFilter || !!priceFilter
     const shown = active ? filtered : base
     return sortProducts(shown, sort)
-  }, [base, personalizableOnly, styleFilter, roomFilter, priceFilter, sort])
+  }, [base, styleFilter, roomFilter, priceFilter, sort])
 
   // The visible slice the grid maps. Count + pagination derive from THIS, so the
   // displayed number can never drift from the rendered cards (AT-009-2).
   const visible = useMemo(() => sorted.slice(0, shownCount), [sorted, shownCount])
   const hasMore = sorted.length > visible.length
-
-  // Toggling the filter must not strand the user on a higher page than the new
-  // (smaller) result set has — snap back to the first page.
-  function onToggleFilter(checked: boolean): void {
-    setPersonalizableOnly(checked)
-    setShownCount(PAGE_SIZE)
-  }
 
   // Unknown slug → back to the hub (no empty/thin collection page).
   if (!cfg) return <Navigate to="/collections" replace />
@@ -264,16 +267,6 @@ export default function Collection() {
           data-testid="collection-toolbar"
           style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: '14px 0', marginTop: 12 }}
         >
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: FONT_SANS, fontSize: 13.5, color: C.textMuted, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              data-testid="collection-filter"
-              checked={personalizableOnly}
-              onChange={(e) => onToggleFilter(e.target.checked)}
-              aria-label="Nur personalisierbare anzeigen"
-            />
-            Nur personalisierbare
-          </label>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: FONT_SANS, fontSize: 13.5, color: C.textMuted }}>
             Sortieren
             <select

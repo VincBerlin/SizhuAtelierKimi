@@ -1,3 +1,4 @@
+// Batch #12 (Operator 2026-07-18): bazi-/bundles-Kollektionen sind Redirects — Template-Tests laufen auf der lebenden tcm-Kollektion.
 /**
  * M12 — collection filter matrix. `[REAL-BOUNDARY]` (jsdom via real App.tsx).
  *
@@ -32,7 +33,7 @@ beforeEach(() => localStorage.clear())
 
 describe('M12 / REQ-026 — collection filter matrix renders the facet rows', () => {
   it('shows style / room / size / price facet rows with chips', async () => {
-    renderCollection('bundles')
+    renderCollection('tcm-posters')
     await page()
     await waitFor(() => expect(screen.getByTestId('collection-filters')).toBeInTheDocument())
     for (const row of ['collection-filter-style', 'collection-filter-room', 'collection-filter-price'])
@@ -40,10 +41,11 @@ describe('M12 / REQ-026 — collection filter matrix renders the facet rows', ()
     expect(screen.getAllByTestId('collection-facet').length).toBeGreaterThanOrEqual(6)
   })
 
-  it('keeps the existing personalizable toggle + sort control', async () => {
-    renderCollection('bundles')
+  it('sort control stays; the personalizable toggle is REMOVED (Batch #12 supersession)', async () => {
+    renderCollection('tcm-posters')
     await page()
-    expect(screen.getByTestId('collection-filter')).toBeInTheDocument()
+    // Batch #12: Toggle entfernt — keine personalisierbaren Katalog-Produkte mehr.
+    expect(screen.queryByTestId('collection-filter')).toBeNull()
     expect(screen.getByTestId('collection-sort')).toBeInTheDocument()
   })
 
@@ -56,12 +58,12 @@ describe('M12 / REQ-026 — collection filter matrix renders the facet rows', ()
 
 describe('M12 / REQ-026 — a facet click narrows the grid (real filtering)', () => {
   it('selecting the "Minimal Ink" style narrows the bundles grid to the matching poster(s)', async () => {
-    renderCollection('bundles')
+    renderCollection('tcm-posters')
     await page()
     await waitFor(() => expect(cardCount()).toBeGreaterThan(1))
     const before = cardCount()
 
-    // click the style chip labelled "Minimal Ink" (only catalog id 2 in bundles)
+    // click the style chip labelled "Minimal Ink" (tcm ids 11+12)
     const styleRow = screen.getByTestId('collection-filter-style')
     const minimalChip = within(styleRow).getByText(/minimal ink/i)
     fireEvent.click(minimalChip)
@@ -77,13 +79,13 @@ describe('M12 / REQ-026 — a facet click narrows the grid (real filtering)', ()
   })
 
   it('a zero-match filter shows an honest empty state, not the full unfiltered set', async () => {
-    renderCollection('bazi-posters') // 6 BaZi posters — Wabi-Sabi is only #4 (39€)
+    renderCollection('tcm-posters') // Wabi-Sabi is only #14
     await page()
     await waitFor(() => expect(screen.getByTestId('collection-filter-style')).toBeInTheDocument())
 
-    // Wabi-Sabi (#4, 39€) + price "ab 60 €" → zero real matches
+    // Batch #12 (tcm): Wabi-Sabi ist nur #14 (45 €) + Preis „unter 45 €" → 0 echte Treffer
     fireEvent.click(within(screen.getByTestId('collection-filter-style')).getByText(/wabi-?sabi/i))
-    fireEvent.click(within(screen.getByTestId('collection-filter-price')).getByText(/ab 60/i))
+    fireEvent.click(within(screen.getByTestId('collection-filter-price')).getByText(/unter 45/i))
 
     await waitFor(() => {
       expect(screen.getByTestId('collection-empty')).toBeInTheDocument()

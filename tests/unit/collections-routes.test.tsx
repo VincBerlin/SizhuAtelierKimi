@@ -27,17 +27,24 @@ import {
 } from '../../src/lib/collections'
 import { filterByWorld, products } from '../../src/lib/catalog'
 
-// The 8 MVP routes from REQ-010 AK-1 — the contract is exactly this set.
+// Operator-Batch #12 (2026-07-18, #4/#5) SUPERSEDES REQ-010 AK-1: personalisierte
+// Angebote leben AUSSCHLIESSLICH auf der zentralen Personalisierungsseite. Die
+// früheren Kollektions-Slugs bleiben als Deep-Link-REDIRECTS erhalten (kein 404),
+// rendern aber KEIN Kollektions-Template mehr.
 const MVP_SLUGS = [
-  'bazi-posters',
   'tcm-posters',
   'wuxing-posters',
-  'personalized-posters',
-  'compatibility-posters',
   'fire-horse-2026',
-  'analysis-pdfs',
-  'bundles',
 ] as const
+
+// Slug → Redirect-Ziel (Batch #12): asserted unten statt Template-Render.
+const REDIRECT_SLUGS: Record<string, string> = {
+  'bazi-posters': '/personalize',
+  'personalized-posters': '/personalize',
+  'compatibility-posters': '/personalize?type=couple',
+  'analysis-pdfs': '/digital',
+  'bundles': '/bundles',
+}
 
 async function renderRoute(path: string) {
   const utils = render(
@@ -68,8 +75,8 @@ describe('REQ-010 — collection-config drives exactly the MVP slug set', () => 
     }
   })
 
-  it('exposes no extra collection slugs beyond the MVP set', () => {
-    const expected = new Set<string>(MVP_SLUGS)
+  it('exposes no extra collection slugs beyond the MVP set (+ redirect legacy)', () => {
+    const expected = new Set<string>([...MVP_SLUGS, ...Object.keys(REDIRECT_SLUGS)])
     for (const c of COLLECTION_CONFIGS) {
       expect(expected.has(c.slug)).toBe(true)
     }
@@ -82,11 +89,30 @@ describe('REQ-010 — collection-config drives exactly the MVP slug set', () => 
     }
   })
 
-  // Each config must resolve to ≥1 product so the grid is never empty.
-  for (const c of COLLECTION_CONFIGS) {
+  // Each LIVE config must resolve to ≥1 ACTIVE product so the grid is never
+  // empty (Batch #12: Redirect-Slugs sind vom Grid-Vertrag ausgenommen).
+  for (const c of COLLECTION_CONFIGS.filter((x) => (MVP_SLUGS as readonly string[]).includes(x.slug))) {
     it(`config "${c.slug}" resolves to ≥1 product`, () => {
-      const list = resolveProducts(c)
+      const list = resolveProducts(c).filter((p) => !p.retired)
       expect(list.length).toBeGreaterThanOrEqual(1)
+    })
+  }
+
+  // Batch #12: jeder Legacy-Slug redirectet auf sein lebendes Ziel (kein 404,
+  // kein leeres Template).
+  for (const [slug, target] of Object.entries(REDIRECT_SLUGS)) {
+    it(`/collections/${slug} redirects to ${target}`, async () => {
+      render(
+        <MemoryRouter initialEntries={[`/collections/${slug}`]}>
+          <App />
+        </MemoryRouter>,
+      )
+      if (target.startsWith('/personalize')) {
+        await screen.findByTestId('poster-preview-sticky', undefined, { timeout: 15000 })
+      } else {
+        await waitFor(() => expect(screen.queryByTestId('collection-page')).toBeNull(), { timeout: 15000 })
+        expect((await screen.findAllByRole('heading', undefined, { timeout: 15000 })).length).toBeGreaterThan(0)
+      }
     })
   }
 })

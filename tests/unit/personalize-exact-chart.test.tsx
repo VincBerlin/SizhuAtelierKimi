@@ -12,7 +12,7 @@
  *   3. „Berechnet für: …"-Transparenzzeile zeigt den AUFGELÖSTEN Ort.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 
@@ -79,7 +79,22 @@ describe('Personalize exact chart', () => {
     for (const glyph of ['壬', '辛', '乙', '亥', '未']) {
       expect(screen.getAllByText(glyph).length).toBeGreaterThan(0)
     }
-    expect(screen.getAllByText(/Pferd/i).length).toBeGreaterThan(0)
+    // Operator 2026-07-13: Poster-Texte folgen der GEWÄHLTEN Poster-Sprache —
+    // UI läuft EN, posterLang defaultet auf EN → Horse/Metal (FuFirE liefert
+    // kanonisch deutsch, posterLocale übersetzt).
+    expect(screen.getAllByText(/Horse/i).length).toBeGreaterThan(0)
     expect(screen.getByTestId('place-resolved-note').textContent).toContain('Berlin, DE')
+
+    // Chart-Review (Operator 2026-07-13): Tagesmeister + Säulen als lesbare
+    // Zusammenfassung sobald das exakte Chart steht — Tag-Stamm 辛 · Metal.
+    const review = screen.getByTestId('chart-review')
+    expect(review.textContent).toContain('辛')
+    expect(review.textContent).toMatch(/Metal/i)
+    expect(review.textContent).toContain('庚午')
+
+    // Poster-Sprache DE wählen → Poster + Review wechseln auf PFERD/Metall.
+    const picker = screen.getByTestId('poster-lang-picker')
+    fireEvent.click(within(picker).getByRole('button', { name: 'DE' }))
+    await waitFor(() => expect(screen.getAllByText(/Pferd/i).length).toBeGreaterThan(0))
   })
 })

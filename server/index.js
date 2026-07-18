@@ -9,10 +9,12 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
-import { fufireEnabled, calculateBazi, geocodePlace, matchHehun } from './fufire.js'
+import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun } from './fufire.js'
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
+import { buildConfirmEmail, confirmResultHtml, unsubscribeResultHtml } from './newsletter.js'
+import { runBroadcast, BROADCAST_SERIES } from './broadcast.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(__dirname, '..', 'dist')
@@ -139,6 +141,9 @@ if (process.env.RESEND_API_KEY) {
   console.log('[mail] Resend ready')
 }
 const FROM_EMAIL = process.env.ORDER_FROM_EMAIL || 'SizhuAtelier <orders@sizhuatelier.shop>'
+// Operator 2026-07-15: Newsletter-Mails kommen von einer EIGENEN Absenderadresse
+// (newsletter@…), Bestell-/Konto-Mails von orders@… — beide env-überschreibbar.
+const NEWSLETTER_FROM_EMAIL = process.env.NEWSLETTER_FROM_EMAIL || 'SizhuAtelier <newsletter@sizhuatelier.shop>'
 const NOTIFY_EMAIL = process.env.ORDER_NOTIFY_EMAIL || ''
 
 const app = express()
@@ -256,7 +261,7 @@ app.get('/api/region', (req, res) => {
 // damit die REALEN Routen mit gestubbtem Client testbar sind.
 // Ehrlichkeits-Regel (OQ-004): nicht konfiguriert/Upstream-Fehler → 503/502,
 // NIEMALS ein Platzhalter-Chart als echt ausliefern.
-let fufire = { enabled: fufireEnabled, calculateBazi, geocodePlace, matchHehun }
+let fufire = { enabled: fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun }
 // Gelato-Client — gleiches Override-Muster (createApp({ gelato })) für Tests.
 let gelato = { enabled: gelatoEnabled, createOrder: gelatoCreateOrder }
 
@@ -305,6 +310,32 @@ app.post('/api/bazi', async (req, res) => {
   } catch (e) {
     console.error('[fufire] bazi failed:', e.message)
     return res.status(502).json({ error: 'bazi_failed' })
+  }
+})
+
+// Westliches Geburtshoroskop (Birth-Chart-Poster, Operator 2026-07-14):
+// gleiche Validierung/Env-Gates wie /api/bazi; Proxy auf /v1/calculate/western.
+app.post('/api/western', async (req, res) => {
+  if (!fufire.enabled()) return res.status(503).json({ error: 'western_unavailable' })
+  if (rateLimited(req, 'western', 60, 60000)) return res.status(429).json({ error: 'rate_limited' })
+  const { date, time, lat, lon, tz, birthTimeUnknown } = req.body || {}
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return res.status(400).json({ error: 'invalid_date' })
+  if (!/^\d{2}:\d{2}$/.test(String(time || ''))) return res.status(400).json({ error: 'invalid_time' })
+  if (typeof lat !== 'number' || typeof lon !== 'number' || typeof tz !== 'string' || !tz) {
+    return res.status(400).json({ error: 'invalid_place' })
+  }
+  try {
+    const chart = await fufire.calculateWestern({
+      date: `${date}T${time}:00`,
+      tz,
+      lon,
+      lat,
+      birthTimeKnown: birthTimeUnknown !== true,
+    })
+    return res.json(chart)
+  } catch (e) {
+    console.error('[fufire] western failed:', e.message)
+    return res.status(502).json({ error: 'western_failed' })
   }
 })
 
@@ -421,6 +452,10 @@ app.post('/api/checkout', async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items,
+      // Operator 2026-07-18 (Rabattcode-Newsletter): Promo-Codes sind an der
+      // Stripe-Kasse einlösbar — Codes selbst entstehen NUR über
+      // scripts/newsletter/create-promo.mjs (nie im Client erfunden).
+      allow_promotion_codes: true,
       locale: ['en', 'de', 'fr'].includes((locale || '').toLowerCase()) ? locale.toLowerCase() : 'auto',
       ...(customerId ? { customer: customerId } : (email ? { customer_email: String(email).slice(0, 200) } : {})),
       billing_address_collection: 'auto',
@@ -448,20 +483,103 @@ app.post('/api/newsletter', async (req, res) => {
   const src = typeof source === 'string' ? source.slice(0, 80) : 'newsletter'
   if (!pool) { console.log('[newsletter] (no DB) signup:', e, lang, src); return res.json({ ok: true, persisted: false }) }
   try {
-    // Double-opt-in ready: store pending + a confirm token + the marketing-consent
-    // timestamp + source tag. A confirmation email would be sent here once an ESP
-    // is wired (no real send in this MVP).
+    // Double-opt-in (Operator-Batch #8): store pending + confirm token, then send
+    // the confirmation email via Resend. RETURNING yields the ROW token (an
+    // existing signup keeps its token) and the status, so a re-signup of an
+    // already-confirmed address is never downgraded and never re-mailed.
     const token = randomUUID()
-    await pool.query(
+    const r = await pool.query(
       `INSERT INTO newsletter_signups (email, language, consent, marketing_consent_at, source, status, confirm_token)
        VALUES ($1,$2,$3,$4,$5,'pending',$6)
-       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent, marketing_consent_at = EXCLUDED.marketing_consent_at, source = EXCLUDED.source`,
+       ON CONFLICT (email) DO UPDATE SET language = EXCLUDED.language, consent = EXCLUDED.consent, marketing_consent_at = EXCLUDED.marketing_consent_at, source = EXCLUDED.source
+       RETURNING confirm_token, status`,
       [e, lang, true, new Date(), src, token],
     )
-    return res.json({ ok: true, persisted: true })
+    const row = r.rows?.[0] || { confirm_token: token, status: 'pending' }
+    let confirmSent = false
+    if (resend && row.status === 'pending' && row.confirm_token) {
+      try {
+        const mail = buildConfirmEmail({ language: lang, token: row.confirm_token, publicUrl: PUBLIC_URL || `${req.protocol}://${req.get('host')}` })
+        await resend.emails.send({ from: NEWSLETTER_FROM_EMAIL, to: e, subject: mail.subject, text: mail.text })
+        confirmSent = true
+      } catch (err) {
+        console.error('[newsletter] confirm mail failed:', err.message)
+      }
+    }
+    return res.json({ ok: true, persisted: true, confirmSent })
   } catch (err) {
     console.error('[newsletter] persist failed:', err.message)
     return res.status(500).json({ error: 'server_error' })
+  }
+})
+
+// ---- newsletter double-opt-in confirm (link from the email) -----------------
+app.get('/api/newsletter/confirm', async (req, res) => {
+  const token = String(req.query.token || '')
+  if (!pool || !token || token.length > 100) {
+    return res.status(400).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
+  }
+  try {
+    const r = await pool.query(
+      `UPDATE newsletter_signups SET status = 'confirmed' WHERE confirm_token = $1 AND status = 'pending' RETURNING email, language`,
+      [token],
+    )
+    const row = r.rows?.[0]
+    if (!row) return res.status(400).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
+    console.log('[newsletter] confirmed:', row.email)
+    return res.type('html').send(confirmResultHtml({ language: row.language, ok: true }))
+  } catch (err) {
+    console.error('[newsletter] confirm failed:', err.message)
+    return res.status(500).type('html').send(confirmResultHtml({ language: 'en', ok: false }))
+  }
+})
+
+// ---- newsletter unsubscribe (Operator 2026-07-18: eigener Abmelde-Link) -----
+app.get('/api/newsletter/unsubscribe', async (req, res) => {
+  const token = String(req.query.token || '')
+  if (!pool || !token || token.length > 100) {
+    return res.status(400).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
+  }
+  try {
+    const r = await pool.query(
+      `UPDATE newsletter_signups SET status = 'unsubscribed' WHERE confirm_token = $1 AND status <> 'unsubscribed' RETURNING email, language`,
+      [token],
+    )
+    const row = r.rows?.[0]
+    if (!row) return res.status(400).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
+    console.log('[newsletter] unsubscribed:', row.email)
+    return res.type('html').send(unsubscribeResultHtml({ language: row.language, ok: true }))
+  } catch (err) {
+    console.error('[newsletter] unsubscribe failed:', err.message)
+    return res.status(500).type('html').send(unsubscribeResultHtml({ language: 'en', ok: false }))
+  }
+})
+
+// ---- newsletter broadcast (Operator 2026-07-18: VORBEREITET, nicht aktiv) ---
+// Aktivierung ausschließlich durch Setzen von NEWSLETTER_BROADCAST_SECRET —
+// ohne Secret 503. dryRun ist der Standard; echter Versand nur mit
+// {"dryRun":false} UND korrektem X-Broadcast-Secret-Header.
+app.post('/api/newsletter/broadcast', async (req, res) => {
+  const secret = process.env.NEWSLETTER_BROADCAST_SECRET || ''
+  if (!secret || !resend || !pool) return res.status(503).json({ error: 'broadcast not configured' })
+  const given = String(req.headers['x-broadcast-secret'] || '')
+  const a = Buffer.from(given)
+  const b = Buffer.from(secret)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return res.status(403).json({ error: 'forbidden' })
+  const { series, date, dryRun } = req.body || {}
+  if (!BROADCAST_SERIES.includes(series) || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
+    return res.status(400).json({ error: 'series (cosmic|offer|promo) und date (YYYY-MM-DD) erforderlich' })
+  }
+  try {
+    const result = await runBroadcast({
+      pool, resend, publicUrl: PUBLIC_URL || `${req.protocol}://${req.get('host')}`,
+      from: NEWSLETTER_FROM_EMAIL, series, date, dryRun: dryRun !== false,
+    })
+    console.log(`[broadcast] ${series} ${date} dryRun=${result.dryRun} total=${result.total} sent=${result.sent} failures=${result.failures.length}`)
+    return res.json(result)
+  } catch (err) {
+    console.error('[broadcast] failed:', err.message)
+    return res.status(400).json({ error: err.message })
   }
 })
 
@@ -922,6 +1040,7 @@ export function createApp(overrides = {}) {
   if ('pool' in overrides) pool = overrides.pool
   if ('fufire' in overrides) fufire = overrides.fufire
   if ('gelato' in overrides) gelato = overrides.gelato
+  if ('mailer' in overrides) resend = overrides.mailer
   return app
 }
 

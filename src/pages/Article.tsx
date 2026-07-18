@@ -35,7 +35,7 @@ export default function Article() {
         {body.map((p, i) => (
           <p key={i} style={{ fontFamily: FONT_SANS, fontSize: 16, lineHeight: 1.75, color: '#4A4438', margin: '0 0 18px' }}>{p}</p>
         ))}
-        <div style={{ marginTop: 24, padding: 24, background: C.surfaceWarm, borderRadius: 12 }}>
+        <div style={{ marginTop: 24, padding: 24, background: C.surfaceWarm }}>
           <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink, marginBottom: 8 }}>{t('pages.articleCta')}</div>
           <Link to="/product/1" className="transition-[filter] hover:brightness-110" style={{ display: 'inline-block', background: C.accent, color: '#fff', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS, textDecoration: 'none', boxShadow: ACCENT_CTA_SHADOW }}>{t('pages.articleCtaBtn')}</Link>
         </div>

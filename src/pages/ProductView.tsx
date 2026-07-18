@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
-import { getProduct, products, faqDefs, addons } from '../lib/catalog'
+import { getProduct, products, faqDefs } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
 import { computeChart, sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
@@ -14,12 +14,12 @@ import { COMMERCE_ENABLED, REVIEWS_ENABLED } from '../lib/config'
 import { posterProductId, buildVariantId } from '../lib/checkout'
 import { track, EVENTS } from '../lib/analytics'
 import { de } from '../lib/format'
-import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER, posterBgName } from '../lib/tokens'
+import { C, FONT_SERIF, FONT_SANS, FREE_SHIP_THRESHOLD, ACCENT_CTA_SHADOW, CONTAINER } from '../lib/tokens'
 
 export default function ProductView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { cfg, addItem, showToast, openFaqId, setOpenFaqId, posterBgHex } = useShopStore()
+  const { cfg, addItem, showToast, openFaqId, setOpenFaqId } = useShopStore()
   const money = useMoney()
   const { t, lang } = useT()
   // M13 / REQ-008/028 — size for the NON-personalizable PDP path (ready-to-ship
@@ -28,6 +28,11 @@ export default function ProductView() {
   const [pdpSize, setPdpSize] = useState('A2')
 
   const prod = getProduct(Number(id)) ?? products[0]
+  // Batch #12 (#4/#14): stillgelegte Personalisierungs-Duplikate leiten auf die
+  // ZENTRALE Personalisierungsseite um — alte Links bleiben ohne 404 gültig.
+  if (prod.retired) {
+    return <Navigate to={prod.id === 15 ? '/personalize?type=couple' : '/personalize'} replace />
+  }
   // SINGLE source of truth for the personalization gate (REQ-007 / REQ-025):
   // reads ONLY the explicit `personalizable` flag, never `personalization_level`
   // — the FM-04 trap is treating Fire Horse's 'yearly' tier as personalizable.
@@ -68,8 +73,19 @@ export default function ProductView() {
   const ratingTxt = lang === 'EN' ? prod.rating.toFixed(1) : prod.rating.toFixed(1).replace('.', ',')
   const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
 
+  // Operator-Vorgabe 2026-07-13: die Paar-SKU (personalization_level 'couple')
+  // braucht ZWEI Geburtsdatensätze — der Single-Konfigurator dieser PDP kann
+  // das nicht ehrlich abbilden. Der CTA führt in den vollständigen Paar-Flow
+  // (/personalize?type=couple → /api/match → exaktes Paar-Chart → Warenkorb).
+  const isCoupleSku = prod.personalization_level === 'couple'
+
   const addToCart = () => {
     const title = t(`content.products.${prod.id}.title`)
+    if (isCoupleSku) {
+      navigate('/personalize?type=couple')
+      window.scrollTo(0, 0)
+      return
+    }
     if (!personalizable) {
       // Non-personalizable (Fire Horse / TCM lehrposter): NO birth data, but M13
       // gives it a first-class size axis. The size is carried in the variantId so
@@ -84,16 +100,11 @@ export default function ProductView() {
     if (!cfg.name.trim() || !cfg.date || !cfg.place.trim()) { showToast(t('personalize.errFix')); return }
     const frameName = t(`options.frames.${cfg.frameHex}`)
     const bgName = t(`options.backgrounds.${cfg.bgHex}`)
-    // REQ-018 poster background (the 5-hex palette) is a real product attribute:
-    // carry the chosen swatch into the order line so the selection is never a
-    // silent drop (FM-15). Like `palette`, it is descriptive-only and stays OUT of
-    // the variantId — the server prices solely from size + frame (money path
-    // unchanged).
-    const posterBg = posterBgName(posterBgHex)
+    // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
     // place/date/time + the canonical birthTimeUnknown flag are carried so the
     // planned calculation API can dock without loss (REQ-004 AK-1).
-    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, posterBg, frame: frameName, size: size.label }
-    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${posterBg} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
+    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
+    addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }
 
@@ -128,8 +139,9 @@ export default function ProductView() {
         <div className="lg:sticky lg:top-24">
           {personalizable ? (
             <div data-testid="pdp-gallery">
-              <div data-testid="pdp-chart-preview" data-bg-hex={posterBgHex}>
-                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={posterBgHex} />
+              {/* Poster-BG-Palette entfernt (Operator 2026-07-13) — feste neutrale Fläche. */}
+              <div data-testid="pdp-chart-preview">
+                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={C.surfaceWarm} />
                 <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
                   <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
                   {placeholderThumb(t('product.detail'))}
@@ -186,11 +198,19 @@ export default function ProductView() {
               size / frame / background colour axes ARE the product variants
               (REQ-008 AT-008-1). The stable anchors let the gating test assert
               presence/absence and the inventory test assert the variants block. */}
-          {personalizable && (
+          {personalizable && !isCoupleSku && (
             <div data-testid="pdp-variants">
               <div data-testid="pdp-configurator">
                 <Configurator />
               </div>
+            </div>
+          )}
+
+          {/* Paar-SKU: kein Single-Konfigurator — beide Geburtsdatensätze werden
+              im Paar-Flow erfasst (exakte 合婚-Berechnung, Ehrlichkeits-Gate). */}
+          {isCoupleSku && (
+            <div data-testid="pdp-couple-note" style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, background: C.surfaceWarm, padding: '14px 16px', margin: '0 0 14px' }}>
+              {t('product.coupleNote')}
             </div>
           )}
 
@@ -217,12 +237,12 @@ export default function ProductView() {
                       data-size={z.id}
                       aria-pressed={sel}
                       onClick={() => setPdpSize(z.id)}
-                      style={{ position: 'relative', border: `1px solid ${sel ? C.accent : C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}
+                      style={{ position: 'relative', border: `1px solid ${sel ? C.accent : C.borderInput}`, background: C.surfaceInput, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}
                     >
                       <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
                       <div style={{ fontSize: 11, color: C.textMuted3, margin: '3px 0 4px' }}>{z.sub}</div>
                       {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>{deltaText}</div>}
-                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                     </button>
                   )
                 })}
@@ -230,7 +250,7 @@ export default function ProductView() {
             </div>
           )}
 
-          {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
+          {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
 
           {COMMERCE_ENABLED ? (
             /* Gate C/D remediation: the PDP express-pay buttons (PayPal / Apple Pay)
@@ -238,27 +258,12 @@ export default function ProductView() {
                but never redirected (no express flow exists; RL-STRIPE). Removed, so
                the PDP no longer claims a capability it does not have. The honest
                purchase path is add-to-cart → cart → checkout. */
-            <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
+            <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
           ) : (
-            <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
+            <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
           )}
           <div data-testid="pdp-trust" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginTop: 16, fontSize: 12, color: C.textMuted2, flexWrap: 'wrap' }}>
-            <span>{t('product.secure')}</span><span>{t('product.returns')}</span><span>{t('product.climate')}</span>
-          </div>
-
-          {/* Frame & accessory options (REQ-008 AT-008-1). Honest framing: the
-              frame finishes are the poster's real frame choices; the accessories
-              are the catalog add-ons with their list prices. No invented bundle. */}
-          <div data-testid="pdp-accessories" style={{ marginTop: 24 }}>
-            <h2 style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 12px' }}>{t('product.accessories')}</h2>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {addons.map((a) => (
-                <li key={a.id} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, fontSize: 13.5, color: '#4A4438' }}>
-                  <span>{t(`content.addons.${a.id}.title`)} <span style={{ color: C.textMuted3 }}>· {t(`content.addons.${a.id}.note`)}</span></span>
-                  {COMMERCE_ENABLED && <span style={{ whiteSpace: 'nowrap', color: C.textMuted, fontWeight: 600 }}>+{money(a.price)}</span>}
-                </li>
-              ))}
-            </ul>
+            <span>{t('product.secure')}</span><span>{t('product.returns')}</span>
           </div>
 
           <div style={{ marginTop: 24, borderTop: `1px solid ${C.border}` }}>

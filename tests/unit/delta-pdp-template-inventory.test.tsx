@@ -41,8 +41,10 @@ import * as translations from '../../src/i18n/translations'
 
 // Representative SKUs per kind resolved from the SHIPPED catalog (never literals),
 // so the test tracks the data the app actually renders.
-const baziProduct = products.find((p) => productKind(p) === 'bazi')!
-const tcmProduct = products.find((p) => productKind(p) === 'tcm')!
+// Batch #12: personalisierte (BaZi-)PDPs sind Redirects auf /personalize —
+// Inventar-Referenz ist die lebende TCM-PDP; zweites Sample: Wuxing.
+const tcmProduct = products.find((p) => productKind(p) === 'tcm' && !p.retired)!
+const wuxingProduct = products.find((p) => productKind(p) === 'wuxing' && !p.retired)!
 
 const WEBP_RE = /\/images\/.*\.webp/i
 
@@ -66,17 +68,17 @@ beforeEach(() => {
 // ── sanity: fixtures are the kinds we think they are ─────────────────────────
 
 describe('REQ-008 — PDP inventory fixtures resolve to the intended kinds', () => {
-  it('has a BaZi and a TCM product in the catalog', () => {
-    expect(baziProduct, 'a BaZi product').toBeTruthy()
-    expect(tcmProduct, 'a TCM product').toBeTruthy()
+  it('has active TCM and Wuxing products in the catalog', () => {
+    expect(tcmProduct, 'an active TCM product').toBeTruthy()
+    expect(wuxingProduct, 'an active Wuxing product').toBeTruthy()
   })
 })
 
 // ── AT-008-1 — full PDP template inventory (BaZi) ────────────────────────────
 
-describe('REQ-008 / AT-008-1 — BaZi PDP renders the full inventory by stable anchor', () => {
+describe('REQ-008 / AT-008-1 — PDP renders the full inventory by stable anchor (Batch #12: aktive TCM-PDP)', () => {
   it('renders breadcrumb, gallery, name, price, variants, add-to-cart, frame/accessory, trust, description, cross-sells, inspiration', async () => {
-    await renderProduct(baziProduct.id)
+    await renderProduct(tcmProduct.id)
     const pdp = screen.getByTestId('pdp')
 
     // The `pdp` shell anchor can commit before the cross-sell / inspiration
@@ -100,25 +102,16 @@ describe('REQ-008 / AT-008-1 — BaZi PDP renders the full inventory by stable a
       // price
       expect(within(pdp).getByTestId('pdp-price').textContent?.trim().length ?? 0).toBeGreaterThan(0)
 
-      // variants (size + frame axes via the configurator)
-      const variants = within(pdp).getByTestId('pdp-variants')
-      expect(variants).toBeInTheDocument()
+      // Batch #12: nicht-personalisierbare PDP — die Varianten-Achse ist der
+      // eigenständige Größen-Selektor (der Configurator lebt auf /personalize).
+      expect(within(pdp).getByTestId('pdp-size-selector')).toBeInTheDocument()
 
-      // frame / accessory options block — must list a REAL add-on NAME, not just
-      // exist. Pre-fix the block rendered the raw i18n key (wrong `pages.addons.*`
-      // path → no resolved title), so an "empty name" defect rendered an anchorless
-      // block that still passed a bare existence check. Anchoring on the shipped
-      // first add-on ("Premium Passepartout" EN/DE · "Passe-partout premium" FR)
-      // makes that regression impossible to slip through green again (REQ-008).
-      const accessories = within(pdp).getByTestId('pdp-accessories')
-      expect(accessories).toBeInTheDocument()
-      expect(
-        accessories.textContent ?? '',
-        'pdp-accessories lists a real add-on name, not a raw i18n key',
-      ).toMatch(/Passepartout|Passe-partout/i)
+      // Batch #12 (#4): „Rahmen & Zubehör" ist VOLLSTÄNDIG entfernt — der
+      // frühere Accessories-Block darf nicht mehr rendern.
+      expect(within(pdp).queryByTestId('pdp-accessories')).toBeNull()
 
-      // add-to-cart (BaZi → personalize CTA)
-      expect(within(pdp).getByTestId('pdp-personalize-cta')).toBeInTheDocument()
+      // add-to-cart (aktive, nicht-personalisierbare PDP)
+      expect(within(pdp).getByTestId('pdp-add-to-cart')).toBeInTheDocument()
 
       // trust bullets
       const trust = within(pdp).getByTestId('pdp-trust')
@@ -139,7 +132,7 @@ describe('REQ-008 / AT-008-1 — BaZi PDP renders the full inventory by stable a
   })
 
   it('breadcrumb and inspiration links point at real, in-app routes (no dead links)', async () => {
-    await renderProduct(baziProduct.id)
+    await renderProduct(tcmProduct.id)
     const pdp = screen.getByTestId('pdp')
     await waitFor(() => {
       const crumb = within(pdp).getByTestId('pdp-breadcrumb')
@@ -197,7 +190,7 @@ describe('REQ-008 / AT-008-1 — TCM PDP renders the shared inventory (asset-lig
 
 describe('REQ-008 / AT-008-3 — no review block or stars on the PDP without real reviews', () => {
   it('the BaZi PDP (placeholder rating, flag OFF) renders NO review block and NO ★', async () => {
-    await renderProduct(baziProduct.id)
+    await renderProduct(tcmProduct.id)
     const pdp = screen.getByTestId('pdp')
     await waitFor(() => {
       // inventory has settled (name present) — now assert the gate is shut
@@ -208,7 +201,7 @@ describe('REQ-008 / AT-008-3 — no review block or stars on the PDP without rea
   })
 
   it('NO shipped product surfaces a PDP review block while the flag is OFF (representative sample)', async () => {
-    const sample = [baziProduct, tcmProduct]
+    const sample = [tcmProduct, wuxingProduct]
     for (const p of sample) {
       await renderProduct(p.id)
       const pdp = screen.getByTestId('pdp')
@@ -249,7 +242,7 @@ describe('REQ-008 / AT-008-4 — no invented review count is shipped as visible 
     // Defence-in-depth against a regression that prints the count outside the
     // gated <pdp-reviews> block: with the flag OFF, the bare review/sold labels
     // must not appear anywhere in the rendered PDP either.
-    await renderProduct(baziProduct.id)
+    await renderProduct(tcmProduct.id)
     const pdp = screen.getByTestId('pdp')
     await waitFor(() => {
       expect(within(pdp).getByTestId('pdp-name')).toBeInTheDocument()

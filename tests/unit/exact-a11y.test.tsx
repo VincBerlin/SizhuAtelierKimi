@@ -69,7 +69,7 @@ describe('M18 — mega-menu ARIA disclosure wiring', () => {
 
 describe('M18 — collection filter facets are labelled groups', () => {
   it('each filter row is role=group with an accessible label; chips expose aria-pressed', async () => {
-    renderApp('/collections/bazi-posters')
+    renderApp('/collections/tcm-posters') // Batch #12: bazi-Kollektion ist Redirect
     await screen.findByTestId('collection-page', undefined, { timeout: 15000 })
     const styleGroup = screen.getByTestId('collection-filter-style')
     expect(styleGroup).toHaveAttribute('role', 'group')

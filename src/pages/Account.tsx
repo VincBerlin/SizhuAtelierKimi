@@ -8,9 +8,9 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER, ACCENT_CTA_SHADOW } from '../lib/t
 import PersonalDetails from '../components/account/PersonalDetails'
 import AddressBook from '../components/account/AddressBook'
 
-const inputStyle: CSSProperties = { border: `1px solid ${C.borderInput}`, borderRadius: 10, padding: '12px 14px', fontSize: 14, fontFamily: FONT_SANS, background: C.surfaceInput, color: C.ink, width: '100%', boxSizing: 'border-box' }
-const cardStyle: CSSProperties = { background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }
-const primaryBtn: CSSProperties = { width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 15, borderRadius: 12, fontSize: 15, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }
+const inputStyle: CSSProperties = { border: `1px solid ${C.borderInput}`, padding: '12px 14px', fontSize: 14, fontFamily: FONT_SANS, background: C.surfaceInput, color: C.ink, width: '100%', boxSizing: 'border-box' }
+const cardStyle: CSSProperties = { background: '#fff', border: `1px solid ${C.border}`, padding: 24 }
+const primaryBtn: CSSProperties = { width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 15, fontSize: 15, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }
 const errBox: CSSProperties = { fontSize: 13, color: C.accent, margin: 0 }
 
 export default function Account() {

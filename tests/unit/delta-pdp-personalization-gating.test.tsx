@@ -66,37 +66,34 @@ describe('REQ-007 — PDP gating fixtures resolve to the intended kinds', () => 
   })
 })
 
-// ── AT-007-1 — BaZi PDP SHOWS personalization ────────────────────────────────
+// ── AT-007-1 (SUPERSEDED Operator-Batch #12, 2026-07-18) ─────────────────────
+// Personalisierung lebt AUSSCHLIESSLICH auf der zentralen /personalize-Seite;
+// die frühere BaZi-PDP (retired) redirectet dorthin. Der Geist von AT-007-1
+// (Personalisierungs-UI mit Geburtsfeldern erreichbar) wird am Redirect-Ziel
+// geprüft — Vorschau + getrennte Datum/Zeit/Ort-Felder.
 
-describe('REQ-007 / AT-007-1 — BaZi PDP renders the configurator + birth fields', () => {
-  it('marks the page personalizable and renders configurator, CTA, chart preview', async () => {
-    await renderProduct(baziProduct.id)
-    const pdp = screen.getByTestId('pdp')
-    expect(pdp).toHaveAttribute('data-personalizable', 'true')
-    expect(pdp).toHaveAttribute('data-product-kind', 'bazi')
-
-    // The `pdp` shell anchor can paint a commit before the configurator subtree
-    // finishes mounting under CPU contention, so re-read the configurator parts
-    // inside `waitFor`. The presence assertions are unchanged.
-    await waitFor(() => {
-      // configurator block + the live chart/poster preview
-      expect(within(pdp).getByTestId('pdp-configurator')).toBeInTheDocument()
-      expect(within(pdp).getByTestId('pdp-chart-preview')).toBeInTheDocument()
-      expect(within(pdp).getByTestId('pdp-personalize-cta')).toBeInTheDocument()
-    })
+describe('REQ-007 / AT-007-1 (superseded) — retired BaZi PDP leads to the central personalize page', () => {
+  it('redirects to /personalize and renders preview + CTA there', async () => {
+    render(
+      <MemoryRouter initialEntries={[`/product/${baziProduct.id}`]}>
+        <App />
+      </MemoryRouter>,
+    )
+    await screen.findByTestId('poster-preview-sticky', undefined, { timeout: 15000 })
+    expect(screen.getByTestId('poster-svg-preview')).toBeInTheDocument()
   })
 
-  it('renders distinct date, time and place birth-input fields', async () => {
-    await renderProduct(baziProduct.id)
-    const pdp = screen.getByTestId('pdp')
-    // The birth inputs live inside the configurator subtree, which can mount a
-    // commit after the `pdp` anchor under load — re-read them inside `waitFor`.
+  it('renders distinct date, time and place birth-input fields on the personalize page', async () => {
+    render(
+      <MemoryRouter initialEntries={[`/product/${baziProduct.id}`]}>
+        <App />
+      </MemoryRouter>,
+    )
+    await screen.findByTestId('poster-preview-sticky', undefined, { timeout: 15000 })
     await waitFor(() => {
-      expect(pdp.querySelector('input[type="date"]')).toBeTruthy()
-      expect(pdp.querySelector('input[type="time"]')).toBeTruthy()
-      // place is a free-text field inside the configurator step 1
-      const conf = within(pdp).getByTestId('pdp-configurator')
-      expect(conf.querySelectorAll('input[type="text"]').length).toBeGreaterThanOrEqual(1)
+      expect(document.querySelector('input[type="date"]')).toBeTruthy()
+      expect(document.querySelector('input[type="time"]')).toBeTruthy()
+      expect(screen.getByTestId('place-of-birth-input')).toBeInTheDocument()
     })
   })
 })
@@ -160,7 +157,8 @@ describe('REQ-008 / AT-008-3 — no review block or stars without real reviews',
     // anchor is absent across a representative product per kind (BaZi with a
     // non-zero placeholder rating, plus the zero-review TCM/Fire-Horse SKUs),
     // unmounting between renders so the App tree does not accumulate.
-    const sample = [baziProduct, tcmProduct, wuxingProduct, fireHorseProduct]
+    // Batch #12: retired BaZi-PDP redirectet — Review-Sample sind die AKTIVEN PDPs.
+    const sample = [tcmProduct, wuxingProduct, fireHorseProduct]
     for (const p of sample) {
       await renderProduct(p.id)
       const pdp = screen.getByTestId('pdp')

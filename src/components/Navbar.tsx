@@ -62,7 +62,7 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
       <div
         role="listbox"
         style={{
-          position: 'absolute', minWidth: 86, background: '#fff', border: `1px solid ${C.border}`, borderRadius: 10,
+          position: 'absolute', minWidth: 86, background: '#fff', border: `1px solid ${C.border}`,
           boxShadow: '0 16px 36px -18px rgba(28,24,18,0.4)', padding: 6, zIndex: 60,
           ...(up ? { bottom: 'calc(100% + 8px)' } : { top: 'calc(100% + 8px)' }),
           ...(align === 'right' ? { right: 0 } : { left: 0 }),
@@ -75,8 +75,8 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
           <button
             key={l} role="option" data-testid="lang-option" aria-selected={lang === l}
             onClick={() => { setLang(l); setOpen(false) }}
-            className="flex w-full items-center transition-colors hover:bg-[#F5F0E6]"
-            style={{ justifyContent: 'space-between', gap: 8, background: lang === l ? '#F5F0E6' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', borderRadius: 7, textAlign: 'left' }}
+            className="flex w-full items-center transition-colors hover:bg-[#F3F3F3]"
+            style={{ justifyContent: 'space-between', gap: 8, background: lang === l ? '#F3F3F3' : 'none', border: 'none', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size + 1, fontWeight: lang === l ? 600 : 400, color: C.ink, padding: '7px 12px', textAlign: 'left' }}
           >
             <span data-testid="lang-code">{l}</span>
             <span data-testid="lang-flag" aria-hidden="true" style={{ fontSize: size + 3, lineHeight: 1 }}>{LANG_FLAG[l]}</span>
@@ -175,7 +175,7 @@ export default function Navbar() {
         className="fixed top-[34px] left-0 right-0 z-50 transition-all duration-300"
         style={{
           height: 72,
-          background: scrolled ? 'rgba(251,248,241,0.9)' : 'transparent',
+          background: scrolled ? 'rgba(255,255,255,0.92)' : 'transparent',
           backdropFilter: scrolled ? 'blur(12px)' : 'none',
           borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
         }}
@@ -259,11 +259,17 @@ export default function Navbar() {
             <Link data-testid="header-account" to="/account" aria-label={t('auth.account')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, gap: 5, color: C.ink, textDecoration: 'none' }}>
               <User size={19} strokeWidth={1.5} />
             </Link>
-            <button data-testid="header-cart" onClick={openCart} aria-label={t('nav.cart')} className="relative flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
-              <ShoppingBag size={20} strokeWidth={1.5} />
-              {cartCount > 0 && (
-                <span data-testid="cart-badge" className="absolute -top-1 -right-1 flex items-center justify-center rounded-full" style={{ minWidth: 16, height: 16, padding: '0 4px', fontSize: 10, fontWeight: 600, color: '#fff', background: C.accent }}>{cartCount}</span>
-              )}
+            <button data-testid="header-cart" onClick={openCart} aria-label={t('nav.cart')} className="flex items-center justify-center transition-colors hover:text-[#C0492E]" style={{ ...HIT, color: C.ink, background: 'none', border: 'none', cursor: 'pointer' }}>
+              {/* Batch #12 (#13): Icon + Zahl als GEMEINSAMER Block — die Zahl
+                  hängt am Icon-Wrapper, nicht an der 44px-Touch-Fläche, und
+                  sitzt damit auf jeder Breite direkt an der oberen rechten
+                  Icon-Ecke. Kein Badge bei leerem Warenkorb (cartCount > 0). */}
+              <span className="relative inline-flex" data-testid="cart-icon-block">
+                <ShoppingBag size={20} strokeWidth={1.5} />
+                {cartCount > 0 && (
+                  <span data-testid="cart-badge" className="absolute" style={{ top: -7, right: -7, fontSize: 13, fontWeight: 700, color: C.accent, background: 'none', lineHeight: 1, minWidth: 12, textAlign: 'center' }}>{cartCount > 99 ? '99+' : cartCount}</span>
+                )}
+              </span>
             </button>
           </div>
         </div>
@@ -284,7 +290,7 @@ export default function Navbar() {
           onMouseLeave={megaLeave}
           style={{
             position: 'absolute', top: '100%', insetInline: 0, zIndex: 300,
-            background: '#FBF8F1', borderBottom: `1px solid ${C.border}`,
+            background: '#fff', borderBottom: `1px solid ${C.border}`,
             boxShadow: '0 24px 48px -24px rgba(28,24,18,0.35)',
             opacity: posterOpen ? 1 : 0, visibility: posterOpen ? 'visible' : 'hidden',
             transform: posterOpen ? 'translateY(0)' : 'translateY(-4px)',
@@ -433,6 +439,13 @@ export default function Navbar() {
             {/* REQ-005 — shop-oriented primary entries in the drawer too. */}
             {PRIMARY_NAV.map((entry) => (
               <Link data-testid="mobile-primary-link" key={entry.href + entry.i18nKey} to={entry.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{t(entry.i18nKey)}</Link>
+            ))}
+            {/* Operator 2026-07-13 (Mobile-First): die Quick-Access-Einträge des
+                Mega-Menüs (Offers, Inspiration, …) müssen auch mobil erreichbar
+                sein — die Primärleiste trägt sie nicht mehr. Dubletten zu
+                PRIMARY_NAV werden übersprungen. */}
+            {QUICK_ACCESS.filter((q) => !PRIMARY_NAV.some((p) => p.href === q.href)).map((q) => (
+              <Link data-testid="mobile-quick-link" key={q.id} to={q.href} style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.ink, textDecoration: 'none', padding: '12px 0' }}>{tx(q.labelKey, q.label)}</Link>
             ))}
           </nav>
           <div className="flex items-center" style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}`, gap: 10 }}>

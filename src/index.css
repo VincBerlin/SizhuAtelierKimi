@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --parchment: #E8E1D6;
+    --parchment: #FFFFFF;
     --ink-black: #2C2420;
     /* REQ-017 / FM-09: the canonical Terracotta accent. Was a SIENNA naming-lie
        (hex A0522D — "terracotta" in name only, actually a brown sienna). Unified to
@@ -34,7 +34,7 @@
     --border: 32 18% 78%;
     --input: 32 18% 78%;
     --ring: 20 55% 40%;
-    --radius: 0.25rem;
+    --radius: 0rem;
   }
 
   body {
@@ -1863,5 +1863,119 @@
 @media (min-width: 768px) {
   .inspiration-masonry {
     column-count: 2;
+  }
+}
+
+/* ── Operator-Batch 2026-07-13 (final) ─────────────────────────────────────── */
+
+/* 1. Poster-Vorschau responsiv: die geteilte SVG-Vorlage trägt absolute
+   mm-Maße (width="420mm" ≈ 1587px — Druckquelle, NICHT anfassen); im Browser
+   wird sie hier auf die Containerbreite gezähmt und in der Höhe gedeckelt,
+   damit das Poster IMMER vollständig erkennbar ist (Operator-Fund: Vorschau
+   überdimensional, mobil unbrauchbar). */
+[data-testid='poster-svg-preview'] svg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 30vh;
+  margin: 0 auto;
+}
+@media (min-width: 1024px) {
+  [data-testid='poster-svg-preview'] svg {
+    max-height: 64vh;
+  }
+}
+/* 1b. Design-Swatch-Mini-Vorschauen (eigene testid seit Operator-Batch #6):
+   dieselbe mm-SVG-Quelle muss in den 84px-Wähler-Knopf passen — ohne diese
+   Regel rendert sie in Naturgröße (Prod-Screenshot-Fund). */
+[data-testid^='design-swatch-preview-'] svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 1c. Realistischer Rahmen-Look (Operator-Batch #10): Der Rahmen wird nicht
+   mehr aufs Poster gemalt (er kommt physisch von Gelato) — die Vorschau legt
+   stattdessen einen Holz-/Mattschwarz-Rahmen mit Falz und Tiefe UM das SVG.
+   Optik orientiert an Gelatos Holzrahmen 12×22 mm mit Plexiglas. */
+.real-frame {
+  /* Rahmen umschließt EXAKT das Poster (fit-content) — nie Container-Breite. */
+  width: fit-content;
+  margin: 0 auto;
+  padding: 14px;
+  box-shadow:
+    0 22px 44px -18px rgba(42, 38, 32, 0.45),
+    0 6px 14px -6px rgba(42, 38, 32, 0.3);
+}
+.real-frame > div {
+  width: auto;
+}
+.real-frame > div {
+  /* Falz + Glasschatten zwischen Rahmenleiste und Poster */
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.35),
+    inset 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.real-frame--oak {
+  /* feine Eichen-Maserung — schmale Streuung statt Bretter-Optik */
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0%, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.14) 100%),
+    repeating-linear-gradient(93deg, #c09468 0px, #b78a58 1.5px, #c49a6c 3px, #b0824f 4.5px, #bd9161 6px);
+  background-blend-mode: overlay, normal;
+  border: 1px solid rgba(90, 62, 32, 0.55);
+}
+.real-frame--black {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 35%, rgba(0, 0, 0, 0.25) 100%),
+    linear-gradient(#1c1b19, #131211);
+  border: 1px solid rgba(0, 0, 0, 0.7);
+}
+
+/* 1d. Farb-Swatches sind KREISE (Operator-Batch #10) — gewinnt gegen die
+   globale Eckig-Regel (Abschnitt 2) über !important. */
+.color-swatch-circle {
+  border-radius: 9999px !important;
+}
+
+/* 2. Eckige Buttons (Operator: „jeder Button eckig, nicht abgerundet").
+   Stylesheet-!important schlägt die verstreuten Inline-border-radius. */
+button,
+button span,
+[role='button'],
+a.cta-square,
+input,
+select,
+textarea {
+  border-radius: 0 !important;
+}
+
+/* 3. Mobile-first Personalize: das Poster bleibt beim Ausfüllen IMMER sichtbar.
+   Im einspaltigen Layout ist der Grid-Sticky wirkungslos (das Item ist seine
+   eigene Row) — deshalb wird das Layout unterhalb lg zu display:block und die
+   Vorschau klebt unter der fixierten Kopfzeile (34+72=106px + Luft), kompakt
+   gedeckelt, damit die Eingaben darunter Platz behalten. */
+.personalize-layout {
+  display: block;
+}
+.personalize-preview {
+  position: sticky;
+  top: 112px;
+  z-index: 5;
+  /* Kein max-height/overflow mehr (Operator 2026-07-14): der Scrollbalken
+     irritierte — das SVG selbst ist höhengedeckelt, der Container wächst mit.
+     Unter dem Poster ist Platz für spätere Mockups reserviert. */
+  margin-bottom: 18px;
+}
+@media (min-width: 1024px) {
+  .personalize-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 3rem;
+    align-items: start;
+  }
+  .personalize-preview {
+    top: 96px;
+    margin-bottom: 0;
   }
 }

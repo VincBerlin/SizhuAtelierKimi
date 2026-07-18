@@ -67,7 +67,7 @@ export default function ProductCarousel({ products, onCardClick }: { products: P
       style={{
         position: 'absolute', top: 'calc(50% - 60px)', [side === 'prev' ? 'left' : 'right']: 2, zIndex: 3,
         width: 44, height: 44, borderRadius: 999, border: `1px solid ${C.border}`,
-        background: 'rgba(251,248,241,0.92)', backdropFilter: 'blur(4px)', color: C.ink,
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', color: C.ink,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: enabled ? 'pointer' : 'default', opacity: enabled ? 1 : 0, pointerEvents: enabled ? 'auto' : 'none',
         transition: 'opacity .2s', boxShadow: '0 6px 18px -8px rgba(28,24,18,0.45)',

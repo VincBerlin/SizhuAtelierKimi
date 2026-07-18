@@ -11,7 +11,6 @@ const Personalize = lazy(() => import('./pages/Personalize'))
 const Legal = lazy(() => import('./pages/Legal'))
 const Faq = lazy(() => import('./pages/Faq'))
 const Account = lazy(() => import('./pages/Account'))
-const Gifts = lazy(() => import('./pages/Gifts'))
 const HowItWorks = lazy(() => import('./pages/HowItWorks'))
 const Checkout = lazy(() => import('./pages/Checkout'))
 const OrderResult = lazy(() => import('./pages/OrderResult'))
@@ -29,6 +28,7 @@ const Inspiration = lazy(() => import('./pages/Inspiration'))
 const Offers = lazy(() => import('./pages/Offers'))
 import Navbar from './components/Navbar'
 import AnnouncementBar, { ANNOUNCEMENT_HEIGHT } from './components/shop/AnnouncementBar'
+import SaleBanner from './components/shop/SaleBanner'
 import SiteFooter from './components/shop/SiteFooter'
 import CartDrawer from './components/shop/CartDrawer'
 import ArticleOverlay from './components/shop/ArticleOverlay'
@@ -50,9 +50,9 @@ function AppShell() {
   const { t } = useT()
   const mainRef = useRef<HTMLDivElement>(null)
   const firstRender = useRef(true)
-  // Home keeps a full-viewport hero under the transparent fixed chrome;
-  // every other route needs clearance below the announcement bar + navbar.
-  const isHome = pathname === '/'
+  // Operator-Vorgabe 2026-07-13: JEDE Route (auch Home) beginnt unterhalb der
+  // Menü-Grenze — die frühere isHome-Sonderbehandlung (Hero hinter der
+  // transparenten Leiste) ist aufgehoben.
 
   // A11y (M18) — move focus to the main content region on route change so
   // keyboard / screen-reader users land on the new page instead of being
@@ -81,7 +81,13 @@ function AppShell() {
       </a>
       <AnnouncementBar />
       <Navbar />
-      <div id="main-content" ref={mainRef} tabIndex={-1} style={{ paddingTop: isHome ? 0 : ANNOUNCEMENT_HEIGHT + NAV_HEIGHT, outline: 'none' }}>
+      {/* Operator-Vorgabe 2026-07-13: der Hero endet an der MENÜ-GRENZE — auch
+          Home bekommt das Kopf-Padding; kein Inhalt liegt mehr hinter der
+          fixierten Leiste (vorher: isHome ? 0 : …, Hero lief unter das Menü). */}
+      <div id="main-content" ref={mainRef} tabIndex={-1} style={{ paddingTop: ANNOUNCEMENT_HEIGHT + NAV_HEIGHT, outline: 'none' }}>
+        {/* Operator 2026-07-13: Rabatt-Banner direkt unter dem Mega-Menü,
+            auf jeder Seite; scrollt mit (fixe Kopf-Geometrie unangetastet). */}
+        <SaleBanner />
         <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -103,7 +109,8 @@ function AppShell() {
           {/* Offers / Sale hub (REQ-024 / T-305) — the full curated hub is live:
               ≥2 curated sections, each onward-linking to a real collection route. */}
           <Route path="/offers" element={<Offers />} />
-          <Route path="/gifts" element={<Gifts />} />
+          {/* Batch #12 (#4): Geschenkkollektion entfernt — Deep-Links bleiben ohne 404. */}
+          <Route path="/gifts" element={<Navigate to="/personalize" replace />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tcm" element={<TcmOverview />} />
           <Route path="/bundles" element={<BundlesPage />} />

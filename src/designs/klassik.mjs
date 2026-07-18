@@ -46,9 +46,13 @@ export function render(data, { widthMm, heightMm }) {
   <rect x="${artX}" y="${artY}" width="${artW}" height="${artH}" fill="${esc(bg)}"/>
   <text x="${artX + artW * 0.06}" y="${artY + artH * 0.07}" font-family="Noto Sans" font-size="${artH * 0.027}" letter-spacing="0.18em" fill="${ink}" opacity="0.78">${esc(String(data.element || '').toUpperCase())}</text>
   <text x="${artX + artW * 0.94}" y="${artY + artH * 0.07}" text-anchor="end" font-family="Noto Sans" font-size="${artH * 0.027}" letter-spacing="0.18em" fill="${ink}" opacity="0.78">${esc(String(data.animal || '').toUpperCase())}</text>
+  ${
+    /* Tagesmeister-Umrandung (Operator 2026-07-14): die TAG-Säule (Index 2)
+       ist der Kern des Charts — feiner Rahmen um Label+Stamm+Zweig. */ ''
+  }<rect x="${colXs[2] - colGap * 0.42}" y="${pillarTop - artH * 0.045}" width="${colGap * 0.84}" height="${glyphSize * 2.6 + artH * 0.085}" fill="none" stroke="${ink}" stroke-width="0.5"/>
   ${pillars}
   <line x1="${artX + artW * 0.08}" y1="${artY + artH * 0.82}" x2="${artX + artW * 0.92}" y2="${artY + artH * 0.82}" stroke="${rule}" stroke-width="0.35"/>
   <text x="${artX + artW / 2}" y="${artY + artH * 0.89}" text-anchor="middle" font-family="Noto Serif SC" font-size="${artH * 0.07}" fill="${ink}">${esc(data.name || '')}</text>
-  <text x="${artX + artW / 2}" y="${artY + artH * 0.94}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.021}" letter-spacing="0.24em" fill="${ink}" opacity="0.62">BAZI · VIER SÄULEN</text>
+  <text x="${artX + artW / 2}" y="${artY + artH * 0.94}" text-anchor="middle" font-family="Noto Sans" font-size="${artH * 0.021}" letter-spacing="0.24em" fill="${ink}" opacity="0.62">${esc(data.subtitle || 'BAZI · VIER SÄULEN')}</text>
 </svg>`
 }

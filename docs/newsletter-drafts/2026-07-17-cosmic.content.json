@@ -1,0 +1,250 @@
+{
+  "kind": "cosmic-fusion",
+  "date": "2026-07-17",
+  "computedAt": "2026-07-17T17:01:52Z",
+  "ctaHref": "https://sizhuatelier-shop-production.up.railway.app/personalize",
+  "bazi": {
+    "raw": {
+      "year": {
+        "stamm": "Bing",
+        "zweig": "Wu",
+        "tier": "Pferd",
+        "element": "Feuer"
+      },
+      "month": {
+        "stamm": "Yi",
+        "zweig": "Wei",
+        "tier": "Ziege",
+        "element": "Holz"
+      },
+      "day": {
+        "stamm": "Ren",
+        "zweig": "Chen",
+        "tier": "Drache",
+        "element": "Wasser"
+      },
+      "hour": {
+        "stamm": "Bing",
+        "zweig": "Wu",
+        "tier": "Pferd",
+        "element": "Feuer"
+      }
+    },
+    "rows": {
+      "en": [
+        [
+          "Year pillar",
+          "Fire · Horse"
+        ],
+        [
+          "Month pillar",
+          "Wood · Goat"
+        ],
+        [
+          "Day pillar",
+          "Water · Dragon"
+        ]
+      ],
+      "de": [
+        [
+          "Jahressäule",
+          "Feuer · Pferd"
+        ],
+        [
+          "Monatssäule",
+          "Holz · Ziege"
+        ],
+        [
+          "Tagessäule",
+          "Wasser · Drache"
+        ]
+      ],
+      "fr": [
+        [
+          "Pilier de l’année",
+          "Feu · Cheval"
+        ],
+        [
+          "Pilier du mois",
+          "Bois · Chèvre"
+        ],
+        [
+          "Pilier du jour",
+          "Eau · Dragon"
+        ]
+      ],
+      "es": [
+        [
+          "Pilar del año",
+          "Fuego · Caballo"
+        ],
+        [
+          "Pilar del mes",
+          "Madera · Cabra"
+        ],
+        [
+          "Pilar del día",
+          "Agua · Dragón"
+        ]
+      ]
+    }
+  },
+  "western": {
+    "rows": {
+      "en": [
+        [
+          "Sun",
+          "Cancer 25.1°"
+        ],
+        [
+          "Moon",
+          "Virgo 9.8°"
+        ],
+        [
+          "Mercury",
+          "Cancer 18.0° · retrograde"
+        ],
+        [
+          "Venus",
+          "Virgo 8.8°"
+        ],
+        [
+          "Mars",
+          "Gemini 13.3°"
+        ],
+        [
+          "Jupiter",
+          "Leo 3.8°"
+        ],
+        [
+          "Saturn",
+          "Aries 14.7°"
+        ]
+      ],
+      "de": [
+        [
+          "Sonne",
+          "Krebs 25.1°"
+        ],
+        [
+          "Mond",
+          "Jungfrau 9.8°"
+        ],
+        [
+          "Merkur",
+          "Krebs 18.0° · rückläufig"
+        ],
+        [
+          "Venus",
+          "Jungfrau 8.8°"
+        ],
+        [
+          "Mars",
+          "Zwillinge 13.3°"
+        ],
+        [
+          "Jupiter",
+          "Löwe 3.8°"
+        ],
+        [
+          "Saturn",
+          "Widder 14.7°"
+        ]
+      ],
+      "fr": [
+        [
+          "Soleil",
+          "Cancer 25.1°"
+        ],
+        [
+          "Lune",
+          "Vierge 9.8°"
+        ],
+        [
+          "Mercure",
+          "Cancer 18.0° · rétrograde"
+        ],
+        [
+          "Vénus",
+          "Vierge 8.8°"
+        ],
+        [
+          "Mars",
+          "Gémeaux 13.3°"
+        ],
+        [
+          "Jupiter",
+          "Lion 3.8°"
+        ],
+        [
+          "Saturne",
+          "Bélier 14.7°"
+        ]
+      ],
+      "es": [
+        [
+          "Sol",
+          "Cáncer 25.1°"
+        ],
+        [
+          "Luna",
+          "Virgo 9.8°"
+        ],
+        [
+          "Mercurio",
+          "Cáncer 18.0° · retrógrado"
+        ],
+        [
+          "Venus",
+          "Virgo 8.8°"
+        ],
+        [
+          "Marte",
+          "Géminis 13.3°"
+        ],
+        [
+          "Júpiter",
+          "Leo 3.8°"
+        ],
+        [
+          "Saturno",
+          "Aries 14.7°"
+        ]
+      ]
+    }
+  },
+  "editions": {
+    "en": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — your impulse for today, 2026-07-17",
+      "title": "Your impulse for today — 2026-07-17",
+      "intro": "BaZi and the Western sky, fused into one daily reading — computed live by the same engine that composes your poster.",
+      "interpretation": "A Fire-Horse year, a Water · Dragon day: drive meets depth — the fire wants to charge ahead, the water quietly asks: where to? The Western sky mirrors it: the Sun moves through Cancer while Mercury runs retrograde there. Ease the pace today, read important words twice — and give one thing you started its calm finishing touch.",
+      "ctaText": "Your own chart, as art"
+    },
+    "de": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — dein Tagesimpuls, 2026-07-17",
+      "title": "Dein Tagesimpuls — 2026-07-17",
+      "intro": "BaZi und der westliche Himmel, fusioniert zu einer täglichen Lesung — live berechnet von derselben Engine, die auch dein Poster komponiert.",
+      "interpretation": "Feuer-Pferd-Jahr, Tagessäule Wasser · Drache: Antrieb trifft heute auf Tiefe — das Feuer will vorwärts, das Wasser fragt: wohin eigentlich? Der westliche Himmel spiegelt genau das: Die Sonne wandert durch den Krebs, doch Merkur läuft dort rückläufig. Nimm heute bewusst Tempo heraus, lies wichtige Worte zweimal — und gib einer begonnenen Sache ihren ruhigen letzten Schliff.",
+      "ctaText": "Dein eigenes Chart, als Kunstwerk"
+    },
+    "fr": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — votre impulsion du jour, 2026-07-17",
+      "title": "Votre impulsion du jour — 2026-07-17",
+      "intro": "Le BaZi et le ciel occidental, fusionnés en une lecture quotidienne — calculée en direct par le moteur qui compose votre poster.",
+      "interpretation": "Année du Cheval de Feu, pilier du jour Eau · Dragon : l’élan rencontre la profondeur — le feu veut avancer, l’eau demande : vers où ? Le ciel occidental le reflète : le Soleil traverse le Cancer tandis que Mercure y rétrograde. Ralentissez le rythme aujourd’hui, relisez les mots importants — et offrez à une chose commencée sa dernière touche, en toute sérénité.",
+      "ctaText": "Votre thème, en œuvre d’art"
+    },
+    "es": {
+      "eyebrow": "Cosmic Pulse",
+      "subject": "Cosmic Pulse — tu impulso de hoy, 2026-07-17",
+      "title": "Tu impulso de hoy — 2026-07-17",
+      "intro": "El BaZi y el cielo occidental, fusionados en una lectura diaria — calculada en vivo por el mismo motor que compone tu póster.",
+      "interpretation": "Año del Caballo de Fuego, pilar del día Agua · Dragón: el impulso se encuentra con la profundidad — el fuego quiere avanzar, el agua pregunta: ¿hacia dónde? El cielo occidental lo refleja: el Sol recorre Cáncer mientras Mercurio retrograda allí. Baja hoy el ritmo, lee dos veces las palabras importantes — y dale a algo que empezaste su tranquilo toque final.",
+      "ctaText": "Tu propia carta, como obra de arte"
+    }
+  }
+}

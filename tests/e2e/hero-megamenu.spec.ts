@@ -41,6 +41,26 @@ test.describe('Hero (Operator-Plan §2.1/§4)', () => {
   })
 })
 
+test.describe('Personalize mobil (Operator 2026-07-13 — Poster IMMER sichtbar)', () => {
+  test('mobile: die Poster-Vorschau klebt beim Scrollen zu den Eingaben sichtbar unter der Kopfzeile', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto(BASE + '/personalize')
+    const preview = page.getByTestId('poster-preview-sticky')
+    await expect(preview).toBeVisible()
+    // Tief zu den Format-/Rahmen-Eingaben scrollen …
+    await page.mouse.wheel(0, 1400)
+    await page.waitForTimeout(250)
+    // … die Vorschau bleibt als kompaktes Sticky-Element im Viewport
+    // (unter Announcement 34px + Header 72px ⇒ top ≈ 112px) und ist
+    // nicht höher als der gedeckelte 36vh-Rahmen + Padding.
+    const box = (await preview.boundingBox())!
+    expect(box.y).toBeGreaterThanOrEqual(100)
+    expect(box.y).toBeLessThanOrEqual(140)
+    expect(box.height).toBeLessThanOrEqual(844 * 0.36 + 32)
+    await page.screenshot({ path: 'docs/evidence/fufire-gelato/personalize-mobile-sticky.png' })
+  })
+})
+
 test.describe('Mega-Menü (Operator-Plan §5/§6)', () => {
   test('opens on hover, spans the FULL viewport width, closes on Escape, no layout shift', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 })

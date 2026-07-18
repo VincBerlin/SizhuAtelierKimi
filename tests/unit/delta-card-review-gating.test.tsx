@@ -85,7 +85,7 @@ function expectNoSocialProof(scope: HTMLElement, label: string) {
 
 describe('REQ-010 / AT-010-4 — Collection grid cards show no fake social proof', () => {
   it('the BaZi collection grid renders cards but NO stars / rating / bought', async () => {
-    await renderRoute('/collections/bazi-posters', () =>
+    await renderRoute('/collections/tcm-posters' /* Batch #12 */, () =>
       screen.findByTestId('collection-grid', undefined, { timeout: 15000 }),
     )
     // The grid node can exist a commit before its product cards have finished

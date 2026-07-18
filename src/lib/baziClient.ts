@@ -65,6 +65,33 @@ export function resolvePlace(place: string): Promise<GeocodeResult> {
   return postJson<GeocodeResult>('/api/geocode', { place })
 }
 
+// ── Westliches Geburtshoroskop (Birth-Chart-Poster) ─────────────────────────
+export interface WesternBody {
+  signIndex: number
+  deg: number
+  retro: boolean
+}
+
+export interface WesternChart {
+  sun: WesternBody
+  moon: WesternBody
+  /** null bei unbekannter Geburtszeit — der Aszendent wird NIE geraten. */
+  ascendant: WesternBody | null
+  planets: Array<WesternBody & { key: string }>
+  provenance: Provenance
+}
+
+export function fetchWestern(input: BaziInput): Promise<WesternChart> {
+  return postJson<WesternChart>('/api/western', {
+    date: input.date,
+    time: input.time,
+    lat: input.place.lat,
+    lon: input.place.lon,
+    tz: input.place.tz,
+    birthTimeUnknown: input.birthTimeUnknown,
+  })
+}
+
 // ── Partner-Poster (合婚) ────────────────────────────────────────────────────
 export interface PairRelation {
   dayMasterA: string | null

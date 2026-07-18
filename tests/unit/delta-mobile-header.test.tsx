@@ -170,10 +170,12 @@ describe('REQ-022 / AT-011-4 — mobile work does not regress desktop header', (
     expect(within(header).getAllByTestId('header-lang').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('keeps exactly 8 primary-nav entries', async () => {
+  // SUPERSEDED 2026-07-13 (Operator): Leiste auf 2 Schnellzugriffe reduziert —
+  // Poster/TCM/Wuxing/Offers/Poster-Sets/Inspiration leben im Mega-Menü.
+  it('keeps exactly the 2 operator-spec primary-nav entries', async () => {
     await renderApp()
     const nav = within(screen.getByRole('banner')).getByTestId('primary-nav')
     const entries = nav.querySelectorAll('[data-nav-primary]')
-    expect(entries.length).toBe(8)
+    expect(entries.length).toBe(2)
   })
 })

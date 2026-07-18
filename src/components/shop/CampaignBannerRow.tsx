@@ -37,7 +37,7 @@ export default function CampaignBannerRow() {
             data-testid="home-campaign-banner"
             to={collectionPath(slug)}
             className="transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-[0_18px_34px_-22px_rgba(42,38,32,0.45)]"
-            style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, textDecoration: 'none' }}
+            style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.surface, border: `1px solid ${C.border}`, textDecoration: 'none' }}
           >
             {/* asset-light visual band — hatch placeholder, no real /images/*.webp */}
             <span

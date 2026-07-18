@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { fetchChart, fetchPairChart, type BaziInput, type ExactChart, type PairChart } from '@/lib/baziClient'
+import { fetchChart, fetchPairChart, fetchWestern, type BaziInput, type ExactChart, type PairChart, type WesternChart } from '@/lib/baziClient'
 
 export type BaziStatus = 'idle' | 'loading' | 'ready' | 'error'
 const DEBOUNCE_MS = 300
@@ -96,4 +96,47 @@ export function usePairChart(a: BaziInput | null, b: BaziInput | null): { pair: 
   }, [key])
 
   return { pair, status }
+}
+
+/** Westliches Geburtshoroskop (Birth-Chart-Poster) — gleiche Semantik wie
+ *  useBaziChart: Debounce, Race-Guard, ehrlicher Fehlerzustand (nie ein
+ *  stiller Platzhalter). */
+export function useWesternChart(input: BaziInput | null): { western: WesternChart | null; status: BaziStatus } {
+  const [western, setWestern] = useState<WesternChart | null>(null)
+  const [status, setStatus] = useState<BaziStatus>('idle')
+  const requestId = useRef(0)
+
+  const key = input
+    ? JSON.stringify([input.date, input.time, input.place.lat, input.place.lon, input.place.tz, input.birthTimeUnknown])
+    : null
+
+  useEffect(() => {
+    if (!input || !key) {
+      requestId.current += 1
+      setWestern(null)
+      setStatus('idle')
+      return
+    }
+    setStatus('loading')
+    const id = ++requestId.current
+    const timer = setTimeout(() => {
+      fetchWestern(input)
+        .then((w) => {
+          if (requestId.current === id) {
+            setWestern(w)
+            setStatus('ready')
+          }
+        })
+        .catch(() => {
+          if (requestId.current === id) {
+            setWestern(null)
+            setStatus('error')
+          }
+        })
+    }, DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+
+  return { western, status }
 }

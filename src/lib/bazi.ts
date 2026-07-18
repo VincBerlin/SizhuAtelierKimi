@@ -114,6 +114,19 @@ export const sizes: SizeOpt[] = [
   { id: 'A1', label: 'A1', sub: '59 × 84 cm', delta: 20 },
 ]
 
+// Operator-Anweisung 2026-07-15 (explizit, protected-surface-Review erteilt):
+// „die Formate der Poster müssen umgeändert werden … in Vertical bei diesem
+// personalisierten Poster auf 30×40, 50×70 und 70×100". Gilt NUR für den
+// Personalize-Flow — Katalog-Poster und Legacy-Configurator behalten die
+// A-Serie (`sizes` oben). Deltas spiegeln server/pricing.js SIZE_DELTA_EUR;
+// die Druckmaße + live-verifizierten Gelato-UIDs liegen in server/printSpecs.js
+// und server/gelatoProducts.js.
+export const personalizedSizes: SizeOpt[] = [
+  { id: '30x40', label: '30 × 40', sub: '30 × 40 cm', delta: -10 },
+  { id: '50x70', label: '50 × 70', sub: '50 × 70 cm', delta: 0 },
+  { id: '70x100', label: '70 × 100', sub: '70 × 100 cm', delta: 20 },
+]
+
 export interface CfgState {
   frameHex: string
   frameName: string

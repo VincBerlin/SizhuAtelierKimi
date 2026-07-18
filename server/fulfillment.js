@@ -15,6 +15,11 @@
 import { randomUUID } from 'node:crypto'
 import { productUidFor } from './gelatoProducts.js'
 import { shippingAddressFromSession } from './gelato.js'
+// Geteilte Poster-Lokalisierung (EINE Quelle mit der Browser-Vorschau —
+// Operator-Fund 2026-07-13: Druck/Vorschau zeigten Element/Tier immer deutsch,
+// unabhängig von der gewählten Poster-Sprache).
+import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement, zodiacName, planetName } from '../src/designs/posterLocale.mjs'
+import { getDesign } from '../src/designs/registry.mjs'
 
 export async function ensurePrintTables(pool) {
   if (!pool) return
@@ -54,37 +59,53 @@ function birthInput(p, suffix = '') {
   }
 }
 
-// Relations-Label in der Poster-Sprache (p.language). Spiegel der i18n-Keys
-// personalize.relation.* (src/i18n/translations.ts) — Poster-Text, daher hier
-// serverseitig, wo das Druck-PDF entsteht.
-const RELATION_TEXT = {
-  DE: { a_generates_b: '{a} nährt {b}', b_generates_a: '{b} nährt {a}', a_controls_b: '{a} kontrolliert {b}', b_controls_a: '{b} kontrolliert {a}', same_element: 'Gemeinsames Element', same: 'Gemeinsames Element' },
-  EN: { a_generates_b: '{a} nourishes {b}', b_generates_a: '{b} nourishes {a}', a_controls_b: '{a} controls {b}', b_controls_a: '{b} controls {a}', same_element: 'Shared element', same: 'Shared element' },
-  FR: { a_generates_b: '{a} nourrit {b}', b_generates_a: '{b} nourrit {a}', a_controls_b: '{a} contrôle {b}', b_controls_a: '{b} contrôle {a}', same_element: 'Élément commun', same: 'Élément commun' },
-  ES: { a_generates_b: '{a} nutre {b}', b_generates_a: '{b} nutre {a}', a_controls_b: '{a} controla {b}', b_controls_a: '{b} controla {a}', same_element: 'Elemento común', same: 'Elemento común' },
-}
-
-function relationLabel(relation, language) {
-  const table = RELATION_TEXT[String(language || 'DE').toUpperCase()] || RELATION_TEXT.DE
-  const tpl = table[relation.wuxingRelation]
-  if (!tpl) return ''
-  return tpl.split('{a}').join(relation.elementA || '').split('{b}').join(relation.elementB || '')
-}
-
 /** Poster-Daten für die Design-Vorlage — Einzel ODER Paar, exakt neu
  *  berechnet über FuFirE (deterministisch = identisch zur Vorschau). */
 async function posterDataFrom(p, fufire) {
+  // Western-Designs (Birth-Chart-Poster, Operator 2026-07-14): der Design-kind
+  // aus der Registry entscheidet den Berechnungspfad — identische Quelle wie
+  // die Browser-Vorschau (/api/western), lokalisiert über posterLocale.
+  if (getDesign(p.designId).kind === 'western') {
+    const w = await fufire.calculateWestern(birthInput(p))
+    const timeKnown = p.birthTimeUnknown !== 'true'
+    return {
+      data: {
+        // Operator 2026-07-16: der Rahmen kommt PHYSISCH von Gelato — die
+        // Druckdatei malt KEINEN Rahmenrand mehr auf (frame = bg-Fläche).
+        frame: p.bgHex || '#E9DFCB',
+        bg: p.bgHex || '#E9DFCB',
+        name: p.name || '',
+        subtitle: posterSubtitle('western', p.language),
+        sunLabel: planetName('Sun', p.language),
+        moonLabel: planetName('Moon', p.language),
+        ascLabel: planetName('Ascendant', p.language),
+        sun: { sign: zodiacName(w.sun.signIndex, p.language), deg: w.sun.deg },
+        moon: { sign: zodiacName(w.moon.signIndex, p.language), deg: w.moon.deg },
+        // Ehrlichkeit: ohne bekannte Geburtszeit KEIN Aszendent auf dem Druck.
+        ascendant: timeKnown && w.ascendant ? { sign: zodiacName(w.ascendant.signIndex, p.language), deg: w.ascendant.deg } : null,
+        planets: w.planets.map((pl) => ({ label: planetName(pl.key, p.language), sign: zodiacName(pl.signIndex, p.language), deg: pl.deg, retro: pl.retro })),
+      },
+      provenance: w.provenance,
+    }
+  }
   if (p.dateB) {
     const pair = await fufire.matchHehun(birthInput(p), birthInput(p, 'B'))
     return {
       data: {
-        frame: p.frameHex || '#1B1B1B',
+        // Operator 2026-07-16: der Rahmen kommt PHYSISCH von Gelato — die
+        // Druckdatei malt KEINEN Rahmenrand mehr auf (frame = bg-Fläche).
+        frame: p.bgHex || '#E9DFCB',
         bg: p.bgHex || '#E9DFCB',
         nameA: p.name || '',
         nameB: p.nameB || '',
-        chartA: pair.a,
-        chartB: pair.b,
-        relationLabel: relationLabel(pair.relation, p.language),
+        // dayMaster (Tag-Stamm, Säule 日) trägt den Poster-Kopf je Partner —
+        // identische Quelle wie die Vorschau (Operator 2026-07-14).
+        // Kopf-Element = TAGESMEISTER-Element aus dem Tag-Stamm (Fund 2026-07-14:
+        // chart.element ist das JAHRES-Element) — identisch zur Vorschau.
+        chartA: { ...pair.a, element: localizeElement(stemElement(pair.a.pillars?.[2]?.stem ?? ''), p.language), animal: localizeAnimal(pair.a.animal, p.language), dayMaster: pair.a.pillars?.[2]?.stem ?? '' },
+        chartB: { ...pair.b, element: localizeElement(stemElement(pair.b.pillars?.[2]?.stem ?? ''), p.language), animal: localizeAnimal(pair.b.animal, p.language), dayMaster: pair.b.pillars?.[2]?.stem ?? '' },
+        relationLabel: localizeRelation(pair.relation, p.language),
+        subtitle: posterSubtitle('pair', p.language),
       },
       provenance: pair.a.provenance,
     }
@@ -92,12 +113,14 @@ async function posterDataFrom(p, fufire) {
   const chart = await fufire.calculateBazi(birthInput(p))
   return {
     data: {
-      frame: p.frameHex || '#1B1B1B',
+      // Operator 2026-07-16: kein aufgemalter Rahmen im Druck (s. oben).
+      frame: p.bgHex || '#E9DFCB',
       bg: p.bgHex || '#E9DFCB',
       name: p.name || '',
-      element: chart.element,
-      animal: chart.animal,
+      element: localizeElement(chart.element, p.language),
+      animal: localizeAnimal(chart.animal, p.language),
       pillars: chart.pillars,
+      subtitle: posterSubtitle('single', p.language),
     },
     provenance: chart.provenance,
   }

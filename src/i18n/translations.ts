@@ -70,15 +70,15 @@ export const translations: Record<Lang, Record<string, any>> = {
         birthchart: { name: 'Personalized Birth Chart Poster', sub: 'Your personal star chart as refined wall art.' },
         couple: { name: 'Couple Compatibility Poster', sub: 'Two charts, one shared piece — for partners.' },
         firehorse: { name: 'Fire Horse 2026 Edition', sub: 'Limited edition for the Year of the Fire Horse.' },
-        digital: { name: 'Digital Analysis PDF', sub: '10–15 page PDF analysis of your chart.' },
+        digital: { name: 'Premium Analysis PDF', sub: 'Personal deep-dive: Dayun life phases & Five-Element balance.' },
         bundle: { name: 'Poster + Digital Analysis', sub: 'Your poster plus the full PDF analysis.' },
       },
       birthHeading: '2 · Your birth data', birthHeadingA: '2 · Person A — birth data', birthHeadingB: 'Person B — birth data',
       unknownTime: 'I don’t know my birth time', unknownTimeHint: 'If you do not know your exact birth time, we use 12:00 noon as the default assumption. Your poster will be composed based on this fallback value.',
       langHeading: '3 · Poster language',
       designHeading: '4 · Design', frameWord: 'Frame colour', paletteWord: 'Background palette', posterBgHeading: 'Poster background', sizeHeading: 'Size',
-      pdfAddon: 'Add the digital PDF analysis', pdfNote: 'A 10–15 page personal analysis of your chart, delivered as a download.', pdfBadge: 'Digital PDF',
-      summaryHeading: '5 · Review your personalization', sumType: 'Product', partnerName: 'Partner', timeUnknown: 'Unknown — 12:00 PM default', sumLang: 'Language', sumDesign: 'Design', sumSize: 'Size', sumPrice: 'Price',
+      pdfAddon: 'Add the premium PDF deep-dive analysis', pdfAddonSave: '25 % off', pdfNote: 'A carefully crafted personal deep-dive: Dayun life phases & Five-Element balance, delivered as a PDF download.', pdfBadge: 'Digital PDF',
+      summaryHeading: '5 · Review your personalization', sumType: 'Product', partnerName: 'Partner', partnerData: 'Partner details', review: { heading: 'Your calculated chart', dayMaster: 'Day master', pillars: 'Four pillars', animal: 'Animal', explainHeading: 'What does this mean?', elementsLabel: 'The five elements', explain: { pillars: 'The four pillars stand for the year, month, day and hour of your birth. Each pillar carries two characters — a heavenly stem on top and an earthly branch below. Together they form the eight characters (BaZi) your chart is made of: the year shapes origin and environment, the month your inner disposition, the day your core, and the hour how you express yourself towards the world.', dayMaster: 'The day master is the heavenly stem of your day pillar — outlined on the poster because it is read as your personal core. From it, the tradition looks at how the other characters support, challenge or balance you.', element: 'Every character belongs to one of the five elements — wood, fire, earth, metal and water. They nourish and shape each other in a cycle: wood feeds fire, fire creates earth, earth bears metal, metal gathers water, water nourishes wood. The element of your day master gives your chart its base tone.', animal: 'The animal sign comes from the earthly branch of your birth YEAR — the most familiar part of Chinese astrology. It is a symbolic shorthand for temperament and the imprint of your birth year, complementing the finer reading of the four pillars.' }, western: { sun: 'Your sun sign describes your core identity — the essential themes you keep returning to. It is determined by the position of the sun on your day of birth.', moon: 'Your moon sign stands for your inner world: feelings, needs and what makes you feel at home. The moon changes sign every two to three days, so it is far more individual than the sun sign alone.', asc: 'The ascendant is the zodiac sign rising on the eastern horizon at your exact birth time and place — it describes your first impression and outward manner. It changes roughly every two hours, which is why it needs your precise birth time.', ascUnknown: 'Without a known birth time the ascendant cannot be determined honestly — it is therefore left off the poster.' }, compat: { heading: 'Your result explained', dayMasters: 'Day masters', rel: { a_generates_b: 'In the five-element cycle, {a} nourishes {b}: the first day master’s energy symbolically strengthens the second — a giving, supportive dynamic.', b_generates_a: 'In the five-element cycle, {b} nourishes {a}: the second day master’s energy symbolically strengthens the first — a giving, supportive dynamic.', a_controls_b: 'In the five-element cycle, {a} shapes {b}: a structuring tension — in Wuxing thought it stands for form-giving impulses and growth through difference.', b_controls_a: 'In the five-element cycle, {b} shapes {a}: a structuring tension — in Wuxing thought it stands for form-giving impulses and growth through difference.', same_element: 'Both day masters share the element {a}: a resonance of likeness — familiar energy and a shared mode of expression.', same: 'Both day masters share the element {a}: a resonance of likeness — familiar energy and a shared mode of expression.' }, note: 'A symbolic reading from the classical five-element tradition — an invitation to reflect, not a judgement of your relationship.' } }, timeUnknown: 'Unknown — 12:00 PM default', sumLang: 'Language', sumDesign: 'Design', sumSize: 'Size', sumPrice: 'Price',
       previewCertainty: 'What you see here is what will be used for your personalized order. Review your details carefully before ordering.',
       trustData: 'Created from your birth data', trustLogic: 'Composed into a symbolic artwork', trustPreview: 'Preview before ordering', trustPremium: 'Premium print quality',
       errFix: 'Please complete the highlighted birth-data fields before adding to cart.',
@@ -95,7 +95,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       apiTitle: 'Made from your data', apiSub: 'A symbolic artwork inspired by your birth data',
       deliveryTitle: '5–7 Day Delivery', deliverySub: 'Worldwide, tracked',
       secureTitle: 'Stripe Secure', secureSub: 'Encrypted checkout',
-      artTitle: 'Premium Art', artSub: 'Museum-grade archival print',
+      artTitle: 'Premium Art', artSub: 'Museum-quality matte paper',
       payTitle: 'Secure payment',
     },
     path: {
@@ -150,7 +150,9 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     bundles: { eyebrow: 'Take more, pay less', title: 'Bundles', sub: 'Curated sets — posters and digital analysis combined, at a special price.', add: 'Add set to cart', save: 'Save' },
-    newsletter: { eyebrow: 'The Atelier Circle', title: 'Atelier News — New Posters, Offers & Inspiration', copy: 'Be first to hear about new poster releases, seasonal offers, atelier stories and inspiration for your walls — straight to your inbox. As a gentle extra, we occasionally include a reflective Cosmic Pulse energy note. ✨ No spam, unsubscribe anytime.', benefits: ['New poster & collection launches', 'Seasonal offers & gift ideas', 'Atelier stories · occasional Cosmic Pulse note'], placeholder: 'Your email address', langPref: 'Emails in', button: 'Subscribe', consent: 'I agree to receive product news, new poster launches, seasonal offers and marketing emails from SizhuAtelier, with the occasional Cosmic Pulse energy note. I can unsubscribe at any time. See our', privacy: 'Privacy Policy', success: 'Welcome to the Atelier Circle — check your inbox to confirm your subscription.', error: 'Something went wrong — please try again.', consentErr: 'Please accept the terms to continue.', fine: 'Double opt-in · unsubscribe anytime' },
+    sale: { banner: 'Sale ✦ Now save 20% on selected posters' },
+    homeQuickstart: { eyebrow: 'Start now', title: 'Personalize your poster in minutes', bazi: { title: 'Your BaZi Poster', sub: 'Enter your birth data and watch your exact chart appear live.', cta: 'Personalize now' }, couple: { title: 'Couple Compatibility', sub: 'Two birth charts, one artwork — your elemental relationship, precisely calculated.', cta: 'Start together' } },
+    newsletter: { eyebrow: 'The Atelier Circle', title: 'Atelier News — New Posters, Offers & Inspiration', copy: 'Be first to hear about new poster releases, seasonal offers, atelier stories and inspiration for your walls — straight to your inbox. As a gentle extra, we occasionally include a reflective Cosmic Pulse energy note. ✨ No spam, unsubscribe anytime.', benefits: ['New poster & collection launches', 'Seasonal offers & gift ideas', 'Atelier stories · occasional Cosmic Pulse note'], placeholder: 'Your email address', langPref: 'Emails in', button: 'Subscribe', consent: 'I agree to receive product news, new poster launches, seasonal offers and marketing emails from SizhuAtelier, with the occasional Cosmic Pulse energy note. I can unsubscribe at any time. See our', privacy: 'Privacy Policy', success: 'Welcome to the Atelier Circle — you are on the list.', successConfirm: 'Almost there — check your inbox and confirm your subscription via the link we just sent.', error: 'Something went wrong — please try again.', consentErr: 'Please accept the terms to continue.', fine: 'Double opt-in · unsubscribe anytime' },
     wissen: { eyebrow: 'Blog', title: 'What lies behind BaZi', sub: 'Background for your consultations and for anyone who wants to understand their poster.', read: 'Read more →' },
     gifts: {
       eyebrow: 'Gift Ideas', title: 'Find a Personalized Gift With Meaning', sub: 'Created from real birth data — refined, intentional and made for one person. Or a ready-to-hang educational poster for a practice or studio.',
@@ -201,7 +203,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         items: {
           secure: { title: 'Secure checkout', sub: 'Encrypted payment via PayPal, Apple Pay and Google Pay.' },
           shipping: { title: 'Climate-neutral shipping', sub: 'Worldwide delivery — free over {amount}.' },
-          quality: { title: 'Museum-quality print', sub: 'Archival pigment print on acid-free paper, made in Germany.' },
+          quality: { title: 'Museum-quality print', sub: 'Museum-quality matte paper in a solid wood frame, printed locally in your region.' },
           madeToOrder: { title: 'Made to order', sub: 'Each poster is produced for you and numbered in the atelier.' },
         },
       },
@@ -257,10 +259,10 @@ export const translations: Record<Lang, Record<string, any>> = {
         { title: 'Preview, then we print', desc: 'Confirm what you see, and we produce your premium personalized wall art.' },
       ],
     },
-    footer: { inspiration: 'Inspiration', howItWorks: 'How it works', about: 'About', contact: 'Contact', faq: 'FAQ', shipping: 'Shipping', returns: 'Returns & Withdrawal', terms: 'Terms', privacy: 'Privacy', impressum: 'Imprint', blog: 'Blog', groups: { service: 'Help & Service', discover: 'Discover', legal: 'Legal', contact: 'Get in touch' }, locale: 'Language', payment: 'We accept', shipNote: 'Climate-neutral shipping worldwide · free over {amount} · US & UK always free', claim: 'Personalized from your birth data · climate-neutral shipping' },
+    footer: { inspiration: 'Inspiration', howItWorks: 'How it works', about: 'About', contact: 'Contact', faq: 'FAQ', shipping: 'Shipping', returns: 'Returns & Withdrawal', terms: 'Terms', privacy: 'Privacy', impressum: 'Imprint', blog: 'Blog', groups: { service: 'Help & Service', discover: 'Discover', legal: 'Legal', contact: 'Get in touch' }, locale: 'Language', payment: 'We accept', shipNote: 'Climate-neutral shipping worldwide · free over {amount} · US & UK always free', claim: 'Personalized from your birth data' },
     cart: { title: 'Cart', remaining: 'You’re only {amount} away from free shipping!', reached: 'Free shipping activated!', empty: 'Empty', emptyHint: 'Design your first BaZi poster.', toCollection: 'To the collection', alsoLike: 'You may also like', clear: 'Clear cart', remove: 'Remove', subtotal: 'Subtotal', shipFree: 'Free shipping', ship: 'Shipping {amount}', inclVat: '· incl. VAT', checkout: 'Checkout', ssl: '· SSL secured', toastAdded: 'Added to cart', toastSet: 'Set added to cart', editPersonalization: 'Edit personalization', unknownTimeNotice: 'Birth time: Unknown — composed with 12:00 noon as the default assumption', reviewBirth: 'Review your birth details above before checkout.', confirmLabel: 'I confirm that my personalization details are correct. If my birth time is unknown, I understand that 12:00 noon will be used as the default assumption.', returnNotice: 'Personalized items are made to order and cannot be returned or cancelled once production has started. This does not affect your statutory rights if an item arrives damaged, defective, incorrect or not as described.', incompleteWarn: 'Some items are missing required personalization details — please complete them before checkout.', signInPrompt: 'Sign in to use your saved address and payment method.', signInCta: 'Sign in' },
-    checkout: { back: '← Back to cart', title: 'Checkout', expressHint: 'Express checkout — pay in seconds', orGuest: 'or pay as guest', contact: 'Contact & delivery', noAccount: '— no account needed', email: 'Email address', firstName: 'First name', lastName: 'Last name', street: 'Street & number', zip: 'ZIP', city: 'City', placeOrder: 'Place order now', noHidden: '🔒 No hidden costs · shipping & taxes shown below', summary: 'Your order', subtotal: 'Subtotal', shipping: 'Shipping', shipFree: 'Free shipping', total: 'Total', vat: 'incl. {amount} VAT (19%)', emptyTitle: 'Your cart is empty', toShop: 'To the shop', orderToast: 'Order confirmed — thank you! ✦', starting: 'Redirecting to secure checkout…', payError: 'Payment could not be started. Please try again.', successTitle: 'Thank you — your order is confirmed ✦', successBody: 'We’ve emailed your confirmation. Your poster is made to order and ships within 5–7 business days.', successHome: 'Back to the shop', successOrder: 'Order reference', cancelTitle: 'Checkout cancelled', cancelBody: 'No payment was taken — your cart is still here whenever you’re ready.', cancelRetry: 'Back to cart', signInPrompt: 'Sign in to use your saved address and payment method.', signInCta: 'Sign in', signedInAs: 'Signed in as' },
-    product: { back: '← Back to the collection', reviews: 'reviews', sold: 'sold', inclVat: 'incl. VAT · free shipping over {amount}', save: 'Save', addToCart: 'Add to cart', secure: '🔒 Secure payment', returns: '↺ Replacement if faulty', climate: '✺ Climate-neutral', related: 'Frequently bought together', accessories: 'Frame & accessories', inspirationTitle: 'See it in context', inspirationCta: 'Browse the inspiration gallery', caption: 'Live preview — frame, background and your data are applied instantly.', detail: 'Detail<br/>Frame macro', lifestyle: 'Lifestyle<br/>Practice mockup', personalNotice: 'This artwork is created specifically from your submitted birth data and design choices. Please review your details carefully before checkout.', express: 'Redirecting to express payment …' },
+    checkout: { back: '← Back to cart', title: 'Checkout', expressHint: 'Available at secure checkout:', orGuest: 'or pay as guest', contact: 'Contact & delivery', noAccount: '— no account needed', email: 'Email address', firstName: 'First name', lastName: 'Last name', street: 'Street & number', zip: 'ZIP', city: 'City', placeOrder: 'Place order now', noHidden: '🔒 No hidden costs · shipping & taxes shown below', summary: 'Your order', subtotal: 'Subtotal', shipping: 'Shipping', shipFree: 'Free shipping', total: 'Total', vat: 'incl. {amount} VAT (19%)', emptyTitle: 'Your cart is empty', toShop: 'To the shop', orderToast: 'Order confirmed — thank you! ✦', starting: 'Redirecting to secure checkout…', payError: 'Payment could not be started. Please try again.', successTitle: 'Thank you — your order is confirmed ✦', successBody: 'We’ve emailed your confirmation. Your poster is made to order and ships within 5–7 business days.', successHome: 'Back to the shop', successOrder: 'Order reference', cancelTitle: 'Checkout cancelled', cancelBody: 'No payment was taken — your cart is still here whenever you’re ready.', cancelRetry: 'Back to cart', signInPrompt: 'Sign in to use your saved address and payment method.', signInCta: 'Sign in', signedInAs: 'Signed in as', reviewTitle: 'Review your personalization', confirmFirst: 'Please confirm your personalization first', posterLangLabel: 'Poster language' },
+    product: { back: '← Back to the collection', reviews: 'reviews', sold: 'sold', inclVat: 'incl. VAT · free shipping over {amount}', save: 'Save', addToCart: 'Add to cart', secure: '🔒 Secure payment', returns: '↺ Replacement if faulty', climate: '✺ Climate-neutral', related: 'Frequently bought together', accessories: 'Frame & accessories', inspirationTitle: 'See it in context', inspirationCta: 'Browse the inspiration gallery', caption: 'Live preview — frame, background and your data are applied instantly.', detail: 'Detail<br/>Frame macro', lifestyle: 'Lifestyle<br/>Practice mockup', personalNotice: 'This artwork is created specifically from your submitted birth data and design choices. Please review your details carefully before checkout.', express: 'Redirecting to express payment …', coupleNote: 'This is the personalized couple poster: both birth data sets are entered in the couple flow, where your exact 合婚 pair chart is calculated live before it goes into the cart.' },
     configurator: {
       step1: '1 · Birth data for your calculation', date: 'Date of birth', time: 'Time of birth', place: 'Place of birth', placePh: 'e.g. Munich', name: 'Name on the poster', namePh: 'e.g. Mara',
       step2: '2 · Frame colour', step3: '3 · Background colour', step4: '4 · Format', inclusive: 'incl.',
@@ -290,12 +292,12 @@ export const translations: Record<Lang, Record<string, any>> = {
           { num: '01', title: 'Enter your birth data', desc: 'Share the date, time and place of your birth. For couple charts, your partner’s data too.' },
           { num: '02', title: 'Compose your artwork', desc: 'We turn your birth data into a symbolic visual layout drawing on traditional Four Pillars motifs.' },
           { num: '03', title: 'Choose a design', desc: 'Pick from different design styles, colour palettes and layouts that match your personal energy.' },
-          { num: '04', title: 'Print at the atelier', desc: 'Your poster is printed on premium Hahnemühle paper with archival inks and packed with care.' },
+          { num: '04', title: 'Print at the atelier', desc: 'Your poster is printed on museum-quality matte paper, mounted in a solid wood frame and packed with care.' },
         ],
         materialsTitle: 'Materials with meaning',
         materialsIntro: 'We use only the highest-quality materials. Every detail is chosen carefully to ensure both the aesthetic and energetic quality of your poster.',
         materials: [
-          { title: 'Hahnemühle paper', desc: '100% cotton, 308gsm, museum grade. Acid-free for a lifespan of over 100 years.' },
+          { title: 'Museum-quality matte paper', desc: 'Thick matte fine-art paper (200 g/m²) in a solid wood frame with protective plexiglass.' },
           { title: 'Archival inks', desc: 'Pigment-based inks with UV resistance. Colours that do not fade.' },
           { title: 'Solid-wood frames', desc: 'Solid wood frames from sustainable forestry. Available in oak, walnut and black.' },
         ],
@@ -323,24 +325,25 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     content: {
-      digital: { title: 'Digital BaZi Chart Analysis', subtitle: '10–15 page PDF', desc: ['A personal, detailed PDF analysis of your BaZi chart: the four pillars, your day master, the balance of the five elements and what they mean for you.', 'Delivered as a download once ready — on its own or discounted in a bundle with a poster.'], bullets: ['Four pillars & day master, clearly explained', 'Balance of the five elements — strengths & patterns', '10–15 pages, as a downloadable PDF', 'Individually or discounted in a bundle'] },
+      digital: { title: 'Premium BaZi Deep-Dive Analysis', subtitle: 'Personal PDF analysis · Dayun life phases & Five-Element balance', desc: ['A personal, detailed PDF analysis of your BaZi chart: the four pillars, your day master, the balance of the five elements and what they mean for you.', 'Delivered as a download once ready — on its own or discounted in a bundle with a poster.'], bullets: ['Four pillars & day master, clearly explained', 'Balance of the five elements — strengths & patterns', 'Dayun life phases — your chart over time', 'Individually or discounted in a bundle'] },
       digitalBundle: { title: 'BaZi Poster + Digital Analysis', sub: 'Your personalised poster plus the 10–15 page PDF analysis of your chart.' },
       bundles: { b1: { title: 'Practice Starter Set', sub: '3 posters for treatment, reception & waiting area' }, b2: { title: 'Wellness Trio', sub: 'Coherent calm for studio, hallway & quiet room' } },
       bundleMeta: 'Poster + PDF analysis · special price', bundleMeta3: '3-piece set · special price',
       addons: { a1: { title: 'Premium Passepartout', note: 'Acid-free museum board' }, a2: { title: 'Gift wrapping', note: 'Recycled, with a band' }, a3: { title: 'Hanging kit', note: 'Incl. nail & spirit level' }, a4: { title: 'Glass cleaning cloth', note: 'Microfibre, reusable' } },
       products: {
-        1: { title: 'BaZi Birth Chart — Four Pillars', bullets: ['Composed from your birth data into a symbolic artwork — no generic motif', 'Fine-grain natural paper print, acid-free & lightfast', 'Solid wood frame with anti-reflective glass', 'Produced in 3 business days, numbered'] },
-        2: { title: 'BaZi Practice Edition', bullets: ['Calm indigo for treatment & waiting areas', 'Large format with clear distance impact', 'Wipeable museum glass, hygienic', 'Optionally with practice name instead of a person'] },
-        3: { title: 'BaZi Elements Poster', bullets: ['Warm sage green — soothing for quiet rooms', 'Highlights the five-element balance', 'Sustainable recycled paper, FSC-certified', 'Also popular as a voucher gift'] },
+        1: { title: 'BaZi Birth Chart — Four Pillars', bullets: ['Composed from your birth data into a symbolic artwork — no generic motif', 'Museum-quality matte paper print', 'Solid wood frame with protective plexiglass', 'Produced in 3 business days, numbered'] },
+        2: { title: 'BaZi Practice Edition', bullets: ['Calm indigo for treatment & waiting areas', 'Large format with clear distance impact', 'Protective plexiglass — hygienically wipeable', 'Optionally with practice name instead of a person'] },
+        3: { title: 'BaZi Elements Poster', bullets: ['Warm sage green — soothing for quiet rooms', 'Highlights the five-element balance', 'Museum-quality matte paper', 'Also popular as a voucher gift'] },
         4: { title: 'BaZi Yoga-Flow Chart', bullets: ['Earthy terracotta — suits wood & plants', 'Compact format for studio walls', 'Lightweight frame, easy wall mounting', 'Set discount for multiple studio rooms'] },
         5: { title: 'BaZi Moon & Stars', bullets: ['Deep anthracite for an elegant, calm effect', 'Premium matte black frame', 'Optional gold accent lettering', 'A premium gift for the turn of the year'] },
         6: { title: 'BaZi Minimal', bullets: ['Reduced sandstone — understated & timeless', 'Black frame, clean line', 'Fits any practice and living space', 'Bestseller for first-time buyers'] },
-        7: { title: 'Wuxing Five-Element Poster', bullets: ['Wood, fire, earth, metal, water in balance', 'Calm sage green, soothing for any room', 'Educational for practice & home', 'Museum-grade archival pigment print'] },
+        7: { title: 'Wuxing Five-Element Poster', bullets: ['Wood, fire, earth, metal, water in balance', 'Calm sage green, soothing for any room', 'Educational for practice & home', 'Museum-quality matte paper print'] },
         8: { title: 'Fire Horse 2026 · Limited Edition', bullets: ['Limited edition for the Year of the Fire Horse 2026', 'Powerful terracotta, numbered & signed', 'A collector’s piece with character', 'While stocks last'] },
-        11: { title: 'TCM Five Elements — Educational Poster', bullets: ['Wood, Fire, Earth, Metal, Water and their relationships', 'A clear teaching aid for treatment rooms and studios', 'Museum-grade archival print — not personalized'] },
-        12: { title: 'TCM Practice Poster', bullets: ['Refined educational wall art for TCM practices', 'Explains elemental and energetic systems with calm clarity', 'Premium archival print — not personalized'] },
-        13: { title: 'TCM Wellness Poster', bullets: ['Calm educational poster for wellness & treatment spaces', 'Visualizes core TCM principles', 'Premium archival print — not personalized'] },
-        14: { title: 'TCM Yoga Studio Poster', bullets: ['Educational poster for yoga & studio walls', 'Elemental relationships at a glance', 'Premium archival print — not personalized'] },
+        11: { title: 'TCM Five Elements — Educational Poster', bullets: ['Wood, Fire, Earth, Metal, Water and their relationships', 'A clear teaching aid for treatment rooms and studios', 'Museum-quality matte paper print — not personalized'] },
+        12: { title: 'TCM Practice Poster', bullets: ['Refined educational wall art for TCM practices', 'Explains elemental and energetic systems with calm clarity', 'Museum-quality matte paper print — not personalized'] },
+        13: { title: 'TCM Wellness Poster', bullets: ['Calm educational poster for wellness & treatment spaces', 'Visualizes core TCM principles', 'Museum-quality matte paper print — not personalized'] },
+        14: { title: 'TCM Yoga Studio Poster', bullets: ['Educational poster for yoga & studio walls', 'Elemental relationships at a glance', 'Museum-quality matte paper print — not personalized'] },
+        15: { title: 'Couple Compatibility Poster — personalized', bullets: ['Both birth charts precisely calculated on ONE artwork (合婚)', 'Your elemental relationship as a calligraphic label', 'Museum-quality matte paper print', 'Created from your real birth data — no stock motif'] },
       },
       articles: {
         r1: { tag: 'Basics', title: 'What is BaZi? The four pillars of destiny', meta: '6 min read · Atelier Journal', excerpt: 'Year, month, day and hour of your birth form four "pillars" — the map of your energy.', body: ['BaZi (Chinese 八字, "eight characters") reads your moment of birth as four pillars: year, month, day and hour. Each pillar carries a heavenly stem and an earthly branch — eight characters that describe your constitution.', 'The day pillar is considered your core, the "day master". From it, you look at how the other pillars support or challenge you. This paints a picture of strengths, patterns and favourable windows — not fortune-telling, but a tool for self-reflection.', 'Your poster captures exactly these eight characters: a calm, personal diagram that opens conversations in practice and studio, and a quiet companion at home.'] },
@@ -353,14 +356,14 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'I don’t know my exact birth time — is that ok?', a: 'Yes — just tick “I don’t know my birth time” and we use 12:00 noon as the default assumption. Your poster is composed from that fallback value.' },
         { q: 'How long do production and shipping take?', a: 'Made-to-order production plus 5–7 business days shipping, worldwide. Free shipping over €80.' },
         { q: 'Which formats, frames and colours are available?', a: 'Several formats, frame colours and background palettes; all selectable in the configurator with a live preview.' },
-        { q: 'What paper do you print on?', a: 'Museum-grade archival pigment print, made in Germany.' },
+        { q: 'What paper do you print on?', a: 'Museum-quality matte paper (200 g/m²) in a solid wood frame, printed locally in your region.' },
         { q: 'Can I see my poster before buying?', a: 'Yes, the configurator shows a live preview with your data, frame and background.' },
         { q: 'What is the digital BaZi chart analysis?', a: 'A personal 10–15 page PDF analysis of your chart, available on its own or as a bundle.' },
         { q: 'How secure is payment?', a: 'Encrypted payment via PayPal, Apple Pay and Google Pay.' },
         { q: 'Returns & exchanges?', a: 'PLACEHOLDER — adapt to your actual return/withdrawal policy; personalised items may be exempt from withdrawal.', placeholder: true },
       ],
       faqDefs: {
-        details: { q: 'Details & material', a: 'Fine-grain fine-art print on 250 g/m² acid-free natural paper, lightfast for decades. Solid wood frame with anti-reflective real glass. Each poster is numbered in the atelier.' },
+        details: { q: 'Details & material', a: 'Museum-quality matte paper (200 g/m²) in a solid wood frame (12×22 mm) with protective plexiglass. Each poster is numbered in the atelier.' },
         size: { q: 'Size guide', a: 'A3 (30×42 cm) for nooks & shelves, A2 (42×59 cm) the versatile standard for practice walls, A1 (59×84 cm) for big distance impact in reception or waiting areas.' },
         ship: { q: 'Shipping & production', a: 'Production in 3 business days, then climate-neutral shipping (DE 1–2 days). Free shipping over €80. Personalized items are made to order — see our Return Policy; your statutory rights apply for faulty items.' },
         bazi: { q: 'About your personalization', a: 'From the date, time and place you enter, we compose a symbolic Four Pillars layout with heavenly stems and earthly branches. If you don’t know your birth time, we use 12:00 noon as the default assumption — this can influence the result.' },
@@ -429,15 +432,15 @@ export const translations: Record<Lang, Record<string, any>> = {
         birthchart: { name: 'Personalisiertes Geburtschart-Poster', sub: 'Dein persönliches Sternenbild als edle Wandkunst.' },
         couple: { name: 'Paar-Kompatibilitäts-Poster', sub: 'Zwei Charts, ein gemeinsames Werk — für Paare.' },
         firehorse: { name: 'Feuerpferd 2026 Edition', sub: 'Limitierte Edition zum Jahr des Feuer-Pferds.' },
-        digital: { name: 'Digitale Analyse-PDF', sub: '10–15-seitige PDF-Auswertung deines Charts.' },
+        digital: { name: 'Premium-Analyse-PDF', sub: 'Persönliche Tiefenanalyse: Dayun-Lebensphasen & Fünf-Elemente-Balance.' },
         bundle: { name: 'Poster + Digitalanalyse', sub: 'Dein Poster plus die vollständige PDF-Analyse.' },
       },
       birthHeading: '2 · Deine Geburtsdaten', birthHeadingA: '2 · Person A — Geburtsdaten', birthHeadingB: 'Person B — Geburtsdaten',
       unknownTime: 'Ich kenne meine Geburtszeit nicht', unknownTimeHint: 'Wenn du deine genaue Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme. Dein Poster wird auf Grundlage dieses Ersatzwertes gestaltet.',
       langHeading: '3 · Poster-Sprache',
       designHeading: '4 · Design', frameWord: 'Rahmenfarbe', paletteWord: 'Hintergrund-Palette', posterBgHeading: 'Poster-Hintergrund', sizeHeading: 'Format',
-      pdfAddon: 'Digitale PDF-Analyse hinzufügen', pdfNote: 'Eine 10–15-seitige persönliche Auswertung deines Charts als Download.', pdfBadge: 'Digitale PDF',
-      summaryHeading: '5 · Personalisierung prüfen', sumType: 'Produkt', partnerName: 'Partner', timeUnknown: 'Unbekannt — Standard 12:00 Uhr', sumLang: 'Sprache', sumDesign: 'Design', sumSize: 'Format', sumPrice: 'Preis',
+      pdfAddon: 'Premium-PDF-Tiefenanalyse hinzufügen', pdfAddonSave: '25 % Rabatt', pdfNote: 'Eine sorgfältig erstellte persönliche Tiefenanalyse: Dayun-Lebensphasen & Fünf-Elemente-Balance, als PDF-Download.', pdfBadge: 'Digitale PDF',
+      summaryHeading: '5 · Personalisierung prüfen', sumType: 'Produkt', partnerName: 'Partner', partnerData: 'Partner-Daten', review: { heading: 'Dein berechnetes Chart', dayMaster: 'Tagesmeister', pillars: 'Vier Säulen', animal: 'Tierzeichen', explainHeading: 'Was bedeutet das?', elementsLabel: 'Die fünf Elemente', explain: { pillars: 'Die vier Säulen stehen für Jahr, Monat, Tag und Stunde deiner Geburt. Jede Säule trägt zwei Zeichen — oben einen Himmelsstamm, unten einen Erdzweig. Zusammen ergeben sie die acht Zeichen (BaZi), aus denen dein Chart besteht: Das Jahr prägt Herkunft und Umfeld, der Monat deine innere Anlage, der Tag deinen Kern, die Stunde deinen Ausdruck nach außen.', dayMaster: 'Der Tagesmeister ist der Himmelsstamm deiner Tagessäule — auf dem Poster umrandet, weil er als dein persönlicher Kern gelesen wird. Von ihm aus betrachtet die Tradition, wie die übrigen Zeichen dich stützen, fordern oder ausgleichen.', element: 'Jedes Zeichen gehört zu einem der fünf Elemente — Holz, Feuer, Erde, Metall und Wasser. Sie nähren und formen einander im Kreislauf: Holz nährt Feuer, Feuer schafft Erde, Erde trägt Metall, Metall sammelt Wasser, Wasser nährt Holz. Das Element deines Tagesmeisters gibt deinem Chart seinen Grundton.', animal: 'Das Tierzeichen stammt aus dem Erdzweig deines GeburtsJAHRES — der bekannteste Teil der chinesischen Astrologie. Es ist eine symbolische Kurzform für Temperament und Jahresprägung und ergänzt den feineren Blick der vier Säulen.' }, western: { sun: 'Dein Sonnenzeichen beschreibt deinen Wesenskern — die Grundthemen, zu denen du immer wieder zurückkehrst. Es ergibt sich aus dem Stand der Sonne an deinem Geburtstag.', moon: 'Dein Mondzeichen steht für deine Innenwelt: Gefühle, Bedürfnisse und das, was dir Geborgenheit gibt. Der Mond wechselt alle zwei bis drei Tage das Zeichen — er ist dadurch deutlich individueller als das Sonnenzeichen allein.', asc: 'Der Aszendent ist das Tierkreiszeichen, das zu deiner exakten Geburtszeit am östlichen Horizont aufsteigt — er beschreibt deinen ersten Eindruck und dein Auftreten. Er wechselt etwa alle zwei Stunden; deshalb braucht er deine genaue Geburtszeit.', ascUnknown: 'Ohne bekannte Geburtszeit lässt sich der Aszendent nicht ehrlich bestimmen — er entfällt daher auf dem Poster.' }, compat: { heading: 'Euer Ergebnis erklärt', dayMasters: 'Tagesmeister', rel: { a_generates_b: 'Im Fünf-Elemente-Zyklus nährt {a} das Element {b}: die Energie des ersten Tagesmeisters stärkt symbolisch die des zweiten — eine gebende, fördernde Dynamik.', b_generates_a: 'Im Fünf-Elemente-Zyklus nährt {b} das Element {a}: die Energie des zweiten Tagesmeisters stärkt symbolisch die des ersten — eine gebende, fördernde Dynamik.', a_controls_b: 'Im Fünf-Elemente-Zyklus formt {a} das Element {b}: eine strukturierende Spannung — im Wuxing-Verständnis steht sie für formgebende Impulse und Wachstum durch Unterschiedlichkeit.', b_controls_a: 'Im Fünf-Elemente-Zyklus formt {b} das Element {a}: eine strukturierende Spannung — im Wuxing-Verständnis steht sie für formgebende Impulse und Wachstum durch Unterschiedlichkeit.', same_element: 'Beide Tagesmeister teilen das Element {a}: eine Resonanz aus Ähnlichkeit — vertraute Energie und eine gemeinsame Ausdrucksweise.', same: 'Beide Tagesmeister teilen das Element {a}: eine Resonanz aus Ähnlichkeit — vertraute Energie und eine gemeinsame Ausdrucksweise.' }, note: 'Eine symbolische Lesart der klassischen Fünf-Elemente-Lehre — als Anregung zur Reflexion, keine Bewertung eurer Beziehung.' } }, timeUnknown: 'Unbekannt — Standard 12:00 Uhr', sumLang: 'Sprache', sumDesign: 'Design', sumSize: 'Format', sumPrice: 'Preis',
       previewCertainty: 'Was du hier siehst, wird für deine personalisierte Bestellung verwendet. Bitte prüfe deine Angaben sorgfältig vor der Bestellung.',
       trustData: 'Aus deinen Geburtsdaten erstellt', trustLogic: 'Zu einem symbolischen Kunstwerk komponiert', trustPreview: 'Vorschau vor der Bestellung', trustPremium: 'Premium-Druckqualität',
       errFix: 'Bitte fülle die markierten Geburtsdaten-Felder aus, bevor du in den Warenkorb legst.',
@@ -509,7 +512,9 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     bundles: { eyebrow: 'Mehr nehmen, weniger zahlen', title: 'Bundles', sub: 'Abgestimmte Sets — Poster und digitale Analyse kombiniert, zum Vorteilspreis.', add: 'Set in den Warenkorb', save: 'Spare' },
-    newsletter: { eyebrow: 'Der Atelier-Kreis', title: 'Atelier-News — Neue Poster, Angebote & Inspiration', copy: 'Erfahre als Erste:r von neuen Poster-Releases, saisonalen Angeboten, Atelier-Geschichten und Wand-Inspiration — direkt ins Postfach. Als kleines Extra legen wir gelegentlich eine besinnliche Cosmic-Pulse-Energienote bei. ✨ Kein Spam, jederzeit abbestellbar.', benefits: ['Neue Poster- & Kollektions-Launches', 'Saisonale Angebote & Geschenkideen', 'Atelier-Geschichten · gelegentliche Cosmic-Pulse-Note'], placeholder: 'Deine E-Mail-Adresse', langPref: 'E-Mails auf', button: 'Abonnieren', consent: 'Ich stimme zu, Produkt-News, neue Poster-Launches, saisonale Angebote und Marketing-E-Mails von SizhuAtelier zu erhalten, mit gelegentlicher Cosmic-Pulse-Energienote. Ich kann mich jederzeit abmelden. Siehe unsere', privacy: 'Datenschutzerklärung', success: 'Willkommen im Atelier-Kreis — prüfe dein Postfach, um dein Abo zu bestätigen.', error: 'Etwas ist schiefgelaufen — bitte erneut versuchen.', consentErr: 'Bitte akzeptiere die Bedingungen, um fortzufahren.', fine: 'Double-Opt-in · jederzeit abbestellbar' },
+    sale: { banner: 'Sale ✦ Jetzt 20% auf ausgewählte Poster sparen' },
+    homeQuickstart: { eyebrow: 'Jetzt starten', title: 'Personalisiere dein Poster in Minuten', bazi: { title: 'Dein BaZi-Poster', sub: 'Gib deine Geburtsdaten ein und sieh dein exaktes Chart live entstehen.', cta: 'Jetzt personalisieren' }, couple: { title: 'Paar-Kompatibilität', sub: 'Zwei Geburtscharts, ein Kunstwerk — eure Element-Beziehung, exakt berechnet.', cta: 'Gemeinsam starten' } },
+    newsletter: { eyebrow: 'Der Atelier-Kreis', title: 'Atelier-News — Neue Poster, Angebote & Inspiration', copy: 'Erfahre als Erste:r von neuen Poster-Releases, saisonalen Angeboten, Atelier-Geschichten und Wand-Inspiration — direkt ins Postfach. Als kleines Extra legen wir gelegentlich eine besinnliche Cosmic-Pulse-Energienote bei. ✨ Kein Spam, jederzeit abbestellbar.', benefits: ['Neue Poster- & Kollektions-Launches', 'Saisonale Angebote & Geschenkideen', 'Atelier-Geschichten · gelegentliche Cosmic-Pulse-Note'], placeholder: 'Deine E-Mail-Adresse', langPref: 'E-Mails auf', button: 'Abonnieren', consent: 'Ich stimme zu, Produkt-News, neue Poster-Launches, saisonale Angebote und Marketing-E-Mails von SizhuAtelier zu erhalten, mit gelegentlicher Cosmic-Pulse-Energienote. Ich kann mich jederzeit abmelden. Siehe unsere', privacy: 'Datenschutzerklärung', success: 'Willkommen im Atelier-Kreis — du stehst auf der Liste.', successConfirm: 'Fast geschafft — prüfe dein Postfach und bestätige dein Abo über den soeben gesendeten Link.', error: 'Etwas ist schiefgelaufen — bitte erneut versuchen.', consentErr: 'Bitte akzeptiere die Bedingungen, um fortzufahren.', fine: 'Double-Opt-in · jederzeit abbestellbar' },
     wissen: { eyebrow: 'Blog', title: 'Was hinter BaZi steckt', sub: 'Hintergründe für deine Beratung und für alle, die ihr Poster verstehen möchten.', read: 'Weiterlesen →' },
     gifts: {
       eyebrow: 'Geschenkideen', title: 'Finde ein personalisiertes Geschenk mit Bedeutung', sub: 'Aus echten Geburtsdaten erstellt — edel, bewusst und für einen Menschen gemacht. Oder ein fertig aufhängbares Lehrposter für Praxis oder Studio.',
@@ -561,7 +566,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         items: {
           secure: { title: 'Sichere Kasse', sub: 'Verschlüsselte Zahlung über PayPal, Apple Pay und Google Pay.' },
           shipping: { title: 'Klimaneutraler Versand', sub: 'Weltweiter Versand — kostenlos ab {amount}.' },
-          quality: { title: 'Museumsqualität', sub: 'Archiv-Pigmentdruck auf säurefreiem Papier, gefertigt in Deutschland.' },
+          quality: { title: 'Museumsqualität', sub: 'Museum-quality mattes Papier im Massivholzrahmen, lokal in deiner Region gedruckt.' },
           madeToOrder: { title: 'Auf Bestellung gefertigt', sub: 'Jedes Poster wird für dich produziert und im Atelier nummeriert.' },
         },
       },
@@ -615,10 +620,10 @@ export const translations: Record<Lang, Record<string, any>> = {
         { title: 'Vorschau, dann Druck', desc: 'Bestätige, was du siehst, und wir fertigen deine hochwertige personalisierte Wandkunst.' },
       ],
     },
-    footer: { inspiration: 'Inspiration', howItWorks: 'So funktioniert’s', about: 'Atelier', contact: 'Kontakt', faq: 'FAQ', shipping: 'Versand', returns: 'Rückgabe & Widerruf', terms: 'AGB', privacy: 'Datenschutz', impressum: 'Impressum', blog: 'Blog', groups: { service: 'Hilfe & Service', discover: 'Entdecken', legal: 'Rechtliches', contact: 'Kontakt aufnehmen' }, locale: 'Sprache', payment: 'Wir akzeptieren', shipNote: 'Klimaneutraler Versand weltweit · kostenlos ab {amount} · US & UK immer frei', claim: 'Personalisiert aus deinen Geburtsdaten · klimaneutraler Versand' },
+    footer: { inspiration: 'Inspiration', howItWorks: 'So funktioniert’s', about: 'Atelier', contact: 'Kontakt', faq: 'FAQ', shipping: 'Versand', returns: 'Rückgabe & Widerruf', terms: 'AGB', privacy: 'Datenschutz', impressum: 'Impressum', blog: 'Blog', groups: { service: 'Hilfe & Service', discover: 'Entdecken', legal: 'Rechtliches', contact: 'Kontakt aufnehmen' }, locale: 'Sprache', payment: 'Wir akzeptieren', shipNote: 'Klimaneutraler Versand weltweit · kostenlos ab {amount} · US & UK immer frei', claim: 'Personalisiert aus deinen Geburtsdaten' },
     cart: { title: 'Warenkorb', remaining: 'Dir fehlen nur noch {amount} bis zum kostenlosen Versand!', reached: 'Kostenloser Versand aktiviert!', empty: 'Noch leer', emptyHint: 'Gestalte dein erstes BaZi-Poster.', toCollection: 'Zur Kollektion', alsoLike: 'Das könnte dir auch gefallen', clear: 'Leeren', remove: 'Entfernen', subtotal: 'Zwischensumme', shipFree: 'Versand kostenlos', ship: 'Versand {amount}', inclVat: '· inkl. MwSt.', checkout: 'Zur Kasse', ssl: '· SSL gesichert', toastAdded: 'Zum Warenkorb hinzugefügt', toastSet: 'Set zum Warenkorb hinzugefügt', editPersonalization: 'Personalisierung bearbeiten', unknownTimeNotice: 'Geburtszeit: Unbekannt — gestaltet mit 12:00 Uhr (Mittag) als Standardannahme', reviewBirth: 'Prüfe deine Geburtsdaten oben vor der Kasse.', confirmLabel: 'Ich bestätige, dass meine Personalisierungsdaten korrekt sind. Falls meine Geburtszeit unbekannt ist, verstehe ich, dass 12:00 Uhr (Mittag) als Standardannahme verwendet wird.', returnNotice: 'Personalisierte Artikel werden eigens angefertigt und können nach Produktionsbeginn nicht zurückgegeben oder storniert werden. Deine gesetzlichen Rechte bei beschädigter, fehlerhafter, falscher oder nicht wie beschriebener Ware bleiben unberührt.', incompleteWarn: 'Bei einigen Artikeln fehlen Personalisierungsangaben — bitte vor der Kasse ergänzen.', signInPrompt: 'Melde dich an, um deine gespeicherte Adresse und Zahlungsmethode zu nutzen.', signInCta: 'Anmelden' },
-    checkout: { back: '← Zurück zum Warenkorb', title: 'Kasse', expressHint: 'Express-Checkout — in Sekunden bezahlen', orGuest: 'oder als Gast bezahlen', contact: 'Kontakt & Lieferung', noAccount: '— kein Konto nötig', email: 'E-Mail-Adresse', firstName: 'Vorname', lastName: 'Nachname', street: 'Straße & Hausnummer', zip: 'PLZ', city: 'Ort', placeOrder: 'Jetzt zahlungspflichtig bestellen', noHidden: '🔒 Keine versteckten Kosten · Versand & Steuern unten ausgewiesen', summary: 'Deine Bestellung', subtotal: 'Zwischensumme', shipping: 'Versand', shipFree: 'Versand kostenlos', total: 'Gesamt', vat: 'inkl. {amount} MwSt. (19%)', emptyTitle: 'Dein Warenkorb ist leer', toShop: 'Zum Shop', orderToast: 'Bestellung bestätigt — danke! ✦', starting: 'Weiterleitung zur sicheren Kasse…', payError: 'Zahlung konnte nicht gestartet werden. Bitte erneut versuchen.', successTitle: 'Danke — deine Bestellung ist bestätigt ✦', successBody: 'Die Bestätigung ist per E-Mail unterwegs. Dein Poster wird auf Bestellung gefertigt und in 5–7 Werktagen versendet.', successHome: 'Zurück zum Shop', successOrder: 'Bestellnummer', cancelTitle: 'Bezahlung abgebrochen', cancelBody: 'Es wurde nichts abgebucht — dein Warenkorb bleibt erhalten.', cancelRetry: 'Zurück zum Warenkorb', signInPrompt: 'Melde dich an, um deine gespeicherte Adresse und Zahlungsmethode zu nutzen.', signInCta: 'Anmelden', signedInAs: 'Angemeldet als' },
-    product: { back: '← Zurück zur Kollektion', reviews: 'Bewertungen', sold: 'verkauft', inclVat: 'inkl. MwSt. · Kostenloser Versand ab {amount}', save: 'Spare', addToCart: 'In den Warenkorb', secure: '🔒 Sichere Zahlung', returns: '↺ Ersatz bei Mängeln', climate: '✺ Klimaneutral', related: 'Wird oft zusammen gekauft', accessories: 'Rahmen & Zubehör', inspirationTitle: 'Im Raum sehen', inspirationCta: 'Zur Inspirations-Galerie', caption: 'Live-Vorschau — Rahmen, Hintergrund und deine Daten werden sofort übernommen.', detail: 'Detail<br/>Rahmen-Makro', lifestyle: 'Lifestyle<br/>Praxis-Mockup', personalNotice: 'Dieses Kunstwerk wird eigens aus deinen übermittelten Geburtsdaten und Design-Entscheidungen erstellt. Bitte prüfe deine Angaben sorgfältig vor der Kasse.', express: 'Weiterleitung zur Express-Zahlung …' },
+    checkout: { back: '← Zurück zum Warenkorb', title: 'Kasse', expressHint: 'Auf der sicheren Bezahlseite verfügbar:', orGuest: 'oder als Gast bezahlen', contact: 'Kontakt & Lieferung', noAccount: '— kein Konto nötig', email: 'E-Mail-Adresse', firstName: 'Vorname', lastName: 'Nachname', street: 'Straße & Hausnummer', zip: 'PLZ', city: 'Ort', placeOrder: 'Jetzt zahlungspflichtig bestellen', noHidden: '🔒 Keine versteckten Kosten · Versand & Steuern unten ausgewiesen', summary: 'Deine Bestellung', subtotal: 'Zwischensumme', shipping: 'Versand', shipFree: 'Versand kostenlos', total: 'Gesamt', vat: 'inkl. {amount} MwSt. (19%)', emptyTitle: 'Dein Warenkorb ist leer', toShop: 'Zum Shop', orderToast: 'Bestellung bestätigt — danke! ✦', starting: 'Weiterleitung zur sicheren Kasse…', payError: 'Zahlung konnte nicht gestartet werden. Bitte erneut versuchen.', successTitle: 'Danke — deine Bestellung ist bestätigt ✦', successBody: 'Die Bestätigung ist per E-Mail unterwegs. Dein Poster wird auf Bestellung gefertigt und in 5–7 Werktagen versendet.', successHome: 'Zurück zum Shop', successOrder: 'Bestellnummer', cancelTitle: 'Bezahlung abgebrochen', cancelBody: 'Es wurde nichts abgebucht — dein Warenkorb bleibt erhalten.', cancelRetry: 'Zurück zum Warenkorb', signInPrompt: 'Melde dich an, um deine gespeicherte Adresse und Zahlungsmethode zu nutzen.', signInCta: 'Anmelden', signedInAs: 'Angemeldet als', reviewTitle: 'Deine Personalisierung im Überblick', confirmFirst: 'Bitte bestätige zuerst deine Personalisierung', posterLangLabel: 'Poster-Sprache' },
+    product: { back: '← Zurück zur Kollektion', reviews: 'Bewertungen', sold: 'verkauft', inclVat: 'inkl. MwSt. · Kostenloser Versand ab {amount}', save: 'Spare', addToCart: 'In den Warenkorb', secure: '🔒 Sichere Zahlung', returns: '↺ Ersatz bei Mängeln', climate: '✺ Klimaneutral', related: 'Wird oft zusammen gekauft', accessories: 'Rahmen & Zubehör', inspirationTitle: 'Im Raum sehen', inspirationCta: 'Zur Inspirations-Galerie', caption: 'Live-Vorschau — Rahmen, Hintergrund und deine Daten werden sofort übernommen.', detail: 'Detail<br/>Rahmen-Makro', lifestyle: 'Lifestyle<br/>Praxis-Mockup', personalNotice: 'Dieses Kunstwerk wird eigens aus deinen übermittelten Geburtsdaten und Design-Entscheidungen erstellt. Bitte prüfe deine Angaben sorgfältig vor der Kasse.', express: 'Weiterleitung zur Express-Zahlung …', coupleNote: 'Dies ist das personalisierte Paar-Poster: beide Geburtsdatensätze gebt ihr im Paar-Flow ein — dort wird euer exaktes 合婚-Paar-Chart live berechnet, bevor es in den Warenkorb geht.' },
     configurator: {
       step1: '1 · Geburtsdaten für deine Berechnung', date: 'Geburtsdatum', time: 'Geburtszeit', place: 'Geburtsort', placePh: 'z. B. München', name: 'Name auf dem Poster', namePh: 'z. B. Mara',
       step2: '2 · Rahmenfarbe', step3: '3 · Hintergrundfarbe', step4: '4 · Format', inclusive: 'inkl.',
@@ -648,12 +653,12 @@ export const translations: Record<Lang, Record<string, any>> = {
           { num: '01', title: 'Geburtsdaten eingeben', desc: 'Teile uns Datum, Uhrzeit und Ort deiner Geburt mit. Für Paar-Charts auch die Daten deines Partners.' },
           { num: '02', title: 'Kunstwerk gestalten', desc: 'Wir übersetzen deine Geburtsdaten in ein symbolisches visuelles Layout, das traditionelle Vier-Säulen-Motive aufgreift.' },
           { num: '03', title: 'Design wählen', desc: 'Wähle aus verschiedenen Design-Stilen, Farbpaletten und Layouts, die zu deiner persönlichen Energie passen.' },
-          { num: '04', title: 'Im Atelier drucken', desc: 'Dein Poster wird auf hochwertigem Hahnemühle-Papier mit archivalischen Tinten gedruckt und sorgfältig verpackt.' },
+          { num: '04', title: 'Im Atelier drucken', desc: 'Dein Poster wird auf museum-quality mattem Papier gedruckt, im Massivholzrahmen montiert und sorgfältig verpackt.' },
         ],
         materialsTitle: 'Materialien mit Bedeutung',
         materialsIntro: 'Wir verwenden ausschliesslich Materialien von höchster Qualität. Jedes Detail wird sorgfältig ausgewählt, um sowohl die ästhetische als auch die energetische Qualität deines Posters zu gewährleisten.',
         materials: [
-          { title: 'Hahnemühle Papier', desc: '100% Baumwolle, 308gsm, museum grade. Acid-free für eine Lebensdauer von über 100 Jahren.' },
+          { title: 'Museum-quality mattes Papier', desc: 'Schweres mattes Fine-Art-Papier (200 g/m²) im Massivholzrahmen mit schützendem Plexiglas.' },
           { title: 'Archivale Tinten', desc: 'Pigmentbasierte Tinten mit UV-Beständigkeit. Farben, die nicht verblassen.' },
           { title: 'Massivholzrahmen', desc: 'Massivholzrahmen aus nachhaltiger Forstwirtschaft. Erhältlich in Eiche, Nuss und Schwarz.' },
         ],
@@ -681,24 +686,25 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     content: {
-      digital: { title: 'Digitale BaZi-Chart-Analyse', subtitle: '10–15 Seiten PDF', desc: ['Eine persönliche, ausführliche PDF-Auswertung deines BaZi-Charts: die vier Säulen, dein Tagesmeister, die Balance der fünf Elemente und was sie für dich bedeuten.', 'Sofort nach Fertigstellung als Download — einzeln oder vergünstigt im Bundle mit einem Poster.'], bullets: ['Vier Säulen & Tagesmeister verständlich erklärt', 'Balance der fünf Elemente — Stärken & Muster', '10–15 Seiten, als PDF zum Download', 'Einzeln oder vergünstigt im Bundle'] },
+      digital: { title: 'Premium-BaZi-Tiefenanalyse', subtitle: 'Persönliche PDF-Analyse · Dayun-Lebensphasen & Fünf-Elemente-Balance', desc: ['Eine persönliche, ausführliche PDF-Auswertung deines BaZi-Charts: die vier Säulen, dein Tagesmeister, die Balance der fünf Elemente und was sie für dich bedeuten.', 'Sofort nach Fertigstellung als Download — einzeln oder vergünstigt im Bundle mit einem Poster.'], bullets: ['Vier Säulen & Tagesmeister verständlich erklärt', 'Balance der fünf Elemente — Stärken & Muster', 'Dayun-Lebensphasen — dein Chart im Zeitverlauf', 'Einzeln oder vergünstigt im Bundle'] },
       digitalBundle: { title: 'BaZi Poster + Digitalanalyse', sub: 'Dein personalisiertes Poster plus die 10–15-seitige PDF-Auswertung deines Charts.' },
       bundles: { b1: { title: 'Praxis Starter-Set', sub: '3 Poster für Behandlung, Empfang & Wartebereich' }, b2: { title: 'Wellness Trio', sub: 'Stimmige Ruhe für Studio, Flur & Ruheraum' } },
       bundleMeta: 'Poster + PDF-Analyse · Vorteilspreis', bundleMeta3: '3-teiliges Set · Vorteilspreis',
       addons: { a1: { title: 'Premium Passepartout', note: 'Säurefreier Museumskarton' }, a2: { title: 'Geschenkverpackung', note: 'Recycelt, mit Banderole' }, a3: { title: 'Aufhänge-Set', note: 'Inkl. Nagel & Wasserwaage' }, a4: { title: 'Glas-Pflegetuch', note: 'Mikrofaser, wiederverwendbar' } },
       products: {
-        1: { title: 'BaZi Geburtschart — Vier Säulen', bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Feinkörniger Naturpapier-Druck, säurefrei & lichtecht', 'Massivholzrahmen mit entspiegeltem Glas', 'Produktion in 3 Werktagen, nummeriert'] },
-        2: { title: 'BaZi Praxis-Edition', bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Abwischbares Museumsglas, hygienefreundlich', 'Optional mit Praxisname statt Personenname'] },
-        3: { title: 'BaZi Elemente-Poster', bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Nachhaltiges Recyclingpapier, FSC-zertifiziert', 'Auch als Gutschein-Geschenk beliebt'] },
+        1: { title: 'BaZi Geburtschart — Vier Säulen', bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Museum-quality mattes Papier', 'Massivholzrahmen mit schützendem Plexiglas', 'Produktion in 3 Werktagen, nummeriert'] },
+        2: { title: 'BaZi Praxis-Edition', bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Schützendes Plexiglas — hygienisch abwischbar', 'Optional mit Praxisname statt Personenname'] },
+        3: { title: 'BaZi Elemente-Poster', bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Museum-quality mattes Papier', 'Auch als Gutschein-Geschenk beliebt'] },
         4: { title: 'BaZi Yoga-Flow Chart', bullets: ['Erdiges Terracotta — passt zu Holz & Pflanzen', 'Kompaktes Format für Studio-Wände', 'Leichter Rahmen, einfache Wandmontage', 'Set-Rabatt für mehrere Studio-Räume'] },
         5: { title: 'BaZi Mond & Sterne', bullets: ['Tiefes Anthrazit für eine elegante, ruhige Wirkung', 'Premium-Schwarzrahmen, matt', 'Goldfarbene Akzentschrift optional', 'Hochwertiges Geschenk zum Jahreswechsel'] },
         6: { title: 'BaZi Minimal', bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'] },
-        7: { title: 'Wuxing Fünf-Elemente Poster', bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Archiv-Pigmentdruck in Museumsqualität'] },
+        7: { title: 'Wuxing Fünf-Elemente Poster', bullets: ['Holz, Feuer, Erde, Metall, Wasser im Gleichgewicht', 'Ruhiges Salbeigrün, beruhigend für jeden Raum', 'Lehrreich für Praxis & Zuhause', 'Museum-quality mattes Papier im Holzrahmen'] },
         8: { title: 'Feuerpferd 2026 · Limited Edition', bullets: ['Limitierte Edition zum Jahr des Feuer-Pferds 2026', 'Kraftvolles Terracotta, nummeriert & signiert', 'Sammlerstück mit Charakter', 'Solange der Vorrat reicht'] },
         11: { title: 'TCM Fünf Elemente — Lehrposter', bullets: ['Holz, Feuer, Erde, Metall, Wasser und ihre Beziehungen', 'Klare Lehrhilfe für Behandlungsräume und Studios', 'Premium-Archivdruck — nicht personalisiert'] },
         12: { title: 'TCM Praxis-Poster', bullets: ['Edle Lehr-Wandkunst für TCM-Praxen', 'Erklärt elementare und energetische Systeme ruhig und klar', 'Premium-Archivdruck — nicht personalisiert'] },
         13: { title: 'TCM Wellness-Poster', bullets: ['Ruhiges Lehrposter für Wellness- & Behandlungsräume', 'Visualisiert zentrale TCM-Prinzipien', 'Premium-Archivdruck — nicht personalisiert'] },
         14: { title: 'TCM Yoga-Studio-Poster', bullets: ['Lehrposter für Yoga- & Studio-Wände', 'Elementbeziehungen auf einen Blick', 'Premium-Archivdruck — nicht personalisiert'] },
+        15: { title: 'Paar-Kompatibilitäts-Poster — personalisiert', bullets: ['Beide Geburtscharts exakt berechnet auf EINEM Motiv (合婚)', 'Eure Element-Beziehung als kalligrafisches Relations-Label', 'Museum-quality mattes Papier', 'Aus euren echten Geburtsdaten — kein Standardmotiv'] },
       },
       articles: {
         r1: { tag: 'Grundlagen', title: 'Was ist BaZi? Die vier Säulen des Schicksals', meta: '6 Min. Lesezeit · Atelier-Journal', excerpt: 'Jahr, Monat, Tag und Stunde deiner Geburt ergeben vier „Säulen" — die Landkarte deiner Energie.', body: ['BaZi (chinesisch 八字, „acht Zeichen") liest deinen Geburtszeitpunkt als vier Säulen: Jahr, Monat, Tag und Stunde. Jede Säule trägt einen Himmelsstamm und einen Erdzweig — zusammen acht Zeichen, die deine Konstitution beschreiben.', 'Die Tagessäule gilt als dein Kern, das „Tagesmeister"-Zeichen. Von ihm aus betrachtet man, wie die übrigen Säulen stützen oder fordern. So entsteht ein Bild von Stärken, Mustern und günstigen Zeitfenstern — keine Wahrsagerei, sondern ein Werkzeug zur Selbstreflexion.', 'Auf deinem Poster halten wir genau diese acht Zeichen fest: ein ruhiges, persönliches Diagramm, das Gespräche in Praxis und Studio eröffnet und zuhause ein stiller Begleiter ist.'] },
@@ -709,18 +715,18 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Wie entsteht mein BaZi-Poster?', a: 'Aus Geburtsdatum, -zeit und -ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Kunstwerk (Jahr, Monat, Tag, Stunde), das aufs Poster gebracht wird.' },
         { q: 'Welche Daten brauche ich für die Bestellung?', a: 'Geburtsdatum, möglichst genaue Geburtszeit und Geburtsort. Optional ein Name fürs Poster.' },
         { q: 'Ich kenne meine genaue Geburtszeit nicht — geht das trotzdem?', a: 'Ja — wähle einfach „Ich kenne meine Geburtszeit nicht“ und wir verwenden 12:00 Uhr (Mittag) als Standardannahme. Dein Poster wird auf Grundlage dieses Ersatzwertes gestaltet.' },
-        { q: 'Wie lange dauern Produktion und Versand?', a: 'Auftragsfertigung plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 80 €.' },
+        { q: 'Wie lange dauern Produktion und Versand?', a: 'Auftragsfertigung plus 5–7 Werktage Versand, weltweit. Kostenloser Versand ab 75 €.' },
         { q: 'Welche Formate, Rahmen und Farben gibt es?', a: 'Mehrere Formate, Rahmenfarben und Hintergrund-Paletten; alles im Konfigurator wählbar mit Live-Vorschau.' },
-        { q: 'Auf welchem Papier wird gedruckt?', a: 'Archiv-Pigmentdruck in Museumsqualität, gefertigt in Deutschland.' },
+        { q: 'Auf welchem Papier wird gedruckt?', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen, lokal in deiner Region gedruckt.' },
         { q: 'Kann ich mein Poster vor dem Kauf sehen?', a: 'Ja, der Konfigurator zeigt eine Live-Vorschau mit deinen Daten, Rahmen und Hintergrund.' },
         { q: 'Was ist die digitale BaZi-Chart-Analyse?', a: 'Eine persönliche 10–15-seitige PDF-Auswertung deines Charts, einzeln oder als Bundle erhältlich.' },
         { q: 'Wie sicher ist die Zahlung?', a: 'Verschlüsselte Bezahlung über PayPal, Apple Pay und Google Pay.' },
         { q: 'Rückgabe & Umtausch?', a: 'PLATZHALTER — an eure tatsächliche Rückgabe-/Widerrufsrichtlinie anpassen; personalisierte Artikel sind ggf. vom Widerruf ausgenommen.', placeholder: true },
       ],
       faqDefs: {
-        details: { q: 'Details & Material', a: 'Feinkörniger Fine-Art-Druck auf 250 g/m² säurefreiem Naturpapier, lichtecht über Jahrzehnte. Massivholzrahmen mit entspiegeltem Echtglas. Jedes Poster wird im Atelier nummeriert.' },
+        details: { q: 'Details & Material', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen (12×22 mm) mit schützendem Plexiglas. Jedes Poster wird im Atelier nummeriert.' },
         size: { q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
-        ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 80 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
+        ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 75 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
         bazi: { q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
       },
     },
@@ -787,15 +793,15 @@ export const translations: Record<Lang, Record<string, any>> = {
         birthchart: { name: 'Poster carte du ciel personnalisé', sub: 'Votre carte du ciel personnelle en œuvre murale raffinée.' },
         couple: { name: 'Poster compatibilité de couple', sub: 'Deux thèmes, une œuvre commune — pour les couples.' },
         firehorse: { name: 'Édition Cheval de Feu 2026', sub: 'Édition limitée pour l’année du Cheval de Feu.' },
-        digital: { name: 'PDF d’analyse digitale', sub: 'Analyse PDF de 10–15 pages de votre thème.' },
+        digital: { name: 'PDF d’analyse premium', sub: 'Analyse approfondie : phases de vie Dayun & équilibre des Cinq Éléments.' },
         bundle: { name: 'Poster + Analyse digitale', sub: 'Votre poster plus l’analyse PDF complète.' },
       },
       birthHeading: '2 · Vos données de naissance', birthHeadingA: '2 · Personne A — données de naissance', birthHeadingB: 'Personne B — données de naissance',
       unknownTime: 'Je ne connais pas mon heure de naissance', unknownTimeHint: 'Si vous ne connaissez pas votre heure exacte de naissance, nous utilisons 12 h (midi) par défaut. Votre poster sera composé sur la base de cette valeur.',
       langHeading: '3 · Langue du poster',
       designHeading: '4 · Design', frameWord: 'Couleur du cadre', paletteWord: 'Palette de fond', posterBgHeading: 'Fond du poster', sizeHeading: 'Format',
-      pdfAddon: 'Ajouter l’analyse PDF digitale', pdfNote: 'Une analyse personnelle de 10–15 pages de votre thème, livrée en téléchargement.', pdfBadge: 'PDF digital',
-      summaryHeading: '5 · Vérifiez votre personnalisation', sumType: 'Produit', partnerName: 'Partenaire', timeUnknown: 'Inconnue — 12:00 PM par défaut', sumLang: 'Langue', sumDesign: 'Design', sumSize: 'Format', sumPrice: 'Prix',
+      pdfAddon: 'Ajouter l’analyse PDF premium', pdfAddonSave: '−25 %', pdfNote: 'Une analyse personnelle approfondie : phases de vie Dayun & équilibre des Cinq Éléments, livrée en PDF.', pdfBadge: 'PDF digital',
+      summaryHeading: '5 · Vérifiez votre personnalisation', sumType: 'Produit', partnerName: 'Partenaire', partnerData: 'Données du partenaire', review: { heading: 'Votre carte calculée', dayMaster: 'Maître du jour', pillars: 'Quatre piliers', animal: 'Animal', explainHeading: 'Qu’est-ce que cela signifie ?', elementsLabel: 'Les cinq éléments', explain: { pillars: 'Les quatre piliers représentent l’année, le mois, le jour et l’heure de votre naissance. Chaque pilier porte deux caractères — un tronc céleste en haut, une branche terrestre en bas. Ensemble, ils forment les huit caractères (BaZi) de votre carte : l’année façonne l’origine et l’environnement, le mois votre disposition intérieure, le jour votre noyau, l’heure votre expression vers l’extérieur.', dayMaster: 'Le maître du jour est le tronc céleste de votre pilier du jour — encadré sur le poster car il est lu comme votre noyau personnel. C’est à partir de lui que la tradition observe comment les autres caractères vous soutiennent, vous stimulent ou vous équilibrent.', element: 'Chaque caractère appartient à l’un des cinq éléments — bois, feu, terre, métal, eau. Ils se nourrissent et se façonnent en cycle : le bois nourrit le feu, le feu crée la terre, la terre porte le métal, le métal recueille l’eau, l’eau nourrit le bois. L’élément de votre maître du jour donne à votre carte sa tonalité de base.', animal: 'Le signe animal provient de la branche terrestre de votre ANNÉE de naissance — la partie la plus connue de l’astrologie chinoise. C’est un raccourci symbolique du tempérament et de l’empreinte de l’année, qui complète la lecture plus fine des quatre piliers.' }, western: { sun: 'Votre signe solaire décrit le cœur de votre identité — les thèmes essentiels auxquels vous revenez toujours. Il découle de la position du soleil le jour de votre naissance.', moon: 'Votre signe lunaire représente votre monde intérieur : émotions, besoins et ce qui vous apaise. La lune change de signe tous les deux à trois jours — elle est donc bien plus individuelle que le seul signe solaire.', asc: 'L’ascendant est le signe qui se lève à l’horizon est à l’heure exacte de votre naissance — il décrit votre première impression et votre manière d’aborder le monde. Il change environ toutes les deux heures ; il exige donc une heure de naissance précise.', ascUnknown: 'Sans heure de naissance connue, l’ascendant ne peut pas être déterminé honnêtement — il est donc omis du poster.' }, compat: { heading: 'Votre résultat expliqué', dayMasters: 'Maîtres du jour', rel: { a_generates_b: 'Dans le cycle des cinq éléments, {a} nourrit {b} : l’énergie du premier maître du jour renforce symboliquement celle du second — une dynamique généreuse et porteuse.', b_generates_a: 'Dans le cycle des cinq éléments, {b} nourrit {a} : l’énergie du second maître du jour renforce symboliquement celle du premier — une dynamique généreuse et porteuse.', a_controls_b: 'Dans le cycle des cinq éléments, {a} façonne {b} : une tension structurante — dans la pensée Wuxing, elle évoque des impulsions formatrices et une croissance par la différence.', b_controls_a: 'Dans le cycle des cinq éléments, {b} façonne {a} : une tension structurante — dans la pensée Wuxing, elle évoque des impulsions formatrices et une croissance par la différence.', same_element: 'Les deux maîtres du jour partagent l’élément {a} : une résonance de ressemblance — énergie familière et expression commune.', same: 'Les deux maîtres du jour partagent l’élément {a} : une résonance de ressemblance — énergie familière et expression commune.' }, note: 'Une lecture symbolique de la tradition des cinq éléments — une invitation à la réflexion, non un jugement de votre relation.' } }, timeUnknown: 'Inconnue — 12:00 PM par défaut', sumLang: 'Langue', sumDesign: 'Design', sumSize: 'Format', sumPrice: 'Prix',
       previewCertainty: 'Ce que vous voyez ici sera utilisé pour votre commande personnalisée. Vérifiez vos informations attentivement avant de commander.',
       trustData: 'Créé à partir de vos données de naissance', trustLogic: 'Composé en une œuvre symbolique', trustPreview: 'Aperçu avant la commande', trustPremium: 'Qualité d’impression premium',
       errFix: 'Veuillez compléter les champs de naissance surlignés avant d’ajouter au panier.',
@@ -867,7 +873,9 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     bundles: { eyebrow: 'Plus on prend, moins on paie', title: 'Coffrets', sub: 'Des ensembles assortis — posters et analyse digitale combinés, à prix avantageux.', add: 'Ajouter le coffret', save: 'Économisez' },
-    newsletter: { eyebrow: 'Le Cercle de l’Atelier', title: 'Actus de l’Atelier — Nouveaux posters, offres & inspiration', copy: 'Soyez informé·e en avant-première des nouveaux posters, des offres saisonnières, des histoires de l’atelier et de l’inspiration déco — directement dans votre boîte mail. En petit bonus, nous glissons parfois une note énergétique Cosmic Pulse. ✨ Pas de spam, désinscription à tout moment.', benefits: ['Nouveaux posters & collections', 'Offres saisonnières & idées cadeaux', 'Histoires d’atelier · note Cosmic Pulse occasionnelle'], placeholder: 'Votre adresse e-mail', langPref: 'E-mails en', button: 'S’abonner', consent: 'J’accepte de recevoir des actualités produit, de nouveaux posters, des offres saisonnières et des e-mails marketing de SizhuAtelier, avec une note énergétique Cosmic Pulse occasionnelle. Je peux me désinscrire à tout moment. Voir notre', privacy: 'Politique de confidentialité', success: 'Bienvenue dans le Cercle de l’Atelier — vérifiez votre boîte mail pour confirmer.', error: 'Une erreur est survenue — veuillez réessayer.', consentErr: 'Veuillez accepter les conditions pour continuer.', fine: 'Double opt-in · désinscription à tout moment' },
+    sale: { banner: 'Sale ✦ Économisez 20% sur une sélection de posters' },
+    homeQuickstart: { eyebrow: 'Commencez', title: 'Personnalisez votre poster en quelques minutes', bazi: { title: 'Votre poster BaZi', sub: 'Saisissez vos données de naissance et voyez votre carte exacte apparaître en direct.', cta: 'Personnaliser' }, couple: { title: 'Compatibilité de couple', sub: 'Deux cartes de naissance, une œuvre — votre relation élémentaire, calculée avec précision.', cta: 'Commencer à deux' } },
+    newsletter: { eyebrow: 'Le Cercle de l’Atelier', title: 'Actus de l’Atelier — Nouveaux posters, offres & inspiration', copy: 'Soyez informé·e en avant-première des nouveaux posters, des offres saisonnières, des histoires de l’atelier et de l’inspiration déco — directement dans votre boîte mail. En petit bonus, nous glissons parfois une note énergétique Cosmic Pulse. ✨ Pas de spam, désinscription à tout moment.', benefits: ['Nouveaux posters & collections', 'Offres saisonnières & idées cadeaux', 'Histoires d’atelier · note Cosmic Pulse occasionnelle'], placeholder: 'Votre adresse e-mail', langPref: 'E-mails en', button: 'S’abonner', consent: 'J’accepte de recevoir des actualités produit, de nouveaux posters, des offres saisonnières et des e-mails marketing de SizhuAtelier, avec une note énergétique Cosmic Pulse occasionnelle. Je peux me désinscrire à tout moment. Voir notre', privacy: 'Politique de confidentialité', success: 'Bienvenue dans le Cercle de l’Atelier — vous êtes inscrit.', successConfirm: 'Presque terminé — vérifiez votre boîte mail et confirmez via le lien que nous venons d’envoyer.', error: 'Une erreur est survenue — veuillez réessayer.', consentErr: 'Veuillez accepter les conditions pour continuer.', fine: 'Double opt-in · désinscription à tout moment' },
     wissen: { eyebrow: 'Blog', title: 'Ce qui se cache derrière le BaZi', sub: 'Du contexte pour vos consultations et pour qui veut comprendre son poster.', read: 'Lire la suite →' },
     gifts: {
       eyebrow: 'Idées cadeaux', title: 'Trouvez un cadeau personnalisé porteur de sens', sub: 'Créé à partir de vraies données de naissance — raffiné, intentionnel et fait pour une personne. Ou un poster pédagogique prêt à accrocher pour un cabinet ou un studio.',
@@ -919,7 +927,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         items: {
           secure: { title: 'Paiement sécurisé', sub: 'Paiement chiffré via PayPal, Apple Pay et Google Pay.' },
           shipping: { title: 'Livraison neutre en carbone', sub: 'Livraison mondiale — offerte dès {amount}.' },
-          quality: { title: 'Qualité musée', sub: 'Impression pigmentaire archivistique sur papier sans acide, fabriquée en Allemagne.' },
+          quality: { title: 'Qualité musée', sub: 'Papier mat qualité musée dans un cadre en bois massif, imprimé localement dans votre région.' },
           madeToOrder: { title: 'Fabriqué à la commande', sub: 'Chaque poster est produit pour vous et numéroté à l’atelier.' },
         },
       },
@@ -973,10 +981,10 @@ export const translations: Record<Lang, Record<string, any>> = {
         { title: 'Aperçu, puis impression', desc: 'Confirmez ce que vous voyez, et nous produisons votre œuvre murale personnalisée premium.' },
       ],
     },
-    footer: { inspiration: 'Inspiration', howItWorks: 'Comment ça marche', about: 'Atelier', contact: 'Contact', faq: 'FAQ', shipping: 'Livraison', returns: 'Retours & rétractation', terms: 'CGV', privacy: 'Confidentialité', impressum: 'Mentions légales', blog: 'Blog', groups: { service: 'Aide & service', discover: 'Découvrir', legal: 'Mentions légales', contact: 'Nous contacter' }, locale: 'Langue', payment: 'Nous acceptons', shipNote: 'Livraison neutre en carbone dans le monde · offerte dès {amount} · US & UK toujours gratuite', claim: 'Personnalisé à partir de vos données de naissance · livraison neutre en carbone' },
+    footer: { inspiration: 'Inspiration', howItWorks: 'Comment ça marche', about: 'Atelier', contact: 'Contact', faq: 'FAQ', shipping: 'Livraison', returns: 'Retours & rétractation', terms: 'CGV', privacy: 'Confidentialité', impressum: 'Mentions légales', blog: 'Blog', groups: { service: 'Aide & service', discover: 'Découvrir', legal: 'Mentions légales', contact: 'Nous contacter' }, locale: 'Langue', payment: 'Nous acceptons', shipNote: 'Livraison neutre en carbone dans le monde · offerte dès {amount} · US & UK toujours gratuite', claim: 'Personnalisé à partir de vos données de naissance' },
     cart: { title: 'Panier', remaining: 'Plus que {amount} pour la livraison offerte !', reached: 'Livraison offerte activée !', empty: 'Encore vide', emptyHint: 'Composez votre premier poster BaZi.', toCollection: 'Vers la collection', alsoLike: 'Vous aimerez aussi', clear: 'Vider', remove: 'Retirer', subtotal: 'Sous-total', shipFree: 'Livraison offerte', ship: 'Livraison {amount}', inclVat: '· TVA incluse', checkout: 'Commander', ssl: '· sécurisé SSL', toastAdded: 'Ajouté au panier', toastSet: 'Coffret ajouté au panier', editPersonalization: 'Modifier la personnalisation', unknownTimeNotice: 'Heure de naissance : Inconnue — composée avec 12 h (midi) par défaut', reviewBirth: 'Vérifiez vos données de naissance ci-dessus avant de commander.', confirmLabel: 'Je confirme que mes informations de personnalisation sont correctes. Si mon heure de naissance est inconnue, je comprends que 12 h (midi) sera utilisé par défaut.', returnNotice: 'Les articles personnalisés sont fabriqués sur commande et ne peuvent être retournés ou annulés une fois la production lancée. Cela n’affecte pas vos droits légaux si un article arrive endommagé, défectueux, incorrect ou non conforme.', incompleteWarn: 'Certains articles n’ont pas toutes les informations de personnalisation — veuillez les compléter avant de commander.', signInPrompt: 'Connectez-vous pour utiliser votre adresse et votre moyen de paiement enregistrés.', signInCta: 'Se connecter' },
-    checkout: { back: '← Retour au panier', title: 'Commande', expressHint: 'Paiement express — payez en quelques secondes', orGuest: 'ou payer en tant qu’invité', contact: 'Contact & livraison', noAccount: '— sans compte', email: 'Adresse e-mail', firstName: 'Prénom', lastName: 'Nom', street: 'Rue & numéro', zip: 'Code postal', city: 'Ville', placeOrder: 'Commander et payer', noHidden: '🔒 Aucun frais caché · livraison & taxes indiquées ci-dessous', summary: 'Votre commande', subtotal: 'Sous-total', shipping: 'Livraison', shipFree: 'Livraison offerte', total: 'Total', vat: 'dont {amount} de TVA (19 %)', emptyTitle: 'Votre panier est vide', toShop: 'Vers la boutique', orderToast: 'Commande confirmée — merci ! ✦', starting: 'Redirection vers le paiement sécurisé…', payError: 'Le paiement n’a pas pu démarrer. Veuillez réessayer.', successTitle: 'Merci — votre commande est confirmée ✦', successBody: 'Votre confirmation arrive par e-mail. Votre poster est fabriqué sur commande et expédié sous 5–7 jours ouvrés.', successHome: 'Retour à la boutique', successOrder: 'Référence de commande', cancelTitle: 'Paiement annulé', cancelBody: 'Aucun paiement n’a été effectué — votre panier est conservé.', cancelRetry: 'Retour au panier', signInPrompt: 'Connectez-vous pour utiliser votre adresse et votre moyen de paiement enregistrés.', signInCta: 'Se connecter', signedInAs: 'Connecté en tant que' },
-    product: { back: '← Retour à la collection', reviews: 'avis', sold: 'vendus', inclVat: 'TVA incluse · livraison offerte dès {amount}', save: 'Économisez', addToCart: 'Ajouter au panier', secure: '🔒 Paiement sécurisé', returns: '↺ Remplacement si défaut', climate: '✺ Neutre en carbone', related: 'Souvent achetés ensemble', accessories: 'Cadre & accessoires', inspirationTitle: 'Voir en situation', inspirationCta: 'Voir la galerie d’inspiration', caption: 'Aperçu en direct — le cadre, le fond et vos données sont appliqués instantanément.', detail: 'Détail<br/>Macro cadre', lifestyle: 'Lifestyle<br/>Mise en situation', personalNotice: 'Cette œuvre est créée spécialement à partir des données de naissance et des choix de design que vous soumettez. Vérifiez vos informations attentivement avant de commander.', express: 'Redirection vers le paiement express …' },
+    checkout: { back: '← Retour au panier', title: 'Commande', expressHint: 'Disponible au paiement sécurisé :', orGuest: 'ou payer en tant qu’invité', contact: 'Contact & livraison', noAccount: '— sans compte', email: 'Adresse e-mail', firstName: 'Prénom', lastName: 'Nom', street: 'Rue & numéro', zip: 'Code postal', city: 'Ville', placeOrder: 'Commander et payer', noHidden: '🔒 Aucun frais caché · livraison & taxes indiquées ci-dessous', summary: 'Votre commande', subtotal: 'Sous-total', shipping: 'Livraison', shipFree: 'Livraison offerte', total: 'Total', vat: 'dont {amount} de TVA (19 %)', emptyTitle: 'Votre panier est vide', toShop: 'Vers la boutique', orderToast: 'Commande confirmée — merci ! ✦', starting: 'Redirection vers le paiement sécurisé…', payError: 'Le paiement n’a pas pu démarrer. Veuillez réessayer.', successTitle: 'Merci — votre commande est confirmée ✦', successBody: 'Votre confirmation arrive par e-mail. Votre poster est fabriqué sur commande et expédié sous 5–7 jours ouvrés.', successHome: 'Retour à la boutique', successOrder: 'Référence de commande', cancelTitle: 'Paiement annulé', cancelBody: 'Aucun paiement n’a été effectué — votre panier est conservé.', cancelRetry: 'Retour au panier', signInPrompt: 'Connectez-vous pour utiliser votre adresse et votre moyen de paiement enregistrés.', signInCta: 'Se connecter', signedInAs: 'Connecté en tant que', reviewTitle: 'Vérifiez votre personnalisation', confirmFirst: 'Veuillez d’abord confirmer votre personnalisation', posterLangLabel: 'Langue du poster' },
+    product: { back: '← Retour à la collection', reviews: 'avis', sold: 'vendus', inclVat: 'TVA incluse · livraison offerte dès {amount}', save: 'Économisez', addToCart: 'Ajouter au panier', secure: '🔒 Paiement sécurisé', returns: '↺ Remplacement si défaut', climate: '✺ Neutre en carbone', related: 'Souvent achetés ensemble', accessories: 'Cadre & accessoires', inspirationTitle: 'Voir en situation', inspirationCta: 'Voir la galerie d’inspiration', caption: 'Aperçu en direct — le cadre, le fond et vos données sont appliqués instantanément.', detail: 'Détail<br/>Macro cadre', lifestyle: 'Lifestyle<br/>Mise en situation', personalNotice: 'Cette œuvre est créée spécialement à partir des données de naissance et des choix de design que vous soumettez. Vérifiez vos informations attentivement avant de commander.', express: 'Redirection vers le paiement express …', coupleNote: 'Ceci est le poster de couple personnalisé : les deux jeux de données de naissance sont saisis dans le parcours couple, où votre carte 合婚 exacte est calculée en direct avant l’ajout au panier.' },
     configurator: {
       step1: '1 · Données de naissance pour le calcul', date: 'Date de naissance', time: 'Heure de naissance', place: 'Lieu de naissance', placePh: 'p. ex. Munich', name: 'Nom sur le poster', namePh: 'p. ex. Mara',
       step2: '2 · Couleur du cadre', step3: '3 · Couleur de fond', step4: '4 · Format', inclusive: 'incl.',
@@ -1006,12 +1014,12 @@ export const translations: Record<Lang, Record<string, any>> = {
           { num: '01', title: 'Saisir vos données de naissance', desc: 'Indiquez la date, l’heure et le lieu de votre naissance. Pour les thèmes de couple, aussi les données de votre partenaire.' },
           { num: '02', title: 'Composer votre œuvre', desc: 'Nous traduisons vos données de naissance en une mise en page visuelle symbolique qui reprend les motifs traditionnels des Quatre Piliers.' },
           { num: '03', title: 'Choisir un design', desc: 'Choisissez parmi différents styles, palettes de couleurs et mises en page qui correspondent à votre énergie.' },
-          { num: '04', title: 'Imprimer à l’atelier', desc: 'Votre poster est imprimé sur papier Hahnemühle premium avec des encres d’archivage et emballé avec soin.' },
+          { num: '04', title: 'Imprimer à l’atelier', desc: 'Votre poster est imprimé sur papier mat qualité musée, monté dans un cadre en bois massif et emballé avec soin.' },
         ],
         materialsTitle: 'Des matériaux qui ont du sens',
         materialsIntro: 'Nous n’utilisons que des matériaux de la plus haute qualité. Chaque détail est choisi avec soin pour garantir la qualité esthétique et énergétique de votre poster.',
         materials: [
-          { title: 'Papier Hahnemühle', desc: '100% coton, 308gsm, qualité musée. Sans acide pour une durée de vie de plus de 100 ans.' },
+          { title: 'Papier mat qualité musée', desc: 'Papier fine-art mat épais (200 g/m²) dans un cadre en bois massif avec plexiglas de protection.' },
           { title: 'Encres d’archivage', desc: 'Encres à base de pigments résistantes aux UV. Des couleurs qui ne s’estompent pas.' },
           { title: 'Cadres en bois massif', desc: 'Cadres en bois massif issus de forêts durables. Disponibles en chêne, noyer et noir.' },
         ],
@@ -1039,15 +1047,15 @@ export const translations: Record<Lang, Record<string, any>> = {
       },
     },
     content: {
-      digital: { title: 'Analyse digitale de carte BaZi', subtitle: 'PDF de 10–15 pages', desc: ['Une analyse PDF personnelle et détaillée de votre carte BaZi : les quatre piliers, votre maître du jour, l’équilibre des cinq éléments et ce qu’ils signifient pour vous.', 'Livrée en téléchargement une fois prête — seule ou à prix réduit dans un coffret avec un poster.'], bullets: ['Quatre piliers & maître du jour, clairement expliqués', 'Équilibre des cinq éléments — forces & schémas', '10–15 pages, en PDF à télécharger', 'Seule ou à prix réduit en coffret'] },
+      digital: { title: 'Analyse BaZi premium approfondie', subtitle: 'Analyse PDF personnelle · phases de vie Dayun & équilibre des Cinq Éléments', desc: ['Une analyse PDF personnelle et détaillée de votre carte BaZi : les quatre piliers, votre maître du jour, l’équilibre des cinq éléments et ce qu’ils signifient pour vous.', 'Livrée en téléchargement une fois prête — seule ou à prix réduit dans un coffret avec un poster.'], bullets: ['Quatre piliers & maître du jour, clairement expliqués', 'Équilibre des cinq éléments — forces & schémas', '10–15 pages, en PDF à télécharger', 'Seule ou à prix réduit en coffret'] },
       digitalBundle: { title: 'Poster BaZi + Analyse digitale', sub: 'Votre poster personnalisé plus l’analyse PDF de 10–15 pages de votre carte.' },
       bundles: { b1: { title: 'Coffret Démarrage Cabinet', sub: '3 posters pour soin, accueil & salle d’attente' }, b2: { title: 'Trio Bien-être', sub: 'Une harmonie apaisante pour studio, couloir & salle de repos' } },
       bundleMeta: 'Poster + analyse PDF · prix avantageux', bundleMeta3: 'Coffret 3 pièces · prix avantageux',
       addons: { a1: { title: 'Passe-partout premium', note: 'Carton musée sans acide' }, a2: { title: 'Emballage cadeau', note: 'Recyclé, avec bandeau' }, a3: { title: 'Kit d’accrochage', note: 'Clou & niveau inclus' }, a4: { title: 'Chiffon pour verre', note: 'Microfibre, réutilisable' } },
       products: {
-        1: { title: 'Carte de naissance BaZi — Quatre Piliers', bullets: ['Composé à partir de vos données de naissance en une œuvre symbolique — aucun motif générique', 'Impression sur papier naturel à grain fin, sans acide & résistant à la lumière', 'Cadre en bois massif avec verre antireflet', 'Production en 3 jours ouvrés, numéroté'] },
+        1: { title: 'Carte de naissance BaZi — Quatre Piliers', bullets: ['Composé à partir de vos données de naissance en une œuvre symbolique — aucun motif générique', 'Papier mat qualité musée', 'Cadre en bois massif avec plexiglas de protection', 'Production en 3 jours ouvrés, numéroté'] },
         2: { title: 'BaZi Édition Cabinet', bullets: ['Indigo apaisant pour salles de soin & d’attente', 'Grand format à forte présence à distance', 'Verre musée lavable, hygiénique', 'En option avec le nom du cabinet au lieu d’une personne'] },
-        3: { title: 'Poster des Éléments BaZi', bullets: ['Vert sauge chaud — apaisant pour les pièces calmes', 'Met en avant l’équilibre des cinq éléments', 'Papier recyclé durable, certifié FSC', 'Apprécié aussi en bon cadeau'] },
+        3: { title: 'Poster des Éléments BaZi', bullets: ['Vert sauge chaud — apaisant pour les pièces calmes', 'Met en avant l’équilibre des cinq éléments', 'Papier mat qualité musée', 'Apprécié aussi en bon cadeau'] },
         4: { title: 'BaZi Yoga-Flow', bullets: ['Terracotta terreux — s’accorde au bois & aux plantes', 'Format compact pour murs de studio', 'Cadre léger, fixation murale facile', 'Remise coffret pour plusieurs salles'] },
         5: { title: 'BaZi Lune & Étoiles', bullets: ['Anthracite profond pour un effet élégant et calme', 'Cadre noir mat premium', 'Lettrage doré en option', 'Un cadeau haut de gamme pour la nouvelle année'] },
         6: { title: 'BaZi Minimal', bullets: ['Grès épuré — discret & intemporel', 'Cadre noir, ligne nette', 'S’intègre à tout cabinet et intérieur', 'Best-seller pour une première commande'] },
@@ -1057,6 +1065,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         12: { title: 'Poster TCM Cabinet', bullets: ['Œuvre murale pédagogique raffinée pour cabinets de MTC', 'Explique les systèmes élémentaires et énergétiques avec clarté', 'Impression archive premium — non personnalisé'] },
         13: { title: 'Poster TCM Bien-être', bullets: ['Poster pédagogique apaisant pour espaces bien-être & soin', 'Visualise les principes fondamentaux de la MTC', 'Impression archive premium — non personnalisé'] },
         14: { title: 'Poster TCM Studio de Yoga', bullets: ['Poster pédagogique pour murs de yoga & studio', 'Relations élémentaires en un coup d’œil', 'Impression archive premium — non personnalisé'] },
+        15: { title: 'Poster de compatibilité de couple — personnalisé', bullets: ['Les deux cartes de naissance calculées avec précision sur UNE œuvre (合婚)', 'Votre relation élémentaire en label calligraphique', 'Papier mat qualité musée', 'Créé à partir de vos vraies données de naissance — aucun motif standard'] },
       },
       articles: {
         r1: { tag: 'Bases', title: 'Qu’est-ce que le BaZi ? Les quatre piliers du destin', meta: '6 min de lecture · Journal de l’Atelier', excerpt: 'Année, mois, jour et heure de votre naissance forment quatre « piliers » — la carte de votre énergie.', body: ['Le BaZi (chinois 八字, « huit caractères ») lit votre moment de naissance comme quatre piliers : année, mois, jour et heure. Chaque pilier porte un tronc céleste et une branche terrestre — huit caractères qui décrivent votre constitution.', 'Le pilier du jour est considéré comme votre noyau, le « maître du jour ». À partir de lui, on observe comment les autres piliers soutiennent ou sollicitent. Cela dresse un tableau de forces, de schémas et de fenêtres favorables — non pas de la voyance, mais un outil d’introspection.', 'Votre poster fixe précisément ces huit caractères : un diagramme calme et personnel qui ouvre la conversation en cabinet et en studio, et un compagnon silencieux à la maison.'] },
@@ -1067,7 +1076,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Comment ma carte BaZi est-elle créée ?', a: 'À partir de la date, de l’heure et du lieu de naissance que vous saisissez, nous composons une œuvre symbolique des quatre piliers (année, mois, jour, heure) mise en forme sur le poster.' },
         { q: 'Quelles données faut-il pour commander ?', a: 'Date de naissance, heure de naissance la plus précise possible, et lieu de naissance. En option, un nom pour le poster.' },
         { q: 'Je ne connais pas mon heure exacte de naissance — est-ce possible ?', a: 'Oui — cochez simplement « Je ne connais pas mon heure de naissance » et nous utilisons 12 h (midi) par défaut. Votre poster est composé sur la base de cette valeur.' },
-        { q: 'Combien de temps prennent la production et la livraison ?', a: 'Production sur commande plus 5–7 jours ouvrés de livraison, dans le monde entier. Livraison offerte dès 80 €.' },
+        { q: 'Combien de temps prennent la production et la livraison ?', a: 'Production sur commande plus 5–7 jours ouvrés de livraison, dans le monde entier. Livraison offerte dès 75 €.' },
         { q: 'Quels formats, cadres et couleurs proposez-vous ?', a: 'Plusieurs formats, couleurs de cadre et palettes de fond ; tout est sélectionnable dans le configurateur avec un aperçu en direct.' },
         { q: 'Sur quel papier imprimez-vous ?', a: 'Impression pigmentaire d’archivage qualité musée, fabriquée en Allemagne.' },
         { q: 'Puis-je voir mon poster avant l’achat ?', a: 'Oui, le configurateur affiche un aperçu en direct avec vos données, le cadre et le fond.' },
@@ -1076,9 +1085,9 @@ export const translations: Record<Lang, Record<string, any>> = {
         { q: 'Retours & échanges ?', a: 'ESPACE RÉSERVÉ — à adapter à votre politique réelle de retour/rétractation ; les articles personnalisés peuvent être exclus du droit de rétractation.', placeholder: true },
       ],
       faqDefs: {
-        details: { q: 'Détails & matériau', a: 'Impression fine-art à grain fin sur papier naturel 250 g/m² sans acide, résistant à la lumière pendant des décennies. Cadre en bois massif avec véritable verre antireflet. Chaque poster est numéroté à l’atelier.' },
+        details: { q: 'Détails & matériau', a: 'Papier mat qualité musée (200 g/m²) dans un cadre en bois massif (12×22 mm) avec plexiglas de protection. Chaque poster est numéroté à l’atelier.' },
         size: { q: 'Guide des tailles', a: 'A3 (30×42 cm) pour niches & étagères, A2 (42×59 cm) le standard polyvalent pour les murs de cabinet, A1 (59×84 cm) pour une forte présence en accueil ou salle d’attente.' },
-        ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 80 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
+        ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 75 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
         bazi: { q: 'À propos de votre personnalisation', a: 'À partir de la date, de l’heure et du lieu que vous saisissez, nous composons une mise en page symbolique des quatre piliers avec troncs célestes et branches terrestres. Si vous ne connaissez pas votre heure de naissance, nous utilisons 12 h (midi) par défaut — cela peut influencer le résultat.' },
       },
     },
@@ -1273,8 +1282,8 @@ export const translations: Record<Lang, Record<string, any>> = {
           sub: 'Edición limitada para el Año del Caballo de Fuego.'
         },
         digital: {
-          name: 'PDF de análisis digital',
-          sub: 'Análisis en PDF de 10–15 páginas de tu carta.'
+          name: 'PDF de análisis premium',
+          sub: 'Análisis personal en profundidad: fases vitales Dayun y equilibrio de los Cinco Elementos.'
         },
         bundle: {
           name: 'Póster + análisis digital',
@@ -1292,12 +1301,14 @@ export const translations: Record<Lang, Record<string, any>> = {
       paletteWord: 'Paleta de fondo',
       posterBgHeading: 'Fondo del póster',
       sizeHeading: 'Tamaño',
-      pdfAddon: 'Añade el análisis digital en PDF',
-      pdfNote: 'Un análisis personal de 10–15 páginas de tu carta, entregado como descarga.',
+      pdfAddon: 'Añade el análisis premium en PDF', pdfAddonSave: '25 % de descuento',
+      pdfNote: 'Un análisis personal en profundidad: fases vitales Dayun y equilibrio de los Cinco Elementos, entregado como PDF.',
       pdfBadge: 'PDF digital',
       summaryHeading: '5 · Revisa tu personalización',
       sumType: 'Producto',
       partnerName: 'Pareja',
+      partnerData: 'Datos de la pareja',
+      review: { heading: 'Tu carta calculada', dayMaster: 'Maestro del día', pillars: 'Cuatro pilares', animal: 'Animal', explainHeading: '¿Qué significa esto?', elementsLabel: 'Los cinco elementos', explain: { pillars: 'Los cuatro pilares representan el año, el mes, el día y la hora de tu nacimiento. Cada pilar lleva dos caracteres: un tronco celestial arriba y una rama terrestre abajo. Juntos forman los ocho caracteres (BaZi) de tu carta: el año moldea el origen y el entorno, el mes tu disposición interior, el día tu núcleo y la hora tu expresión hacia el mundo.', dayMaster: 'El maestro del día es el tronco celestial de tu pilar del día — enmarcado en el póster porque se lee como tu núcleo personal. Desde él, la tradición observa cómo los demás caracteres te apoyan, te desafían o te equilibran.', element: 'Cada carácter pertenece a uno de los cinco elementos — madera, fuego, tierra, metal y agua. Se nutren y se moldean en ciclo: la madera alimenta el fuego, el fuego crea la tierra, la tierra sostiene el metal, el metal recoge el agua, el agua nutre la madera. El elemento de tu maestro del día da a tu carta su tono base.', animal: 'El signo animal proviene de la rama terrestre de tu AÑO de nacimiento — la parte más conocida de la astrología china. Es una abreviatura simbólica del temperamento y la impronta del año, que complementa la lectura más fina de los cuatro pilares.' }, western: { sun: 'Tu signo solar describe el núcleo de tu identidad — los temas esenciales a los que siempre vuelves. Se deriva de la posición del sol el día de tu nacimiento.', moon: 'Tu signo lunar representa tu mundo interior: emociones, necesidades y lo que te da calma. La luna cambia de signo cada dos o tres días — por eso es mucho más individual que el signo solar solo.', asc: 'El ascendente es el signo que asciende por el horizonte este en el momento exacto de tu nacimiento — describe tu primera impresión y tu manera de presentarte. Cambia aproximadamente cada dos horas; por eso requiere tu hora exacta de nacimiento.', ascUnknown: 'Sin una hora de nacimiento conocida, el ascendente no puede determinarse honestamente — por eso se omite en el póster.' }, compat: { heading: 'Vuestro resultado explicado', dayMasters: 'Maestros del día', rel: { a_generates_b: 'En el ciclo de los cinco elementos, {a} nutre a {b}: la energía del primer maestro del día refuerza simbólicamente la del segundo — una dinámica generosa y de apoyo.', b_generates_a: 'En el ciclo de los cinco elementos, {b} nutre a {a}: la energía del segundo maestro del día refuerza simbólicamente la del primero — una dinámica generosa y de apoyo.', a_controls_b: 'En el ciclo de los cinco elementos, {a} moldea a {b}: una tensión estructurante — en el pensamiento Wuxing simboliza impulsos formativos y crecimiento a través de la diferencia.', b_controls_a: 'En el ciclo de los cinco elementos, {b} moldea a {a}: una tensión estructurante — en el pensamiento Wuxing simboliza impulsos formativos y crecimiento a través de la diferencia.', same_element: 'Ambos maestros del día comparten el elemento {a}: una resonancia de semejanza — energía familiar y una expresión compartida.', same: 'Ambos maestros del día comparten el elemento {a}: una resonancia de semejanza — energía familiar y una expresión compartida.' }, note: 'Una lectura simbólica de la tradición clásica de los cinco elementos — una invitación a la reflexión, no un juicio sobre vuestra relación.' } },
       timeUnknown: 'Desconocida — 12:00 del mediodía por defecto',
       sumLang: 'Idioma',
       sumDesign: 'Diseño',
@@ -1521,6 +1532,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       add: 'Añadir set a la cesta',
       save: 'Ahorra'
     },
+    sale: { banner: 'Sale ✦ Ahorra un 20% en pósteres seleccionados' },
+    homeQuickstart: { eyebrow: 'Empieza ahora', title: 'Personaliza tu póster en minutos', bazi: { title: 'Tu póster BaZi', sub: 'Introduce tus datos de nacimiento y ve aparecer tu carta exacta en vivo.', cta: 'Personalizar ahora' }, couple: { title: 'Compatibilidad de pareja', sub: 'Dos cartas natales, una obra — vuestra relación elemental, calculada con precisión.', cta: 'Empezar juntos' } },
     newsletter: {
       eyebrow: 'El Círculo del Atelier',
       title: 'Novedades del Atelier — Nuevos pósters, ofertas e inspiración',
@@ -1535,7 +1548,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       button: 'Suscribirse',
       consent: 'Acepto recibir novedades de producto, nuevos pósters, ofertas de temporada y correos de marketing de SizhuAtelier, con una nota energética Cosmic Pulse ocasional. Puedo darme de baja en cualquier momento. Consulta nuestra',
       privacy: 'Política de privacidad',
-      success: 'Bienvenido al Círculo del Atelier — revisa tu bandeja de entrada para confirmar tu suscripción.',
+      success: 'Bienvenido al Círculo del Atelier — ya estás en la lista.',
+      successConfirm: 'Casi listo — revisa tu bandeja de entrada y confirma tu suscripción con el enlace que acabamos de enviar.',
       error: 'Algo salió mal — por favor, inténtalo de nuevo.',
       consentErr: 'Por favor, acepta los términos para continuar.',
       fine: 'Doble confirmación · cancela cuando quieras'
@@ -1797,7 +1811,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       locale: 'Idioma',
       payment: 'Aceptamos',
       shipNote: 'Envío climáticamente neutro en todo el mundo · gratis desde {amount} · US y UK siempre gratis',
-      claim: 'Personalizado a partir de tus datos de nacimiento · envío climáticamente neutro'
+      claim: 'Personalizado a partir de tus datos de nacimiento'
     },
     cart: {
       title: 'Cesta',
@@ -1829,7 +1843,7 @@ export const translations: Record<Lang, Record<string, any>> = {
     checkout: {
       back: '← Volver a la cesta',
       title: 'Pagar',
-      expressHint: 'Pago exprés — paga en segundos',
+      expressHint: 'Disponible en el pago seguro:',
       orGuest: 'o paga como invitado',
       contact: 'Contacto y entrega',
       noAccount: '— no necesitas cuenta',
@@ -1861,7 +1875,10 @@ export const translations: Record<Lang, Record<string, any>> = {
       cancelRetry: 'Volver a la cesta',
       signInPrompt: 'Inicia sesión para usar tu dirección y método de pago guardados.',
       signInCta: 'Iniciar sesión',
-      signedInAs: 'Sesión iniciada como'
+      signedInAs: 'Sesión iniciada como',
+      reviewTitle: 'Revisa tu personalización',
+      confirmFirst: 'Confirma primero tu personalización',
+      posterLangLabel: 'Idioma del póster'
     },
     product: {
       back: '← Volver a la colección',
@@ -1881,7 +1898,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       detail: 'Detalle<br/>Macro del marco',
       lifestyle: 'Ambiente<br/>Montaje de consulta',
       personalNotice: 'Esta obra se crea específicamente a partir de los datos de nacimiento que has enviado y de tus elecciones de diseño. Por favor, revisa tus datos con atención antes de pagar.',
-      express: 'Redirigiendo al pago exprés…'
+      express: 'Redirigiendo al pago exprés…',
+      coupleNote: 'Este es el póster de pareja personalizado: ambos datos de nacimiento se introducen en el flujo de pareja, donde vuestra carta 合婚 exacta se calcula en vivo antes de añadirla al carrito.'
     },
     configurator: {
       step1: '1 · Datos de nacimiento para tu composición',
@@ -1968,15 +1986,15 @@ export const translations: Record<Lang, Record<string, any>> = {
           {
             num: '04',
             title: 'Imprime en el atelier',
-            desc: 'Tu póster se imprime en papel Hahnemühle premium con tintas de archivo y se embala con cuidado.'
+            desc: 'Tu póster se imprime en papel mate de calidad museo, se monta en un marco de madera maciza y se embala con cuidado.'
           }
         ],
         materialsTitle: 'Materiales con significado',
         materialsIntro: 'Usamos solo materiales de la máxima calidad. Cada detalle se elige con cuidado para garantizar tanto la calidad estética como la energética de tu póster.',
         materials: [
           {
-            title: 'Papel Hahnemühle',
-            desc: '100% algodón, 308 g/m², calidad museo. Sin ácido para una durabilidad de más de 100 años.'
+            title: 'Papel mate de calidad museo',
+            desc: 'Papel fine-art mate grueso (200 g/m²) en marco de madera maciza con plexiglás protector.'
           },
           {
             title: 'Tintas de archivo',
@@ -2042,8 +2060,8 @@ export const translations: Record<Lang, Record<string, any>> = {
     },
     content: {
       digital: {
-        title: 'Análisis digital de la carta BaZi',
-        subtitle: 'PDF de 10–15 páginas',
+        title: 'Análisis BaZi premium en profundidad',
+        subtitle: 'Análisis PDF personal · fases vitales Dayun y equilibrio de los Cinco Elementos',
         desc: [
           'Un análisis personal y detallado en PDF de tu carta BaZi: los cuatro pilares, tu maestro del día, el equilibrio de los cinco elementos y lo que significan para ti.',
           'Entregado como descarga cuando esté listo — por separado o con descuento en un pack con un póster.'
@@ -2051,7 +2069,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         bullets: [
           'Cuatro pilares y maestro del día, explicados con claridad',
           'Equilibrio de los cinco elementos — fortalezas y patrones',
-          '10–15 páginas, en PDF descargable',
+          'Fases vitales Dayun — tu carta a lo largo del tiempo',
           'Por separado o con descuento en un pack'
         ]
       },
@@ -2094,7 +2112,7 @@ export const translations: Record<Lang, Record<string, any>> = {
           title: 'Carta natal BaZi — Cuatro Pilares',
           bullets: [
             'Compuesto a partir de tus datos de nacimiento en una obra simbólica — sin motivo genérico',
-            'Impresión en papel natural de grano fino, sin ácido y resistente a la luz',
+            'Papel mate de calidad museo',
             'Marco de madera maciza con cristal antirreflejos',
             'Producido en 3 días laborables, numerado'
           ]
@@ -2113,7 +2131,7 @@ export const translations: Record<Lang, Record<string, any>> = {
           bullets: [
             'Verde salvia cálido — reconfortante para salas tranquilas',
             'Resalta el equilibrio de los cinco elementos',
-            'Papel reciclado sostenible, certificado FSC',
+            'Papel mate de calidad museo',
             'También popular como regalo con vale'
           ]
         },
@@ -2193,6 +2211,15 @@ export const translations: Record<Lang, Record<string, any>> = {
             'Las relaciones elementales de un vistazo',
             'Impresión de archivo premium — no personalizado'
           ]
+        },
+        15: {
+          title: 'Póster de compatibilidad de pareja — personalizado',
+          bullets: [
+            'Ambas cartas natales calculadas con precisión en UNA obra (合婚)',
+            'Vuestra relación elemental como etiqueta caligráfica',
+            'Impresión en papel natural de grano fino, sin ácido',
+            'Creado a partir de vuestros datos de nacimiento reales — sin motivo estándar'
+          ]
         }
       },
       articles: {
@@ -2245,7 +2272,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         },
         {
           q: '¿Cuánto tardan la producción y el envío?',
-          a: 'Producción por encargo más 5–7 días laborables de envío, a todo el mundo. Envío gratis a partir de 80 €.'
+          a: 'Producción por encargo más 5–7 días laborables de envío, a todo el mundo. Envío gratis a partir de 75 €.'
         },
         {
           q: '¿Qué formatos, marcos y colores están disponibles?',
@@ -2284,7 +2311,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         },
         ship: {
           q: 'Envío y producción',
-          a: 'Producción en 3 días laborables y luego envío climáticamente neutro (DE 1–2 días). Envío gratis a partir de 80 €. Los artículos personalizados se hacen por encargo — consulta nuestra Política de devoluciones; tus derechos legales se aplican a los artículos defectuosos.'
+          a: 'Producción en 3 días laborables y luego envío climáticamente neutro (DE 1–2 días). Envío gratis a partir de 75 €. Los artículos personalizados se hacen por encargo — consulta nuestra Política de devoluciones; tus derechos legales se aplican a los artículos defectuosos.'
         },
         bazi: {
           q: 'Sobre tu personalización',

@@ -29,7 +29,8 @@ import { sizes } from '../../src/lib/bazi'
 
 const allEntries: TaxonomyEntry[] = TAXONOMY_AXES.flatMap((a) => [...TAXONOMY[a]])
 const realUseCases = new Set(products.map((p) => p.use_case))
-const KNOWN_ROUTES = new Set(['/collections', '/offers', '/inspiration', '/personalize'])
+// Batch #12: + /digital, /bundles (Sets/Analyse-Achsen führen auf lebende Seiten)
+const KNOWN_ROUTES = new Set(['/collections', '/offers', '/inspiration', '/personalize', '/digital', '/bundles'])
 
 describe('M9 · canonical taxonomy completeness (REQ-006)', () => {
   it('defines all six mandatory axes, each with at least one entry', () => {
@@ -110,7 +111,7 @@ describe('M9 · no dead links (every entry grounds on real data)', () => {
     for (const e of allEntries) {
       if (e.link.kind === 'route') {
         expect(e.link.path.startsWith('/')).toBe(true)
-        expect(KNOWN_ROUTES, `route ${e.link.path} (entry ${e.id})`).toContain(e.link.path)
+        expect(KNOWN_ROUTES, `route ${e.link.path} (entry ${e.id})`).toContain(e.link.path.split('?')[0])
       }
     }
   })
@@ -165,10 +166,17 @@ describe('M9 · no invented campaigns (REQ-012 / no-fabrication)', () => {
 })
 
 describe('M9 · primary nav (REQ-005)', () => {
-  it('is exactly the eight canonical shop items in order', () => {
-    expect(PRIMARY_NAV.map((n) => n.id)).toEqual([
-      'bestseller', 'new', 'posters', 'tcm', 'wuxing', 'offers', 'poster-sets', 'inspiration',
-    ])
+  // SUPERSEDED 2026-07-13 (Operator-Vorgabe): die 8-Item-Leiste ist auf ZWEI
+  // Schnellzugriffe reduziert — Poster/TCM/Wuxing/Offers/Poster-Sets leben im
+  // Mega-Menü, Inspiration in dessen Quick-Access-Zeile (s. Ledger
+  // „Vertrags-Änderungen").
+  it('is exactly the two canonical quick items in order (Operator 2026-07-13)', () => {
+    expect(PRIMARY_NAV.map((n) => n.id)).toEqual(['bestseller', 'new'])
+  })
+
+  it('inspiration lives in the mega-menu quick access (moved out of the bar)', () => {
+    expect(QUICK_ACCESS.some((q) => q.href === '/inspiration')).toBe(true)
+    expect(PRIMARY_NAV.some((n) => n.href === '/inspiration')).toBe(false)
   })
 
   it('every primary-nav href is a live route', () => {

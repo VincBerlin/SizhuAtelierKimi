@@ -19,6 +19,10 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 | GESAMTE Vitest-Suite grün — jsdom 611/611 (55 Dateien) + jsdom-isolated 8/8 (1 Datei) + node 72/72 (8 Dateien) = 691 Tests. Voraussetzungen auf dieser Maschine: warmer node_modules-Cache (iCloud) + sequenzieller Lauf. 9 vorgefundene jsdom-Rots geschlossen: 5 Operator-Supersession-Nachzüge (s. Vertrags-Änderungen), 2 FuFirE-Gate-Portierungen, 2 Umgebungs-Fixes (import.meta.url / Debounce-Datei-Isolation) — keine Assertion geschwächt | [INTEGRATION-FAKE]/[SHIPPED-SCAN] (echte Komponenten/Provider, nur externe APIs gemockt) | Vitest-Ausgabe 2026-07-13: `55 passed (55) · 611 passed (611)` + `1 passed (1) · 8 passed (8)` | `node ./node_modules/vitest/vitest.mjs run --project jsdom --isolate=false --maxWorkers=1 --no-file-parallelism` + `--project jsdom-isolated` + `--project node` | 2026-07-13 |
 | Live-Smokes mit Operator-Keys REPRODUZIERT: kanonischer Fall exakt 庚午\|壬午\|辛亥\|乙未, Pferd/Metall, engine 1.0.0-rc1-20260220 (exit 0) UND Paar-Match A konsistent + Relation Metall→nährt→Wasser (exit 0). Keys hinterlegt in lokaler `.env` (gitignored) + Railway-Service `sizhuatelier-shop` (FUFIRE_API_URL/KEY, GELATO_API_KEY, GELATO_ORDER_TYPE=draft; per CLI, --skip-deploys) | [REAL-BOUNDARY-LIVE] | `2026-07-12-bazi-live-response.json` / `2026-07-12-match-live-response.json` (frisch überschrieben 2026-07-13 01:12 lokal; Dateiname = UTC-Datum des Laufs) | `node --env-file=.env scripts/evidence/fufire-smoke.mjs` bzw. `…fufire-match-smoke.mjs` | 2026-07-13 |
 | Käufer-Flow LIVE im echten Browser: Geburtsdaten eingeben → Poster zeigt die exakt live-berechneten Säulen (庚壬辛乙亥未, PFERD, METALL) — personalize-exact.spec.ts gegen gebauten Server MIT echten FuFirE-Keys, 5/5 passed (inkl. Hero/Mega-Menü-Spec). Mobile-first-Fix bewiesen: H1 beginnt ≥106px (unter der fixierten Kopfzeile; Logo-Overlap-Fund behoben via pt-[130px], neue Assertion im Spec). Ink Black der Markenfläche jetzt aus kanonischer Quelle `--ink-black` (index.css) | [REAL-BROWSER]+[REAL-BOUNDARY-LIVE] | `personalize-exact-live.png` · `hero-mobile.png` (beide frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
+| Operator-Batch #2 im echten Chromium bewiesen (6/6): Mobile-Personalize — Poster-Vorschau klebt beim Scrollen SICHTBAR unter der Kopfzeile (y≈112, ≤36vh; Fund „Poster beim Ausfüllen unsichtbar" geschlossen, neue Spec-Assertion als Regressions-Schutz), SVG-Vorschau jetzt vollständig erkennbar (mm-Maße-Fund per CSS gezähmt); Sale-Banner unter dem Menü; 75-€-Announcement regional; eckige Buttons + Auswahlringe; Live-Käufer-Flow weiterhin grün | [REAL-BROWSER] | `personalize-mobile-sticky.png` · `hero-desktop.png` (frisch) | `npm run build && node --env-file=.env server/index.js` + `PLAYWRIGHT_BASE_URL=http://localhost:3000 npx playwright test tests/e2e/hero-megamenu.spec.ts tests/e2e/personalize-exact.spec.ts --project=chromium-desktop` | 2026-07-13 |
+| PDF-ANKUNFT bei Gelato HART BEWIESEN: Gelatos S3-Kopie (`file_original_default`) der Testbestellung heruntergeladen und mit unserer Druck-PDF verglichen — **BYTE-IDENTISCH** (61.728 B, SHA-256 `95a0c8cfc8073d02…d31dfd106` auf BEIDEN Seiten, %PDF-1.3-Header). Zusätzlich visueller Beweis: Gelatos Prepress hat aus GENAU dieser PDF das Druck-Preview gerendert (1084×1500 PNG, schwarzer Rahmen) — Säulen exakt 庚午/壬午/辛亥/乙未, METALL·PFERD, Name, CJK-Labels korrekt. [HUMAN-VERIFIED]: Operator hat die Draft-Order im Gelato-Dashboard GESEHEN und bestätigt (Chat 2026-07-13, „sehr gut ich sehe die bestellung") | [REAL-BOUNDARY-LIVE]+[HUMAN-VERIFIED] | `2026-07-13-gelato-pdf-sha256.txt` · `2026-07-13-gelato-preview-default.png` | Order per `GET /v4/orders/544e1b36-…` → `files[0].url` laden → `shasum -a 256` gegen die Prod-PDF-Route | 2026-07-13 |
+| Personalisierte TESTBESTELLUNG ohne Kaufabschluss END-TO-END: Session-Fixture → FuFirE-Live-Neuberechnung (engine 1.0.0-rc1) → Druck-PDF 61.728 B in Produktions-DB → PDF von der Produktions-Domain byte-identisch abrufbar (HTTP 200, %PDF) → ECHTER Gelato-DRAFT `544e1b36-5ee1-43c9-a6f3-0fb64564900d` (orderType=draft, fulfillmentStatus=draft, KEINE Produktion) mit korrekt gemappter productUid (A2 × Schwarz matt) — Gegenprobe per GET: Gelato hat die Datei auf SEIN S3 kopiert und 3 Druck-Previews erzeugt; Versandadresse TEST-markiert. Verbleibt [HUMAN-VERIFIED]: Operator sichtet den Draft im Dashboard (löschen oder bewusst bestätigen) | [REAL-BOUNDARY-LIVE] | `2026-07-13-gelato-draft-order.json` | `DATABASE_URL=$(railway variables --service Postgres --kv \| grep DATABASE_PUBLIC_URL \| cut -d= -f2-) node --env-file=.env scripts/evidence/gelato-draft-smoke.mjs` | 2026-07-13 |
+| Gelato-Produkt-Mapping vollständig LIVE-VERIFIZIERT (2. Operator-Key, beide APIs 200): alle 6 Kombinationen A3/A2/A1 × Eiche natur/Schwarz matt existieren als exakte productUids im Katalog `framed-posters` (gefilterte products:search, Papier 250 gsm uncoated offwhite archival, Holzrahmen 12×22 mm, Plexiglas, Hochformat) und sind in `server/gelatoProducts.js` hinterlegt; Fulfillment-Test beweist GENAU EINEN Draft mit gemappter UID, idempotent (node 72/72) | [REAL-BOUNDARY-LIVE] | `2026-07-13-gelato-uid-mapping.json` + `2026-07-13-gelato-catalog-fine-art-framed-poster.json` (Erst-Scan, Fehlkatalog-Fund) | `node --env-file=.env scripts/evidence/gelato-catalog-verify.mjs` (exit 0) | 2026-07-13 |
 
 ## RED (offen, launch-relevant)
 
@@ -48,17 +52,54 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
 - **OQ-TLST** — Zi-Grenzfall-Konvention (TLST/boundary) vom Operator gegen die
   FuFirE-Snapshot-Suite (`tests/snapshots/moseph/zi_*.json` im FuFirE-Repo)
   zu bestätigen. Bis dahin gilt gepinnt: `standard=TLST`, `boundary=midnight`.
-- **RL-GELATO** — Gelato-Fluss unbewiesen. STAND 2026-07-13: Operator-Key liegt
-  vor (lokal `.env` + Railway hinterlegt), aber BEIDE Gelato-APIs lehnen ihn ab
-  (Product-API v3 `GET /catalogs` → 401, Order-API v4 `GET /orders` → 401;
-  Format sauber: 69 Zeichen, 4 Bindestriche, kein Whitespace/CR). Der Key ist
-  damit ungültig/inaktiv — Operator: im Gelato-Dashboard unter API-Keys einen
-  gültigen Key erzeugen/kopieren, `.env` UND Railway aktualisieren, dann
-  `node --env-file=.env scripts/evidence/gelato-catalog-verify.mjs` (füllt die
-  6 productUids). `PRODUCT_UIDS` bleibt bis dahin LEER — nichts wird geraten.
-- **RL-STRIPE-CHAIN** — Volle Zahlungskette (Checkout→Webhook) unbewiesen bis
-  Stripe-TEST-Keys lokal vorliegen; Fallback für H1/H2: Session-Fixture direkt
-  gegen `fulfillOrder` (Stripe-Schritt dann `[INTEGRATION-FAKE]`, Rest real).
+- **RL-GELATO** — WEITGEHEND GESCHLOSSEN 2026-07-13 (zweiter Operator-Key,
+  beide APIs 200; alter Key war ungültig, 401 überall):
+  1. Alle 6 productUids (A3/A2/A1 × Eiche natur/Schwarz matt) über die
+     GEFILTERTE products:search des Katalogs `framed-posters` live verifiziert
+     (attributeFilters FrameSize×FrameColor×Orientation=ver) und in
+     `server/gelatoProducts.js` eingetragen. Artefakt:
+     `2026-07-13-gelato-uid-mapping.json`. Fund dabei behoben: die alte
+     Substring-Suche traf den FALSCHEN Katalog (fine-art) und verwechselte
+     Zoll mit Zentimetern („30x40-inch" ≠ A3) — Script auf Attribut-Filter
+     umgestellt, verifiziert jetzt die hinterlegte Tabelle gegen live.
+  2. Gewählte Konstanten (Operator-review-bar): Papier
+     `250-gsm-uncoated-offwhite-archival` (= Shop-Zusage „Naturpapier,
+     säurefrei & lichtecht"), Holzrahmen 12×22 mm, Plexiglas, Hochformat.
+     „Eiche natur"→natural-wood, „Schwarz matt"→black.
+  3. Fulfillment-Test fortgeschrieben: GENAU EIN Draft mit der gemappten UID,
+     idempotent bei Webhook-Replay (72/72 node grün).
+  Der Test-Draft ist ANGELEGT (2026-07-13, `544e1b36-…`, s. Evidenz-Zeile:
+  Datei von Gelato gezogen, 3 Previews erzeugt, orderType=draft). OFFEN
+  bleibt nur noch die [HUMAN-VERIFIED]-Abzeichnung: Operator sichtet den
+  Draft im Gelato-Dashboard (löschen oder bewusst bestätigen).
+- **RL-STRIPE-CHAIN — GESCHLOSSEN 2026-07-14 `[REAL-BOUNDARY-LIVE]` +
+  `[REAL-BROWSER]`:** Volle Zahlungskette end-to-end in PROD bewiesen
+  (Test-Modus, sk_test): Live-Personalisierung (exakte Säulen 庚…) →
+  `/api/checkout` (server-repriced €53.90) → Stripe-Hosted-Checkout
+  (Session `cs_test_b1nAmHF8…`) → Testkarte 4242 bezahlt →
+  `checkout.session.completed`-Webhook signaturverifiziert →
+  `fulfillOrder` → Druck-PDF → Gelato-Draft `baf606f4-56aa-4539-8d7f-80e34ea394e7`
+  (orderType=draft) → PDF von Gelatos S3 zurückgeladen: HTTP 200,
+  61 282 Bytes, `%PDF`-Header. Artefakte: `stripe-chain-hosted-checkout.png`
+  (zeigt aktive Zahlarten: Apple Pay/Klarna/Link/Amazon Pay-Express +
+  Card/Klarna/MB WAY/Bancontact), `stripe-chain-card-filled.png`,
+  `stripe-chain-success.png`. Stripe-Setup per API: Payment-Method-Config
+  `pmc_1Tsu3g0y…` (card/apple_pay/google_pay/link on, sepa_debit
+  bewusst OFF — verzögerte Zahlarten passen nicht zum completed-only-Webhook;
+  klarna zunächst on, dann per OPERATOR-Entscheidung 2026-07-14 „klarna
+  möchten wir nicht anbieten" auf off — Beweis:
+  `stripe-checkout-no-klarna.png`, frische Hosted-Checkout-Session ohne
+  Klarna-Treffer im Seitentext),
+  Webhook-Endpoint `we_1Tt3BX0y…` auf `/api/webhook`. NEBENFUND aus dem
+  Success-Screenshot: der Footer-Claim trug noch „climate-neutral shipping"
+  (Operator-Anweisung Batch #2: raus) — in allen 4 Sprachen auf
+  „Personalized from your birth data" gekürzt; gleichlautende Klima-Aussagen
+  in FAQ/Quickstart-Texten bestehen weiter und liegen beim Operator zur
+  Entscheidung. NEUER RED-CARRY
+  **RL-STRIPE-LIVE**: Account ist Test-Modus (charges_enabled=false,
+  details_submitted=false) — vor Launch: Stripe-Aktivierung abschließen,
+  sk_live-Keys + Live-Webhook-Endpoint (neues whsec) setzen, eine echte
+  Kleinbetrag-Bestellung verifizieren.
 - **HERO-ASSET** — Finales Hero-Foto ist Operator-Asset (Phase 8 des
   Hero/Mega-Menü-Plans); bis dahin bestes vorhandenes Asset aus `public/images/`.
 
@@ -89,7 +130,293 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   `delta-color-tokens.test.ts` (Datei-gebundene Ausnahme #A0522D NUR in
   `SplitHero.tsx`; Hover #B5652B bleibt überall verboten). Quelle: Plan-§4
   (Commit 44ed13a-Implementierung); Escalation-Regel gewahrt.
-- **FuFirE-Gate-Nachzug 2026-07-13 (kein Vertragswechsel, Testreparatur):**
+- **Operator-Batch 2026-07-13 (Direktanweisung im Chat, supersedet mehrere
+  eingefrorene Verträge):**
+  1. *Hero-Grenze = Menü-Grenze:* App-Padding jetzt auch auf Home; Hero =
+     `calc(100dvh − 106px)`, beginnt an der Menü-Unterkante (supersedet die
+     100dvh-hinter-transparenter-Leiste-Lösung vom 2026-07-12; SplitHero-
+     pt-[130px]-Kopffreiheit damit obsolet und entfernt).
+  2. *Primärleiste reduziert:* Poster/TCM/Wuxing/Offers/Poster-Sets raus (im
+     Mega-Menü verankert), Inspiration → Mega-Menü-Quick-Access. Supersedet
+     die 8-Item-Leiste (REQ-003/REQ-005). Tests nachgezogen:
+     delta-primary-nav, exact-taxonomy, delta-offers-hub (AT-024-4 via
+     QUICK_ACCESS).
+  3. *Poster-Background-Palette (5 Swatches, REQ-018/T-404) GELÖSCHT* aus
+     tokens/Store/Personalize/Configurator/PDP; Test-Datei
+     delta-poster-bg-palette.test.tsx entfernt (Vertrag aufgehoben).
+  4. *Footer:* Versand-Zeile (shipNote „Climate-neutral … US & UK always
+     free") und Sprach-Umschalter entfernt (Sprache bleibt im Header).
+  5. *Echte Paar-SKU (Katalog id 15, 69 €):* personalisiertes Kompatibilitäts-
+     Poster — supersedet den „no invented couple SKU"-Vermerk; PDP leitet in
+     den Paar-Flow (/personalize?type=couple, neuer Query-Param), Warenkorb
+     über den live-bewiesenen 合婚-Pfad. Server-Preisspiegel 15:69
+     (Paritätstest gekoppelt).
+  6. *Shop-by-World + How-it-works* als vollbreite Bänder im Hero-Farbton
+     (--ink-black), Texte hell.
+- **Operator-Batch #2 2026-07-13 (Direktanweisung, UI/UX-Finale):**
+  1. *Commerce LIVE:* Railway `VITE_COMMERCE_ENABLED=true` (war false →
+     „Preview/launching soon" + „Coming soon" statt Preisen). Die regionale
+     Versand-Announcement (us/uk free · eu Schwelle, nie vermischt) war
+     bereits implementiert und wird durch das Flag sichtbar.
+  2. *Versandschwelle 80 € → 75 €* (tokens + server-Spiegel + i18n-Texte;
+     Paritätstest koppelt).
+  3. *Poster-Vorschau-Fund:* geteilte SVG-Vorlage trägt absolute mm-Maße
+     (420mm ≈ 1587px) → Browser-Vorschau überdimensional; CSS zähmt auf
+     Containerbreite + Höhen-Deckel (Druckquelle unangetastet).
+  4. *Mobile-Sticky-Fund:* im einspaltigen Grid war das Vorschau-Item seine
+     EIGENE Row → sticky wirkungslos, Poster beim Ausfüllen unsichtbar.
+     Layout <lg jetzt display:block + kompakte Sticky-Vorschau (36vh) unter
+     der Kopfzeile — Poster bleibt bei Rahmen/Format/Farben IMMER sichtbar.
+  5. *Karten:* Beschreibungszeile (card-claim) entfällt, Preis direkt unter
+     dem Titel (Test-Nachzug delta-product-card-asset-light als
+     Gegen-Assertion). Welt-Karten groß/eckig (min 240px, Titel 28).
+  6. *Eckig:* global `button/[role=button]/a.cta-square { border-radius: 0
+     !important }`.
+  7. *Inspiration-Teaser:* zweispaltig, größer, mit EHRLICH markierter
+     Platzhalter-Bildfläche (data-placeholder; finales Foto = Operator-Asset).
+  8. *Newsletter minimalistisch:* copy-Absatz + Benefits raus (i18n-Daten
+     bleiben; DSGVO-Consent unangetastet).
+  9. *Sale-Banner „Now save 20%"* unter dem Menü auf jeder Seite → /offers;
+     nur im Live-Commerce-Modus. Der 20%-Wert ist eine OPERATOR-VORGABE;
+     Träger ist die bestehende Streichpreis-Mechanik (catalog anchor) —
+     kein serverseitiger Rabatt-Code. Operator verantwortet die Preispflege
+     passend zum Claim (UWG).
+  10. *Sprach-Automatik:* Basis EN; gespeicherte Wahl gewinnt; sonst Land aus
+     /api/region (DE/AT→DE, FR→FR, ES→ES — wirkt, sobald am Edge
+     TRUSTED_GEO_HEADER konfiguriert ist), sonst Browser-Sprache. EHRLICH:
+     ohne Edge-Geo-Header entscheidet die Browser-Sprache, nicht die IP.
+  11. *personalize-entry-Sektion* direkt nach dem Hero (Einzel-BaZi +
+     Paar-Kompatibilität als große Einstiegskarten); Home-Sequenz-Test
+     fortgeschrieben (REQ-014-Reihenfolge + personalize-entry).
+- **Operator-Batch #3 2026-07-13 (Personalisierungs-Review + Poster-Sprache):**
+  1. *Poster-Sprache-Fund:* FuFirE liefert Element/Tier KANONISCH DEUTSCH —
+     Vorschau UND Druck zeigten „METALL/PFERD" auch bei englischer
+     Poster-Sprache; der Subtitle („BAZI · VIER SÄULEN") war hardcoded.
+     NEU: geteiltes Modul `src/designs/posterLocale.mjs` (Elemente, 12 Tiere,
+     Subtitles single/pair, Relations-Label — EINE Quelle für Browser + PDF;
+     unbekannte Werte werden UNVERÄNDERT durchgereicht, nie geraten). Die
+     doppelt gepflegte RELATION_TEXT-Tabelle in fulfillment.js ist dedupliziert.
+     Designs nehmen `data.subtitle` (Fallback = bisheriger deutscher Text);
+     Design-TÜV-Fixture um Subtitle-Injektion erweitert.
+  2. *Tagesmeister + Säulen als Review:* neuer chart-review-Block in der
+     Personalisierung (erst bei fertigem exakten Chart, nie Platzhalter):
+     Tagesmeister (Tag-Stamm + lokalisiertes Element), Säulen-Zeile
+     (年 庚午 · …), Tierzeichen.
+  3. *Partner-Review (Paar):* beide Partner als Karten mit den KORREKTEN
+     eingegebenen Daten (Name, Datum, Zeit inkl. Noon-Fallback-Anzeige,
+     aufgelöster Ort) + je Tagesmeister (dayMasterA/B aus /api/match) +
+     Relations-Label; Summary um Partner-Datenzeile ergänzt.
+  4. Tests fortgeschrieben: personalize-exact-chart (EN→Horse/Metal, Review,
+     DE-Umschaltung via poster-lang-picker), personalize-exact.spec (HORSE/
+     METAL/FOUR PILLARS + Review-Assertions).
+- **Operator-Batch #11 2026-07-17/18 (Domain verifiziert · 3 Newsletter-Serien
+  · Abmeldung · einlösbare Rabattcodes):**
+  1. *Resend-Domain VERIFIZIERT `[REAL-BOUNDARY-LIVE]`:* alle 4 DNS-Records
+     (DKIM/SPF-TXT/SPF-MX/Tracking-CNAME) live im öffentlichen DNS + Status
+     „verified" via API. Beweis-Mails EXTERN zugestellt: newsletter@ →
+     Gmail (f69bd771…), orders@ → Gmail (0976c754…) — Bestellbestätigung,
+     Double-Opt-In und Passwort-Reset sind damit scharf. RL-EMAIL geschlossen.
+  2. *Tagesimpuls (Cosmic Fusion):* Impuls-Text steht GANZ OBEN (Operator:
+     „muss den Leser einfangen, spannend aber kurz"); heutige Impulse in 4
+     Sprachen redaktionell geschrieben — ausschließlich aus den berechneten
+     Fakten (Feuer-Pferd-Jahr, Wasser-Drache-Tag, Merkur rückläufig in Krebs).
+  3. *Angebot der Woche:* generate-offer.mjs rotiert deterministisch per
+     ISO-Kalenderwoche über 6 kuratierte Shop-SKUs; Preise verbindlich via
+     server/pricing.js priceLineItemCents (KW 29 → TCM-Poster 39,00 €,
+     Testmail 61ecc62d…). Wochen-Zeitplan: vorbereitet, Aktivierung auf
+     Operator-Zuruf.
+  4. *Rabattcode-Serie EHRLICH:* /api/checkout hat jetzt
+     allow_promotion_codes — beworben wird nur, was einlösbar ist.
+     create-promo.mjs legt Coupon+Code per Stripe-API an (neue verschachtelte
+     promotion-Syntax; Test-Code WELCOME10 −10 % bis 2026-07-31, livemode
+     false, promo_1TuL6B…); generate-promo.mjs rendert den Code-Kasten
+     (Testmail 3b50cee0…).
+  5. *Abmeldung:* GET /api/newsletter/unsubscribe?token= setzt
+     status='unsubscribed' + lokalisierte Marken-HTML (2 neue node-Tests,
+     88/88 grün).
+  6. *Editor bedient alle 3 Serien* (kind-Dispatch) — eine Oberfläche für
+     Kontrolle/Eingriff; Commands /newsletter-cosmic, /newsletter-offer,
+     /newsletter-promo.
+- **Operator-Batch #10 2026-07-16 (Papier-Entscheid · realistische Rahmen ·
+  Kassen-Vereinfachung · Kreise · Badge):**
+  1. *RL-PAPER-CLAIM GESCHLOSSEN (Operator-Entscheid):* „ausschließlich
+     museum-quality matte paper wood framed poster". Sämtliche nicht
+     belegbaren Material-Claims ersetzt (4 Sprachen, i18n + catalog):
+     Hahnemühle/„308gsm Baumwolle", „acid-free/säurefrei & lichtecht",
+     „Archiv-Pigmentdruck", „FSC-Recyclingpapier", „Museumsglas/Echtglas"
+     (Produkt hat PLEXIGLAS lt. verifizierter Gelato-UID), „made in Germany"
+     → „lokal in deiner Region gedruckt" (Gelato-Routing). Neue einheitliche
+     Wahrheit: Museum-quality mattes Papier (200 g/m²), Massivholzrahmen
+     12×22 mm, schützendes Plexiglas.
+  2. *Rahmen-Architektur-FUND + Fix:* Die Druckdatei malte einen 5%-Rahmen-
+     rand AUF das Poster — zusammen mit dem physischen Gelato-Rahmen wäre
+     das doppelt. Jetzt: Druckdaten rahmenfrei (frame = bg in fulfillment,
+     3 Pfade), die Vorschau rendert stattdessen einen REALISTISCHEN
+     CSS-Rahmen (Holzmaserungs-/Mattschwarz-Gradient, Falz, Tiefenschatten —
+     PosterSvg frameName-Prop, Klassen real-frame--oak/--black).
+  3. *Kasse vereinfacht (Operator-Frage beantwortet):* Die 3 Wallet-Buttons
+     führten alle zum selben Stripe-Checkout → entfernt. Genau EIN
+     Order-CTA; Wallets als ehrliche Logo-Trust-Zeile darunter
+     (wallet-trust-row). Test fortgeschrieben.
+  4. *Farb-Swatches sind Kreise* (color-swatch-circle, !important-Ausnahme
+     von der globalen Eckig-Regel) — Rahmenfarben + Hintergrund-Palette.
+  5. *Warenkorb-Zahl:* größer (13.5px) und direkt am Icon.
+  6. *Claude-Anbindung Newsletter:* Projekt-Command
+     `.claude/commands/newsletter-cosmic.md` — jede Claude-Code-Instanz im
+     Repo kann per /newsletter-cosmic die Ausgabe erzeugen (kein MCP nötig;
+     Regeln + Freigabe-Schleife im Command festgeschrieben).
+- **Operator-Batch #9 2026-07-15/16 (Resend live · Newsletter-Werkstatt ·
+  Premium-Analyse 195 € · neue Poster-Formate):**
+  1. *E-Mail scharf:* RESEND_API_KEY (reiner Sende-Key) in .env+Railway —
+     Health `email:true` `[REAL-BOUNDARY-LIVE]`. Absender getrennt:
+     orders@ (Bestell-/Konto-Mails) vs. newsletter@ (NEWSLETTER_FROM_EMAIL).
+  2. *Newsletter-Werkstatt (vorbereitet, NICHT aktiviert):* EIN Marken-
+     Template (scripts/newsletter/template.mjs, Blöcke: heading/text/poster/
+     facts/cta) — jede Ausgabe unterscheidet sich nur im Inhalt.
+     generate-cosmic.mjs zieht ECHTE Planetenstände aus /v1/transit/now
+     (eigene Engine) und erzeugte 4 Live-Entwürfe
+     (docs/newsletter-drafts/2026-07-16-cosmic-*.html) mit sichtbarer
+     [ENTWURF]-Markierung; send-test.mjs sendet an genau EINE
+     Operator-Adresse. Broadcast/Audience-Sync + Zeitplan: eigener Batch
+     nach Operator-Startfreigabe (README dokumentiert die Regeln).
+  3. *Premium-Analyse:* digital 39 → 195 € (standalone) auf BEIDEN Seiten
+     (productTypes.ts/catalog.ts ↔ pricing.js, Parity-Tests); Add-on zum
+     personalisierten Poster = −25 % → 146,25 € (PDF_ADDON), Label mit
+     Streichpreis + Rabatt-Badge in 4 Sprachen. Umfang lt. Operator zunächst
+     Dayun + Wuxing (Western/Fusion getrennt); Endpunkte live bestätigt
+     (/v1/calculate/bazi/dayun · /v1/calculate/wuxing). PDF-Generator +
+     Premium-Darstellung: nächster Batch (RL-PREMIUM-PDF offen).
+  4. *Neue Formate personalisierter Poster (Operator: 30×40 / 50×70 /
+     70×100 vertikal):* personalizedSizes in bazi.ts (explizite
+     protected-surface-Anweisung), Personalize-Wähler + Default 50×70;
+     Katalog/Legacy behalten die A-Serie (beide Preisachsen server-gültig,
+     alte Warenkörbe/Bestellungen bleiben reprintfähig). printSpecs
+     300×400/500×700/700×1000 mm; Gelato: alle 12 Kombinationen (6 alt + 6
+     neu) LIVE-VERIFIZIERT via attributeFilters
+     (Artefakt 2026-07-16-gelato-uid-mapping.json). PAPIER-FUND → **neuer
+     RED-Carry RL-PAPER-CLAIM:** das archival-Papier der A-Serie existiert
+     für cm-Formate NICHT; gewählt `200-gsm-uncoated` (bestes Naturpapier-
+     Äquivalent). Shop-Copy behauptet stellenweise „Hahnemühle" /
+     „acid-free & lightfast" / „Museum-grade archival" — für die neuen
+     Formate nicht belegbar, Operator entscheidet Text vs. Papier-Upgrade.
+- **Operator-Batch #8 2026-07-14 (Kassen-UX · ehrliche Zahlarten · Badge ·
+  Newsletter-Double-Opt-In):**
+  1. *Bestätigung intelligenter:* Die Personalisierungs-Bestätigung ist jetzt
+     eine eigene Card GANZ OBEN an der Kasse — mit Review-Kasten der
+     abgegebenen Daten je personalisierter Position (Name(n), Datum, Zeit
+     inkl. 12:00-Disclosure via timeDisplay, aufgelöster Ort, Poster-Sprache).
+     Express + Gast-Weg schalten gemeinsam frei; Hinweis „bitte zuerst
+     bestätigen" statt stumm ausgegrauter Buttons.
+  2. *Checkbox NUR bei personalisierten Artikeln:* Warenkörbe ohne
+     Personalisierung checken sofort aus (kein Häkchen, canPlace sofort true).
+     Gate bleibt an der Order-Grenze (REQ-017/042 unverändert erzwungen).
+  3. *Ehrliche Zahlarten mit Logos:* Express-Buttons sind jetzt Apple Pay
+     (Apfel-Logo), Google Pay (Farb-G) und Amazon Pay (Smile) — die
+     PayPal-Attrappe ist ENTFERNT (PayPal wird via Stripe nicht angeboten).
+     FUND des neuen Tests: PayPal stand auch im Footer („We accept") und im
+     CartDrawer — beide bereinigt (Footer: Visa/Mastercard/Amex/Apple/
+     Google/Amazon Pay).
+  4. *Warenkorb-Badge:* nackte Zahl in Akzentfarbe statt Pill/Kasten.
+  5. *Newsletter-Double-Opt-In real:* /api/newsletter sendet jetzt die
+     Bestätigungs-Mail (Resend, env-gated, 4 Sprachen; RETURNING-Token —
+     bestätigte Adressen werden nie erneut gemailt oder degradiert); neue
+     Route GET /api/newsletter/confirm?token= setzt status=confirmed und
+     antwortet mit Marken-HTML. EHRLICHKEITS-FIX dabei: der bisherige
+     UI-Erfolgstext behauptete „check your inbox", obwohl NIE eine Mail
+     versendet wurde — jetzt zwei Texte: „du stehst auf der Liste" (kein
+     Mailer) vs. „prüfe dein Postfach" NUR bei confirmSent=true vom Server.
+     Bestell-Bestätigungsmail (sendEmails/Resend) existierte bereits —
+     scharfgeschaltet wird beides erst durch RESEND_API_KEY (RED-Carry
+     RL-EMAIL: Operator legt Resend-Konto an, verifiziert Absender-Domain,
+     Key in .env+Railway; bis dahin health email:false).
+  Tests: tests/server/newsletter-doi.test.ts (5, mit injizierbarem mailer via
+  createApp) + tests/unit/checkout-confirm-gate.test.tsx (4).
+- **Operator-Batch #6 2026-07-14 (Inputs eckig · getrennte Geburtszeit-Toggles
+  · Scrollbalken weg · Template-Beweis):**
+  1. *Eingabefelder eckig:* globale CSS-Regel erweitert (input/select/textarea
+     radius 0 !important — konsistent mit der Button-Regel).
+  2. *„Geburtszeit unbekannt" JE PERSON:* der geteilte Toggle ist in
+     unknownTimeA/B aufgetrennt (eigene Checkbox unter jedem Personen-Block,
+     testids unknown-time-a/b; eigener Noon-Hint je Person). Gate, Validierung,
+     Summary, Partner-Review und Metadaten (birthTimeUnknown/B) laufen je
+     Person; Druckweg war bereits getrennt. Tests von Checkbox-Index auf
+     testids gehärtet (passthrough, noon-fallback-render).
+  3. *Scrollbalken der Poster-Vorschau entfernt:* .personalize-preview ohne
+     max-height/overflow — das SVG selbst bleibt höhengedeckelt, der Container
+     wächst mit (Platz unter dem Poster für spätere Operator-Mockups).
+     Mobile-config-Test als Gegen-Assertion fortgeschrieben (kein
+     overflow:auto mehr erlaubt).
+  4. *Design-Template-Beweis:* zweites Einzel-Design `ink-minimal` (Datei +
+     EINE Registry-Zeile) — erschien automatisch im Wähler, läuft durch den
+     Design-TÜV, rendert Vorschau+Druck aus derselben Funktion. FUND dabei:
+     die Swatch-Mini-Vorschauen trugen dieselbe testid wie die Hauptvorschau
+     (mit nur einem Single-Design unsichtbar) — PosterSvg hat jetzt eine
+     testId-Prop, Swatches nutzen design-swatch-preview-<id>.
+  5. *Prod-Verifikation `[REAL-BROWSER]` + FOLGE-FUND:* personalize-exact
+     (3 Tests, live FuFirE) gegen die Prod-URL grün; Screenshot-Skript belegt
+     computed border-radius 0px auf Inputs, overflowY visible auf der
+     Vorschau, beide Toggles + ink-minimal-Swatch sichtbar
+     (docs/evidence/screenshots/prod-b6-*.png). Der Prod-Screenshot deckte
+     eine Regression auf: durch die testid-Trennung (Fund 4) verloren die
+     Swatch-SVGs die Zähm-Regel `[data-testid='poster-svg-preview'] svg` und
+     renderten in Naturgröße über den 84px-Knopf hinaus — eigene Regel
+     `[data-testid^='design-swatch-preview-'] svg { width:100%; height:auto }`
+     + Regressionstest im Picker-Test nachgeschoben und erneut deployt.
+- **Operator-Batch #5 2026-07-14 (Western Zodiac + Daymaster-Rahmen + Tier +
+  ausführliche Erklärungen):**
+  1. *API-Discovery:* FuFirE bietet `POST /v1/calculate/western` (OpenAPI-Spec
+     live gelesen; Swiss Ephemeris swieph, Placidus) — 14 bodies, Häuser,
+     Winkel, Aspekte. Live-Kanon: Sonne Zwillinge 24,1° · Mond Fische 14,5° ·
+     ASC Jungfrau 19,1°.
+  2. *Birth-Chart-Poster = Western:* neuer Client `calculateWestern`
+     (normalisiert auf Big Three + Merkur–Saturn; EHRLICH: bei unbekannter
+     Geburtszeit ist der Aszendent NULL und entfällt auf Poster+Druck — er
+     wechselt ~alle 2 h das Zeichen), Route `/api/western` (env-gated,
+     validiert), Hook `useWesternChart`, Design `western-zodiac`
+     (kind 'western', rein typografisch = druckfest, SONNEN-Block umrandet
+     als Kern), Registry+Picker automatisch, Druckzweig in fulfillment über
+     den Design-kind — Vorschau = Druck aus einer Quelle; Tierkreis- und
+     Planetennamen lokalisiert (posterLocale ZODIAC/PLANETS, 4 Sprachen).
+  3. *Daymaster-Umrandung (BaZi):* Tag-Säule (Index 2) auf klassik UND
+     paar-harmonie fein umrandet — „das Wichtigste"; TÜV asserted die Rahmen.
+  4. *Tier-Bezeichnung:* Jahres-Tier kehrt als eigene dezente Zeile unter dem
+     Tagesmeister-Kopf des Paar-Posters zurück + Tier-Zeile im Partner-Review
+     (supersedet die Batch-#4-not-PFERD-Assertion — dokumentiert).
+  5. *Ausführliche Erklärungen:* explain-Sektionen in den Reviews (Säulen,
+     Tagesmeister, fünf Elemente, Tierzeichen; Western: Sonne/Mond/Aszendent
+     inkl. ehrlicher ascUnknown-Hinweis) in EN/DE/FR/ES — reflektierend
+     formuliert, keine Wahrsagerei-Claims.
+  6. *Beweise:* fufire.test 14/14 (calculateWestern inkl. snake_case +
+     ASC-null), bazi-routes /api/western 4 Fälle, fulfillment western-Zweig,
+     Western-TÜV (Injektion, ASC-Entfall, Umrandung), jsdom-Flow-Test,
+     Live-E2E 8/8 (`personalize-western-live.png`).
+- **Operator-Batch #4 2026-07-14 (Paar-Visualisierung: Tagesmeister statt
+  Jahressäule + Kompatibilitäts-Erklärung):**
+  1. *EHRLICHKEITS-FUND (vom neuen Live-E2E aufgedeckt, vom Operator
+     vorhergesagt):* FuFirEs `chart.element/animal` sind die **JAHRES**-
+     Säulen-Werte, NICHT der Tagesmeister — Live-Diskrepanz 1988-03-02:
+     `chart.element='Erde'` (Jahr 戊辰 Erd-Drache) vs. `relation.elementB=
+     'Feuer'` (Tag 丙). Beim kanonischen Fall (Metall-Jahr UND Metall-Tag)
+     war das unsichtbar. Zusätzlich liefert `relation.dayMasterA/B` PINYIN
+     („Xin"/„Bing"), keine Glyphen.
+  2. *Korrekturen:* `stemElement()` in posterLocale (klassische FIXE
+     Stamm→Element-Zuordnung — reines Beschriftungs-Mapping, keine eigene
+     Engine; Säulen bleiben FuFirE-Quelle). Paar-Poster-KOPF zeigt jetzt je
+     Partner `Tag-Stamm-Glyphe · Tagesmeister-Element` (z. B. 辛 · METAL),
+     nicht mehr Element·Jahres-Tier; Fallback ohne dayMaster-Feld = alter
+     Kopf (Nachdrucke reproduzierbar). Review/Explainer nutzen überall die
+     GLYPHE aus pillars[2].stem + stemElement (nie Pinyin, nie chart.element).
+     Druck (fulfillment) identisch zur Vorschau. Einzel-Poster-Kopf bleibt
+     bewusst Jahres-Branding (Element·Tier des Jahres) — nur die
+     Tagesmeister-BESCHRIFTUNGEN sind korrigiert.
+  3. *Kompatibilitäts-Erklärung:* strukturierter compat-explainer unter den
+     eingetragenen Daten (Tagesmeister-Paarung, Fünf-Elemente-Beziehung in
+     Worten je wuxingRelation, 4 Sprachen) mit EHRLICHEM Rahmen-Satz
+     („symbolische Lesart … keine Bewertung eurer Beziehung").
+  4. *Beweise:* Live-Paar-E2E (Berlin×Lissabon): Poster-Kopf 辛·METAL &
+     丙·FIRE, Säulen A kanonisch + B live (Jahr 戊辰 bestätigt den Fund),
+     Relation „Fire controls Metal"; Pair-TÜV um dayMaster-Kopf +
+     Legacy-Fallback erweitert; Screenshot `personalize-couple-live.png`.
   `delta-poster-bg-palette.test.tsx` (AT-018-3 Cart-Line) und
   `personalization-passthrough.test.tsx` (AT-004-1 Paar) stammten aus der
   Vor-FuFirE-Zeit und liefen ins (gewollte) Ehrlichkeits-Gate — jetzt mocken

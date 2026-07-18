@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import SplitHero from '../components/home/SplitHero'
+import PersonalizeEntrySection from '../components/shop/PersonalizeEntrySection'
 import CatalogSection from '../components/shop/CatalogSection'
 import NewsletterSection from '../components/shop/NewsletterSection'
 import HowItWorksSection from '../components/shop/HowItWorksSection'
@@ -32,13 +33,13 @@ function ModuleAnchor({ id, children }: { id: string; children: ReactNode }) {
  * vom kritischen Pfad komplett).
  */
 function HeroSection() {
-  // 100dvh (nicht 100dvh−Header): Announcement-Bar + Header sind FIXED und
-  // nehmen keinen Fluss-Platz ein — der Hero füllt den ganzen Viewport, seine
-  // oberen ~106px liegen hinter der transparenten Leiste (wie zuvor beim
-  // InkWave-Hero). [REAL-BROWSER]-Beweis: hero-megamenu.spec.ts (Fund vom
-  // ersten Lauf: calc-Variante ließ Produkte in den ersten Screen ragen).
+  // Operator-Vorgabe 2026-07-13: die MENÜ-GRENZE ist die Hero-Grenze. App.tsx
+  // gibt jetzt auch Home das Kopf-Padding (Announcement 34px + Header 72px =
+  // 106px, s. ANNOUNCEMENT_HEIGHT/NAV_HEIGHT in App.tsx) — der Hero beginnt
+  // exakt an der Unterkante des Menüs und füllt den REST des ersten Screens
+  // (kein Produkt sichtbar, Abnahme §11 bleibt erfüllt).
   return (
-    <section id="hero" data-testid="home-viewport-hero" style={{ height: '100dvh', minHeight: 620, overflow: 'hidden' }}>
+    <section id="hero" data-testid="home-viewport-hero" style={{ height: 'calc(100dvh - 106px)', minHeight: 560, overflow: 'hidden' }}>
       <SplitHero />
     </section>
   )
@@ -70,6 +71,9 @@ export default function Home() {
   return (
     <main data-testid="home">
       <ModuleAnchor id="hero"><HeroSection /></ModuleAnchor>
+      {/* Operator 2026-07-13: die BaZi-Personalisierung steht im VORDERGRUND —
+          Schnellstart (Einzel + Paar-Kompatibilität) direkt nach dem Hero. */}
+      <ModuleAnchor id="personalize-entry"><PersonalizeEntrySection /></ModuleAnchor>
       <ModuleAnchor id="bestseller"><CatalogSection /></ModuleAnchor>
       <ModuleAnchor id="category-banners"><ShopByWorldSection /></ModuleAnchor>
       <ModuleAnchor id="editorial"><HowItWorksSection /></ModuleAnchor>

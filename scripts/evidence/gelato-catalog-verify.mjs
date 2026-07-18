@@ -1,15 +1,21 @@
 // [REAL-BOUNDARY-LIVE] — Gelato-Produktkatalog-Verifikation (Task 13 / RL-GELATO).
 //
-// Fragt mit echtem GELATO_API_KEY den Katalog nach gerahmten Postern in den
-// Shop-Größen (A3/A2/A1) und Rahmenfarben (Eiche natur / Schwarz matt) ab,
-// druckt die 6 verifizierten productUid-Zeilen zum Einfügen in
-// server/gelatoProducts.js und speichert die Katalog-Antwort als Artefakt.
+// Verifiziert mit echtem GELATO_API_KEY die 6 Shop-Kombinationen (A3/A2/A1 ×
+// Eiche natur/Schwarz matt) über die GEFILTERTE products:search des Katalogs
+// `framed-posters` (attributeFilters, KEIN Substring-Raten) und prüft, dass
+// die in server/gelatoProducts.js hinterlegte Tabelle exakt diesen Live-
+// Ergebnissen entspricht. Antworten werden als Artefakt gespeichert.
 //
-// EHRLICHKEITS-REGEL: Findet der Katalog eine Kombination NICHT, ist das ein
+// Fund 2026-07-13 (behoben): die frühere Substring-Suche traf den falschen
+// Katalog (fine-art-framed-poster) und verwechselte Zoll mit Zentimetern
+// („30x40-inch" ≠ A3) — deshalb jetzt ausschließlich Attribut-Filter.
+//
+// EHRLICHKEITS-REGEL: Weicht eine Kombination ab oder fehlt, ist das ein
 // LAUTER Launch-Blocker-Befund (Exit 1 + Ledger-RED) — niemals raten.
 //
 // Aufruf: GELATO_API_KEY=… node scripts/evidence/gelato-catalog-verify.mjs
 import { writeFileSync, mkdirSync } from 'node:fs'
+import { PRODUCT_UIDS } from '../../server/gelatoProducts.js'
 
 const KEY = process.env.GELATO_API_KEY
 if (!KEY) {
@@ -17,59 +23,51 @@ if (!KEY) {
   process.exit(2)
 }
 
-const BASE = 'https://product.gelatoapis.com/v3'
+const CATALOG = 'framed-posters'
+const SEARCH_URL = `https://product.gelatoapis.com/v3/catalogs/${CATALOG}/products:search`
 const headers = { 'X-API-KEY': KEY, 'Content-Type': 'application/json' }
 
-async function getJson(url, opts = {}) {
-  const res = await fetch(url, { headers, ...opts })
+// Shop-Achsen → Gelato-Attributwerte (bazi.ts frames[].name / sizes[].id).
+// Operator 2026-07-15: + cm-Formate der personalisierten Poster (12 Kombis).
+const SIZE_ATTR = { A3: 'a3', A2: 'a2', A1: 'a1', '30x40': '300x400-mm', '50x70': '500x700-mm', '70x100': '700x1000-mm' }
+const FRAME_ATTR = { 'Eiche natur': 'natural-wood', 'Schwarz matt': 'black' }
+
+async function search(size, color) {
+  const res = await fetch(SEARCH_URL, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ attributeFilters: { FrameSize: [size], FrameColor: [color], Orientation: ['ver'] }, limit: 50 }),
+  })
   const json = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(`${url} → ${res.status}: ${JSON.stringify(json).slice(0, 200)}`)
-  return json
+  if (!res.ok) throw new Error(`${SEARCH_URL} → ${res.status}: ${JSON.stringify(json).slice(0, 200)}`)
+  return (json.products || []).map((p) => p.productUid)
 }
 
-// 1. Kataloge listen, Framed-Poster-Katalog finden
-const catalogs = await getJson(`${BASE}/catalogs`)
-const list = Array.isArray(catalogs) ? catalogs : catalogs.data || []
-console.log('Kataloge:', list.map((c) => c.catalogUid || c.uid).join(', '))
-const framed = list.find((c) => /framed/i.test(c.catalogUid || c.uid || ''))
-if (!framed) {
-  console.error('BEFUND: kein framed-poster-Katalog gefunden — Operator-Entscheidung nötig (Ledger-RED).')
-  process.exit(1)
-}
-const catalogUid = framed.catalogUid || framed.uid
-
-// 2. Produkte im Katalog nach Größe/Rahmen filtern (Attribut-Namen variieren —
-//    deshalb speichern wir die ROHE Attributliste als Artefakt und suchen tolerant).
-const detail = await getJson(`${BASE}/catalogs/${catalogUid}`)
 const stamp = new Date().toISOString().slice(0, 10)
 mkdirSync('docs/evidence/fufire-gelato', { recursive: true })
-writeFileSync(`docs/evidence/fufire-gelato/${stamp}-gelato-catalog-${catalogUid}.json`, JSON.stringify(detail, null, 2))
-console.log(`Katalog-Detail gespeichert. Attribute:`, (detail.productAttributes || []).map((a) => a.productAttributeUid).join(', '))
 
-// 3. Kandidaten-Suche pro Kombination über die products/search-API
-const SIZES = { A3: ['297x420', 'a3', '30x40'], A2: ['420x594', 'a2', '40x60'], A1: ['594x841', 'a1', '60x90'] }
-const FRAMES = { 'Eiche natur': ['oak', 'natural-wood', 'wood'], 'Schwarz matt': ['black'] }
-const found = {}
-for (const [sizeId, sizeHints] of Object.entries(SIZES)) {
-  for (const [frameName, frameHints] of Object.entries(FRAMES)) {
-    const search = await getJson(`${BASE}/catalogs/${catalogUid}/products:search`, {
-      method: 'POST',
-      body: JSON.stringify({ limit: 50 }),
-    }).catch((e) => ({ error: e.message }))
-    const products = search.products || []
-    const hit = products.find((p) => {
-      const uid = String(p.productUid || '')
-      return sizeHints.some((h) => uid.includes(h)) && frameHints.some((h) => uid.includes(h))
-    })
-    if (hit) {
-      found[`${sizeId}|${frameName}`] = hit.productUid
+const evidence = {}
+let failures = 0
+for (const [sizeId, sizeAttr] of Object.entries(SIZE_ATTR)) {
+  for (const [frameName, colorAttr] of Object.entries(FRAME_ATTR)) {
+    const key = `${sizeId}|${frameName}`
+    const expected = PRODUCT_UIDS[key]
+    const live = await search(sizeAttr, colorAttr)
+    const verified = Boolean(expected) && live.includes(expected)
+    evidence[key] = { expected: expected || null, live_verified: verified, live_candidates: live.length }
+    if (verified) {
+      console.log(`OK    ${key}`)
     } else {
-      console.error(`BEFUND: keine productUid für ${sizeId} + ${frameName} in den ersten 50 — Suche im Artefakt-JSON verfeinern oder Operator entscheidet.`)
+      failures += 1
+      console.error(`BEFUND ${key}: hinterlegte UID ${expected ? 'NICHT im Live-Katalog' : 'FEHLT in PRODUCT_UIDS'} (${live.length} Live-Kandidaten) — Operator entscheidet.`)
     }
   }
 }
 
-console.log('\n── In server/gelatoProducts.js PRODUCT_UIDS einfügen: ──')
-for (const [k, v] of Object.entries(found)) console.log(`  '${k}': '${v}',`)
-writeFileSync(`docs/evidence/fufire-gelato/${stamp}-gelato-uid-mapping.json`, JSON.stringify(found, null, 2))
-process.exit(Object.keys(found).length === 6 ? 0 : 1)
+writeFileSync(
+  `docs/evidence/fufire-gelato/${stamp}-gelato-uid-mapping.json`,
+  JSON.stringify({ catalog: CATALOG, verified_at: stamp, mapping: evidence }, null, 2),
+)
+const total = Object.keys(SIZE_ATTR).length * Object.keys(FRAME_ATTR).length
+console.log(failures === 0 ? `\nAlle ${total} Kombinationen LIVE-VERIFIZIERT — Artefakt gespeichert.` : `\n${failures} Kombination(en) NICHT verifiziert — Ledger-RED.`)
+process.exit(failures === 0 ? 0 : 1)
