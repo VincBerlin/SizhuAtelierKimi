@@ -344,8 +344,11 @@ describe('REQ-004 / AT-004-1 (couple) — person B noon-fallback provenance reac
     fireEvent.click(screen.getByTestId('unknown-time-b'))
 
     // Exaktes Paar-Chart abwarten (Debounce + /api/match-Mock) — erst dann
-    // lässt das Ehrlichkeits-Gate den Kauf zu.
-    await waitFor(() => expect(screen.getAllByText('庚').length).toBeGreaterThan(0), { timeout: 5000 })
+    // lässt das Ehrlichkeits-Gate den Kauf zu. Supersession (Batch #12 R4, #7):
+    // Ready-Signal ist die stabile partner-review-testid — die Seite trägt
+    // jetzt Empfehlungs-Thumbnails mit eigenen Glyphen, eine seitenweite
+    // Glyphen-Zählung ist kein verlässliches Signal mehr.
+    await screen.findByTestId('partner-review-a', undefined, { timeout: 5000 })
 
     // Operator 2026-07-14: Partner-Review mit den KORREKTEN Daten + je
     // Tagesmeister, plus strukturierte Kompatibilitäts-Erklärung mit dem

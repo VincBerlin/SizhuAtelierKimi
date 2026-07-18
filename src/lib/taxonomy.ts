@@ -31,7 +31,9 @@
 // all of the above so a future edit cannot silently smuggle in fake data.
 import type { ProductWorld, DesignFamily } from './catalog'
 import type { CollectionSlug } from './collections'
-import { sizes } from './bazi'
+// Batch #12 R4 (#10): EIN Format-System — die Größen-Achse zeigt die
+// cm-Formate der Personalisierung/Gelato (nicht mehr die A-Serie).
+import { personalizedSizes as sizes } from './bazi'
 
 // ── Link model ────────────────────────────────────────────────────────────────
 // A taxonomy entry never carries a raw URL; it carries a typed link that

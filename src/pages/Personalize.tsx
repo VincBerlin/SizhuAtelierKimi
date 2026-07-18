@@ -6,6 +6,7 @@ import { type PlaceCandidate } from '../lib/baziClient'
 import { useBaziChart, usePairChart, useWesternChart } from '../hooks/useBaziChart'
 import { usePlaceResolution, type PlaceStatus } from '../hooks/usePlaceResolution'
 import PosterSvg from '../components/shop/PosterSvg'
+import { PersonalizeTrustRow, PersonalizeFaq, PersonalizeCrossSells } from '../components/shop/PersonalizeInfoSections'
 import { DESIGNS } from '../designs/registry.mjs'
 import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement, zodiacName, planetName } from '../designs/posterLocale.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
@@ -266,6 +267,9 @@ export default function Personalize() {
       personalization.palette = bg.name
       // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
       personalization.size = size.label
+      // Kanonische Format-ID zusätzlich zum Label (R4 #10): der Druckpfad
+      // (fulfillment → PRINT_SPECS/Gelato) mappt über die ID, nie übers Label.
+      personalization.sizeId = size.id
       personalization.pdfAddon = String(!def.pdfIncluded && pdfAddon)
     }
     const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? size.label : null]
@@ -326,6 +330,30 @@ export default function Personalize() {
               </div>
             )}
           </div>
+          {/* R4 (#7): Rahmen-ANSICHTEN — beide Rahmen als klickbare Kacheln aus
+              derselben Design-Quelle (kein Fake-Mockup); Klick wechselt den
+              Rahmen der Hauptvorschau. */}
+          {def.poster && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
+              {frames.map((f) => {
+                const sel = f.hex === frameHex
+                return (
+                  <button
+                    key={f.hex}
+                    type="button"
+                    data-testid="frame-view"
+                    aria-pressed={sel}
+                    onClick={() => setFrameHex(f.hex)}
+                    style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: '#fff', padding: 8, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}
+                  >
+                    <PosterSvg data={previewData} designId={designId} frameName={f.name} testId={`frame-view-preview-${f.name}`} />
+                    <div style={{ marginTop: 6 }}>{t(`options.frames.${f.hex}`)}</div>
+                    {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
+                  </button>
+                )
+              })}
+            </div>
+          )}
           <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('personalize.previewCertainty')}</p>
           {activeStatus === 'loading' && (
             <p data-testid="chart-status-loading" style={{ fontSize: 12, color: C.textMuted3, margin: '6px 2px 0' }}>{t('personalize.chartLoading')}</p>
@@ -648,8 +676,17 @@ export default function Personalize() {
           <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
             {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {money(price)}</>}
           </button>
+
+          {/* R4 (#7): einheitliche PDP-Struktur — Trust-Zeile + Details/
+              Material/Formate/Versand/Personalisierung (gleiche faqDefs wie
+              die Katalog-PDP, EINE Quelle). */}
+          <PersonalizeTrustRow />
+          <PersonalizeFaq />
         </div>
       </div>
+
+      {/* R4 (#7/#11): Empfehlungen — echte Links auf aktive Katalogprodukte. */}
+      <PersonalizeCrossSells />
     </main>
   )
 }

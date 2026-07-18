@@ -62,12 +62,14 @@ describe('M10 / REQ-006 — desktop mega-menu renders all six taxonomy axes', ()
     }
   })
 
-  it('the SIZE axis (M11 stop-gate) shows A3/A2/A1 and marks them non-final', async () => {
+  it('the SIZE axis (M11 stop-gate) shows the cm formats and marks them non-final', async () => {
+    // Supersession (Batch #12 R4, #10): A3/A2/A1 → 30 × 40 / 50 × 70 /
+    // 70 × 100 — EIN Format-System (Personalisierung/Gelato) überall.
     const panel = await openMega()
     const size = within(panel).getByTestId('mega-axis-size')
     const items = within(size).getAllByTestId('mega-axis-item')
     const labels = items.map((el) => el.textContent ?? '')
-    for (const code of ['A3', 'A2', 'A1']) {
+    for (const code of ['30 × 40', '50 × 70', '70 × 100']) {
       expect(labels.some((l) => l.includes(code)), `size ${code} present`).toBe(true)
     }
     // every size item is flagged non-final (OQ-001) — no fake launch-final size

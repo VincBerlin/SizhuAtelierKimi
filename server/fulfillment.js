@@ -15,6 +15,7 @@
 import { randomUUID } from 'node:crypto'
 import { productUidFor } from './gelatoProducts.js'
 import { shippingAddressFromSession } from './gelato.js'
+import { resolvePrintSizeId } from './printSpecs.js'
 // Geteilte Poster-Lokalisierung (EINE Quelle mit der Browser-Vorschau —
 // Operator-Fund 2026-07-13: Druck/Vorschau zeigten Element/Tier immer deutsch,
 // unabhängig von der gewählten Poster-Sprache).
@@ -145,12 +146,18 @@ export async function fulfillOrder({ session, personalization, deps }) {
         result.printed.push({ lineKey, reused: true })
         continue
       }
+      // Batch #12 R4 (#10): neue Lines tragen die kanonische ID in p.sizeId;
+      // p.size ist das ANZEIGE-Label („50 × 70") — ältere Lines nur das Label.
+      // resolvePrintSizeId normalisiert beides auf die PRINT_SPECS-/Gelato-ID.
+      // Unbekannte Formate scheitern HIER laut — nie eine stille Zuordnung.
+      const sizeId = resolvePrintSizeId(p.sizeId || p.size)
+      if (!sizeId) throw new Error(`Unknown print size: ${p.size}`)
       const { data, provenance } = await posterDataFrom(p, fufire)
-      const pdf = await renderPdf({ designId: p.designId, data, sizeId: p.size })
+      const pdf = await renderPdf({ designId: p.designId, data, sizeId })
       const token = randomUUID()
       await pool.query(
         'INSERT INTO prints (stripe_session, line_key, token, design_id, size_id, pdf) VALUES ($1,$2,$3,$4,$5,$6)',
-        [session.id, lineKey, token, p.designId, p.size, pdf],
+        [session.id, lineKey, token, p.designId, sizeId, pdf],
       )
       result.printed.push({ lineKey, token, bytes: pdf.length, provenance })
     } catch (e) {

@@ -25,7 +25,11 @@ import {
 } from '../../src/lib/taxonomy'
 import { PRODUCT_WORLDS, DESIGN_FAMILIES, products } from '../../src/lib/catalog'
 import { COLLECTION_SLUGS } from '../../src/lib/collections'
-import { sizes } from '../../src/lib/bazi'
+// Supersession (Batch #12 R4, Bereich 10): EIN Format-System — die Größen-Achse
+// zeigt die realen cm-Formate der Personalisierung (Gelato-live-verifiziert,
+// server/printSpecs.js), nicht mehr die A-Serie. STOP-001 (keine erfundenen
+// Formate) bleibt der Vertrag: gepinnt wird weiter GEGEN die bazi.ts-Quelle.
+import { personalizedSizes as sizes } from '../../src/lib/bazi'
 
 const allEntries: TaxonomyEntry[] = TAXONOMY_AXES.flatMap((a) => [...TAXONOMY[a]])
 const realUseCases = new Set(products.map((p) => p.use_case))
@@ -60,9 +64,11 @@ describe('M9 · STOP-001 no fake sizes', () => {
     expect(TAXONOMY.size.map((e) => e.id)).toEqual(sizes.map((s) => s.id))
   })
 
-  it('is exactly the three real A3/A2/A1 formats (literal pin — catches a fake size added upstream)', () => {
-    expect(TAXONOMY.size.map((e) => e.id)).toEqual(['A3', 'A2', 'A1'])
-    expect(sizes.map((s) => s.id)).toEqual(['A3', 'A2', 'A1'])
+  it('is exactly the three real cm formats (literal pin — catches a fake size added upstream)', () => {
+    // Supersession (Batch #12 R4, #10): A3/A2/A1 → 30x40/50x70/70x100 — die
+    // Gelato-verifizierten Formate der Personalisierung, überall EIN System.
+    expect(TAXONOMY.size.map((e) => e.id)).toEqual(['30x40', '50x70', '70x100'])
+    expect(sizes.map((s) => s.id)).toEqual(['30x40', '50x70', '70x100'])
   })
 
   it('every size entry is flagged non-final against OQ-001', () => {

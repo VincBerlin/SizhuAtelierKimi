@@ -4,9 +4,12 @@ import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
-import { getProduct, products, faqDefs } from '../lib/catalog'
+import { getProduct, products, activeProducts, faqDefs } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
-import { computeChart, sizes, type PosterData } from '../lib/bazi'
+// Batch #12 R4 (#10): EIN Format-System — auch Katalog-PDPs verkaufen die
+// cm-Formate (30×40/50×70/70×100); die A-Serie bleibt nur server-seitig für
+// Alt-Warenkörbe gültig (pricing.js kennt beide).
+import { computeChart, personalizedSizes as sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
@@ -25,7 +28,7 @@ export default function ProductView() {
   // M13 / REQ-008/028 — size for the NON-personalizable PDP path (ready-to-ship
   // SKUs). Personalizable products carry size in the configurator (cfg.size).
   // Size availability/pricing stays NON-FINAL (OQ-001).
-  const [pdpSize, setPdpSize] = useState('A2')
+  const [pdpSize, setPdpSize] = useState('50x70')
 
   const prod = getProduct(Number(id)) ?? products[0]
   // Batch #12 (#4/#14): stillgelegte Personalisierungs-Duplikate leiten auf die
@@ -44,7 +47,7 @@ export default function ProductView() {
   // catalog's placeholder `rating`/`reviews` are never surfaced as social proof.
   const showReviews = REVIEWS_ENABLED && prod.reviews > 0
 
-  useEffect(() => { window.scrollTo(0, 0); setPdpSize('A2') }, [id])
+  useEffect(() => { window.scrollTo(0, 0); setPdpSize('50x70') }, [id])
 
   // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
   // the resolved product id so it fires once per product view, not per re-render.
@@ -65,7 +68,9 @@ export default function ProductView() {
   const livePrice = prod.price + size.delta
   const liveAnchor = prod.anchor != null ? prod.anchor + size.delta : null
   const starPct = (prod.rating / 5) * 100 + '%'
-  const related = products.filter((p) => p.id !== prod.id).slice(0, 3)
+  // Batch #12 R4 (#11/#15): Empfehlungen NUR aus aktiven Produkten — die
+  // soft-retirten BaZi-Duplikate (R2) erschienen hier weiter als Karten.
+  const related = activeProducts.filter((p) => p.id !== prod.id).slice(0, 3)
   // Breadcrumb trail: Home → the product's world collection → this product. The
   // world→slug map points only at EXISTING /collections routes (no dead link).
   const worldSlug: Record<string, string> = { bazi: 'bazi-posters', tcm: 'tcm-posters', wuxing: 'wuxing-posters' }
@@ -103,7 +108,8 @@ export default function ProductView() {
     // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
     // place/date/time + the canonical birthTimeUnknown flag are carried so the
     // planned calculation API can dock without loss (REQ-004 AK-1).
-    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
+    // sizeId zusätzlich zum Label (R4 #10): der Druckpfad mappt über die ID.
+    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label, sizeId: size.id }
     addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }

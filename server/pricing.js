@@ -37,7 +37,10 @@ const PTYPE_BASE_EUR = {
   birthchart: 49,
   couple: 69,
   digital: 195, // Operator 2026-07-15: Premium-Analyse (vorher 39-€-Platzhalter)
-  bundle: 79,
+  // Operator 2026-07-18 (R3-Frage 1): Bundle = Poster-Basis + rabattiertes
+  // PDF-Add-on (49 + 146,25) — ABGELEITET, damit beide Kaufwege identisch
+  // bepreist sind (Spiegel: productTypes.ts; Parity-Test koppelt 1:1).
+  bundle: 49 + 146.25,
 }
 // Which product types are physical posters (carry size/pdf axes) vs digital-only.
 const PTYPE_IS_POSTER = { bazi: true, birthchart: true, couple: true, digital: false, bundle: true }

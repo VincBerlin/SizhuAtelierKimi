@@ -121,6 +121,28 @@ describe('fulfillOrder', () => {
     expect(r2.failed).toHaveLength(0)
   })
 
+  it('Batch#12 R4 (#10): akzeptiert das ANZEIGE-Label als Format („50 × 70") und speichert die kanonische size_id', async () => {
+    // Der Live-Personalize-Flow schreibt personalization.size = size.LABEL
+    // („50 × 70"), PRINT_SPECS ist aber über IDs („50x70") gekeyt — vor R4
+    // wäre JEDE echte personalisierte Bestellung hier mit „Unknown print
+    // size" gescheitert. resolvePrintSizeId (printSpecs.js) normalisiert;
+    // unbekannte Formate bleiben ein LAUTER Fehler (nie stille Zuordnung).
+    const pool = fakePool()
+    const deps = { pool, fufire: fufireStub, renderPdf: renderPosterPdf, gelato: null, publicUrl: 'https://shop.test' }
+    const labelLine = { ...P_LINE, size: '50 × 70' }
+    const r = await fulfillOrder({ session: { ...session, id: 'cs_label_1' }, personalization: { line1: labelLine }, deps })
+    expect(r.failed).toHaveLength(0)
+    expect(r.printed).toHaveLength(1)
+    expect(pool.prints[0].size_id).toBe('50x70')
+    expect(pool.prints[0].pdf.subarray(0, 5).toString()).toBe('%PDF-')
+
+    // Unbekanntes Format → lauter Fehler, kein Druck (nie falsche Zuordnung).
+    const badLine = { ...P_LINE, size: 'B1 Riesig' }
+    const rBad = await fulfillOrder({ session: { ...session, id: 'cs_label_2' }, personalization: { line1: badLine }, deps })
+    expect(rBad.failed).toHaveLength(1)
+    expect(rBad.printed).toHaveLength(0)
+  })
+
   it('marks failure loudly when fufire is down (no silent wrong print)', async () => {
     const pool = fakePool()
     const failing = { ...fufireStub, calculateBazi: async () => { throw new Error('down') } }

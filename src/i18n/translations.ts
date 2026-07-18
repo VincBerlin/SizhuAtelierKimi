@@ -364,7 +364,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       ],
       faqDefs: {
         details: { q: 'Details & material', a: 'Museum-quality matte paper (200 g/m²) in a solid wood frame (12×22 mm) with protective plexiglass. Each poster is numbered in the atelier.' },
-        size: { q: 'Size guide', a: 'A3 (30×42 cm) for nooks & shelves, A2 (42×59 cm) the versatile standard for practice walls, A1 (59×84 cm) for big distance impact in reception or waiting areas.' },
+        size: { q: 'Size guide', a: '30 × 40 cm for nooks & shelves, 50 × 70 cm the versatile standard for practice walls, 70 × 100 cm for big distance impact in reception or waiting areas.' },
         ship: { q: 'Shipping & production', a: 'Production in 3 business days, then climate-neutral shipping (DE 1–2 days). Free shipping over €80. Personalized items are made to order — see our Return Policy; your statutory rights apply for faulty items.' },
         bazi: { q: 'About your personalization', a: 'From the date, time and place you enter, we compose a symbolic Four Pillars layout with heavenly stems and earthly branches. If you don’t know your birth time, we use 12:00 noon as the default assumption — this can influence the result.' },
       },
@@ -725,7 +725,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       ],
       faqDefs: {
         details: { q: 'Details & Material', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen (12×22 mm) mit schützendem Plexiglas. Jedes Poster wird im Atelier nummeriert.' },
-        size: { q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
+        size: { q: 'Größenberater', a: '30 × 40 cm für Nischen & Regale, 50 × 70 cm als vielseitiger Standard für Praxiswände, 70 × 100 cm für große Fernwirkung im Empfangs- oder Wartebereich.' },
         ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 75 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
         bazi: { q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
       },
@@ -1086,7 +1086,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       ],
       faqDefs: {
         details: { q: 'Détails & matériau', a: 'Papier mat qualité musée (200 g/m²) dans un cadre en bois massif (12×22 mm) avec plexiglas de protection. Chaque poster est numéroté à l’atelier.' },
-        size: { q: 'Guide des tailles', a: 'A3 (30×42 cm) pour niches & étagères, A2 (42×59 cm) le standard polyvalent pour les murs de cabinet, A1 (59×84 cm) pour une forte présence en accueil ou salle d’attente.' },
+        size: { q: 'Guide des tailles', a: '30 × 40 cm pour niches & étagères, 50 × 70 cm le standard polyvalent pour les murs de cabinet, 70 × 100 cm pour une forte présence en accueil ou salle d’attente.' },
         ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 75 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
         bazi: { q: 'À propos de votre personnalisation', a: 'À partir de la date, de l’heure et du lieu que vous saisissez, nous composons une mise en page symbolique des quatre piliers avec troncs célestes et branches terrestres. Si vous ne connaissez pas votre heure de naissance, nous utilisons 12 h (midi) par défaut — cela peut influencer le résultat.' },
       },
@@ -2309,7 +2309,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         },
         size: {
           q: 'Guía de tamaños',
-          a: 'A3 (30×42 cm) para rincones y estanterías, A2 (42×59 cm) el estándar versátil para las paredes de la consulta, A1 (59×84 cm) para gran impacto a distancia en recepción o salas de espera.'
+          a: '30 × 40 cm para rincones y estanterías, 50 × 70 cm el estándar versátil para las paredes de la consulta, 70 × 100 cm para gran impacto a distancia en recepción o salas de espera.'
         },
         ship: {
           q: 'Envío y producción',

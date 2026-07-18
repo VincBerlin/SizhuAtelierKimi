@@ -60,8 +60,10 @@ describe('[REAL-BOUNDARY-jsdom] R3 #5 — alle fünf Angebote auf der einen Pers
     await ui()
     fireEvent.click(screen.getByRole('button', { name: /Premium Analysis PDF/ }))
     // Poster-only-Achsen: Design-Block + Format-Auswahl dürfen nicht erscheinen.
+    // (Als BUTTON gescoped — das Mega-Menü trägt seit R4 dieselben cm-Formate
+    // als Links in der Größen-Achse.)
     expect(screen.queryByText('4 · Design')).toBeNull()
-    expect(screen.queryByText(/50 × 70/)).toBeNull()
+    expect(screen.queryByRole('button', { name: /50 × 70/ })).toBeNull()
     expect(screen.queryByTestId('design-swatch')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /Couple Compatibility Poster/ }))
     expect(screen.getByTestId('place-of-birth-input-b')).toBeInTheDocument()

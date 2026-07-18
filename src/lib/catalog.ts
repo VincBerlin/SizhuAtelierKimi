@@ -353,7 +353,9 @@ export const shopFaqs: ShopFaq[] = [
 
 export const faqDefs: FaqDef[] = [
   { id: 'details', q: 'Details & Material', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen (12×22 mm) mit schützendem Plexiglas. Jedes Poster wird im Atelier nummeriert.' },
-  { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
+  // Batch #12 R4 (#10): EIN Format-System — der Berater beschreibt die
+  // cm-Formate (Gelato-verifiziert), nicht mehr die abgelöste A-Serie.
+  { id: 'size', q: 'Größenberater', a: '30 × 40 cm für Nischen & Regale, 50 × 70 cm als vielseitiger Standard für Praxiswände, 70 × 100 cm für große Fernwirkung im Empfangs- oder Wartebereich.' },
   { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie.' },
   { id: 'bazi', q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
 ]

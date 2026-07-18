@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { computeChart, defaultCfg, sizes, type CfgState, type PosterData } from '../lib/bazi'
+import { computeChart, defaultCfg, personalizedSizes, type CfgState, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { getProduct, type Addon, type Bundle } from '../lib/catalog'
 import { FREE_SHIP_THRESHOLD } from '../lib/tokens'
@@ -81,7 +81,12 @@ const ShopContext = createContext<ShopValue | null>(null)
 export function ShopStoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>(loadCart)
   const [cartOpen, setCartOpen] = useState(false)
-  const [cfg, setCfgState] = useState<CfgState>(defaultCfg)
+  // Batch #12 R4 (#10): EIN Format-System überall — die UI bietet nur noch die
+  // cm-Formate (30×40/50×70/70×100, wie /personalize + Gelato). defaultCfg
+  // (bazi.ts, geschützte Fläche) bleibt unangetastet; der Default wird hier am
+  // Consumer auf das kanonische Mittel-Format gesetzt. Alte A-Serien-Carts
+  // bleiben server-seitig gültig (pricing.js kennt beide Systeme).
+  const [cfg, setCfgState] = useState<CfgState>({ ...defaultCfg, size: '50x70' })
   const [openFaqId, setOpenFaqId] = useState('details')
   const [newsletterDone, setNewsletterDone] = useState<Record<string, boolean>>({})
   const [newsletterEmail, setNewsletterEmail] = useState<Record<string, string>>({})
@@ -143,7 +148,7 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
       addCurrent: (productId) => {
         const prod = getProduct(productId)
         if (!prod) return
-        const size = sizes.find((z) => z.id === cfg.size) ?? sizes[1]
+        const size = personalizedSizes.find((z) => z.id === cfg.size) ?? personalizedSizes[1]
         // An empty time means the buyer did not provide a birth time → disclosed
         // noon fallback (REQ-018). Thread place + the unknown flag through to the
         // placeholder chart (accepted, not used to vary it) and the metadata.
@@ -157,7 +162,9 @@ export function ShopStoreProvider({ children }: { children: ReactNode }) {
           date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, place: cfg.place, name: cfg.name || '',
           birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime,
           timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason,
-          frame: cfg.frameName, bg: cfg.bgName, size: size.label,
+          // sizeId zusätzlich zum Label: der Druck (fulfillment) mappt über die
+          // kanonische ID auf PRINT_SPECS/Gelato (R4 #10 — nie falsche Zuordnung).
+          frame: cfg.frameName, bg: cfg.bgName, size: size.label, sizeId: size.id,
         }
         addLine({
           title: prod.title, price: prod.price + size.delta, qty: 1, poster,

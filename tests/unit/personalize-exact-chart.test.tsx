@@ -56,11 +56,17 @@ beforeEach(() => {
 })
 
 describe('Personalize exact chart', () => {
-  it('shows honest em-dash pillars (no glyphs) before birth data is complete', async () => {
+  // Supersession (Batch #12 R4, #7): die Seite trägt jetzt PDP-Empfehlungen
+  // mit Katalog-Poster-Thumbnails, die (wie überall im Shop) eigene Glyphen
+  // zeigen. Der OQ-004-Ehrlichkeitsvertrag gilt der VORSCHAU DES KÄUFERS —
+  // die Assertions sind daher auf das Preview-Modul gescoped, und das
+  // „Chart fertig"-Signal ist die stabile chart-review-testid statt einer
+  // seitenweiten Glyphen-Zählung.
+  it('shows honest em-dash pillars (no glyphs) in the PREVIEW before birth data is complete', async () => {
     ui()
-    await screen.findByTestId('poster-preview-sticky')
-    expect(screen.queryByText('庚')).toBeNull()
-    expect(screen.queryByText('辛')).toBeNull()
+    const preview = await screen.findByTestId('poster-preview-sticky')
+    expect(within(preview).queryByText('庚')).toBeNull()
+    expect(within(preview).queryByText('辛')).toBeNull()
   })
 
   it('renders the EXACT pillars from the API once birth data + resolved place are set', async () => {
@@ -75,9 +81,10 @@ describe('Personalize exact chart', () => {
     fireEvent.change(date, { target: { value: '1990-06-15' } })
     fireEvent.change(time, { target: { value: '12:30' } })
 
-    await waitFor(() => expect(screen.getAllByText('庚').length).toBeGreaterThan(0), { timeout: 5000 })
-    for (const glyph of ['壬', '辛', '乙', '亥', '未']) {
-      expect(screen.getAllByText(glyph).length).toBeGreaterThan(0)
+    await screen.findByTestId('chart-review', undefined, { timeout: 5000 })
+    const preview = screen.getByTestId('poster-preview-sticky')
+    for (const glyph of ['庚', '壬', '辛', '乙', '亥', '未']) {
+      expect(within(preview).getAllByText(glyph).length).toBeGreaterThan(0)
     }
     // Operator 2026-07-13: Poster-Texte folgen der GEWÄHLTEN Poster-Sprache —
     // UI läuft EN, posterLang defaultet auf EN → Horse/Metal (FuFirE liefert

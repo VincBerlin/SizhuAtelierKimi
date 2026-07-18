@@ -19,11 +19,11 @@ keine Duplikate · bestehende funktionierende Features dürfen nicht brechen.
 | 4 | Navigation/Kollektionen bereinigen … | ✅ R2 (Soft-Retire 1–6+15; Gifts/Zubehör raus aus UI+Suche+Nav; Legacy-Slugs & /product-Links = Redirects, keine 404; Preise für Alt-Warenkörbe erhalten) |
 | 5 | EINE zentrale Personalisierungsseite mit 5 Angeboten (BaZi, Geburtschart, Paar, Premium-Analyse, Poster+Analyse) | ✅ R3 (alle 5 Typen auf /personalize mit Preisen; /digital-Seite ENTFERNT → Redirect /personalize?type=digital — sie verkaufte die 195-€-Analyse OHNE Geburtsdaten; b-digital-Bundle-Karte kauft nicht mehr direkt, sondern verlinkt in den Flow; Taxonomie/Suche/Kollektions-Karten deep-linken auf die Typen; Browser-verifiziert 375/768/1280) |
 | 6 | Geburtschart-Präsentation (Poster+Rahmen+Hintergrund als EIN Modul) in Personalisierungsseite; Sticky bezieht sich auf den ganzen Produktcontainer, hängt nicht am Hero | ✅ R3 (.personalize-scene: Poster+Realrahmen auf Wandfläche als EIN Modul; Sticky-Offset 96→106px — stand 10px UNTER der fixen 106px-Kopfleiste; Sticky-Container opak (maskiert durchscrollende Karten), klebt als Grid-Kind über die volle Produktcontainer-Höhe; Screenshots sticky-desktop/mobile) |
-| 7 | Einheitliche PDP-Struktur AUCH für personalisierte Produkte (Mockups, Details, Material, Rahmenansichten, Formate, Beschreibung, Liefer-/Produktions-/Personalisierungs-Infos, Empfehlungen) | ☐ |
+| 7 | Einheitliche PDP-Struktur AUCH für personalisierte Produkte (Mockups, Details, Material, Rahmenansichten, Formate, Beschreibung, Liefer-/Produktions-/Personalisierungs-Infos, Empfehlungen) | ✅ R4 (/personalize trägt die PDP-Bausteine aus DENSELBEN Quellen wie die Katalog-PDP: faqDefs-Accordion Details/Material·Größen·Versand/Produktion·Personalisierung, klickbare Rahmen-ANSICHTEN beider Rahmen im Präsentationsmodul, Trust-Zeile, Empfehlungen mit aktiven Produkten — PersonalizeInfoSections.tsx; Browser-verifiziert 375/768/1280) |
 | 8 | Premium-Analyse-Formular reparieren: Felder dynamisch je Option, Pflichtfelder markiert, kein Datenverlust bei Optionswechsel, Daten in Cart+Order, Order-Gate ohne Pflichtdaten | ✅ R3 (Pflichtfeld-Sternchen + Legende + aria-required; Datenerhalt beim Typwechsel test-bewiesen; SERVER-Order-Gate neu: /api/checkout → 400 für ptype:*/digital:*/bundle:b-digital ohne vollständige Geburtsdaten, VOR Stripe — server/personalizationGate.js, 9 Tests; Client-Gate cartHasIncompletePersonalization gleichgezogen: Line ganz ohne personalization gilt als unvollständig) |
 | 9 | Gelato-Automatisierung für ALLE Poster (auch nicht-personalisierte): PDF je Produkt/Variante bestimmen+validieren, übertragen, Status speichern, Retry, Doppel-Produktion verhindert, nie falsche Zuordnung | ☐ |
-| 10 | Posterformate überall vereinheitlichen (Namen, Maße, Ausrichtung, Auswahl, Varianten, Vorschau, Cart, Gelato-/PDF-Zuordnung) | ☐ |
-| 11 | „Wird oft zusammen gekauft" auf JEDER Produktseite (passend, existent, mobil bedienbar) | ☐ |
+| 10 | Posterformate überall vereinheitlichen (Namen, Maße, Ausrichtung, Auswahl, Varianten, Vorschau, Cart, Gelato-/PDF-Zuordnung) | ✅ R4 (EIN Format-System 30×40/50×70/70×100 in Konfigurator, PDP-Selektor, Taxonomie/Mega-Menü, Größenberater-Texte in 4 Sprachen; A-Serie bleibt NUR server-seitig für Alt-Warenkörbe/Reprints gültig. KRITISCHER FUND: fulfillment übergab das size-LABEL („50 × 70") an PRINT_SPECS/Gelato (IDs) — jede echte personalisierte Bestellung wäre am PDF-Schritt gescheitert; Fix: resolvePrintSizeId (printSpecs.js, laut bei Unbekanntem) + kanonische sizeId in jeder personalization, test-bewiesen) |
+| 11 | „Wird oft zusammen gekauft" auf JEDER Produktseite (passend, existent, mobil bedienbar) | ◐ R4 (/personalize hat Empfehlungen; PDP-Empfehlungen zeigten noch soft-retirte SKUs → auf activeProducts fixiert, test-gepinnt; „passende" Kuratierung je Produkt folgt) |
 | 12 | Neuheiten/Alle ansehen/Editions/Aktionen: Karten, Links, Bilder, Buttons, Hover vereinheitlichen; keine leeren/doppelten/toten Inhalte | ☐ |
 | 13 | Warenkorb-Badge direkt am Icon (gemeinsame Komponente, positionsstabil, korrekt bei 0 und hohen Zahlen) | ✅ R1 (Icon-Block, 99+-Kappung, kein Badge bei 0) |
 | 14 | Doppelte Inhalte vollständig entfernen … | ◐ R2 (Kategorien/Produkte/Links/Karten/Suche ✓; API-/Gelato-Dubletten in R-Gelato) · R3: /digital- und b-digital-Kaufpfad-Dubletten entfernt; Geschenk-Sucheinträge (zeigten auf entfernte Kollektion) bereinigt |
@@ -31,12 +31,13 @@ keine Duplikate · bestehende funktionierende Features dürfen nicht brechen.
 
 ## Offene Operator-Fragen (aus R3 — Preise/Claims sind Operator-Sache, nicht eigenmächtig geändert)
 
-1. **Preis-Widerspruch Poster+Analyse:** Der Personalize-Typ `bundle`
-   („Poster + Analyse", PDF inklusive) kostet **79 €** — derselbe Inhalt als
-   Poster (49 €) + PDF-Add-on (146,25 €) kostet **195,25 €**. Beide Pfade sind
-   live und server-bepreist (server/pricing.js spiegelt productTypes.ts).
-   Operator-Entscheid nötig: Bundle-Preis anheben, Add-on-Preis senken, oder
-   Bundle als bewusstes Einstiegsangebot dokumentieren.
+1. ~~**Preis-Widerspruch Poster+Analyse**~~ — **ERLEDIGT (Operator 2026-07-18,
+   R4):** „Preis korrekt darstellen; finale Preise werden am Ende mit allen
+   Testläufen kalkuliert." Umsetzung: Bundle-Preis wird jetzt aus denselben
+   Quellen ABGELEITET (Poster-Basis 49 + rabattiertes PDF-Add-on 146,25 =
+   195,25 €) statt des 79-€-Relikts — beide Kaufwege identisch bepreist,
+   Client (productTypes.ts) + Server (pricing.js) im Parity-Test gekoppelt.
+   Die END-Kalkulation ändert nur noch die Basiswerte an einer Stelle.
 2. **„10–15 Seiten"-Behauptung:** Die Seitenzahl-Angabe zur Analyse-PDF steht
    noch in ~20 i18n-Strings (Kollektionskarten, FAQ, Bundle-Karte), während
    RL-PREMIUM-PDF offen ist (PDF wird erst am Ende gebaut). R2 hat den Claim
