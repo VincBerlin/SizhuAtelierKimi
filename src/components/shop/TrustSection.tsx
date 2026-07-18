@@ -23,7 +23,7 @@ export default function TrustSection() {
         <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 400, fontSize: 'clamp(24px,3vw,32px)', color: C.ink, margin: '0 0 28px', textAlign: 'center' }}>{t('home.trust.title')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
           {BADGES.map(({ key, Icon }) => (
-            <div key={key} data-testid="home-trust-badge" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10, padding: '18px 20px', background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12 }}>
+            <div key={key} data-testid="home-trust-badge" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10, padding: '18px 20px', background: C.bg, border: `1px solid ${C.border}` }}>
               <Icon size={26} strokeWidth={1.4} color={C.accent} aria-hidden="true" />
               <span style={{ fontFamily: FONT_SANS, fontSize: 15, fontWeight: 600, color: C.ink }}>{t(`home.trust.items.${key}.title`)}</span>
               <span style={{ fontFamily: FONT_SANS, fontSize: 13.5, color: C.textMuted, lineHeight: 1.55 }}>

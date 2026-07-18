@@ -56,9 +56,9 @@ export default function NewsletterSection() {
                 <div className="flex flex-col sm:flex-row" style={{ gap: 10, alignItems: 'stretch' }}>
                   <input
                     type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('newsletter.placeholder')}
-                    style={{ flex: 1, minWidth: 0, border: '1px solid #423c31', background: '#1f1b16', color: C.inkOnDark, borderRadius: 10, padding: '13px 14px', fontSize: 14, fontFamily: FONT_SANS, boxSizing: 'border-box' }}
+                    style={{ flex: 1, minWidth: 0, border: '1px solid #423c31', background: '#1f1b16', color: C.inkOnDark, padding: '13px 14px', fontSize: 14, fontFamily: FONT_SANS, boxSizing: 'border-box' }}
                   />
-                  <button type="submit" disabled={status === 'submitting'} className="transition-[filter] hover:brightness-110 disabled:opacity-60" style={{ background: C.accent, color: '#fff', border: 'none', cursor: status === 'submitting' ? 'wait' : 'pointer', padding: '13px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS, whiteSpace: 'nowrap' }}>
+                  <button type="submit" disabled={status === 'submitting'} className="transition-[filter] hover:brightness-110 disabled:opacity-60" style={{ background: C.accent, color: '#fff', border: 'none', cursor: status === 'submitting' ? 'wait' : 'pointer', padding: '13px 24px', fontSize: 14, fontWeight: 600, fontFamily: FONT_SANS, whiteSpace: 'nowrap' }}>
                     {t('newsletter.button')}
                   </button>
                 </div>
@@ -66,7 +66,7 @@ export default function NewsletterSection() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#8f877b', flexWrap: 'wrap' }}>
                   <span>{t('newsletter.langPref')}:</span>
                   {LANGS.map((l) => (
-                    <button key={l} type="button" onClick={() => setPrefLang(l)} style={{ background: l === prefLang ? '#423c31' : 'transparent', color: l === prefLang ? C.inkOnDark : '#8f877b', border: '1px solid #423c31', borderRadius: 6, padding: '3px 10px', fontSize: 12, fontFamily: FONT_SANS, cursor: 'pointer' }}>{l}</button>
+                    <button key={l} type="button" onClick={() => setPrefLang(l)} style={{ background: l === prefLang ? '#423c31' : 'transparent', color: l === prefLang ? C.inkOnDark : '#8f877b', border: '1px solid #423c31', padding: '3px 10px', fontSize: 12, fontFamily: FONT_SANS, cursor: 'pointer' }}>{l}</button>
                   ))}
                 </div>
 

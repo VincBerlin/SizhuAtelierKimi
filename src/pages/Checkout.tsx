@@ -10,7 +10,6 @@ import { C, FONT_SERIF, FONT_SANS, ACCENT_CTA_SHADOW } from '../lib/tokens'
 
 const inputStyle: CSSProperties = {
   border: `1px solid ${C.borderInput}`,
-  borderRadius: 10,
   padding: '13px 14px',
   fontSize: 14,
   fontFamily: FONT_SANS,
@@ -98,13 +97,13 @@ export default function Checkout() {
               sieht sofort, was er bestätigt und dass Express danach freischaltet.
               Nur bei personalisierten Artikeln; normale Poster checken direkt aus. */}
           {hasPersonalized && (
-            <div data-testid="personalization-confirm-card" style={{ background: '#fff', border: `1px solid ${confirmed ? C.border : C.accent}`, borderRadius: 14, padding: 22, marginBottom: 18 }}>
+            <div data-testid="personalization-confirm-card" style={{ background: '#fff', border: `1px solid ${confirmed ? C.border : C.accent}`, padding: 22, marginBottom: 18 }}>
               <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>{t('checkout.reviewTitle')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
                 {personalizedLines.map((l) => {
                   const p = l.personalization!
                   return (
-                    <div key={l.key} data-testid="personalization-review-box" style={{ background: C.surfaceWarm, border: `1px solid ${C.borderInput}`, borderRadius: 10, padding: '12px 14px', fontSize: 12.5, lineHeight: 1.65, color: C.textMuted }}>
+                    <div key={l.key} data-testid="personalization-review-box" style={{ background: C.surfaceWarm, border: `1px solid ${C.borderInput}`, padding: '12px 14px', fontSize: 12.5, lineHeight: 1.65, color: C.textMuted }}>
                       <div style={{ fontWeight: 600, color: C.ink, marginBottom: 2 }}>{p.productTypeLabel || l.title}</div>
                       <div><strong style={{ color: C.ink }}>{p.name}</strong> · {p.date} · {p.timeDisplay || p.time} · {p.placeResolved || p.place}</div>
                       {p.nameB && (
@@ -116,7 +115,7 @@ export default function Checkout() {
                 })}
               </div>
               {incomplete && <div style={{ fontSize: 12.5, color: C.accent, marginBottom: 10 }}>{t('cart.incompleteWarn')}</div>}
-              <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>{t('cart.returnNotice')}</div>
+              <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, padding: '10px 12px', marginBottom: 12 }}>{t('cart.returnNotice')}</div>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 9, cursor: 'pointer', fontSize: 12.5, color: C.ink, lineHeight: 1.5, fontWeight: 500 }}>
                 <input type="checkbox" data-testid="personalization-confirm" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.accent, flexShrink: 0 }} />
                 <span>{t('cart.confirmLabel')}</span>
@@ -125,9 +124,9 @@ export default function Checkout() {
           )}
 
           {/* guest form */}
-          <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ background: '#fff', border: `1px solid ${C.border}`, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
             {user ? (
-              <div style={{ fontSize: 12.5, color: C.textMuted, background: C.surfaceWarm, borderRadius: 8, padding: '9px 12px' }}>{t('checkout.signedInAs')} <strong style={{ color: C.ink }}>{user.email}</strong></div>
+              <div style={{ fontSize: 12.5, color: C.textMuted, background: C.surfaceWarm, padding: '9px 12px' }}>{t('checkout.signedInAs')} <strong style={{ color: C.ink }}>{user.email}</strong></div>
             ) : (
               <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.5 }}>
                 {t('checkout.signInPrompt')} <Link to="/account" className="underline transition-colors hover:text-[#A0341F]" style={{ color: C.accent, fontWeight: 600 }}>{t('checkout.signInCta')}</Link>
@@ -148,7 +147,7 @@ export default function Checkout() {
             {hasPersonalized && !confirmed && (
               <div style={{ fontSize: 12, color: C.accent }}>{t('checkout.confirmFirst')}</div>
             )}
-            <button onClick={placeOrder} disabled={placing || !canPlace} className="transition-[filter] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${money(total)}`}</button>
+            <button onClick={placeOrder} disabled={placing || !canPlace} className="transition-[filter] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50" style={{ marginTop: 6, width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 17, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: ACCENT_CTA_SHADOW }}>{placing ? t('checkout.starting') : `${t('checkout.placeOrder')} · ${money(total)}`}</button>
             <div style={{ fontSize: 12, color: C.textMuted2, textAlign: 'center' }}>{t('checkout.noHidden')}</div>
             {/* Operator-Batch #10: KEINE separaten Wallet-Buttons mehr — alle
                 führten zum selben Stripe-Checkout (Fake-Differenzierung). Die
@@ -178,7 +177,7 @@ export default function Checkout() {
         </div>
 
         {/* summary */}
-        <div className="lg:sticky lg:top-24" style={{ background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }}>
+        <div className="lg:sticky lg:top-24" style={{ background: C.surfaceWarm, border: `1px solid ${C.border}`, padding: 24 }}>
           <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>{t('checkout.summary')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 18 }}>
             {cart.map((i) => (

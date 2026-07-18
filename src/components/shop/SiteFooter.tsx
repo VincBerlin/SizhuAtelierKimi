@@ -59,7 +59,7 @@ export default function SiteFooter() {
         <div data-testid="footer-bottom" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px 24px', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #2f2a22', marginTop: 28, paddingTop: 22 }}>
           <div data-testid="footer-payments" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: '#7d756a' }}>{t('footer.payment')}</span>
-            {PAYMENTS.map((p) => (<span key={p} style={{ fontSize: 12, color: '#A9A091', border: '1px solid #3a342b', borderRadius: 6, padding: '4px 9px' }}>{p}</span>))}
+            {PAYMENTS.map((p) => (<span key={p} style={{ fontSize: 12, color: '#A9A091', border: '1px solid #3a342b', padding: '4px 9px' }}>{p}</span>))}
           </div>
         </div>
       </div>

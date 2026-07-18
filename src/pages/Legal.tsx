@@ -21,7 +21,7 @@ export default function Legal({ docKey }: { docKey: string }) {
     <main style={{ background: C.bg, minHeight: '60vh' }}>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '48px 32px 80px' }}>
         <h1 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 'clamp(28px,4vw,40px)', color: C.ink, margin: '0 0 18px', lineHeight: 1.1 }}>{doc.title}</h1>
-        <div data-testid="legal-review-banner" style={{ background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 8, padding: '12px 14px', fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, marginBottom: 30 }}>
+        <div data-testid="legal-review-banner" style={{ background: C.surfaceWarm, border: `1px solid ${C.border}`, padding: '12px 14px', fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, marginBottom: 30 }}>
           {banner}
         </div>
         {doc.sections.map((s, i) => (

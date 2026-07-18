@@ -24,7 +24,7 @@ export default function Blog() {
               key={a.id}
               to={`/blog/${a.id}`}
               className="transition-[transform,box-shadow] duration-200 hover:-translate-y-[3px] hover:shadow-[0_16px_30px_-20px_rgba(42,38,32,0.4)]"
-              style={{ textDecoration: 'none', background: '#fff', border: `1px solid ${C.border}`, borderRadius: 14, padding: 26, display: 'flex', flexDirection: 'column', gap: 10 }}
+              style={{ textDecoration: 'none', background: '#fff', border: `1px solid ${C.border}`, padding: 26, display: 'flex', flexDirection: 'column', gap: 10 }}
             >
               <span style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.accent }}>{t(`content.articles.${a.id}.tag`)}</span>
               <h2 style={{ fontFamily: FONT_SERIF, fontWeight: 500, fontSize: 22, margin: 0, lineHeight: 1.2, color: C.ink }}>{t(`content.articles.${a.id}.title`)}</h2>

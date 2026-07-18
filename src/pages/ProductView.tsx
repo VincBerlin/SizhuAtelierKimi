@@ -204,7 +204,7 @@ export default function ProductView() {
           {/* Paar-SKU: kein Single-Konfigurator — beide Geburtsdatensätze werden
               im Paar-Flow erfasst (exakte 合婚-Berechnung, Ehrlichkeits-Gate). */}
           {isCoupleSku && (
-            <div data-testid="pdp-couple-note" style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, background: C.surfaceWarm, borderRadius: 10, padding: '14px 16px', margin: '0 0 14px' }}>
+            <div data-testid="pdp-couple-note" style={{ fontSize: 13, color: C.textMuted, lineHeight: 1.6, background: C.surfaceWarm, padding: '14px 16px', margin: '0 0 14px' }}>
               {t('product.coupleNote')}
             </div>
           )}
@@ -232,12 +232,12 @@ export default function ProductView() {
                       data-size={z.id}
                       aria-pressed={sel}
                       onClick={() => setPdpSize(z.id)}
-                      style={{ position: 'relative', border: `1px solid ${sel ? C.accent : C.borderInput}`, background: C.surfaceInput, borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}
+                      style={{ position: 'relative', border: `1px solid ${sel ? C.accent : C.borderInput}`, background: C.surfaceInput, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: FONT_SANS }}
                     >
                       <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{z.label}</div>
                       <div style={{ fontSize: 11, color: C.textMuted3, margin: '3px 0 4px' }}>{z.sub}</div>
                       {COMMERCE_ENABLED && <div style={{ fontSize: 11, color: C.accent, fontWeight: 600 }}>{deltaText}</div>}
-                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, borderRadius: 12, pointerEvents: 'none' }} />}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
                     </button>
                   )
                 })}
@@ -245,7 +245,7 @@ export default function ProductView() {
             </div>
           )}
 
-          {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, borderRadius: 10, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
+          {personalizable && <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.55, background: C.surfaceWarm, padding: '12px 14px', margin: '0 0 14px' }}>{t('product.personalNotice')}</div>}
 
           {COMMERCE_ENABLED ? (
             /* Gate C/D remediation: the PDP express-pay buttons (PayPal / Apple Pay)
@@ -253,9 +253,9 @@ export default function ProductView() {
                but never redirected (no express flow exists; RL-STRIPE). Removed, so
                the PDP no longer claims a capability it does not have. The honest
                purchase path is add-to-cart → cart → checkout. */
-            <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
+            <button onClick={addToCart} data-testid={personalizable ? 'pdp-personalize-cta' : 'pdp-add-to-cart'} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>{t('product.addToCart')} · {money(livePrice)}</button>
           ) : (
-            <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
+            <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
           )}
           <div data-testid="pdp-trust" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginTop: 16, fontSize: 12, color: C.textMuted2, flexWrap: 'wrap' }}>
             <span>{t('product.secure')}</span><span>{t('product.returns')}</span><span>{t('product.climate')}</span>

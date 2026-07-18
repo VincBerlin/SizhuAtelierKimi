@@ -34,7 +34,7 @@ export default function BundlesSection() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
           {bundles.map((b) => (
-            <div key={b.id} style={{ background: C.bundleCard, border: `1px solid ${C.bundleBorder}`, borderRadius: 12, padding: 22, display: 'flex', gap: 20, alignItems: 'center' }}>
+            <div key={b.id} style={{ background: C.bundleCard, border: `1px solid ${C.bundleBorder}`, padding: 22, display: 'flex', gap: 20, alignItems: 'center' }}>
               <div style={{ position: 'relative', width: 108, height: 140, flexShrink: 0 }}>
                 <div style={{ position: 'absolute', left: 0, top: 8, width: 74, height: 98, transform: 'rotate(-7deg)' }}><Poster p={b.p1} scene="plain" /></div>
                 <div style={{ position: 'absolute', right: 0, top: 8, width: 74, height: 98, transform: 'rotate(7deg)' }}><Poster p={b.p2} scene="plain" /></div>
@@ -59,10 +59,10 @@ export default function BundlesSection() {
             </div>
           ))}
 
-          <div style={{ background: C.bundleCard, border: `1px solid ${C.bundleBorder}`, borderRadius: 12, padding: 22, display: 'flex', gap: 20, alignItems: 'center' }}>
+          <div style={{ background: C.bundleCard, border: `1px solid ${C.bundleBorder}`, padding: 22, display: 'flex', gap: 20, alignItems: 'center' }}>
             <div style={{ position: 'relative', width: 108, height: 140, flexShrink: 0 }}>
               <div style={{ position: 'absolute', left: 2, top: 4, width: 82, height: 108 }}><Poster p={digitalBundle.poster} scene="plain" /></div>
-              <div style={{ position: 'absolute', right: 0, bottom: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: '#1f1b16', border: `1px solid ${C.bundleBorder}`, borderRadius: 8, padding: '8px 10px' }}>
+              <div style={{ position: 'absolute', right: 0, bottom: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: '#1f1b16', border: `1px solid ${C.bundleBorder}`, padding: '8px 10px' }}>
                 <FileText size={20} strokeWidth={1.4} style={{ color: '#E4B89F' }} />
                 <span style={{ fontFamily: FONT_SANS, fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: '#E4B89F' }}>PDF</span>
               </div>

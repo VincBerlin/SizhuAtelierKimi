@@ -101,12 +101,12 @@ export default function CartDrawer() {
                 <div style={{ fontSize: 12, color: C.textMuted2, margin: '4px 0 8px' }}>{i.meta}</div>
                 {personalized && <PersonalizationSummary p={i.personalization!} t={t} />}
                 {personalized && (
-                  <div data-testid="cart-line-birth-review" style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '8px 10px', margin: '0 0 8px' }}>
+                  <div data-testid="cart-line-birth-review" style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, padding: '8px 10px', margin: '0 0 8px' }}>
                     <span style={{ fontWeight: 600, color: C.textMuted }}>{t('cart.reviewBirth')}</span>
                   </div>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${C.borderInput}`, borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${C.borderInput}`, overflow: 'hidden' }}>
                     <button onClick={() => setQty(i.key, -1)} style={{ background: '#fff', border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 16, color: C.textMuted }}>−</button>
                     <span style={{ width: 30, textAlign: 'center', fontSize: 13 }}>{i.qty}</span>
                     <button onClick={() => setQty(i.key, 1)} style={{ background: '#fff', border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 16, color: C.textMuted }}>+</button>
@@ -128,8 +128,8 @@ export default function CartDrawer() {
               <div style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.textMuted3, marginBottom: 12 }}>{t('cart.alsoLike')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {crossSell.map((x) => (
-                  <div key={x.title} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, border: `1px solid ${C.border}`, borderRadius: 10, background: '#fff' }}>
-                    <div style={{ width: 38, height: 48, borderRadius: 6, background: '#F2ECE0', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: C.accent }}>
+                  <div key={x.title} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, border: `1px solid ${C.border}`, background: '#fff' }}>
+                    <div style={{ width: 38, height: 48, background: '#F2ECE0', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: C.accent }}>
                       {x.image ? <img src={x.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '✦'}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -137,7 +137,7 @@ export default function CartDrawer() {
                       {x.meta && <div style={{ fontSize: 11, color: C.textMuted2 }}>{x.meta}</div>}
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{money(x.price)}</span>
-                    <button onClick={() => addCross(x)} aria-label={t('cart.toastAdded')} className="transition-colors hover:bg-[#3a352c]" style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', width: 30, height: 30, borderRadius: 8, fontSize: 18, lineHeight: 1, flexShrink: 0 }}>+</button>
+                    <button onClick={() => addCross(x)} aria-label={t('cart.toastAdded')} className="transition-colors hover:bg-[#3a352c]" style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', width: 30, height: 30, fontSize: 18, lineHeight: 1, flexShrink: 0 }}>+</button>
                   </div>
                 ))}
               </div>
@@ -163,12 +163,12 @@ export default function CartDrawer() {
                 rendered per personalized line above (data-testid
                 `cart-line-birth-review`). */}
             {hasPersonalizedLine && (
-              <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+              <div style={{ fontSize: 11.5, color: C.textMuted2, lineHeight: 1.5, background: C.surfaceWarm, padding: '10px 12px', marginBottom: 12 }}>
                 {t('cart.returnNotice')}
               </div>
             )}
             {incomplete && <div style={{ fontSize: 12, color: C.accent, marginBottom: 12 }}>{t('cart.incompleteWarn')}</div>}
-            <button onClick={goCheckout} disabled={!canCheckout} className="transition-[filter] hover:brightness-110" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: canCheckout ? 'pointer' : 'not-allowed', opacity: canCheckout ? 1 : 0.5, padding: 16, borderRadius: 12, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: '0 12px 24px -12px rgba(192,73,46,0.6)' }}>{t('cart.checkout')}</button>
+            <button onClick={goCheckout} disabled={!canCheckout} className="transition-[filter] hover:brightness-110" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: canCheckout ? 'pointer' : 'not-allowed', opacity: canCheckout ? 1 : 0.5, padding: 16, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, boxShadow: '0 12px 24px -12px rgba(192,73,46,0.6)' }}>{t('cart.checkout')}</button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginTop: 14, fontSize: 11, color: C.textMuted3 }}>
               {/* Operator-Batch #8: nur real angebotene Wallets (kein PayPal). */}
               <span style={{ fontWeight: 600, color: C.textMuted }}> Pay</span><span style={{ fontWeight: 600, color: C.textMuted }}>G Pay</span><span style={{ fontWeight: 600, color: C.textMuted }}>amazon pay</span><span>{t('cart.ssl')}</span>

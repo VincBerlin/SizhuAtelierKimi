@@ -146,7 +146,7 @@ export default function Inspiration() {
                         position: 'absolute', top: 10, left: 10,
                         fontFamily: FONT_SANS, fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
                         textTransform: 'uppercase', color: C.ink,
-                        background: 'rgba(251,248,241,0.92)', border: `1px solid ${C.borderInput}`,
+                        background: 'rgba(255,255,255,0.92)', border: `1px solid ${C.borderInput}`,
                         borderRadius: 999, padding: '4px 9px',
                       }}
                     >
