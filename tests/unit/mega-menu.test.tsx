@@ -152,6 +152,10 @@ describe('REQ-009 / AT-009-4 — items link to real REQ-010 collection routes', 
       href === '/personalize' ||
       // Operator 2026-07-13: Inspiration lebt jetzt im Mega-Menü (Quick-Access).
       href === '/inspiration' ||
+      // Batch #12: lebende Ziel-Seiten der Sets-/Analyse-Achsen + Personalize-Deep-Links
+      href === '/digital' ||
+      href === '/bundles' ||
+      href.startsWith('/personalize?') ||
       href.startsWith('/collections?') ||
       COLLECTION_SLUGS.some((s) => href === `/collections/${s}`)
 
@@ -174,10 +178,11 @@ describe('REQ-009 / AT-009-4 — items link to real REQ-010 collection routes', 
     fireEvent.click(getMegaTrigger())
     const panel = await waitFor(() => getMegaPanel())
 
-    // pick the BaZi / personalized posters link as the canonical click target
+    // Batch #12: bazi-posters ist Redirect — kanonisches Klick-Ziel ist die
+    // lebende TCM-Kollektion.
     const target = within(panel)
       .getAllByRole('link')
-      .find((a) => a.getAttribute('href') === '/collections/bazi-posters')
+      .find((a) => a.getAttribute('href') === '/collections/tcm-posters')
     expect(target).toBeTruthy()
 
     fireEvent.click(target!)

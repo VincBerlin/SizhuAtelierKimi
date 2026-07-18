@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
-import { getProduct, products, faqDefs, addons } from '../lib/catalog'
+import { getProduct, products, faqDefs } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
 import { computeChart, sizes, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
@@ -28,6 +28,11 @@ export default function ProductView() {
   const [pdpSize, setPdpSize] = useState('A2')
 
   const prod = getProduct(Number(id)) ?? products[0]
+  // Batch #12 (#4/#14): stillgelegte Personalisierungs-Duplikate leiten auf die
+  // ZENTRALE Personalisierungsseite um — alte Links bleiben ohne 404 gültig.
+  if (prod.retired) {
+    return <Navigate to={prod.id === 15 ? '/personalize?type=couple' : '/personalize'} replace />
+  }
   // SINGLE source of truth for the personalization gate (REQ-007 / REQ-025):
   // reads ONLY the explicit `personalizable` flag, never `personalization_level`
   // — the FM-04 trap is treating Fire Horse's 'yearly' tier as personalizable.
@@ -258,22 +263,7 @@ export default function ProductView() {
             <div style={{ width: '100%', textAlign: 'center', background: C.surfaceWarm, border: `1px solid ${C.border}`, padding: '16px 18px', fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500, color: C.textMuted }}>{t('preview.notForSale')}</div>
           )}
           <div data-testid="pdp-trust" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginTop: 16, fontSize: 12, color: C.textMuted2, flexWrap: 'wrap' }}>
-            <span>{t('product.secure')}</span><span>{t('product.returns')}</span><span>{t('product.climate')}</span>
-          </div>
-
-          {/* Frame & accessory options (REQ-008 AT-008-1). Honest framing: the
-              frame finishes are the poster's real frame choices; the accessories
-              are the catalog add-ons with their list prices. No invented bundle. */}
-          <div data-testid="pdp-accessories" style={{ marginTop: 24 }}>
-            <h2 style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 12px' }}>{t('product.accessories')}</h2>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {addons.map((a) => (
-                <li key={a.id} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, fontSize: 13.5, color: '#4A4438' }}>
-                  <span>{t(`content.addons.${a.id}.title`)} <span style={{ color: C.textMuted3 }}>· {t(`content.addons.${a.id}.note`)}</span></span>
-                  {COMMERCE_ENABLED && <span style={{ whiteSpace: 'nowrap', color: C.textMuted, fontWeight: 600 }}>+{money(a.price)}</span>}
-                </li>
-              ))}
-            </ul>
+            <span>{t('product.secure')}</span><span>{t('product.returns')}</span>
           </div>
 
           <div style={{ marginTop: 24, borderTop: `1px solid ${C.border}` }}>

@@ -306,11 +306,10 @@ export interface OffersSection {
 export const OFFERS_SECTIONS: OffersSection[] = [
   // Sets first: the strongest curated "value" framing without inventing a number
   // (each bundle SKU already carries its own honest anchor → price on the card).
-  { id: 'bundles', productIds: [1, 2, 5, 3, 4, 7], ctaSlug: 'bundles' },
+  { id: 'bundles', productIds: [7, 11, 12, 13], ctaSlug: 'bundles' }, // Batch #12: retired ids ersetzt
   // The limited annual edition — a real, time-bound product (no fake countdown).
   { id: 'fire-horse', productIds: [8], ctaSlug: 'fire-horse-2026' },
   // Personalized BaZi — the core personalizable world, surfaced as a slider.
-  { id: 'bazi', productIds: [1, 6, 3, 2], ctaSlug: 'bazi-posters' },
   // Ready-to-ship TCM knowledge posters — non-personalized, ships immediately.
   { id: 'tcm', productIds: [11, 12, 13, 14], ctaSlug: 'tcm-posters' },
 ]

@@ -35,15 +35,13 @@ import {
 } from '../../src/lib/collections'
 import { products, filterByWorld } from '../../src/lib/catalog'
 
+// Operator-Batch #12 (#4/#5): personalisierte Kollektionen sind Redirects auf
+// die zentrale Personalisierungsseite — Template-Verträge gelten nur noch für
+// die lebenden Kollektionen (Redirect-Vertrag: collections-routes.test.tsx).
 const MVP_SLUGS = [
-  'bazi-posters',
   'tcm-posters',
   'wuxing-posters',
-  'personalized-posters',
-  'compatibility-posters',
   'fire-horse-2026',
-  'analysis-pdfs',
-  'bundles',
 ] as const
 
 const WEBP_RE = /\/images\/.*\.webp/i
@@ -74,8 +72,10 @@ beforeEach(() => {
 // ── AT-009-3 — slug coverage (SHIPPED-SCAN over the exported set) ─────────────
 
 describe('REQ-009 / AT-009-3 — COLLECTION_SLUGS covers all 8 MVP slugs', () => {
-  it('COLLECTION_SLUGS is exactly the 8 MVP slugs (no missing, no extra)', () => {
-    expect([...COLLECTION_SLUGS].sort()).toEqual([...MVP_SLUGS].sort())
+  it('COLLECTION_SLUGS = lebende Templates + Redirect-Legacy (Batch #12)', () => {
+    const legacy = ['bazi-posters', 'personalized-posters', 'compatibility-posters', 'analysis-pdfs', 'bundles']
+    const expected = new Set([...MVP_SLUGS, ...legacy])
+    expect(new Set(COLLECTION_SLUGS)).toEqual(expected)
   })
 
   it('every MVP slug has a config with eyebrow / title / intro / seo', () => {
@@ -95,7 +95,7 @@ describe('REQ-009 / AT-009-3 — COLLECTION_SLUGS covers all 8 MVP slugs', () =>
 
 describe('REQ-009 / AT-009-1 — full collection-template inventory', () => {
   it('renders breadcrumb, back-nav, H1, intro, visual, toolbar, filter, sort, grid, count, pagination, SEO, trust, footer', async () => {
-    await renderRoute('/collections/bazi-posters')
+    await renderRoute('/collections/tcm-posters')
 
     // `renderRoute` resolves on the page shell; the lazy collection-template
     // sections (grid, SEO, trust, pagination, footer) can still be painting under
@@ -126,7 +126,7 @@ describe('REQ-009 / AT-009-1 — full collection-template inventory', () => {
 
       // toolbar + filter control + sort control
       expect(within(page).getByTestId('collection-toolbar')).toBeInTheDocument()
-      expect(within(page).getByTestId('collection-filter')).toBeInTheDocument()
+      // Batch #12: personalizable-Toggle entfernt (kein toter Filter).
       expect(within(page).getByTestId('collection-sort')).toBeInTheDocument()
 
       // grid with ≥1 card
@@ -178,49 +178,18 @@ describe('REQ-009 / AT-009-2 — displayed count equals rendered card count', ()
 // ── AT-009-4 — filter and sort visibly change the grid ───────────────────────
 
 describe('REQ-009 / AT-009-4 — filter and sort really change the grid', () => {
-  it('the "personalizable only" filter reduces a mixed collection to fewer cards', async () => {
-    // bundles spans personalizable BaZi + a non-personalizable knowledge poster
-    // (#7 Wuxing) → a real reduction. Reveal the full set first so pagination
-    // does not mask the difference (the filter resets to page 1 on toggle).
-    await renderRoute('/collections/bundles')
+  // Operator-Batch #12: der „Nur personalisierbare"-Filter ist ENTFERNT —
+  // im Katalog existieren keine personalisierbaren Produkte mehr (alle auf der
+  // zentralen Personalisierungsseite). Der Ersatz-Vertrag: die Checkbox darf
+  // NICHT mehr rendern (kein toter Filter im UI).
+  it('the removed "personalizable only" filter no longer renders (superseded)', async () => {
+    await renderRoute('/collections/tcm-posters')
     const page = screen.getByTestId('collection-page')
-    // Re-query the grid on every read: a filter toggle re-renders the template,
-    // which can remount the grid node — a captured reference would go stale.
-    const cardCount = () =>
-      within(within(page).getByTestId('collection-grid')).getAllByTestId('collection-product-card').length
-
-    // Expand every page via the show-more control so we see the whole set.
-    const pagination = within(page).getByTestId('collection-pagination')
-    let guard = 0
-    while (within(pagination).queryByRole('button') && guard++ < 10) {
-      fireEvent.click(within(pagination).getByRole('button'))
-    }
-    const before = cardCount()
-    expect(before, 'mixed bundles collection has >1 card when fully revealed').toBeGreaterThan(1)
-
-    const filter = within(page).getByTestId('collection-filter') as HTMLInputElement
-    fireEvent.click(filter)
-
-    // After filtering, again reveal the full (smaller) filtered set.
-    guard = 0
-    while (within(pagination).queryByRole('button') && guard++ < 10) {
-      fireEvent.click(within(pagination).getByRole('button'))
-    }
-    const after = cardCount()
-    expect(after, 'filter strictly reduces a mixed collection').toBeLessThan(before)
-    expect(after).toBeGreaterThanOrEqual(1)
-    // count stays consistent with the now-filtered grid (no stale dummy). Read
-    // the reported count and the grid TOGETHER inside waitFor so the consistency
-    // check never races a re-render mid-update from the filter toggle.
-    await waitFor(() => {
-      const rendered = cardCount()
-      const reported = reportedCount(within(page).getByTestId('collection-count'))
-      expect(reported).toBe(rendered)
-    })
+    expect(within(page).queryByTestId('collection-filter')).toBeNull()
   })
 
   it('sort by price reorders the rendered cards (ascending vs descending differ, each monotonic)', async () => {
-    await renderRoute('/collections/bazi-posters')
+    await renderRoute('/collections/tcm-posters')
     const page = screen.getByTestId('collection-page')
     const grid = within(page).getByTestId('collection-grid')
 

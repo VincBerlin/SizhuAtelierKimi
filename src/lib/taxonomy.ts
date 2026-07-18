@@ -95,10 +95,11 @@ export function worldToSlug(world: ProductWorld): CollectionSlug | null {
 // personalized-posters). Not strictly a PRODUCT_WORLDS value: 'personalized' maps to
 // the personalized-posters collection, not a bazi/tcm/wuxing/mixed world. ────────────
 const WORLD_ENTRIES: readonly TaxonomyEntry[] = [
-  { id: 'bazi', labelKey: 'taxonomy.world.bazi', label: 'BaZi Posters', link: { kind: 'collection', slug: 'bazi-posters' } },
+  // Batch #12 (#4): 'bazi'-Welt entfernt — personalisierte BaZi-Produkte leben
+  // AUSSCHLIESSLICH auf der zentralen Personalisierungsseite.
   { id: 'tcm', labelKey: 'taxonomy.world.tcm', label: 'TCM Posters', link: { kind: 'collection', slug: 'tcm-posters' } },
   { id: 'wuxing', labelKey: 'taxonomy.world.wuxing', label: 'Wuxing', link: { kind: 'collection', slug: 'wuxing-posters' } },
-  { id: 'personalized', labelKey: 'taxonomy.world.personalized', label: 'Personalized', link: { kind: 'collection', slug: 'personalized-posters' } },
+  { id: 'personalized', labelKey: 'taxonomy.world.personalized', label: 'Personalized', link: { kind: 'route', path: '/personalize' } },
 ]
 
 // ── Axis: theme / style (REQ-010) — grounded on DESIGN_FAMILIES + real collections
@@ -112,7 +113,7 @@ const STYLE_ENTRIES: readonly TaxonomyEntry[] = [
   { id: 'japandi', labelKey: 'taxonomy.style.japandi', label: 'Japandi', link: { kind: 'designFamily', family: 'japandi' } },
   // Content styles that map to a real collection (not a design_family):
   { id: 'five_elements', labelKey: 'taxonomy.style.five_elements', label: 'Five Elements', link: { kind: 'collection', slug: 'wuxing-posters' } },
-  { id: 'compatibility', labelKey: 'taxonomy.style.compatibility', label: 'Couples / Compatibility', link: { kind: 'collection', slug: 'compatibility-posters' } },
+  { id: 'compatibility', labelKey: 'taxonomy.style.compatibility', label: 'Couples / Compatibility', link: { kind: 'route', path: '/personalize?type=couple' } },
 ]
 
 // ── Axis: room / use (REQ-009) — grounded on REAL product `use_case` values ──────
@@ -123,7 +124,6 @@ const ROOM_ENTRIES: readonly TaxonomyEntry[] = [
   { id: 'wellness', labelKey: 'taxonomy.room.wellness', label: 'Wellness / Quiet Room', link: { kind: 'useCase', useCase: 'wellness' } },
   { id: 'yoga', labelKey: 'taxonomy.room.yoga', label: 'Yoga Studio', link: { kind: 'useCase', useCase: 'yoga' } },
   { id: 'educational', labelKey: 'taxonomy.room.educational', label: 'Teaching / Education', link: { kind: 'useCase', useCase: 'educational' } },
-  { id: 'gift', labelKey: 'taxonomy.room.gift', label: 'Gift', link: { kind: 'useCase', useCase: 'gift' } },
   { id: 'collector', labelKey: 'taxonomy.room.collector', label: 'Collector Edition', link: { kind: 'useCase', useCase: 'collector' } },
 ]
 
@@ -142,9 +142,9 @@ const SIZE_ENTRIES: readonly TaxonomyEntry[] = sizes.map((s) => ({
 
 // ── Axis: sets / solutions (REQ-011) — grounded on real bundle collections ───────
 const SET_ENTRIES: readonly TaxonomyEntry[] = [
-  { id: 'poster-sets', labelKey: 'taxonomy.set.poster_sets', label: 'Poster Sets', link: { kind: 'collection', slug: 'bundles' } },
-  { id: 'couples-set', labelKey: 'taxonomy.set.couples', label: 'Couples Set', link: { kind: 'collection', slug: 'compatibility-posters' } },
-  { id: 'analysis-bundle', labelKey: 'taxonomy.set.analysis', label: 'Poster + Analysis Bundle', link: { kind: 'collection', slug: 'analysis-pdfs' } },
+  { id: 'poster-sets', labelKey: 'taxonomy.set.poster_sets', label: 'Poster Sets', link: { kind: 'route', path: '/bundles' } },
+  { id: 'couples-set', labelKey: 'taxonomy.set.couples', label: 'Couples Set', link: { kind: 'route', path: '/personalize?type=couple' } },
+  { id: 'analysis-bundle', labelKey: 'taxonomy.set.analysis', label: 'Poster + Analysis Bundle', link: { kind: 'route', path: '/digital' } },
 ]
 
 // ── Axis: trends / campaigns (REQ-012) — ONLY real campaigns (no invention) ──────

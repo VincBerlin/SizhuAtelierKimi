@@ -187,7 +187,7 @@ describe('REQ-010 — Checkout shows no Celestial-Credits affordance', () => {
 
 describe('REQ-010 — PDP shows no Celestial-Credits earn line', () => {
   it('a personalizable product page renders price but NO credits-earn line', async () => {
-    await renderApp('/product/1')
+    await renderApp('/product/8') // Batch #12: id 1 retired → aktive PDP
 
     await screen.findByTestId('pdp', undefined, { timeout: 15000 })
     const pdp = screen.getByTestId('pdp')

@@ -36,6 +36,10 @@ const isRealHref = (href: string) =>
   href === '/offers' ||
   href === '/personalize' ||
   href === '/inspiration' ||
+  // Batch #12: Sets/Analyse-Achsen führen auf lebende Seiten (+ Personalize-Deep-Links)
+  href === '/digital' ||
+  href === '/bundles' ||
+  href.startsWith('/personalize?') ||
   href.startsWith('/collections?') ||
   COLLECTION_SLUGS.some((s) => href === `/collections/${s}`)
 
