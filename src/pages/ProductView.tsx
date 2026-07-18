@@ -125,7 +125,7 @@ export default function ProductView() {
     // the innerHTML sink is gone and the surface stays immune to future interpolation.
     const lines = label.split(/<br\s*\/?>/i)
     return (
-      <div style={{ aspectRatio: '4 / 5', background: '#F2ECE0', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ aspectRatio: '3 / 4', background: '#F2ECE0', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontFamily: FONT_SANS, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 8 }}>
           {lines.map((ln, i) => (
             <span key={i}>{i > 0 && <br />}{ln}</span>
@@ -152,9 +152,9 @@ export default function ProductView() {
             <div data-testid="pdp-gallery">
               {/* Poster-BG-Palette entfernt (Operator 2026-07-13) — feste neutrale Fläche. */}
               <div data-testid="pdp-chart-preview">
-                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={C.surfaceWarm} />
+                <PosterScene poster={livePoster} scene="plain" aspect="3 / 4" bg={C.surfaceWarm} />
                 <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
-                  <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
+                  <PosterScene poster={livePoster} scene="wall" aspect="3 / 4" />
                   {placeholderThumb(t('product.detail'))}
                   {placeholderThumb(t('product.lifestyle'))}
                 </div>
@@ -165,7 +165,7 @@ export default function ProductView() {
             // Asset-light gallery for ready-to-ship SKUs (FM-11 / RISK-001 /
             // RL-IMAGES RED): a marked generic placeholder, never a real
             // /images/*.webp photo that would read as the finished product.
-            <div data-testid="pdp-gallery" data-placeholder="true" style={{ aspectRatio: '4 / 5', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div data-testid="pdp-gallery" data-placeholder="true" style={{ aspectRatio: '3 / 4', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 16 }}>{prod.category}</span>
             </div>
           )}

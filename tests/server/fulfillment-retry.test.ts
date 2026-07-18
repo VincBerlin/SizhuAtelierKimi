@@ -104,6 +104,36 @@ describe('[INTEGRATION-FAKE] Batch#12 R5 — POST /api/fulfillment/retry/:sessio
     expect(stub.retrieve).not.toHaveBeenCalled()
   })
 
+  it('R6: Fehlschlag → Alarm-Mail an ORDER_NOTIFY_EMAIL (env-gated); ohne Notify-Adresse keine Mail', async () => {
+    process.env.FULFILLMENT_RETRY_SECRET = 'sehr-geheim'
+    const prevNotify = process.env.ORDER_NOTIFY_EMAIL
+    process.env.ORDER_NOTIFY_EMAIL = 'operator@sizhuatelier.shop'
+    try {
+      const send = vi.fn(async () => ({ id: 'mail-1' }))
+      const failingFufire = { ...fufireStub, calculateBazi: async () => { throw new Error('down') } }
+      const app = createApp({ stripe: makeStripeStub().stripe, pool: fakePool(), fufire: failingFufire, mailer: { emails: { send } } })
+      const res = await request(app).post('/api/fulfillment/retry/cs_alert_1').set('x-retry-secret', 'sehr-geheim')
+      expect(res.status).toBe(200)
+      expect(res.body.failed).toHaveLength(1)
+      // Alarm-Mail: an die Operator-Adresse, Betreff nennt die Session.
+      expect(send).toHaveBeenCalledTimes(1)
+      const mail = send.mock.calls[0][0] as { to: string; subject: string; text: string }
+      expect(mail.to).toBe('operator@sizhuatelier.shop')
+      expect(mail.subject).toContain('cs_alert_1')
+      expect(mail.text).toMatch(/down/)
+
+      // Ohne ORDER_NOTIFY_EMAIL → keine Mail (still, aber Status/Log bleiben).
+      delete process.env.ORDER_NOTIFY_EMAIL
+      const send2 = vi.fn(async () => ({ id: 'mail-2' }))
+      const app2 = createApp({ stripe: makeStripeStub().stripe, pool: fakePool(), fufire: failingFufire, mailer: { emails: { send: send2 } } })
+      await request(app2).post('/api/fulfillment/retry/cs_alert_2').set('x-retry-secret', 'sehr-geheim')
+      expect(send2).not.toHaveBeenCalled()
+    } finally {
+      if (prevNotify === undefined) delete process.env.ORDER_NOTIFY_EMAIL
+      else process.env.ORDER_NOTIFY_EMAIL = prevNotify
+    }
+  })
+
   it('korrektes Secret → Session aus Stripe geholt, fulfillOrder läuft (Print entsteht), Ergebnis zurück', async () => {
     process.env.FULFILLMENT_RETRY_SECRET = 'sehr-geheim'
     const stub = makeStripeStub()

@@ -33,7 +33,11 @@ export default function PosterSvg({
   testId?: string
   frameName?: string
 }) {
-  const svg = useMemo(() => getDesign(designId).render(data, { widthMm: 420, heightMm: 594 }), [data, designId])
+  // Batch #12 R6 (#2): Vorschau-Proportion = Standard-VERKAUFSFORMAT 50 × 70
+  // (5:7) statt des alten A-Serien-√2-Verhältnisses — der Käufer sieht die
+  // Proportion, die er kauft. Der DRUCK rendert weiterhin exakt je bestelltem
+  // Format über PRINT_SPECS (server/pdf.js); die Designs sind mm-parametrisch.
+  const svg = useMemo(() => getDesign(designId).render(data, { widthMm: 500, heightMm: 700 }), [data, designId])
   const inner = (
     <div
       data-testid={testId}

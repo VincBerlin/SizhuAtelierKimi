@@ -12,7 +12,7 @@ import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyFo
 import { personalizationGateError } from './personalizationGate.js'
 import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun } from './fufire.js'
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
-import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
+import { fulfillOrder, ensurePrintTables, buildFulfillmentAlertMail } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
 import { buildConfirmEmail, confirmResultHtml, unsubscribeResultHtml } from './newsletter.js'
 import { runBroadcast, BROADCAST_SERIES } from './broadcast.js'
@@ -208,8 +208,10 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
           personalization,
           deps: { pool, fufire, renderPdf: renderPosterPdf, gelato, publicUrl: PUBLIC_URL },
         })
-        if (fr.failed.length > 0) console.error('[fulfillment] failed parts:', JSON.stringify(fr.failed))
-        else if (fr.printed.length > 0) console.log(`[fulfillment] ${full.id} printed=${fr.printed.length} submitted=${fr.submitted.length}`)
+        if (fr.failed.length > 0) {
+          console.error('[fulfillment] failed parts:', JSON.stringify(fr.failed))
+          await notifyFulfillmentFailure(full.id, fr.failed)
+        } else if (fr.printed.length > 0) console.log(`[fulfillment] ${full.id} printed=${fr.printed.length} submitted=${fr.submitted.length}`)
       } catch (e) {
         console.error('[fulfillment] fatal:', e.message)
       }
@@ -512,7 +514,10 @@ app.post('/api/fulfillment/retry/:sessionId', async (req, res) => {
       personalization,
       deps: { pool, fufire, renderPdf: renderPosterPdf, gelato, publicUrl: PUBLIC_URL },
     })
-    if (fr.failed.length > 0) console.error('[fulfillment-retry] failed parts:', JSON.stringify(fr.failed))
+    if (fr.failed.length > 0) {
+      console.error('[fulfillment-retry] failed parts:', JSON.stringify(fr.failed))
+      await notifyFulfillmentFailure(full.id, fr.failed)
+    }
     return res.json(fr)
   } catch (e) {
     console.error('[fulfillment-retry] failed:', e.message)
@@ -1204,5 +1209,20 @@ async function sendEmails(session, items, personalization) {
     }
   } catch (e) {
     console.error('[mail] send failed:', e.message)
+  }
+}
+
+// Batch #12 R6: Alarm-Mail bei Fulfillment-Fehlschlag — eine bezahlte, aber
+// nicht produzierte Bestellung erreicht den Operator SOFORT (vorher nur
+// DB-Status + Log). ORDER_NOTIFY_EMAIL wird zur LAUFZEIT gelesen (testbar);
+// ein Mail-Fehler bricht nie den Webhook/Retry (nur Log).
+async function notifyFulfillmentFailure(sessionId, failed) {
+  const notify = process.env.ORDER_NOTIFY_EMAIL || ''
+  if (!resend || !notify) return
+  try {
+    const mail = buildFulfillmentAlertMail({ sessionId, failed, publicUrl: PUBLIC_URL })
+    await resend.emails.send({ from: FROM_EMAIL, to: notify, subject: mail.subject, text: mail.text })
+  } catch (e) {
+    console.error('[fulfillment-alert] mail failed:', e.message)
   }
 }

@@ -144,6 +144,24 @@ async function posterDataFrom(p, fufire) {
   }
 }
 
+/** Batch #12 R6: Alarm-Mail-Inhalt bei Fulfillment-Fehlschlag — der Operator
+ *  erfährt SOFORT von einer bezahlten, aber nicht produzierten Bestellung
+ *  (vorher nur DB-Status + Server-Log). Reiner Text-Builder (testbar);
+ *  Versand-Wiring liegt beim Aufrufer (Webhook + Retry-Route). */
+export function buildFulfillmentAlertMail({ sessionId, failed, publicUrl }) {
+  const lines = (failed || []).map((f) => `- ${f.lineKey}: ${f.reason}`).join('\n')
+  return {
+    subject: `⚠ Fulfillment FAILED — ${sessionId}`,
+    text:
+      `Eine bezahlte Bestellung konnte NICHT (vollständig) produziert werden.\n\n` +
+      `Session: ${sessionId}\n\nFehlgeschlagene Teile:\n${lines}\n\n` +
+      `Nächste Schritte: Ursache beheben (z. B. Druck-Asset registrieren, ` +
+      `print-assets/README.md) und den Retry anstoßen:\n` +
+      `POST ${publicUrl || ''}/api/fulfillment/retry/${sessionId} ` +
+      `(Header x-retry-secret). Idempotent — nie Doppel-Produktion.`,
+  }
+}
+
 export async function fulfillOrder({ session, personalization, deps }) {
   const { pool, fufire, renderPdf, gelato, publicUrl } = deps
   const result = { printed: [], submitted: [], failed: [] }

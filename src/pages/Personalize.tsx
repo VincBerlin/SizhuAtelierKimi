@@ -323,7 +323,7 @@ export default function Personalize() {
             {def.poster ? (
               <PosterSvg data={previewData} designId={designId} frameName={frame.name} />
             ) : (
-              <div style={{ aspectRatio: '4 / 5', background: '#fff', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
+              <div style={{ aspectRatio: '3 / 4', background: '#fff', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
                 <div style={{ fontSize: 40 }}>◇</div>
                 <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink }}>{t('personalize.pdfBadge')}</div>
                 <div style={{ fontSize: 13, color: C.textMuted2 }}>{t('personalize.types.digital.sub')}</div>
