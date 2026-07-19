@@ -111,5 +111,9 @@ describe('R4 #11/#15 — PDP-Empfehlungen enthalten NUR aktive Produkte', () => 
     for (const l of links) {
       expect(activeIds.has(l.getAttribute('href') || ''), `${l.getAttribute('href')} must be active`).toBe(true)
     }
+    // R7 (#11): PASSEND kuratiert — auf einer TCM-PDP (Produkt 11) führen die
+    // Empfehlungen mit Produkten DERSELBEN Welt (12/13/14), nicht beliebig.
+    const hrefs = links.map((l) => l.getAttribute('href'))
+    expect(hrefs).toEqual(['/product/12', '/product/13', '/product/14'])
   })
 })

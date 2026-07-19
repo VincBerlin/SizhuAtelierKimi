@@ -238,6 +238,18 @@ export function productsByIds(ids: readonly number[]): Product[] {
     .filter((p): p is Product => p != null)
 }
 
+/** Batch #12 R7 (#11): „Wird oft zusammen gekauft" — PASSEND kuratiert,
+ *  deterministisch aus echten Katalogdaten (nie erfundene Zuordnungen):
+ *  erst aktive Produkte derselben product_world, dann die übrigen aktiven in
+ *  Katalogreihenfolge. Eine Quelle für PDP und Personalisierungsseite. */
+export function relatedProductsFor(product: Pick<Product, 'id' | 'product_world'>, n = 3): Product[] {
+  const others = activeProducts.filter((p) => p.id !== product.id)
+  return [
+    ...others.filter((p) => p.product_world === product.product_world),
+    ...others.filter((p) => p.product_world !== product.product_world),
+  ].slice(0, n)
+}
+
 export interface Bundle {
   id: string
   title: string

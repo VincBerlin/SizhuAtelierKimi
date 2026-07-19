@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import type { ReactElement } from 'react'
 import { Link } from 'react-router'
 import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
@@ -105,9 +104,8 @@ function HubSection({ section }: { section: OffersSection }): ReactElement {
 export default function Offers(): ReactElement {
   const { t } = useT()
 
-  useEffect(() => {
-    document.title = `${t('offers.title')} · SizhuAtelier`
-  }, [t])
+  // Seitentitel: seit R7 zentral in der App-Shell (App.tsx, Bereich #15) —
+  // die frühere lokale document.title-Zeile ist dorthin umgezogen.
 
   return (
     <main data-testid="offers-page" data-route="/offers" style={{ background: C.bg, minHeight: '60vh' }}>

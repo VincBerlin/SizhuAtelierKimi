@@ -4,7 +4,7 @@ import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
-import { getProduct, products, activeProducts, faqDefs } from '../lib/catalog'
+import { getProduct, products, relatedProductsFor, faqDefs } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
 // Batch #12 R4 (#10): EIN Format-System — auch Katalog-PDPs verkaufen die
 // cm-Formate (30×40/50×70/70×100); die A-Serie bleibt nur server-seitig für
@@ -72,9 +72,9 @@ export default function ProductView() {
   const livePrice = prod.price + size.delta
   const liveAnchor = prod.anchor != null ? prod.anchor + size.delta : null
   const starPct = (prod.rating / 5) * 100 + '%'
-  // Batch #12 R4 (#11/#15): Empfehlungen NUR aus aktiven Produkten — die
-  // soft-retirten BaZi-Duplikate (R2) erschienen hier weiter als Karten.
-  const related = activeProducts.filter((p) => p.id !== prod.id).slice(0, 3)
+  // Batch #12 R7 (#11): PASSEND kuratiert — gleiche Produktwelt zuerst,
+  // deterministisch aus echten Daten (relatedProductsFor, nur aktive SKUs).
+  const related = relatedProductsFor(prod)
   // Breadcrumb trail: Home → the product's world collection → this product. The
   // world→slug map points only at EXISTING /collections routes (no dead link).
   const worldSlug: Record<string, string> = { bazi: 'bazi-posters', tcm: 'tcm-posters', wuxing: 'wuxing-posters' }

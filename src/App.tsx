@@ -33,6 +33,7 @@ import CartDrawer from './components/shop/CartDrawer'
 import ArticleOverlay from './components/shop/ArticleOverlay'
 import Toast from './components/shop/Toast'
 import { ShopStoreProvider } from './store/ShopStore'
+import { getProduct } from './lib/catalog'
 import { AuthProvider } from './store/AuthProvider'
 import { I18nProvider, useT } from './i18n/I18nProvider'
 
@@ -62,6 +63,36 @@ function AppShell() {
     // we only move the focus ring so it doesn't fight the page reset (no jank).
     mainRef.current?.focus({ preventScroll: true })
   }, [pathname])
+
+  // Batch #12 R7 (#15, Meta-Daten): routen-spezifische Seitentitel aus EINER
+  // zentralen Stelle — QA-Fund des Abschluss-Sweeps: jede Route trug den
+  // statischen index.html-Titel (nur /offers setzte ihn lokal, jetzt hier).
+  // PDPs tragen den Produktnamen; unbekannte Pfade behalten den Basistitel.
+  useEffect(() => {
+    const BASE = 'SizhuAtelier — Personalized BaZi & Birth Chart Posters From Your Birth Data'
+    const KEY_BY_PATH: Record<string, string> = {
+      '/personalize': 'personalize.title',
+      '/collections': 'pages.kollTitle',
+      '/bundles': 'pages.bundlesTitle',
+      '/offers': 'offers.title',
+      '/blog': 'pages.blogTitle',
+      '/tcm': 'pages.tcmTitle',
+      '/faq': 'nav.faq',
+      '/about': 'nav.about',
+      '/contact': 'nav.contact',
+      '/checkout': 'checkout.title',
+    }
+    const pdp = pathname.match(/^\/product\/(\d+)$/)
+    let title: string | null = null
+    if (pdp) {
+      const p = getProduct(Number(pdp[1]))
+      if (p && !p.retired) title = String(t(`content.products.${p.id}.title`))
+    } else if (KEY_BY_PATH[pathname]) {
+      const v = t(KEY_BY_PATH[pathname])
+      if (typeof v === 'string') title = v
+    }
+    document.title = title ? `${title} · SizhuAtelier` : BASE
+  }, [pathname, t])
 
   return (
     <>
