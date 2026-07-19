@@ -34,13 +34,29 @@ const P_LINE = {
   designId: 'klassik', size: 'A2', frame: 'Schwarz matt', frameHex: '#1B1B1B', bgHex: '#E9DFCB',
 }
 
+// Zeilen der fakePool-prints-Tabelle (R7-Lint-Nachfix: typisiert statt `any`).
+interface PrintRow {
+  stripe_session: unknown
+  line_key: unknown
+  token: unknown
+  design_id: unknown
+  size_id: unknown
+  pdf: Buffer
+  gelato_order_id: string | null
+}
+
+// Form der an den Gelato-Stub übergebenen Order (nur die geprüften Felder).
+interface GelatoOrderStub {
+  items: Array<{ itemReferenceId: string; productUid: string; quantity: number; fileUrl: string }>
+}
+
 function fakePool() {
-  const prints: any[] = []
+  const prints: PrintRow[] = []
   const queries: string[] = []
   return {
     prints,
     queries,
-    async query(sql: string, params: any[] = []) {
+    async query(sql: string, params: unknown[] = []) {
       queries.push(sql)
       if (sql.startsWith('SELECT id, gelato_order_id FROM prints')) {
         return { rows: prints.filter((p) => p.stripe_session === params[0] && p.line_key === params[1]) }
@@ -97,8 +113,8 @@ describe('fulfillOrder', () => {
 
   it('submits ONE gelato draft with the mapped productUid and never a second one', async () => {
     const pool = fakePool()
-    const orders: any[] = []
-    const gelato = { enabled: () => true, createOrder: async (o: any) => { orders.push(o); return { id: 'g-1', orderType: 'draft' } } }
+    const orders: GelatoOrderStub[] = []
+    const gelato = { enabled: () => true, createOrder: async (o: GelatoOrderStub) => { orders.push(o); return { id: 'g-1', orderType: 'draft' } } }
     // Seit 2026-07-13 ist PRODUCT_UIDS live-verifiziert befüllt (RL-GELATO,
     // Artefakt 2026-07-13-gelato-uid-mapping.json) — der Test beweist jetzt den
     // Ziel-Vertrag: GENAU EIN Draft, mit der korrekt GEMAPPTEN productUid
@@ -191,7 +207,7 @@ describe('Batch#12 R5 (#9) — Gelato für ALLE Poster: Katalog-Lines werden pro
   // /api/checkout ihn seit R5 für JEDE Line schreibt.
   const CATALOG_LINE = { productId: 'poster:11', variantId: 'size=50x70;frame=#1B1B1B', qty: '1' }
   const FAKE_PDF = Buffer.from('%PDF-1.4 fake-print-asset')
-  interface GelatoOrderStub { items: Array<{ itemReferenceId: string; productUid: string; quantity: number; fileUrl: string }> }
+  // GelatoOrderStub: geteilte Modul-Definition oben.
 
   it('catalogPosterLinesFrom wählt poster:-Lines ohne designId; posterLinesFrom ignoriert sie', () => {
     const meta = { line1: P_LINE, line2: CATALOG_LINE, line3: { productId: 'bundle:b1', variantId: '', qty: '1' } }

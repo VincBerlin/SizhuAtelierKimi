@@ -182,7 +182,7 @@ export default function CartDrawer() {
 
 /** Compact per-line personalization summary in the cart (REQ-015): birth data,
  *  poster language, design and size, plus partner data for couple orders. */
-function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: (k: string, v?: Record<string, string | number>) => any }) {
+function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: import("../../i18n/I18nProvider").TFunction }) {
   const unknownTime = p.unknownTime === 'true'
   const time = unknownTime ? t('personalize.timeUnknown') : p.time
   const timeB = unknownTime ? t('personalize.timeUnknown') : p.timeB

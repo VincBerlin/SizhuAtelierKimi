@@ -90,24 +90,23 @@ function Chip({ active, nonFinal, onClick, children }: { active: boolean; nonFin
   )
 }
 
+// Batch #12 (#4/R7-Nachfix): Kollektionen, deren Produkte auf die zentrale
+// Personalisierungsseite umgezogen sind — Deep-Links bleiben ohne 404. Als
+// MAP vor den Hooks aufgelöst und erst NACH allen Hooks returned
+// (rules-of-hooks: die frühen Returns standen vor useT/useState/useMemo).
+const SLUG_REDIRECTS: Record<string, string> = {
+  'bazi-posters': '/personalize',
+  'personalized-posters': '/personalize',
+  'compatibility-posters': '/personalize?type=couple',
+  // Batch #12 R3 (#5): Premium-Analyse lebt auf der Personalisierungsseite.
+  'analysis-pdfs': '/personalize?type=digital',
+  bundles: '/bundles',
+}
+
 export default function Collection() {
   const { slug } = useParams<{ slug: string }>()
-  // Batch #12 (#4): Kollektionen, deren Produkte auf die zentrale
-  // Personalisierungsseite umgezogen sind — Deep-Links bleiben ohne 404.
-  if (slug === 'bazi-posters' || slug === 'personalized-posters') {
-    return <Navigate to="/personalize" replace />
-  }
-  if (slug === 'compatibility-posters') {
-    return <Navigate to="/personalize?type=couple" replace />
-  }
-  if (slug === 'analysis-pdfs') {
-    // Batch #12 R3 (#5): Premium-Analyse lebt auf der Personalisierungsseite.
-    return <Navigate to="/personalize?type=digital" replace />
-  }
-  if (slug === 'bundles') {
-    return <Navigate to="/bundles" replace />
-  }
-  const cfg = slug ? getCollectionConfig(slug) : undefined
+  const redirect = slug ? SLUG_REDIRECTS[slug] : undefined
+  const cfg = slug && !redirect ? getCollectionConfig(slug) : undefined
 
   const { t } = useT()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -191,7 +190,8 @@ export default function Collection() {
   const visible = useMemo(() => sorted.slice(0, shownCount), [sorted, shownCount])
   const hasMore = sorted.length > visible.length
 
-  // Unknown slug → back to the hub (no empty/thin collection page).
+  // Redirect-Slugs (nach den Hooks — rules-of-hooks) + unbekannter Slug → Hub.
+  if (redirect) return <Navigate to={redirect} replace />
   if (!cfg) return <Navigate to="/collections" replace />
 
   return (

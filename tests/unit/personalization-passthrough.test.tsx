@@ -19,7 +19,7 @@
  * is INDEPENDENT of place (no "image varies with location" claim).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, render, screen, fireEvent, act, waitFor } from '@testing-library/react'
+import { renderHook, render, screen, fireEvent, act } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { ShopStoreProvider, useShopStore, type CartLine } from '../../src/store/ShopStore'
 import { I18nProvider } from '../../src/i18n/I18nProvider'
@@ -33,7 +33,7 @@ import { computeChart } from '../../src/lib/bazi'
 
 /** Capture the JSON body actually POSTed to /api/checkout by `startCheckout`. */
 function stubCheckoutFetch() {
-  const calls: Array<{ url: string; body: any }> = []
+  const calls: Array<{ url: string; body: unknown }> = []
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
     calls.push({ url, body: init?.body ? JSON.parse(init.body as string) : undefined })
     return { ok: true, json: async () => ({ url: 'https://stripe.test/session' }) } as unknown as Response
@@ -77,7 +77,7 @@ async function sentPersonalizationFor(cfgPatch: Record<string, string>) {
   // The provider also fires fetch('/api/region') on mount; isolate the checkout POST.
   const checkoutCalls = calls.filter((c) => c.url === '/api/checkout')
   expect(checkoutCalls.length).toBe(1)
-  const items = checkoutCalls[0].body.items as Array<{ personalization: Record<string, string> }>
+  const items = (checkoutCalls[0].body as { items: Array<{ personalization: Record<string, string> }> }).items as Array<{ personalization: Record<string, string> }>
   return items[items.length - 1].personalization
 }
 
@@ -380,7 +380,7 @@ describe('REQ-004 / AT-004-1 (couple) — person B noon-fallback provenance reac
     })
     const checkoutCalls = calls.filter((c) => c.url === '/api/checkout')
     expect(checkoutCalls.length).toBe(1)
-    const items = checkoutCalls[0].body.items as Array<{ personalization: Record<string, string> }>
+    const items = (checkoutCalls[0].body as { items: Array<{ personalization: Record<string, string> }> }).items as Array<{ personalization: Record<string, string> }>
     const sent = items[items.length - 1].personalization
 
     // Person A's fallback provenance is carried (baseline the A-side already met).

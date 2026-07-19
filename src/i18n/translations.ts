@@ -4,7 +4,13 @@
 
 export type Lang = 'EN' | 'DE' | 'FR' | 'ES'
 
-export const translations: Record<Lang, Record<string, any>> = {
+// Rekursiver Baum-Typ statt `any` (R7-Lint-Nachfix): Einträge sind Strings,
+// String-Listen oder verschachtelte Gruppen — nichts anderes.
+export type TranslationTree = {
+  [key: string]: string | boolean | readonly string[] | TranslationTree | readonly TranslationTree[]
+}
+
+export const translations: Record<Lang, TranslationTree> = {
   EN: {
     a11y: { skipToContent: 'Skip to content' },
     // M10 — canonical taxonomy matrix labels (nav mega-menu + mobile drawer).

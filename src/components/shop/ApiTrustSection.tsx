@@ -8,7 +8,7 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../../lib/tokens'
  */
 export default function ApiTrustSection() {
   const { t } = useT()
-  const badges = (t('apiTrust.badges') as string[]) || []
+  const badges = (t('apiTrust.badges') as unknown as string[]) || []
   return (
     <section style={{ background: C.surfaceWarm }}>
       <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '64px 32px', textAlign: 'center' }}>

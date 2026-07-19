@@ -30,10 +30,9 @@ import { MemoryRouter } from 'react-router'
 import App from '../../src/App'
 import {
   COLLECTION_SLUGS,
-  COLLECTION_CONFIGS,
   getCollectionConfig,
 } from '../../src/lib/collections'
-import { products, filterByWorld } from '../../src/lib/catalog'
+import { products } from '../../src/lib/catalog'
 
 // Operator-Batch #12 (#4/#5): personalisierte Kollektionen sind Redirects auf
 // die zentrale Personalisierungsseite — Template-Verträge gelten nur noch für

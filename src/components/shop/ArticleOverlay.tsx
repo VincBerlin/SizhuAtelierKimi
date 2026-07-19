@@ -9,7 +9,7 @@ export default function ArticleOverlay() {
   const navigate = useNavigate()
   const open = !!articleId
   const base = articleId ? `content.articles.${articleId}` : null
-  const body = (base ? (t(`${base}.body`) as string[]) : []) || []
+  const body = (base ? (t(`${base}.body`) as unknown as string[]) : []) || []
 
   return (
     <>

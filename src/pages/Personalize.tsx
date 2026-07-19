@@ -691,7 +691,7 @@ export default function Personalize() {
   )
 }
 
-function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary, onCommitPlace }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any; primary?: boolean; onCommitPlace?: (v: string) => void }) {
+function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary, onCommitPlace }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: import("../i18n/I18nProvider").TFunction; primary?: boolean; onCommitPlace?: (v: string) => void }) {
   const e = (cond: boolean) => showErrors && cond
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
@@ -755,7 +755,7 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
 
 /** Auflösungs-Status unter einem Geburtsort-Feld: bestätigter Ort, Kandidaten-
  *  Auswahl (mehrdeutig), Nachbarort-Hinweis (nicht gefunden), Fehler. */
-function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefix }: { status: PlaceStatus; place: { resolvedName: string; countryCode: string } | null; candidates: PlaceCandidate[] | null; onPick: (c: PlaceCandidate) => void; t: (k: string, v?: Record<string, string | number>) => any; testPrefix: string }) {
+function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefix }: { status: PlaceStatus; place: { resolvedName: string; countryCode: string } | null; candidates: PlaceCandidate[] | null; onPick: (c: PlaceCandidate) => void; t: import("../i18n/I18nProvider").TFunction; testPrefix: string }) {
   if (status === 'ok' && place) {
     return (
       <div data-testid={`${testPrefix}-resolved-note`} role="note" style={{ marginTop: 10, fontSize: 12.5, color: C.textMuted2 }}>

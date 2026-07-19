@@ -31,9 +31,9 @@ jobs:
       - name: Test (vitest, sequential)
         run: npx vitest run --no-file-parallelism
 
-      # Lint ist NICHT gate-fähig: ~70 vorbestehende `any`-Befunde in
-      # Test-Stubs (dokumentierte Alt-Last). Läuft informativ mit, bricht
-      # den Build nicht — neue Runden halten ihr Lint-Delta bei null.
-      - name: Lint (informational)
+      # Seit R7-Nachfix (Operator 2026-07-19) GATE-FÄHIG: 0 Fehler — die
+      # Alt-Last (`any`-Stubs, bedingte Hooks) ist behoben bzw. sauber
+      # typisiert; experimentelle react-hooks-Compiler-Lints laufen als
+      # Warnung (eslint.config.js, dokumentiert) und brechen nicht.
+      - name: Lint
         run: npm run lint
-        continue-on-error: true

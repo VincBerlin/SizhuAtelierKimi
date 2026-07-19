@@ -35,8 +35,17 @@ export default function ProductView() {
   const [pdpFrameHex, setPdpFrameHex] = useState(frames[0].hex)
 
   const prod = getProduct(Number(id)) ?? products[0]
-  // Batch #12 (#4/#14): stillgelegte Personalisierungs-Duplikate leiten auf die
-  // ZENTRALE Personalisierungsseite um — alte Links bleiben ohne 404 gültig.
+
+  useEffect(() => { window.scrollTo(0, 0); setPdpSize('50x70'); setPdpFrameHex(frames[0].hex) }, [id])
+
+  // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
+  // the resolved product id so it fires once per product view, not per re-render.
+  // Retired-SKUs feuern NICHT (die Seite ist für sie nur ein Redirect).
+  useEffect(() => { if (!prod.retired) track(EVENTS.pdpView, { id: prod.id }) }, [prod.id, prod.retired])
+
+  // Batch #12 (#4/#14, R7-Nachfix): stillgelegte Personalisierungs-Duplikate
+  // leiten auf die ZENTRALE Personalisierungsseite um — alte Links bleiben
+  // ohne 404 gültig. Der Return steht NACH den Hooks (rules-of-hooks).
   if (prod.retired) {
     return <Navigate to={prod.id === 15 ? '/personalize?type=couple' : '/personalize'} replace />
   }
@@ -50,12 +59,6 @@ export default function ProductView() {
   // non-zero review count. Until then NO stars / review summary are shown — the
   // catalog's placeholder `rating`/`reviews` are never surfaced as social proof.
   const showReviews = REVIEWS_ENABLED && prod.reviews > 0
-
-  useEffect(() => { window.scrollTo(0, 0); setPdpSize('50x70'); setPdpFrameHex(frames[0].hex) }, [id])
-
-  // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
-  // the resolved product id so it fires once per product view, not per re-render.
-  useEffect(() => { track(EVENTS.pdpView, { id: prod.id }) }, [prod.id])
 
   // Empty time → disclosed noon fallback (REQ-018). place + the flag are threaded
   // into the placeholder chart (accepted, not used to vary it — ADR-002 pt.3/4).
@@ -80,7 +83,7 @@ export default function ProductView() {
   const worldSlug: Record<string, string> = { bazi: 'bazi-posters', tcm: 'tcm-posters', wuxing: 'wuxing-posters' }
   const collectionSlug = kind === 'fire-horse' ? 'fire-horse-2026' : worldSlug[prod.product_world] ?? 'bazi-posters'
   const ratingTxt = lang === 'EN' ? prod.rating.toFixed(1) : prod.rating.toFixed(1).replace('.', ',')
-  const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
+  const bullets = (t(`content.products.${prod.id}.bullets`) as unknown as string[]) || []
 
   // Operator-Vorgabe 2026-07-13: die Paar-SKU (personalization_level 'couple')
   // braucht ZWEI Geburtsdatensätze — der Single-Konfigurator dieser PDP kann
