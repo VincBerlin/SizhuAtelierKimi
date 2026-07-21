@@ -18,12 +18,19 @@ import request from 'supertest'
 // driven with a stubbed Stripe (ADR-001 / REQ-015 AK-4: no real key in tests).
 import { createApp } from '../../server/index.js'
 // Server-owned authoritative price source (ADR-001 pt.2-4) + shipping rule.
+import { readFileSync } from 'node:fs'
 import {
   priceLineItemCents,
   computeShippingCents,
   POSTER_PRODUCT_PREFIX,
-  PTYPE_PRODUCT_PREFIX,
 } from '../../server/pricing.js'
+
+// Form der Stripe-Line-Items, die der Stub einfängt (R7-Lint-Nachfix: typisiert
+// statt `any` — nur die Felder, auf die die Assertions zugreifen).
+type StripeLineItem = {
+  quantity?: number
+  price_data?: { currency?: string; unit_amount?: number; product_data?: { name?: string; description?: string } }
+}
 // ── REAL client price sources (ADR-001 pt.4 single-source-of-truth) ──────────
 // The parity block below couples the server price table to the SAME data the
 // client renders, so a price change in any of these that is NOT mirrored into
@@ -52,7 +59,7 @@ const eurToCents = (eur: number) => Math.round(eur * 100)
 // the client value back — that would be the forbidden green-but-worthless test
 // (acceptance-design REQ-001 Gegenthese).
 function makeStripeStub() {
-  const create = vi.fn(async (params: any) => ({
+  const create = vi.fn(async (params: unknown) => ({
     id: 'cs_test_stub_123',
     url: 'https://stripe.test/checkout/cs_test_stub_123',
     _params: params,
@@ -78,7 +85,7 @@ const VALID_POSTER = {
 const VALID_POSTER_PRICE = 4900
 
 let stub: ReturnType<typeof makeStripeStub>
-let app: any
+let app: ReturnType<typeof createApp>
 let prevTrustedGeo: string | undefined
 
 beforeEach(() => {
@@ -102,12 +109,12 @@ function lineItemsFromLastCall() {
 }
 function nonShippingUnitAmounts() {
   return lineItemsFromLastCall()
-    .filter((li: any) => li.price_data?.product_data?.name !== 'Shipping')
-    .map((li: any) => li.price_data?.unit_amount)
+    .filter((li: StripeLineItem) => li.price_data?.product_data?.name !== 'Shipping')
+    .map((li: StripeLineItem) => li.price_data?.unit_amount)
 }
 function shippingLine() {
   return lineItemsFromLastCall().find(
-    (li: any) => li.price_data?.product_data?.name === 'Shipping',
+    (li: StripeLineItem) => li.price_data?.product_data?.name === 'Shipping',
   )
 }
 
@@ -128,7 +135,7 @@ describe('[INTEGRATION-FAKE] REQ-001 — server re-prices, client unitAmount ign
     for (const tampered of [0, -5, 999999, undefined]) {
       stub = makeStripeStub()
       app = createApp({ stripe: stub.stripe })
-      const item: any = { ...VALID_POSTER }
+      const item: Record<string, unknown> = { ...VALID_POSTER }
       if (tampered !== undefined) item.unitAmount = tampered
       const res = await request(app)
         .post('/api/checkout')
@@ -246,7 +253,16 @@ describe('[INTEGRATION-FAKE] REQ-003 — existing checkout invariants do not reg
     const md = params.metadata
     // Reassemble exactly the way the webhook does (chunked numbered keys).
     const reassembled = readPersonalizationMetadata(md)
-    expect(reassembled.line1).toEqual(personalization)
+    // Supersession (Batch #12 R5, #9): der Server reichert JEDE Line
+    // server-authoritativ um productId/variantId/qty an, damit auch
+    // nicht-personalisierte Katalog-Poster das Fulfillment erreichen. Der
+    // VERLUSTFREI-Vertrag bleibt: jedes Client-Feld kommt unverändert an.
+    expect(reassembled.line1).toEqual({
+      ...personalization,
+      productId: VALID_POSTER.productId,
+      variantId: VALID_POSTER.variantId,
+      qty: '1',
+    })
   })
 
   it('AT-003-3: qty clamping (0→1, 1000→99) and empty cart → 400', async () => {
@@ -254,7 +270,7 @@ describe('[INTEGRATION-FAKE] REQ-003 — existing checkout invariants do not reg
     await request(app)
       .post('/api/checkout')
       .send({ items: [{ ...VALID_POSTER, unitAmount: 1, qty: 0 }] })
-    expect(lineItemsFromLastCall().find((li: any) => li.price_data?.product_data?.name !== 'Shipping').quantity).toBe(1)
+    expect(lineItemsFromLastCall().find((li: StripeLineItem) => li.price_data?.product_data?.name !== 'Shipping').quantity).toBe(1)
 
     // qty 1000 → clamped to 99
     stub = makeStripeStub()
@@ -262,7 +278,7 @@ describe('[INTEGRATION-FAKE] REQ-003 — existing checkout invariants do not reg
     await request(app)
       .post('/api/checkout')
       .send({ items: [{ ...VALID_POSTER, unitAmount: 1, qty: 1000 }] })
-    expect(lineItemsFromLastCall().find((li: any) => li.price_data?.product_data?.name !== 'Shipping').quantity).toBe(99)
+    expect(lineItemsFromLastCall().find((li: StripeLineItem) => li.price_data?.product_data?.name !== 'Shipping').quantity).toBe(99)
 
     // empty cart → 400
     stub = makeStripeStub()
@@ -285,7 +301,7 @@ describe('[INTEGRATION-FAKE] REQ-003 — existing checkout invariants do not reg
 describe('[INTEGRATION-FAKE] REQ-015 — money-path safety guards', () => {
   it('AT-015-4: no real Stripe secret present in this test module', () => {
     // grep-guard: the test must not embed a real-looking live/test secret key.
-    const src = require('node:fs').readFileSync(__filename, 'utf8') as string
+    const src = readFileSync(__filename, 'utf8')
     expect(/sk_live_[A-Za-z0-9]/.test(src)).toBe(false)
     expect(/sk_test_[A-Za-z0-9]{10}/.test(src)).toBe(false)
   })
@@ -395,7 +411,7 @@ describe('[UNIT] price/shipping source-of-truth PARITY (server == client, drift 
 // `readPersonalizationMetadata`) so the round-trip test asserts against the SAME
 // reassembly the webhook uses. The route stores each cart line under `lineN`, so
 // the reassembled object is `{ line1: {...}, ... }`.
-function readPersonalizationMetadata(metadata: Record<string, string>): any {
+function readPersonalizationMetadata(metadata: Record<string, string>): Record<string, Record<string, string>> {
   const md = metadata || {}
   if (md.personalization) return JSON.parse(md.personalization)
   if (md.personalization_chunks) {

@@ -1960,7 +1960,7 @@ textarea {
 }
 .personalize-preview {
   position: sticky;
-  top: 112px;
+  top: 106px;
   z-index: 5;
   /* Kein max-height/overflow mehr (Operator 2026-07-14): der Scrollbalken
      irritierte — das SVG selbst ist höhengedeckelt, der Container wächst mit.
@@ -1975,7 +1975,21 @@ textarea {
     align-items: start;
   }
   .personalize-preview {
-    top: 96px;
+    /* Batch #12 R3 (#6): vorher 96px — 10px UNTER der 106px-Kopfleiste, die
+       Vorschau wurde beim Scrollen angeschnitten. Jetzt bündig: 106px, kein
+       Durchschein-Streifen im Spalt. Das Sticky-Element ist Grid-Kind der
+       einen Layout-Row und klebt damit über die GESAMTE Höhe des
+       Produktcontainers (die längere Formular-Spalte spannt die Row auf) —
+       es hängt nicht am Seiten-Hero. */
+    top: 106px;
     margin-bottom: 0;
   }
+}
+/* Batch #12 R3 (#6): Präsentations-Modul — Poster, realistischer Rahmen und
+   Wandfläche lesen sich als EIN Modul (wie die PDP-Galerie), statt dass das
+   SVG nackt auf der Kartenfläche liegt. */
+.personalize-scene {
+  border: 1px solid #ece5d8;
+  background: linear-gradient(180deg, #fbfaf8 0%, #f0ece4 100%);
+  padding: clamp(16px, 4vw, 36px);
 }

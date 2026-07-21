@@ -6,13 +6,19 @@ export const LANGS: Lang[] = ['EN', 'DE', 'FR', 'ES']
 
 type Vars = Record<string, string | number>
 
+/** Rückgabe von t(): meist ein String (JSX-tauglich); Listen-/Objekt-Einträge
+ *  (bullets, steps, faqs) werden am Callsite gezielt gecastet — das bestehende
+ *  `as unknown as string[]`-Muster. Typisiert statt `any` (R7-Lint-Nachfix). */
+export type TValue = string
+export type TFunction = (path: string, vars?: Vars) => TValue
+
 interface I18nValue {
   lang: Lang
   setLang: (l: Lang) => void
   /** Resolve a dotted key in the current language (falls back to EN). Returns
    *  string | string[] | object depending on the entry. {var} placeholders are
    *  replaced from `vars`. */
-  t: (path: string, vars?: Vars) => any
+  t: TFunction
 }
 
 const I18nContext = createContext<I18nValue | null>(null)
@@ -73,10 +79,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     try { localStorage.setItem(STORE_KEY, lang) } catch { /* ignore */ }
   }, [lang])
 
-  const t = (path: string, vars?: Vars) => {
+  const t: TFunction = (path: string, vars?: Vars) => {
     let v = resolve(translations[lang], path)
     if (v === undefined) v = resolve(translations.EN, path)
-    return interpolate(v, vars)
+    // Laufzeit unverändert: Listen-/Objekt-Einträge werden durchgereicht und am
+    // Callsite gecastet; der deklarierte String-Typ deckt die JSX-Normalfälle.
+    return interpolate(v, vars) as TValue
   }
 
   return <I18nContext.Provider value={{ lang, setLang: setLangState, t }}>{children}</I18nContext.Provider>

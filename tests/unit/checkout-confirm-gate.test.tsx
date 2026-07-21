@@ -27,7 +27,7 @@ const baziLine: CartLine = {
   title: 'Personalized BaZi Poster',
   price: 49,
   qty: 1,
-  poster: { frame: '#1B1B1B', bg: '#E9DFCB', name: 'Mara', element: 'Wood', animal: 'Horse', pillars: [] } as any,
+  poster: { frame: '#1B1B1B', bg: '#E9DFCB', name: 'Mara', element: 'Wood', animal: 'Horse', pillars: [] },
   meta: 'Natural oak · Sandstone · A2',
   personalization: {
     productType: 'single',

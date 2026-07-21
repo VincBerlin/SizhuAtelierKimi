@@ -18,7 +18,7 @@ interface SeoSection {
 // keyword set is a marked content TODO (OQ-007).
 export default function SeoTextSection() {
   const { t } = useT()
-  const sections = (t('home.seo.sections') as SeoSection[]) || []
+  const sections = (t('home.seo.sections') as unknown as SeoSection[]) || []
 
   return (
     <section style={{ background: C.bg, borderTop: `1px solid ${C.border}` }} aria-label={t('home.seo.title')}>

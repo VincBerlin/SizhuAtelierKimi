@@ -1,0 +1,39 @@
+# CI — Build + Test-Suite für jeden Push/PR (Operator-Auftrag 2026-07-18:
+# „für die PR-Commits waren keine GitHub-Actions-Workflow-Runs eingerichtet").
+#
+# Vitest läuft SEQUENZIELL (--no-file-parallelism): die parallele Ausführung
+# zeigt maschinenabhängige Worker-Interferenz (RL-VITEST-ENV im Evidence-
+# Ledger) — der sequenzielle Lauf ist die verlässliche Referenz.
+name: CI
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (tsc + vite)
+        run: npm run build
+
+      - name: Test (vitest, sequential)
+        run: npx vitest run --no-file-parallelism
+
+      # Seit R7-Nachfix (Operator 2026-07-19) GATE-FÄHIG: 0 Fehler — die
+      # Alt-Last (`any`-Stubs, bedingte Hooks) ist behoben bzw. sauber
+      # typisiert; experimentelle react-hooks-Compiler-Lints laufen als
+      # Warnung (eslint.config.js, dokumentiert) und brechen nicht.
+      - name: Lint
+        run: npm run lint

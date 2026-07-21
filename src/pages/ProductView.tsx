@@ -4,9 +4,12 @@ import Poster from '../components/Poster'
 import PosterScene from '../components/shop/PosterScene'
 import StarRating from '../components/shop/StarRating'
 import Configurator from '../components/shop/Configurator'
-import { getProduct, products, faqDefs } from '../lib/catalog'
+import { getProduct, products, relatedProductsFor, faqDefs } from '../lib/catalog'
 import { isPersonalizable, productKind } from '../lib/productTypes'
-import { computeChart, sizes, type PosterData } from '../lib/bazi'
+// Batch #12 R4 (#10): EIN Format-System — auch Katalog-PDPs verkaufen die
+// cm-Formate (30×40/50×70/70×100); die A-Serie bleibt nur server-seitig für
+// Alt-Warenkörbe gültig (pricing.js kennt beide).
+import { computeChart, personalizedSizes as sizes, frames, type PosterData } from '../lib/bazi'
 import { birthTimeMeta } from '../lib/personalization'
 import { useShopStore, useMoney } from '../store/ShopStore'
 import { useT } from '../i18n/I18nProvider'
@@ -25,11 +28,24 @@ export default function ProductView() {
   // M13 / REQ-008/028 — size for the NON-personalizable PDP path (ready-to-ship
   // SKUs). Personalizable products carry size in the configurator (cfg.size).
   // Size availability/pricing stays NON-FINAL (OQ-001).
-  const [pdpSize, setPdpSize] = useState('A2')
+  const [pdpSize, setPdpSize] = useState('50x70')
+  // Batch #12 R5 (#9): Rahmen-Achse auch für Ready-to-ship-Poster — ohne sie
+  // ist die Gelato-Produkt-Variante (PRODUCT_UIDS: Format×Rahmen) nicht
+  // bestimmbar. Preisneutral (server/pricing.js ignoriert die frame-Achse).
+  const [pdpFrameHex, setPdpFrameHex] = useState(frames[0].hex)
 
   const prod = getProduct(Number(id)) ?? products[0]
-  // Batch #12 (#4/#14): stillgelegte Personalisierungs-Duplikate leiten auf die
-  // ZENTRALE Personalisierungsseite um — alte Links bleiben ohne 404 gültig.
+
+  useEffect(() => { window.scrollTo(0, 0); setPdpSize('50x70'); setPdpFrameHex(frames[0].hex) }, [id])
+
+  // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
+  // the resolved product id so it fires once per product view, not per re-render.
+  // Retired-SKUs feuern NICHT (die Seite ist für sie nur ein Redirect).
+  useEffect(() => { if (!prod.retired) track(EVENTS.pdpView, { id: prod.id }) }, [prod.id, prod.retired])
+
+  // Batch #12 (#4/#14, R7-Nachfix): stillgelegte Personalisierungs-Duplikate
+  // leiten auf die ZENTRALE Personalisierungsseite um — alte Links bleiben
+  // ohne 404 gültig. Der Return steht NACH den Hooks (rules-of-hooks).
   if (prod.retired) {
     return <Navigate to={prod.id === 15 ? '/personalize?type=couple' : '/personalize'} replace />
   }
@@ -43,12 +59,6 @@ export default function ProductView() {
   // non-zero review count. Until then NO stars / review summary are shown — the
   // catalog's placeholder `rating`/`reviews` are never surfaced as social proof.
   const showReviews = REVIEWS_ENABLED && prod.reviews > 0
-
-  useEffect(() => { window.scrollTo(0, 0); setPdpSize('A2') }, [id])
-
-  // PDP-view funnel event (T-701, instrumentation only — RL-EVENT RED). Keyed on
-  // the resolved product id so it fires once per product view, not per re-render.
-  useEffect(() => { track(EVENTS.pdpView, { id: prod.id }) }, [prod.id])
 
   // Empty time → disclosed noon fallback (REQ-018). place + the flag are threaded
   // into the placeholder chart (accepted, not used to vary it — ADR-002 pt.3/4).
@@ -65,13 +75,15 @@ export default function ProductView() {
   const livePrice = prod.price + size.delta
   const liveAnchor = prod.anchor != null ? prod.anchor + size.delta : null
   const starPct = (prod.rating / 5) * 100 + '%'
-  const related = products.filter((p) => p.id !== prod.id).slice(0, 3)
+  // Batch #12 R7 (#11): PASSEND kuratiert — gleiche Produktwelt zuerst,
+  // deterministisch aus echten Daten (relatedProductsFor, nur aktive SKUs).
+  const related = relatedProductsFor(prod)
   // Breadcrumb trail: Home → the product's world collection → this product. The
   // world→slug map points only at EXISTING /collections routes (no dead link).
   const worldSlug: Record<string, string> = { bazi: 'bazi-posters', tcm: 'tcm-posters', wuxing: 'wuxing-posters' }
   const collectionSlug = kind === 'fire-horse' ? 'fire-horse-2026' : worldSlug[prod.product_world] ?? 'bazi-posters'
   const ratingTxt = lang === 'EN' ? prod.rating.toFixed(1) : prod.rating.toFixed(1).replace('.', ',')
-  const bullets = (t(`content.products.${prod.id}.bullets`) as string[]) || []
+  const bullets = (t(`content.products.${prod.id}.bullets`) as unknown as string[]) || []
 
   // Operator-Vorgabe 2026-07-13: die Paar-SKU (personalization_level 'couple')
   // braucht ZWEI Geburtsdatensätze — der Single-Konfigurator dieser PDP kann
@@ -88,10 +100,11 @@ export default function ProductView() {
     }
     if (!personalizable) {
       // Non-personalizable (Fire Horse / TCM lehrposter): NO birth data, but M13
-      // gives it a first-class size axis. The size is carried in the variantId so
-      // the server (server/pricing.js) prices base + size delta authoritatively —
-      // same money path as personalizable posters (default A2 = base, no change).
-      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: `${prod.category} · ${size.label}`, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id }) })
+      // gives it a first-class size axis. Size + frame travel in the variantId so
+      // the server prices authoritatively AND the fulfillment can resolve the
+      // Gelato productUid (Format×Rahmen) — R5 (#9).
+      const frameName = t(`options.frames.${pdpFrameHex}`)
+      addItem({ title, price: livePrice, qty: 1, poster: null, image: prod.image, meta: `${prod.category} · ${size.label} · ${frameName}`, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: pdpFrameHex }) })
       showToast(t('cart.toastAdded'))
       return
     }
@@ -103,7 +116,8 @@ export default function ProductView() {
     // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
     // place/date/time + the canonical birthTimeUnknown flag are carried so the
     // planned calculation API can dock without loss (REQ-004 AK-1).
-    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label }
+    // sizeId zusätzlich zum Label (R4 #10): der Druckpfad mappt über die ID.
+    const personalization = { date: cfg.date, time: bt.time, timeDisplay: bt.timeDisplay, birthTimeUnknown: bt.birthTimeUnknown, unknownTime: bt.unknownTime, timeFallbackUsed: bt.timeFallbackUsed, fallbackReason: bt.fallbackReason, place: cfg.place, name: cfg.name.trim(), palette: bgName, frame: frameName, size: size.label, sizeId: size.id }
     addItem({ title, price: livePrice, qty: 1, poster: livePoster, meta: `${frameName} · ${bgName} · ${size.label}`, personalization, productId: posterProductId(prod.id), variantId: buildVariantId({ size: size.id, frame: cfg.frameHex }) })
     showToast(t('cart.toastAdded'))
   }
@@ -114,7 +128,7 @@ export default function ProductView() {
     // the innerHTML sink is gone and the surface stays immune to future interpolation.
     const lines = label.split(/<br\s*\/?>/i)
     return (
-      <div style={{ aspectRatio: '4 / 5', background: '#F2ECE0', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ aspectRatio: '3 / 4', background: '#F2ECE0', border: `1px solid ${C.border}`, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontFamily: FONT_SANS, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 8 }}>
           {lines.map((ln, i) => (
             <span key={i}>{i > 0 && <br />}{ln}</span>
@@ -141,9 +155,9 @@ export default function ProductView() {
             <div data-testid="pdp-gallery">
               {/* Poster-BG-Palette entfernt (Operator 2026-07-13) — feste neutrale Fläche. */}
               <div data-testid="pdp-chart-preview">
-                <PosterScene poster={livePoster} scene="plain" aspect="4 / 5" bg={C.surfaceWarm} />
+                <PosterScene poster={livePoster} scene="plain" aspect="3 / 4" bg={C.surfaceWarm} />
                 <div className="grid grid-cols-3 gap-3" style={{ marginTop: 12 }}>
-                  <PosterScene poster={livePoster} scene="wall" aspect="4 / 5" />
+                  <PosterScene poster={livePoster} scene="wall" aspect="3 / 4" />
                   {placeholderThumb(t('product.detail'))}
                   {placeholderThumb(t('product.lifestyle'))}
                 </div>
@@ -154,7 +168,7 @@ export default function ProductView() {
             // Asset-light gallery for ready-to-ship SKUs (FM-11 / RISK-001 /
             // RL-IMAGES RED): a marked generic placeholder, never a real
             // /images/*.webp photo that would read as the finished product.
-            <div data-testid="pdp-gallery" data-placeholder="true" style={{ aspectRatio: '4 / 5', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div data-testid="pdp-gallery" data-placeholder="true" style={{ aspectRatio: '3 / 4', border: `1px solid ${C.border}`, overflow: 'hidden', background: C.surfaceWarm, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontFamily: FONT_SANS, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textMuted5, textAlign: 'center', padding: 16 }}>{prod.category}</span>
             </div>
           )}
@@ -220,6 +234,28 @@ export default function ProductView() {
               into the cart. The axis is NON-FINAL (OQ-001): real per-product size
               availability/pricing is operator-owned; every A3/A2/A1 is available
               for now and none is offered as an unavailable-but-purchasable size. */}
+          {/* R5 (#9): Rahmen-Achse für Ready-to-ship-Poster — die Wahl wandert
+              (preisneutral) in die Variante, damit die Gelato-Zuordnung
+              (Format×Rahmen) bestimmbar ist. Gleiche Optik wie /personalize. */}
+          {!personalizable && (
+            <div data-testid="pdp-frame-selector" style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 10px' }}>
+                {t('configurator.step2').replace(/^\d+ · /, '')} — {t(`options.frames.${pdpFrameHex}`)}
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                {frames.map((f) => {
+                  const sel = f.hex === pdpFrameHex
+                  return (
+                    <button key={f.hex} type="button" data-testid="pdp-frame-option" data-frame={f.hex} aria-pressed={sel} onClick={() => setPdpFrameHex(f.hex)} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 9, border: `1px solid ${C.borderInput}`, background: C.surfaceInput, padding: '8px 14px 8px 8px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 13, color: '#4A4438' }}>
+                      <span className="color-swatch-circle" style={{ width: 26, height: 26, background: f.hex, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.08)' }} />{t(`options.frames.${f.hex}`)}
+                      {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {!personalizable && (
             <div data-testid="pdp-size-selector" data-nonfinal="true" style={{ marginBottom: 20 }}>
               <div style={{ fontFamily: FONT_SANS, fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.textMuted, margin: '0 0 10px' }}>

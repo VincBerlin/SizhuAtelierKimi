@@ -40,11 +40,16 @@ import { MemoryRouter } from 'react-router'
 import { products } from '../../src/lib/catalog'
 
 // Fixtures resolved from the SHIPPED catalog (not literals) so the test tracks the
-// data the app actually renders. A BaZi SKU with placeholder reviews>0 is the exact
-// data the original bug surfaced as fake stars; a TCM SKU with reviews===0 is the
-// load-bearing negative that the `reviews > 0` half must still suppress.
-const reviewedProduct = products.find((p) => p.product_world === 'bazi' && p.reviews > 0)!
-const zeroReviewProduct = products.find((p) => p.product_world === 'tcm' && p.reviews === 0)!
+// data the app actually renders.
+//
+// Supersession (Batch #12 R3): das frühere Fixture (bazi-Welt, reviews>0) löste
+// seit R2 auf einen SOFT-RETIRED SKU auf — dessen PDP ist ein Redirect auf
+// /personalize, es gibt kein [data-testid=pdp] mehr (der Test war seitdem rot,
+// von R2 nicht mitgezogen). Die Gate-Mechanik ist welt-unabhängig; der
+// positive Zweig läuft jetzt über einen AKTIVEN SKU mit reviews>0 (Wuxing #7).
+// Die Negative (TCM, reviews===0, aktiv) bleibt unverändert load-bearing.
+const reviewedProduct = products.find((p) => !p.retired && p.reviews > 0)!
+const zeroReviewProduct = products.find((p) => !p.retired && p.product_world === 'tcm' && p.reviews === 0)!
 
 // StarRating always paints five glyphs; their presence marks a rendered social-proof
 // block regardless of the (placeholder) rating value.
@@ -86,10 +91,11 @@ describe('precondition — re-import flips REVIEWS_ENABLED to true', () => {
     expect(config.REVIEWS_ENABLED).toBe(true)
   })
 
-  it('the fixtures are the intended SKUs (placeholder-reviewed BaZi + zero-review TCM)', () => {
-    expect(reviewedProduct, 'a BaZi SKU with placeholder reviews>0').toBeTruthy()
+  it('the fixtures are the intended SKUs (ACTIVE placeholder-reviewed + active zero-review TCM)', () => {
+    expect(reviewedProduct, 'an ACTIVE SKU with placeholder reviews>0 (R3: retired SKUs redirect)').toBeTruthy()
+    expect(reviewedProduct.retired).not.toBe(true)
     expect(reviewedProduct.reviews).toBeGreaterThan(0)
-    expect(zeroReviewProduct, 'a TCM SKU with reviews===0').toBeTruthy()
+    expect(zeroReviewProduct, 'an active TCM SKU with reviews===0').toBeTruthy()
     expect(zeroReviewProduct.reviews).toBe(0)
   })
 })

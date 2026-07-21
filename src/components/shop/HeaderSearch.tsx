@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { X } from 'lucide-react'
-import { activeProducts as products } from '../../lib/catalog'
+import { activeProducts } from '../../lib/catalog'
 import { useT } from '../../i18n/I18nProvider'
 import { C, FONT_SANS } from '../../lib/tokens'
 
@@ -29,20 +29,18 @@ export default function HeaderSearch({ onClose }: { onClose: () => void }) {
 
   const index = useMemo<Entry[]>(() => {
     const collections: Entry[] = [
-      { key: 'c-bazi', label: t('coll.cards.bazi.title'), to: '/product/1', kw: ['bazi', 'four pillars', 'vier säulen', 'poster'] },
-      { key: 'c-birth', label: t('coll.cards.birthchart.title'), to: '/personalize', kw: ['birth chart', 'geburtschart', 'carte du ciel', 'natal', 'star chart'] },
-      { key: 'c-couple', label: t('coll.cards.couple.title'), to: '/personalize', kw: ['couple', 'paar', 'compatibility', 'kompatibilität', 'wedding', 'hochzeit', 'mariage', 'anniversary', 'jahrestag', 'love'] },
+      // Batch #12 R3 (#5): personalisierte Angebote deep-linken direkt in den
+      // passenden Typ der zentralen Personalisierungsseite (Produkt 1 ist
+      // soft-retired, /digital nur noch ein Redirect — kein Umweg über beide).
+      { key: 'c-bazi', label: t('coll.cards.bazi.title'), to: '/personalize?type=bazi', kw: ['bazi', 'four pillars', 'vier säulen', 'poster'] },
+      { key: 'c-birth', label: t('coll.cards.birthchart.title'), to: '/personalize?type=birthchart', kw: ['birth chart', 'geburtschart', 'carte du ciel', 'natal', 'star chart'] },
+      { key: 'c-couple', label: t('coll.cards.couple.title'), to: '/personalize?type=couple', kw: ['couple', 'paar', 'compatibility', 'kompatibilität', 'wedding', 'hochzeit', 'mariage', 'anniversary', 'jahrestag', 'love'] },
       { key: 'c-fire', label: t('coll.cards.firehorse.title'), to: '/product/8', kw: ['fire horse', 'feuerpferd', 'cheval de feu', '2026'] },
-      { key: 'c-digital', label: t('coll.cards.digital.title'), to: '/digital', kw: ['digital', 'pdf', 'analysis', 'analyse'] },
+      { key: 'c-digital', label: t('coll.cards.digital.title'), to: '/personalize?type=digital', kw: ['digital', 'pdf', 'analysis', 'analyse'] },
       { key: 'c-bundles', label: t('coll.cards.bundles.title'), to: '/bundles', kw: ['bundle', 'coffret', 'set', 'combo'] },
     ]
-    const gifts: Entry[] = [
-
-
-
-      { key: 'g-new', label: t('search.gifts.newbeginning'), to: '/gifts', kw: ['new beginning', 'neuanfang', 'housewarming', 'einzug', 'reset', 'move'] },
-      { key: 'g-studio', label: t('search.gifts.studio'), to: '/gifts', kw: ['yoga', 'studio', 'wellness', 'tcm', 'practice', 'praxis', 'spiritual', 'clinic'] },
-    ]
+    // Batch #12 R3 (#14): die Geschenk-Einträge zeigten auf die in R2 entfernte
+    // Geschenkkollektion (/gifts ist nur noch ein Redirect) — Suche bereinigt.
     const pages: Entry[] = [
       { key: 'p-faq', label: t('footer.faq'), to: '/faq', kw: ['faq', 'help', 'hilfe', 'questions'] },
       { key: 'p-about', label: t('footer.about'), to: '/about', kw: ['about', 'atelier', 'story'] },
@@ -50,11 +48,11 @@ export default function HeaderSearch({ onClose }: { onClose: () => void }) {
       { key: 'p-return', label: t('footer.returns'), to: '/returns', kw: ['return', 'rückgabe', 'retour', 'refund', 'withdrawal'] },
       { key: 'p-contact', label: t('footer.contact'), to: '/contact', kw: ['contact', 'kontakt'] },
     ]
-    const prods: Entry[] = products.map((p) => ({
+    const prods: Entry[] = activeProducts.map((p) => ({
       key: `prod-${p.id}`, label: String(t(`content.products.${p.id}.title`)), sub: p.category, to: `/product/${p.id}`,
       kw: [String(t(`content.products.${p.id}.title`)).toLowerCase(), p.category.toLowerCase()],
     }))
-    return [...collections, ...gifts, ...prods, ...pages]
+    return [...collections, ...prods, ...pages]
   }, [t])
 
   const query = q.trim().toLowerCase()

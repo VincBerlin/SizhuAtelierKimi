@@ -9,9 +9,10 @@ import { fileURLToPath } from 'node:url'
 import Stripe from 'stripe'
 import { randomUUID, scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypto'
 import { priceLineItemCents, computeShippingCents, regionFromCountry, currencyForRegion } from './pricing.js'
+import { personalizationGateError } from './personalizationGate.js'
 import { fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun } from './fufire.js'
 import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
-import { fulfillOrder, ensurePrintTables } from './fulfillment.js'
+import { fulfillOrder, ensurePrintTables, buildFulfillmentAlertMail } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
 import { buildConfirmEmail, confirmResultHtml, unsubscribeResultHtml } from './newsletter.js'
 import { runBroadcast, BROADCAST_SERIES } from './broadcast.js'
@@ -22,7 +23,6 @@ const DIST = path.resolve(__dirname, '..', 'dist')
 const PORT = process.env.PORT || 3000
 const CURRENCY = (process.env.CURRENCY || 'eur').toLowerCase()
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 // Public origin used for Stripe success/cancel redirects. Falls back to the
 // Railway-provided domain, then to the request origin at call time.
 const PUBLIC_URL = (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '')).replace(/\/$/, '')
@@ -181,10 +181,14 @@ setInterval(() => { const now = Date.now(); for (const [k, b] of rlBuckets) if (
 
 // ---- Stripe webhook (must read the RAW body — mount before express.json) ---
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(503).send('webhook not configured')
+  // Read the signing secret per request: Railway can rotate it without this
+  // module retaining the value captured at import time, and the real route
+  // remains testable without ever putting a secret in source control.
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || ''
+  if (!stripe || !webhookSecret) return res.status(503).send('webhook not configured')
   let event
   try {
-    event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], STRIPE_WEBHOOK_SECRET)
+    event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], webhookSecret)
   } catch (err) {
     console.error('[webhook] signature verify failed:', err.message)
     return res.status(400).send(`Webhook Error: ${err.message}`)
@@ -207,13 +211,20 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
           personalization,
           deps: { pool, fufire, renderPdf: renderPosterPdf, gelato, publicUrl: PUBLIC_URL },
         })
-        if (fr.failed.length > 0) console.error('[fulfillment] failed parts:', JSON.stringify(fr.failed))
-        else if (fr.printed.length > 0) console.log(`[fulfillment] ${full.id} printed=${fr.printed.length} submitted=${fr.submitted.length}`)
+        if (fr.failed.length > 0) {
+          console.error('[fulfillment] failed parts:', JSON.stringify(fr.failed))
+          await notifyFulfillmentFailure(full.id, fr.failed)
+        } else if (fr.printed.length > 0) console.log(`[fulfillment] ${full.id} printed=${fr.printed.length} submitted=${fr.submitted.length}`)
       } catch (e) {
         console.error('[fulfillment] fatal:', e.message)
+        await pool?.query('UPDATE orders SET fulfillment_status=$1 WHERE stripe_session=$2', ['failed', full.id]).catch(() => {})
+        await notifyFulfillmentFailure(full.id, [{ lineKey: '*', reason: `fatal: ${e.message}` }])
       }
     } catch (e) {
       console.error('[webhook] handling failed:', e.message)
+      // Never acknowledge an order we could not persist. A non-2xx response
+      // makes Stripe retry the event instead of silently losing a paid order.
+      return res.status(500).json({ error: 'webhook handling failed' })
     }
   }
   res.json({ received: true })
@@ -412,6 +423,13 @@ app.post('/api/checkout', async (req, res) => {
       if (cents === null || !Number.isInteger(cents) || cents <= 0) {
         return res.status(400).json({ error: 'Unknown product or variant.' })
       }
+      // Order-Gate (Batch #12 R3, Bereich 8): personalisierte Produkte ohne
+      // Pflicht-Geburtsdaten werden VOR Stripe abgelehnt — eine bezahlte, aber
+      // unerfüllbare Bestellung darf es nie geben (server/personalizationGate.js).
+      const gateError = personalizationGateError(it.productId, it.personalization)
+      if (gateError) {
+        return res.status(400).json({ error: `Missing required personalization data (${gateError}).` })
+      }
       subtotalCents += cents * qty
       line_items.push({
         quantity: qty,
@@ -421,7 +439,17 @@ app.post('/api/checkout', async (req, res) => {
           product_data: { name: String(it.title || 'Poster').slice(0, 120), ...(it.meta ? { description: String(it.meta).slice(0, 200) } : {}) },
         },
       })
-      if (it.personalization) personalization[`line${i + 1}`] = it.personalization
+      // R5 (#9): JEDE Line bekommt einen Metadaten-Datensatz (productId,
+      // variantId, qty) — vorher trugen die Metadaten NUR personalisierte
+      // Lines, und bezahlte Katalog-Poster wurden vom Fulfillment still
+      // übersprungen. Die Identitätsfelder stehen NACH dem Spread, damit
+      // Client-personalization sie nie überschreiben kann (server-authoritativ).
+      personalization[`line${i + 1}`] = {
+        ...(it.personalization && typeof it.personalization === 'object' ? it.personalization : {}),
+        productId: String(it.productId),
+        variantId: String(it.variantId || ''),
+        qty: String(qty),
+      }
     }
 
     // Shipping is computed server-side from region (CDN header) + subtotal,
@@ -469,6 +497,39 @@ app.post('/api/checkout', async (req, res) => {
   } catch (e) {
     console.error('[checkout] failed:', e.message)
     res.status(500).json({ error: 'Could not start checkout.' })
+  }
+})
+
+// ---- fulfillment retry (Batch #12 R5, #9 — „Retry möglich") ----------------
+// Der Operator stößt eine gescheiterte Fulfillment-Runde erneut an (z. B.
+// nachdem ein fehlendes Druck-Asset registriert oder FuFirE wieder erreichbar
+// ist). Gleiche Gating-Disziplin wie der Newsletter-Broadcast: ohne
+// FULFILLMENT_RETRY_SECRET ist die Route 503, falsches Secret → 403.
+// Doppel-Produktion ist technisch ausgeschlossen — fulfillOrder ist idempotent
+// (UNIQUE(stripe_session,line_key) + gelato_order_id-Check).
+app.post('/api/fulfillment/retry/:sessionId', async (req, res) => {
+  const secret = process.env.FULFILLMENT_RETRY_SECRET || ''
+  if (!secret || !stripe || !pool) return res.status(503).json({ error: 'fulfillment retry not configured' })
+  const given = String(req.headers['x-retry-secret'] || '')
+  const a = Buffer.from(given)
+  const b = Buffer.from(secret)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return res.status(403).json({ error: 'forbidden' })
+  try {
+    const full = await stripe.checkout.sessions.retrieve(String(req.params.sessionId), { expand: ['line_items'] })
+    const personalization = readPersonalizationMetadata(full.metadata)
+    const fr = await fulfillOrder({
+      session: full,
+      personalization,
+      deps: { pool, fufire, renderPdf: renderPosterPdf, gelato, publicUrl: PUBLIC_URL },
+    })
+    if (fr.failed.length > 0) {
+      console.error('[fulfillment-retry] failed parts:', JSON.stringify(fr.failed))
+      await notifyFulfillmentFailure(full.id, fr.failed)
+    }
+    return res.json(fr)
+  } catch (e) {
+    console.error('[fulfillment-retry] failed:', e.message)
+    return res.status(500).json({ error: 'retry failed' })
   }
 })
 
@@ -1090,7 +1151,7 @@ function readPersonalizationMetadata(metadata) {
 }
 
 async function persistOrder(session, items, personalization) {
-  if (!pool) { console.log('[order] (no DB) ', JSON.stringify({ id: session.id, items, personalization })); return }
+  if (!pool) throw new Error('database not configured — paid order cannot be persisted')
   await pool.query(
     `INSERT INTO orders (stripe_session, email, amount_total, currency, status, items, personalization)
      VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (stripe_session) DO NOTHING`,
@@ -1156,5 +1217,20 @@ async function sendEmails(session, items, personalization) {
     }
   } catch (e) {
     console.error('[mail] send failed:', e.message)
+  }
+}
+
+// Batch #12 R6: Alarm-Mail bei Fulfillment-Fehlschlag — eine bezahlte, aber
+// nicht produzierte Bestellung erreicht den Operator SOFORT (vorher nur
+// DB-Status + Log). ORDER_NOTIFY_EMAIL wird zur LAUFZEIT gelesen (testbar);
+// ein Mail-Fehler bricht nie den Webhook/Retry (nur Log).
+async function notifyFulfillmentFailure(sessionId, failed) {
+  const notify = process.env.ORDER_NOTIFY_EMAIL || ''
+  if (!resend || !notify) return
+  try {
+    const mail = buildFulfillmentAlertMail({ sessionId, failed, publicUrl: PUBLIC_URL })
+    await resend.emails.send({ from: FROM_EMAIL, to: notify, subject: mail.subject, text: mail.text })
+  } catch (e) {
+    console.error('[fulfillment-alert] mail failed:', e.message)
   }
 }

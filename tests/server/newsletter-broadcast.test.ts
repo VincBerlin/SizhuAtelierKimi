@@ -15,7 +15,7 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 import request from 'supertest'
 
-let createApp: (overrides?: Record<string, unknown>) => any
+let createApp: (overrides?: Record<string, unknown>) => import('express').Express
 
 beforeAll(async () => {
   ;({ createApp } = await import('../../server/index.js'))

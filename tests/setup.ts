@@ -45,6 +45,12 @@ vi.stubGlobal(
   vi.fn(() => Promise.reject(new Error('fetch is stubbed in jsdom tests'))),
 )
 
+// jsdom exposes window.scrollTo but its implementation only emits a noisy
+// "Not implemented" error. Route components legitimately scroll to the top on
+// navigation; stub that browser side effect globally so the aggregate suite is
+// quiet and deterministic. Scroll behaviour itself is covered in Playwright.
+window.scrollTo = vi.fn()
+
 // jsdom does not implement matchMedia; some UI code (reduced-motion checks,
 // responsive helpers) reads it. Provide a non-matching stub so mounts don't
 // throw. (Behavioural reduced-motion tests belong in Playwright, not here.)

@@ -4,7 +4,13 @@
 
 export type Lang = 'EN' | 'DE' | 'FR' | 'ES'
 
-export const translations: Record<Lang, Record<string, any>> = {
+// Rekursiver Baum-Typ statt `any` (R7-Lint-Nachfix): Einträge sind Strings,
+// String-Listen oder verschachtelte Gruppen — nichts anderes.
+export type TranslationTree = {
+  [key: string]: string | boolean | readonly string[] | TranslationTree | readonly TranslationTree[]
+}
+
+export const translations: Record<Lang, TranslationTree> = {
   EN: {
     a11y: { skipToContent: 'Skip to content' },
     // M10 — canonical taxonomy matrix labels (nav mega-menu + mobile drawer).
@@ -73,7 +79,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         digital: { name: 'Premium Analysis PDF', sub: 'Personal deep-dive: Dayun life phases & Five-Element balance.' },
         bundle: { name: 'Poster + Digital Analysis', sub: 'Your poster plus the full PDF analysis.' },
       },
-      birthHeading: '2 · Your birth data', birthHeadingA: '2 · Person A — birth data', birthHeadingB: 'Person B — birth data',
+      birthHeading: '2 · Your birth data', birthHeadingA: '2 · Person A — birth data', birthHeadingB: 'Person B — birth data', requiredHint: '* Required field',
       unknownTime: 'I don’t know my birth time', unknownTimeHint: 'If you do not know your exact birth time, we use 12:00 noon as the default assumption. Your poster will be composed based on this fallback value.',
       langHeading: '3 · Poster language',
       designHeading: '4 · Design', frameWord: 'Frame colour', paletteWord: 'Background palette', posterBgHeading: 'Poster background', sizeHeading: 'Size',
@@ -149,7 +155,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         gifts: { title: 'Gift Collection', desc: 'A meaningful personalized poster — made for someone you love.', cta: 'Start Personalizing' },
       },
     },
-    bundles: { eyebrow: 'Take more, pay less', title: 'Bundles', sub: 'Curated sets — posters and digital analysis combined, at a special price.', add: 'Add set to cart', save: 'Save' },
+    bundles: { eyebrow: 'Take more, pay less', title: 'Bundles', sub: 'Curated sets — posters and digital analysis combined, at a special price.', add: 'Add set to cart', save: 'Save', personalizeCta: 'Personalize now' },
     sale: { banner: 'Sale ✦ Now save 20% on selected posters' },
     homeQuickstart: { eyebrow: 'Start now', title: 'Personalize your poster in minutes', bazi: { title: 'Your BaZi Poster', sub: 'Enter your birth data and watch your exact chart appear live.', cta: 'Personalize now' }, couple: { title: 'Couple Compatibility', sub: 'Two birth charts, one artwork — your elemental relationship, precisely calculated.', cta: 'Start together' } },
     newsletter: { eyebrow: 'The Atelier Circle', title: 'Atelier News — New Posters, Offers & Inspiration', copy: 'Be first to hear about new poster releases, seasonal offers, atelier stories and inspiration for your walls — straight to your inbox. As a gentle extra, we occasionally include a reflective Cosmic Pulse energy note. ✨ No spam, unsubscribe anytime.', benefits: ['New poster & collection launches', 'Seasonal offers & gift ideas', 'Atelier stories · occasional Cosmic Pulse note'], placeholder: 'Your email address', langPref: 'Emails in', button: 'Subscribe', consent: 'I agree to receive product news, new poster launches, seasonal offers and marketing emails from SizhuAtelier, with the occasional Cosmic Pulse energy note. I can unsubscribe at any time. See our', privacy: 'Privacy Policy', success: 'Welcome to the Atelier Circle — you are on the list.', successConfirm: 'Almost there — check your inbox and confirm your subscription via the link we just sent.', error: 'Something went wrong — please try again.', consentErr: 'Please accept the terms to continue.', fine: 'Double opt-in · unsubscribe anytime' },
@@ -364,7 +370,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       ],
       faqDefs: {
         details: { q: 'Details & material', a: 'Museum-quality matte paper (200 g/m²) in a solid wood frame (12×22 mm) with protective plexiglass. Each poster is numbered in the atelier.' },
-        size: { q: 'Size guide', a: 'A3 (30×42 cm) for nooks & shelves, A2 (42×59 cm) the versatile standard for practice walls, A1 (59×84 cm) for big distance impact in reception or waiting areas.' },
+        size: { q: 'Size guide', a: '30 × 40 cm for nooks & shelves, 50 × 70 cm the versatile standard for practice walls, 70 × 100 cm for big distance impact in reception or waiting areas.' },
         ship: { q: 'Shipping & production', a: 'Production in 3 business days, then climate-neutral shipping (DE 1–2 days). Free shipping over €80. Personalized items are made to order — see our Return Policy; your statutory rights apply for faulty items.' },
         bazi: { q: 'About your personalization', a: 'From the date, time and place you enter, we compose a symbolic Four Pillars layout with heavenly stems and earthly branches. If you don’t know your birth time, we use 12:00 noon as the default assumption — this can influence the result.' },
       },
@@ -435,7 +441,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         digital: { name: 'Premium-Analyse-PDF', sub: 'Persönliche Tiefenanalyse: Dayun-Lebensphasen & Fünf-Elemente-Balance.' },
         bundle: { name: 'Poster + Digitalanalyse', sub: 'Dein Poster plus die vollständige PDF-Analyse.' },
       },
-      birthHeading: '2 · Deine Geburtsdaten', birthHeadingA: '2 · Person A — Geburtsdaten', birthHeadingB: 'Person B — Geburtsdaten',
+      birthHeading: '2 · Deine Geburtsdaten', birthHeadingA: '2 · Person A — Geburtsdaten', birthHeadingB: 'Person B — Geburtsdaten', requiredHint: '* Pflichtfeld',
       unknownTime: 'Ich kenne meine Geburtszeit nicht', unknownTimeHint: 'Wenn du deine genaue Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme. Dein Poster wird auf Grundlage dieses Ersatzwertes gestaltet.',
       langHeading: '3 · Poster-Sprache',
       designHeading: '4 · Design', frameWord: 'Rahmenfarbe', paletteWord: 'Hintergrund-Palette', posterBgHeading: 'Poster-Hintergrund', sizeHeading: 'Format',
@@ -511,7 +517,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         gifts: { title: 'Geschenk-Kollektion', desc: 'Ein bedeutungsvolles personalisiertes Poster — für einen geliebten Menschen.', cta: 'Personalisierung starten' },
       },
     },
-    bundles: { eyebrow: 'Mehr nehmen, weniger zahlen', title: 'Bundles', sub: 'Abgestimmte Sets — Poster und digitale Analyse kombiniert, zum Vorteilspreis.', add: 'Set in den Warenkorb', save: 'Spare' },
+    bundles: { eyebrow: 'Mehr nehmen, weniger zahlen', title: 'Bundles', sub: 'Abgestimmte Sets — Poster und digitale Analyse kombiniert, zum Vorteilspreis.', add: 'Set in den Warenkorb', save: 'Spare', personalizeCta: 'Jetzt personalisieren' },
     sale: { banner: 'Sale ✦ Jetzt 20% auf ausgewählte Poster sparen' },
     homeQuickstart: { eyebrow: 'Jetzt starten', title: 'Personalisiere dein Poster in Minuten', bazi: { title: 'Dein BaZi-Poster', sub: 'Gib deine Geburtsdaten ein und sieh dein exaktes Chart live entstehen.', cta: 'Jetzt personalisieren' }, couple: { title: 'Paar-Kompatibilität', sub: 'Zwei Geburtscharts, ein Kunstwerk — eure Element-Beziehung, exakt berechnet.', cta: 'Gemeinsam starten' } },
     newsletter: { eyebrow: 'Der Atelier-Kreis', title: 'Atelier-News — Neue Poster, Angebote & Inspiration', copy: 'Erfahre als Erste:r von neuen Poster-Releases, saisonalen Angeboten, Atelier-Geschichten und Wand-Inspiration — direkt ins Postfach. Als kleines Extra legen wir gelegentlich eine besinnliche Cosmic-Pulse-Energienote bei. ✨ Kein Spam, jederzeit abbestellbar.', benefits: ['Neue Poster- & Kollektions-Launches', 'Saisonale Angebote & Geschenkideen', 'Atelier-Geschichten · gelegentliche Cosmic-Pulse-Note'], placeholder: 'Deine E-Mail-Adresse', langPref: 'E-Mails auf', button: 'Abonnieren', consent: 'Ich stimme zu, Produkt-News, neue Poster-Launches, saisonale Angebote und Marketing-E-Mails von SizhuAtelier zu erhalten, mit gelegentlicher Cosmic-Pulse-Energienote. Ich kann mich jederzeit abmelden. Siehe unsere', privacy: 'Datenschutzerklärung', success: 'Willkommen im Atelier-Kreis — du stehst auf der Liste.', successConfirm: 'Fast geschafft — prüfe dein Postfach und bestätige dein Abo über den soeben gesendeten Link.', error: 'Etwas ist schiefgelaufen — bitte erneut versuchen.', consentErr: 'Bitte akzeptiere die Bedingungen, um fortzufahren.', fine: 'Double-Opt-in · jederzeit abbestellbar' },
@@ -725,7 +731,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       ],
       faqDefs: {
         details: { q: 'Details & Material', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen (12×22 mm) mit schützendem Plexiglas. Jedes Poster wird im Atelier nummeriert.' },
-        size: { q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
+        size: { q: 'Größenberater', a: '30 × 40 cm für Nischen & Regale, 50 × 70 cm als vielseitiger Standard für Praxiswände, 70 × 100 cm für große Fernwirkung im Empfangs- oder Wartebereich.' },
         ship: { q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab 75 €. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie; deine gesetzlichen Rechte bei Mängeln bleiben unberührt.' },
         bazi: { q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
       },
@@ -796,7 +802,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         digital: { name: 'PDF d’analyse premium', sub: 'Analyse approfondie : phases de vie Dayun & équilibre des Cinq Éléments.' },
         bundle: { name: 'Poster + Analyse digitale', sub: 'Votre poster plus l’analyse PDF complète.' },
       },
-      birthHeading: '2 · Vos données de naissance', birthHeadingA: '2 · Personne A — données de naissance', birthHeadingB: 'Personne B — données de naissance',
+      birthHeading: '2 · Vos données de naissance', birthHeadingA: '2 · Personne A — données de naissance', birthHeadingB: 'Personne B — données de naissance', requiredHint: '* Champ obligatoire',
       unknownTime: 'Je ne connais pas mon heure de naissance', unknownTimeHint: 'Si vous ne connaissez pas votre heure exacte de naissance, nous utilisons 12 h (midi) par défaut. Votre poster sera composé sur la base de cette valeur.',
       langHeading: '3 · Langue du poster',
       designHeading: '4 · Design', frameWord: 'Couleur du cadre', paletteWord: 'Palette de fond', posterBgHeading: 'Fond du poster', sizeHeading: 'Format',
@@ -872,7 +878,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         gifts: { title: 'Collection cadeau', desc: 'Un poster personnalisé porteur de sens — pour une personne que vous aimez.', cta: 'Commencer la personnalisation' },
       },
     },
-    bundles: { eyebrow: 'Plus on prend, moins on paie', title: 'Coffrets', sub: 'Des ensembles assortis — posters et analyse digitale combinés, à prix avantageux.', add: 'Ajouter le coffret', save: 'Économisez' },
+    bundles: { eyebrow: 'Plus on prend, moins on paie', title: 'Coffrets', sub: 'Des ensembles assortis — posters et analyse digitale combinés, à prix avantageux.', add: 'Ajouter le coffret', save: 'Économisez', personalizeCta: 'Personnaliser maintenant' },
     sale: { banner: 'Sale ✦ Économisez 20% sur une sélection de posters' },
     homeQuickstart: { eyebrow: 'Commencez', title: 'Personnalisez votre poster en quelques minutes', bazi: { title: 'Votre poster BaZi', sub: 'Saisissez vos données de naissance et voyez votre carte exacte apparaître en direct.', cta: 'Personnaliser' }, couple: { title: 'Compatibilité de couple', sub: 'Deux cartes de naissance, une œuvre — votre relation élémentaire, calculée avec précision.', cta: 'Commencer à deux' } },
     newsletter: { eyebrow: 'Le Cercle de l’Atelier', title: 'Actus de l’Atelier — Nouveaux posters, offres & inspiration', copy: 'Soyez informé·e en avant-première des nouveaux posters, des offres saisonnières, des histoires de l’atelier et de l’inspiration déco — directement dans votre boîte mail. En petit bonus, nous glissons parfois une note énergétique Cosmic Pulse. ✨ Pas de spam, désinscription à tout moment.', benefits: ['Nouveaux posters & collections', 'Offres saisonnières & idées cadeaux', 'Histoires d’atelier · note Cosmic Pulse occasionnelle'], placeholder: 'Votre adresse e-mail', langPref: 'E-mails en', button: 'S’abonner', consent: 'J’accepte de recevoir des actualités produit, de nouveaux posters, des offres saisonnières et des e-mails marketing de SizhuAtelier, avec une note énergétique Cosmic Pulse occasionnelle. Je peux me désinscrire à tout moment. Voir notre', privacy: 'Politique de confidentialité', success: 'Bienvenue dans le Cercle de l’Atelier — vous êtes inscrit.', successConfirm: 'Presque terminé — vérifiez votre boîte mail et confirmez via le lien que nous venons d’envoyer.', error: 'Une erreur est survenue — veuillez réessayer.', consentErr: 'Veuillez accepter les conditions pour continuer.', fine: 'Double opt-in · désinscription à tout moment' },
@@ -1086,7 +1092,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       ],
       faqDefs: {
         details: { q: 'Détails & matériau', a: 'Papier mat qualité musée (200 g/m²) dans un cadre en bois massif (12×22 mm) avec plexiglas de protection. Chaque poster est numéroté à l’atelier.' },
-        size: { q: 'Guide des tailles', a: 'A3 (30×42 cm) pour niches & étagères, A2 (42×59 cm) le standard polyvalent pour les murs de cabinet, A1 (59×84 cm) pour une forte présence en accueil ou salle d’attente.' },
+        size: { q: 'Guide des tailles', a: '30 × 40 cm pour niches & étagères, 50 × 70 cm le standard polyvalent pour les murs de cabinet, 70 × 100 cm pour une forte présence en accueil ou salle d’attente.' },
         ship: { q: 'Livraison & production', a: 'Production en 3 jours ouvrés, puis livraison neutre en carbone (DE 1–2 jours). Livraison offerte dès 75 €. Les articles personnalisés sont fabriqués sur commande — voir notre politique de retour ; vos droits légaux s’appliquent en cas de défaut.' },
         bazi: { q: 'À propos de votre personnalisation', a: 'À partir de la date, de l’heure et du lieu que vous saisissez, nous composons une mise en page symbolique des quatre piliers avec troncs célestes et branches terrestres. Si vous ne connaissez pas votre heure de naissance, nous utilisons 12 h (midi) par défaut — cela peut influencer le résultat.' },
       },
@@ -1293,6 +1299,7 @@ export const translations: Record<Lang, Record<string, any>> = {
       birthHeading: '2 · Tus datos de nacimiento',
       birthHeadingA: '2 · Persona A — datos de nacimiento',
       birthHeadingB: 'Persona B — datos de nacimiento',
+      requiredHint: '* Campo obligatorio',
       unknownTime: 'No conozco mi hora de nacimiento',
       unknownTimeHint: 'Si no conoces tu hora exacta de nacimiento, usamos las 12:00 del mediodía como suposición por defecto. Tu póster se compondrá a partir de ese valor de reserva.',
       langHeading: '3 · Idioma del póster',
@@ -1530,7 +1537,8 @@ export const translations: Record<Lang, Record<string, any>> = {
       title: 'Packs',
       sub: 'Sets seleccionados — pósteres y análisis digital combinados, a un precio especial.',
       add: 'Añadir set a la cesta',
-      save: 'Ahorra'
+      save: 'Ahorra',
+      personalizeCta: 'Personalizar ahora'
     },
     sale: { banner: 'Sale ✦ Ahorra un 20% en pósteres seleccionados' },
     homeQuickstart: { eyebrow: 'Empieza ahora', title: 'Personaliza tu póster en minutos', bazi: { title: 'Tu póster BaZi', sub: 'Introduce tus datos de nacimiento y ve aparecer tu carta exacta en vivo.', cta: 'Personalizar ahora' }, couple: { title: 'Compatibilidad de pareja', sub: 'Dos cartas natales, una obra — vuestra relación elemental, calculada con precisión.', cta: 'Empezar juntos' } },
@@ -2307,7 +2315,7 @@ export const translations: Record<Lang, Record<string, any>> = {
         },
         size: {
           q: 'Guía de tamaños',
-          a: 'A3 (30×42 cm) para rincones y estanterías, A2 (42×59 cm) el estándar versátil para las paredes de la consulta, A1 (59×84 cm) para gran impacto a distancia en recepción o salas de espera.'
+          a: '30 × 40 cm para rincones y estanterías, 50 × 70 cm el estándar versátil para las paredes de la consulta, 70 × 100 cm para gran impacto a distancia en recepción o salas de espera.'
         },
         ship: {
           q: 'Envío y producción',

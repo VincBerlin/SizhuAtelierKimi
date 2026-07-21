@@ -58,7 +58,7 @@ const baziLine: CartLine = {
   title: 'BaZi Geburtschart — Vier Säulen',
   price: 49,
   qty: 2,
-  poster: { frame: '#1B1B1B', bg: '#E9DFCB', name: 'Mara', element: 'Wood', animal: 'Horse', pillars: [] } as any,
+  poster: { frame: '#1B1B1B', bg: '#E9DFCB', name: 'Mara', element: 'Wood', animal: 'Horse', pillars: [] },
   meta: 'Natural oak · Sandstone · A2',
   personalization: { date: '1990-07-21', time: '12:00', place: 'Munich', name: 'Mara' },
   productId: 'poster-1',

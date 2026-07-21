@@ -1,5 +1,7 @@
 import { type CSSProperties, type ReactNode } from 'react'
-import { frames, backgrounds, sizes } from '../../lib/bazi'
+// Batch #12 R4 (#10): EIN Format-System — der Konfigurator bietet dieselben
+// cm-Formate wie /personalize (Gelato-verifiziert), nicht mehr die A-Serie.
+import { frames, backgrounds, personalizedSizes as sizes } from '../../lib/bazi'
 import { useShopStore, useMoney } from '../../store/ShopStore'
 import { useT } from '../../i18n/I18nProvider'
 import { COMMERCE_ENABLED } from '../../lib/config'

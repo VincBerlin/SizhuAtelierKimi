@@ -6,6 +6,7 @@ import { type PlaceCandidate } from '../lib/baziClient'
 import { useBaziChart, usePairChart, useWesternChart } from '../hooks/useBaziChart'
 import { usePlaceResolution, type PlaceStatus } from '../hooks/usePlaceResolution'
 import PosterSvg from '../components/shop/PosterSvg'
+import { PersonalizeTrustRow, PersonalizeFaq, PersonalizeCrossSells } from '../components/shop/PersonalizeInfoSections'
 import { DESIGNS } from '../designs/registry.mjs'
 import { localizeElement, localizeAnimal, posterSubtitle, localizeRelation, stemElement, zodiacName, planetName } from '../designs/posterLocale.mjs'
 import { useShopStore, useMoney } from '../store/ShopStore'
@@ -29,10 +30,13 @@ const inputStyle = {
 const cardStyle = { border: `1px solid ${C.border}`, padding: 22, background: '#fff', marginBottom: 18 }
 const headingStyle = { fontSize: 13, fontWeight: 600 as const, letterSpacing: '0.02em', marginBottom: 14, color: C.ink }
 
-function Field({ label, error, children }: { label: string; error?: boolean; children: ReactNode }) {
+function Field({ label, error, required, children }: { label: string; error?: boolean; required?: boolean; children: ReactNode }) {
+  // Batch #12 R3 (#8): Pflichtfelder sind ALS Pflichtfelder markiert (Sternchen
+  // im Label + Legende darunter) — nicht erst nach einem gescheiterten
+  // Kaufversuch über die Fehlerfarbe erkennbar.
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: error ? C.accent : C.textMuted2, minWidth: 0 }}>
-      {label}{children}
+      <span>{label}{required && <span aria-hidden="true"> *</span>}</span>{children}
     </label>
   )
 }
@@ -263,6 +267,9 @@ export default function Personalize() {
       personalization.palette = bg.name
       // posterBg (REQ-018 5-Hex-Palette) entfernt — Operator-Vorgabe 2026-07-13.
       personalization.size = size.label
+      // Kanonische Format-ID zusätzlich zum Label (R4 #10): der Druckpfad
+      // (fulfillment → PRINT_SPECS/Gelato) mappt über die ID, nie übers Label.
+      personalization.sizeId = size.id
       personalization.pdfAddon = String(!def.pdfIncluded && pdfAddon)
     }
     const metaParts = [posterLang, def.poster ? t(`options.backgrounds.${bgHex}`) : t('personalize.pdfBadge'), def.poster ? t(`options.frames.${frameHex}`) : null, def.poster ? size.label : null]
@@ -303,15 +310,48 @@ export default function Personalize() {
         <div
           data-testid="poster-preview-sticky"
           className="personalize-preview"
-          style={{ background: C.surfaceWarm, padding: 8 }}
+          // Opaker Grund (Seitenweiß): das Sticky-Modul MUSS den darunter
+          // durchscrollenden Inhalt maskieren — auch unter dem Szene-Kasten
+          // (Hinweis-/Statuszeilen), sonst scheinen Formular-Karten durch.
+          style={{ background: C.bg }}
         >
-          {def.poster ? (
-            <PosterSvg data={previewData} designId={designId} frameName={frame.name} />
-          ) : (
-            <div style={{ aspectRatio: '4 / 5', background: C.surfaceWarm, border: `1px solid ${C.border}`, borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
-              <div style={{ fontSize: 40 }}>◇</div>
-              <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink }}>{t('personalize.pdfBadge')}</div>
-              <div style={{ fontSize: 13, color: C.textMuted2 }}>{t('personalize.types.digital.sub')}</div>
+          {/* Batch #12 R3 (#6): EIN Präsentations-Modul — das Poster (mit
+              gewähltem Hintergrund) sitzt im realistischen Rahmen auf einer
+              Wandfläche, wie in der PDP-Galerie; auch die Digital-Kachel lebt
+              im selben Modul, damit der Wechsel der Typen ruhig bleibt. */}
+          <div data-testid="personalize-scene" className="personalize-scene">
+            {def.poster ? (
+              <PosterSvg data={previewData} designId={designId} frameName={frame.name} />
+            ) : (
+              <div style={{ aspectRatio: '3 / 4', background: '#fff', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
+                <div style={{ fontSize: 40 }}>◇</div>
+                <div style={{ fontFamily: FONT_SERIF, fontSize: 22, color: C.ink }}>{t('personalize.pdfBadge')}</div>
+                <div style={{ fontSize: 13, color: C.textMuted2 }}>{t('personalize.types.digital.sub')}</div>
+              </div>
+            )}
+          </div>
+          {/* R4 (#7): Rahmen-ANSICHTEN — beide Rahmen als klickbare Kacheln aus
+              derselben Design-Quelle (kein Fake-Mockup); Klick wechselt den
+              Rahmen der Hauptvorschau. */}
+          {def.poster && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
+              {frames.map((f) => {
+                const sel = f.hex === frameHex
+                return (
+                  <button
+                    key={f.hex}
+                    type="button"
+                    data-testid="frame-view"
+                    aria-pressed={sel}
+                    onClick={() => setFrameHex(f.hex)}
+                    style={{ position: 'relative', border: `1px solid ${C.borderInput}`, background: '#fff', padding: 8, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: 11, color: C.ink }}
+                  >
+                    <PosterSvg data={previewData} designId={designId} frameName={f.name} testId={`frame-view-preview-${f.name}`} />
+                    <div style={{ marginTop: 6 }}>{t(`options.frames.${f.hex}`)}</div>
+                    {sel && <span style={{ position: 'absolute', inset: -2, border: `2px solid ${C.accent}`, pointerEvents: 'none' }} />}
+                  </button>
+                )
+              })}
             </div>
           )}
           <p style={{ fontSize: 12, color: C.textMuted5, margin: '12px 2px 0', lineHeight: 1.5 }}>{t('personalize.previewCertainty')}</p>
@@ -346,6 +386,9 @@ export default function Personalize() {
           {/* Step 2 — birth data */}
           <div id="personalize-birth" style={cardStyle}>
             <div style={headingStyle}>{def.couple ? t('personalize.birthHeadingA') : t('personalize.birthHeading')}</div>
+            {/* Batch #12 R3 (#8): Pflichtfeld-Legende — die Sternchen in den
+                Labels sind VOR dem ersten Kaufversuch erklärt. */}
+            <p data-testid="required-fields-hint" style={{ fontSize: 12, color: C.textMuted3, margin: '0 0 12px' }}>{t('personalize.requiredHint')}</p>
             <PersonFields person={a} setPerson={setA} unknownTime={unknownTimeA} err={errA} showErrors={showErrors} t={t} primary onCommitPlace={placeA.resolve} />
             {/* Orts-Auflösungs-Status (Exaktheits-Transparenz): der Käufer sieht
                 IMMER, für welchen aufgelösten Ort gerechnet wird — nichts wird
@@ -633,26 +676,37 @@ export default function Personalize() {
           <button onClick={addToCart} className="transition-[filter,transform] hover:brightness-110 active:translate-y-[1px]" style={{ width: '100%', background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: 18, fontSize: 16, fontWeight: 600, fontFamily: FONT_SANS, letterSpacing: '0.01em', boxShadow: ACCENT_CTA_SHADOW }}>
             {t('personalize.addToCart')}{COMMERCE_ENABLED && <> · {money(price)}</>}
           </button>
+
+          {/* R4 (#7): einheitliche PDP-Struktur — Trust-Zeile + Details/
+              Material/Formate/Versand/Personalisierung (gleiche faqDefs wie
+              die Katalog-PDP, EINE Quelle). */}
+          <PersonalizeTrustRow />
+          <PersonalizeFaq />
         </div>
       </div>
+
+      {/* R4 (#7/#11): Empfehlungen — echte Links auf aktive Katalogprodukte. */}
+      <PersonalizeCrossSells />
     </main>
   )
 }
 
-function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary, onCommitPlace }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: (k: string, v?: Record<string, string | number>) => any; primary?: boolean; onCommitPlace?: (v: string) => void }) {
+function PersonFields({ person, setPerson, unknownTime, err, showErrors, t, primary, onCommitPlace }: { person: Person; setPerson: (p: Person) => void; unknownTime: boolean; err: { name: boolean; date: boolean; place: boolean; time: boolean }; showErrors: boolean; t: import("../i18n/I18nProvider").TFunction; primary?: boolean; onCommitPlace?: (v: string) => void }) {
   const e = (cond: boolean) => showErrors && cond
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
-      <Field label={t('configurator.name')} error={e(err.name)}><input type="text" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
+      <Field label={t('configurator.name')} error={e(err.name)} required><input type="text" aria-required="true" value={person.name} onChange={(ev) => setPerson({ ...person, name: ev.target.value })} placeholder={t('configurator.namePh')} style={inputStyle} /></Field>
       {/* REQ-013 / T-403 — Place-of-Birth autocomplete from the bundled cities
           list (src/lib/cities.ts). NEVER calls a public geocoder per keystroke.
           Die EXAKTE Auflösung (lat/lon/tz) passiert erst bei Auswahl/Blur über
           die EIGENE Route /api/geocode (onCommitPlace) — Policy AT-013-3 bleibt. */}
-      <Field label={t('configurator.place')} error={e(err.place)}>
+      <Field label={t('configurator.place')} error={e(err.place)} required>
         <PlaceAutocomplete value={person.place} onChange={(v) => setPerson({ ...person, place: v })} placeholder={t('configurator.placePh')} primary={primary} onCommit={onCommitPlace} />
       </Field>
-      <Field label={t('configurator.date')} error={e(err.date)}><input type="date" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
-      <Field label={t('configurator.time')} error={e(err.time)}><input type="time" value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
+      <Field label={t('configurator.date')} error={e(err.date)} required><input type="date" aria-required="true" value={person.date} onChange={(ev) => setPerson({ ...person, date: ev.target.value })} style={inputStyle} /></Field>
+      {/* Zeit ist Pflicht, solange sie nicht ausdrücklich als unbekannt markiert
+          ist (dann greift der offengelegte 12:00-Fallback). */}
+      <Field label={t('configurator.time')} error={e(err.time)} required={!unknownTime}><input type="time" aria-required={!unknownTime} value={person.time} disabled={unknownTime} onChange={(ev) => setPerson({ ...person, time: ev.target.value })} style={{ ...inputStyle, opacity: unknownTime ? 0.5 : 1 }} /></Field>
     </div>
   )
 }
@@ -673,6 +727,7 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
       <input
         type="text"
         role="combobox"
+        aria-required="true"
         aria-expanded={show}
         aria-autocomplete="list"
         data-testid={primary ? 'place-of-birth-input' : 'place-of-birth-input-b'}
@@ -700,7 +755,7 @@ function PlaceAutocomplete({ value, onChange, placeholder, primary, onCommit }: 
 
 /** Auflösungs-Status unter einem Geburtsort-Feld: bestätigter Ort, Kandidaten-
  *  Auswahl (mehrdeutig), Nachbarort-Hinweis (nicht gefunden), Fehler. */
-function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefix }: { status: PlaceStatus; place: { resolvedName: string; countryCode: string } | null; candidates: PlaceCandidate[] | null; onPick: (c: PlaceCandidate) => void; t: (k: string, v?: Record<string, string | number>) => any; testPrefix: string }) {
+function PlaceResolutionStatus({ status, place, candidates, onPick, t, testPrefix }: { status: PlaceStatus; place: { resolvedName: string; countryCode: string } | null; candidates: PlaceCandidate[] | null; onPick: (c: PlaceCandidate) => void; t: import("../i18n/I18nProvider").TFunction; testPrefix: string }) {
   if (status === 'ok' && place) {
     return (
       <div data-testid={`${testPrefix}-resolved-note`} role="note" style={{ marginTop: 10, fontSize: 12.5, color: C.textMuted2 }}>

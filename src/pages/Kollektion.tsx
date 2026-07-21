@@ -11,10 +11,12 @@ import { C, FONT_SERIF, FONT_SANS, CONTAINER } from '../lib/tokens'
    Each card links to the best available destination; the dedicated couple/gift
    flows deepen in later iterations. */
 const COLLECTIONS = [
-  { key: 'birthchart', img: '/images/posters/bazi-personal.webp', to: '/personalize' },
-  { key: 'couple', img: '/images/gifts/wedding.webp', to: '/personalize' },
+  // Batch #12 R3 (#5): personalisierte Angebote deep-linken in den passenden
+  // Produkttyp der EINEN Personalisierungsseite (kein /digital-Duplikat mehr).
+  { key: 'birthchart', img: '/images/posters/bazi-personal.webp', to: '/personalize?type=birthchart' },
+  { key: 'couple', img: '/images/gifts/wedding.webp', to: '/personalize?type=couple' },
   { key: 'firehorse', img: '/images/posters/fire-horse.webp', to: '/product/8' },
-  { key: 'digital', img: '/images/posters/tcm-elements.webp', to: '/digital' },
+  { key: 'digital', img: '/images/posters/tcm-elements.webp', to: '/personalize?type=digital' },
   { key: 'bundles', img: '/images/posters/wuxing-wall.webp', to: '/bundles' },
 ] as const
 
