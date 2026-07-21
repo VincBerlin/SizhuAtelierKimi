@@ -1,54 +1,111 @@
 # SizhuAtelier — Operator Handoff (pre-launch)
 
-What the operator must provide / decide before going live. The app **boots and runs without any of these** (every integration is env-gated) — but the features below stay inert until configured.
+Stand: 20.07.2026. Dieses Dokument trennt technische Konfiguration von Angaben
+und Freigaben, die nur der Betreiber liefern kann. Es dürfen keine echten
+Zahlungen angenommen werden, solange ein Blocker in Abschnitt 1 offen ist.
 
-## 1. Environment variables
+## 1. Harte Go-live-Blocker
 
-Set in Railway (prod) or `.env` (local). Reference: `.env.example`.
+- **Unternehmen und Stripe Live:** Gewerbe/Einzelunternehmen anmelden,
+  steuerliche Erfassung abschließen und die von Stripe verlangten echten
+  Unternehmens- und Steuerdaten einreichen. Eine private 11-stellige Steuer-ID
+  gehört nicht in ein ausdrücklich als `USt-IdNr.` bezeichnetes Feld.
+- **Rechtsseiten:** alle `[MISSING — …]`-Marker in `src/lib/legal.ts` mit den
+  echten Betreiberangaben, Versandbedingungen und Rückgaberegeln ersetzen und
+  rechtlich prüfen lassen.
+- **Katalog-Poster:** je Poster und Format eine druckfertige PDF gemäß
+  `print-assets/README.md` liefern und in `server/printAssets.js` registrieren.
+  Fehlende Dateien führen absichtlich zu einem lauten Fulfillment-Fehler.
+- **Verpackungsrecht:** Verantwortlichkeit mit Gelato schriftlich klären. Für
+  Deutschland LUCID-/Systembeteiligung vor dem ersten physischen Verkauf
+  prüfen; die ab 12.08.2026 geltenden PPWR-Regeln im Ergebnis berücksichtigen.
+- **Live-Nachweis:** erst nach den obigen Punkten einen kontrollierten echten
+  Kauf vollständig bis zum Gelato-Draft prüfen. Die Stripe-Testkarte `4242 …`
+  funktioniert nur im Testmodus, nicht im Live-Modus.
 
-| Variable | Required for | If missing |
+## 2. Railway-Umgebungsvariablen
+
+Referenz: `.env.example`. Geheimnisse nie committen oder in Tickets kopieren.
+
+| Variable | Erforderlich für | Verhalten wenn sie fehlt |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | Checkout + Stripe customer + billing portal | `/api/checkout` → 503; no payments |
-| `STRIPE_WEBHOOK_SECRET` | Order persistence on payment | Orders not recorded from webhook |
-| `PUBLIC_URL` | Stripe success/cancel + reset-email + portal return URLs | Falls back to request origin (set explicitly) |
-| `CURRENCY` | Stripe line currency (default `eur`) | Defaults to eur |
-| `DATABASE_URL` | Orders, accounts, Celestial Credits, addresses, newsletter | All DB features off; auth → 503 |
-| `SESSION_SECRET` | Auth (signed session cookies) | **Auth disabled** until set (login/signup → 503) |
-| `RESEND_API_KEY` | Confirmation + password-reset emails | No emails sent (reset tokens still created) |
-| `ORDER_FROM_EMAIL` / `ORDER_NOTIFY_EMAIL` | From / internal new-order notice | Defaults / no internal notice |
+| `STRIPE_SECRET_KEY` | Checkout, Stripe-Kunden, Portal | Checkout/Portal nicht verfügbar |
+| `STRIPE_WEBHOOK_SECRET` | Signaturprüfung des Zahlungs-Webhooks | Webhook antwortet 503 |
+| `DATABASE_URL` | bezahlte Bestellungen, Accounts, Newsletter, Drucke | Webhook antwortet 500, damit Stripe erneut zustellt |
+| `PUBLIC_URL` | Redirects, Druckdateien, E-Mail-Links | Railway-Domain/Request-Origin als Fallback; explizit setzen |
+| `SESSION_SECRET` | signierte Sitzungen | Authentifizierung deaktiviert |
+| `FUFIRE_API_URL` / `FUFIRE_API_KEY` | personalisierte Berechnungen | personalisierte Produktion nicht möglich |
+| `GELATO_API_KEY` | Druck und Versand | Gelato-Übergabe deaktiviert |
+| `GELATO_ORDER_TYPE` | Freigabemodus | Für den Start ausdrücklich `draft` setzen |
+| `FULFILLMENT_RETRY_SECRET` | geschützte manuelle Wiederholung | Retry-Route antwortet 503 |
+| `RESEND_API_KEY` | Bestell-, Fehler- und Konto-E-Mails | keine E-Mails |
+| `ORDER_FROM_EMAIL` | Absender für Bestellmails | Code-Standardwert |
+| `ORDER_NOTIFY_EMAIL` | neue Bestellungen und Fulfillment-Alarme | keine Operator-Alarme |
 
-Generate a session secret: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`
+`SESSION_SECRET` und `FULFILLMENT_RETRY_SECRET` jeweils unabhängig und zufällig
+erzeugen, zum Beispiel lokal mit:
 
-## 2. Code blocker before real money
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+```
 
-- **Server-side price validation.** `/api/checkout` currently trusts the client-sent `unitAmount` (positive-int sanity check only). A tampered request can lower line prices. Authoritative fix = have the cart lines carry product id + size and **re-price on the server** from a price table. Deferred deliberately while prices are placeholders — **do this before charging real cards.** (See the TODO comment in `server/index.js` checkout route.)
+## 3. Stripe: sicherer Wechsel von Test auf Live
 
-## 3. Content the operator owns (placeholders in the repo)
+1. Zuerst prüfen, dass Railway aus dem freigegebenen `main`-Commit deployt und
+   `/api/health` für Stripe, DB und E-Mail den erwarteten Zustand meldet.
+2. Im Stripe-Testmodus den Checkout und den Webhook
+   `checkout.session.completed` erneut mit einer Testbestellung prüfen.
+3. Nach erfolgreicher Stripe-Verifizierung in der **Live-Umgebung** einen
+   separaten Webhook `POST {PUBLIC_URL}/api/webhook` anlegen und nur
+   `checkout.session.completed` abonnieren.
+4. In einer Railway-Änderung `STRIPE_SECRET_KEY=sk_live_…` und den zu diesem
+   Live-Endpoint gehörenden `STRIPE_WEBHOOK_SECRET=whsec_…` setzen. Test- und
+   Live-Secrets niemals mischen. Deployment kontrolliert neu starten.
+5. Customer Portal im Live-Modus aktivieren. Danach eine kleine echte
+   Eigenbestellung ausführen und Stripe-Ereignis, `orders`-Datensatz,
+   Operator-Mail, PDF und Gelato-Draft einzeln belegen.
+6. Gelato-Draft manuell prüfen und erst dann freigeben. Vollautomatik
+   (`GELATO_ORDER_TYPE=order`) ist eine spätere bewusste Entscheidung.
 
-- **Product imagery / storytelling.** Replace any remaining atelier / brush / ink-jar / manufaktur photos with the intended visual language: mathematical geometry, fine vector element-lines (Wood/Fire/Earth/Metal/Water), dashboard/precision visuals, clean poster mockups, modern luxury interiors. (Framing copy is already cleaned; the **images** are the open item.)
-- **TCM teaching posters (SKUs id 11–14)** in `src/lib/catalog.ts` are **placeholder** — real product images, prices and copy needed (TCM Educational / Practice / Wellness / Yoga). Fire Horse (id 8) image/price likewise placeholder.
-- **All catalog prices are placeholder** — replace with real prices (and then wire §2).
-- **Legal / company data — MISSING, never invented.** Impressum, AGB/Terms, contact entity details are PLACEHOLDER (e.g. the returns FAQ item is flagged `placeholder`). Provide real legal-entity data and the actual return/withdrawal policy. **DE/FR legal page bodies are still English** — translate.
-- **OG / share image** uses a relative path — set an absolute URL on the prod domain.
+Bei einem Fehler vor erfolgreicher Datenbank-Speicherung antwortet der Webhook
+mit HTTP 500, damit Stripe erneut zustellt. Fulfillment-Fehler nach der
+Speicherung werden als fehlgeschlagen markiert, per E-Mail gemeldet und über die
+idempotente Retry-Route erneut angestoßen.
 
-## 4. Stripe setup
+## 4. Bereits technisch abgesichert
 
-- Add a webhook endpoint → `POST {PUBLIC_URL}/api/webhook` for `checkout.session.completed`; put its signing secret in `STRIPE_WEBHOOK_SECRET`.
-- Enable the **Customer Portal** (Billing → Customer portal) so "Manage payment methods" works.
-- Start with `sk_test_…`, switch to live keys only after §2.
+- Checkout-Preise und Versand werden serverseitig aus Produkt-ID, Variante und
+  Region berechnet; vom Client gesendete Beträge werden ignoriert.
+- Personalisierte Produkte ohne vollständige Pflichtdaten werden vor Stripe
+  blockiert.
+- Stripe-Webhook-Signaturen werden gegen den Railway-Secret geprüft.
+- Bezahlte Bestellungen müssen persistiert sein, bevor der Webhook HTTP 200
+  zurückgibt.
+- Druck- und Gelato-Ablauf sind idempotent; fehlende Katalog-PDFs scheitern laut
+  und können nach Lieferung des Assets wiederholt werden.
+- Gelato-Produkt-UIDs und die unterstützten Druckformate sind im Code zentral
+  zugeordnet.
 
-## 5. Infrastructure
+## 5. Restliche Betreiberentscheidungen
 
-- **Postgres**: Railway Postgres plugin sets `DATABASE_URL`. Tables auto-create on boot (`users`, `addresses`, `orders`, `newsletter_signups`, `credits_ledger`).
-- **Rate limiting is in-memory / single-instance.** For more than one server instance, move it to Redis/Upstash (keys: `login`/`signup`/`password`/`reset_*`/`newsletter` per IP). Stamped in `server/index.js`.
+- Newsletter-Broadcast: Wochentag, Uhrzeit und Zeitzone festlegen.
+- Endpreise und Gratisversand-Schwelle erst nach Testläufen verbindlich
+  festlegen; zentrale Quellen sind `src/lib/productTypes.ts` und
+  `server/pricing.js`.
+- Optionales eigenes Poster-Design in `Shop/design-input/` liefern.
+- Premium-PDF der 195-Euro-Analyse als eigener Abnahmeschritt (10–15 Seiten)
+  fertigstellen, bevor das Produkt live verkauft wird.
 
-## 6. Go-live checklist
+## 6. Finale Freigabe-Checkliste
 
-- [ ] All required env vars set; `npm run build` green; `node --check server/index.js`.
-- [ ] Real prices in `catalog.ts` **and** server-side re-pricing wired (§2).
-- [ ] Real product/TCM/Fire-Horse images + the storytelling image swap (§3).
-- [ ] Legal pages filled with real entity data; DE/FR translated; returns policy accurate.
-- [ ] Stripe live keys + webhook + Customer Portal; one real test order end-to-end.
-- [ ] Signup → dashboard → address CRUD → checkout autofill verified against the live DB.
-- [ ] Redis-backed rate limit if running >1 instance.
-- [ ] Mobile pass (360/390/430) on the deployed URL.
+- [ ] Gewerbe/steuerliche Erfassung und Stripe-Live-Verifizierung abgeschlossen.
+- [ ] Rechtsseiten ohne `[MISSING]`, fachlich und sprachlich geprüft.
+- [ ] Verpackungsverantwortung/LUCID/Systembeteiligung dokumentiert.
+- [ ] Alle Katalog-Druck-PDFs registriert und testgerendert.
+- [ ] Build, vollständige Tests und Lint auf dem freigegebenen Commit grün.
+- [ ] Railway-Quelle und deployter Commit dokumentiert.
+- [ ] Testmodus-End-to-End-Test grün.
+- [ ] Live-Secrets und Live-Webhook gemeinsam gesetzt; Customer Portal aktiv.
+- [ ] Kontrollierte echte Bestellung bis zum Gelato-Draft belegt.
+- [ ] Mobile-Prüfung auf 360/390/430 px an der deployten URL abgeschlossen.
+- [ ] Preise, Versandkosten und Gratisversand-Schwelle final freigegeben.

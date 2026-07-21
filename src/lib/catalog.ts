@@ -72,41 +72,45 @@ const mk = (frame: string, bg: string, name: string, date: string): PosterData =
   return { frame, bg, name, element: c.element, animal: c.animal, pillars: c.pillars }
 }
 
+// Public catalog fixtures only. These labels and dates are synthetic demo data;
+// customer names and birth data are supplied exclusively through personalization.
+const DEMO_DATE = '2000-01-01'
+
 export const products: Product[] = [
   {
     id: 1, retired: true, category: 'TCM', title: 'BaZi Geburtschart — Vier Säulen', price: 49, anchor: 59, rating: 4.9, reviews: 318, sold: 2140,
     bullets: ['Aus deinen Geburtsdaten zu einem symbolischen Kunstwerk komponiert — kein Standardmotiv', 'Museum-quality mattes Papier', 'Massivholzrahmen mit schützendem Plexiglas', 'Produktion in 3 Werktagen, nummeriert'],
-    poster: mk('#B98A5E', '#E9DFCB', 'Mara Lindqvist', '1990-07-21'),
+    poster: mk('#B98A5E', '#E9DFCB', 'Demo · Einzelperson', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'classic_ink',
   },
   {
     id: 2, retired: true, category: 'Praxen', title: 'BaZi Praxis-Edition', price: 69, anchor: 79, rating: 4.8, reviews: 196, sold: 870,
     bullets: ['Ruhiges Indigo für Behandlungs- & Wartebereiche', 'Großformat mit klarer Fernwirkung', 'Schützendes Plexiglas — hygienisch abwischbar', 'Optional mit Praxisname statt Personenname'],
-    poster: mk('#1B1B1B', '#2C3A57', 'Praxis Anand', '1985-03-09'),
+    poster: mk('#1B1B1B', '#2C3A57', 'Demo · Praxis', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'single', use_case: 'practice', design_family: 'minimal',
   },
   {
     id: 3, retired: true, category: 'Wellness', title: 'BaZi Elemente-Poster', price: 45, anchor: 55, rating: 4.9, reviews: 241, sold: 1320,
     bullets: ['Warmes Salbeigrün — beruhigend für Ruheräume', 'Betont die Fünf-Elemente-Balance', 'Museum-quality mattes Papier', 'Auch als Gutschein-Geschenk beliebt'],
-    poster: mk('#B98A5E', '#AFBCA6', 'Lina Sommer', '1992-11-02'),
+    poster: mk('#B98A5E', '#AFBCA6', 'Demo · Wellness', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'single', use_case: 'wellness', design_family: 'japandi',
   },
   {
     id: 4, retired: true, category: 'Yoga', title: 'BaZi Yoga-Flow Chart', price: 39, anchor: 49, rating: 4.7, reviews: 158, sold: 990,
     bullets: ['Erdiges Terracotta — passt zu Holz & Pflanzen', 'Kompaktes Format für Studio-Wände', 'Leichter Rahmen, einfache Wandmontage', 'Set-Rabatt für mehrere Studio-Räume'],
-    poster: mk('#B98A5E', '#BC7A5E', 'Yara Khan', '1994-05-18'),
+    poster: mk('#B98A5E', '#BC7A5E', 'Demo · Yoga', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'single', use_case: 'yoga', design_family: 'wabi_sabi',
   },
   {
     id: 5, retired: true, category: 'Wellness', title: 'BaZi Mond & Sterne', price: 52, rating: 4.9, reviews: 134, sold: 640,
     bullets: ['Tiefes Anthrazit für eine elegante, ruhige Wirkung', 'Premium-Schwarzrahmen, matt', 'Goldfarbene Akzentschrift optional', 'Hochwertiges Geschenk zum Jahreswechsel'],
-    poster: mk('#1B1B1B', '#2A2A2C', 'Noah Berger', '1988-12-30'),
+    poster: mk('#1B1B1B', '#2A2A2C', 'Demo · Geschenk', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'single', use_case: 'gift', design_family: 'classic_ink',
   },
   {
     id: 6, retired: true, category: 'TCM', title: 'BaZi Minimal', price: 42, anchor: 52, rating: 4.8, reviews: 205, sold: 1510,
     bullets: ['Reduziertes Sandstein — zurückhaltend & zeitlos', 'Schwarzer Rahmen, klare Linie', 'Passt in jede Praxis- und Wohnumgebung', 'Bestseller für Erstbesteller'],
-    poster: mk('#1B1B1B', '#E9DFCB', 'Sofia Reuter', '1991-09-14'),
+    poster: mk('#1B1B1B', '#E9DFCB', 'Demo · Minimal', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'single', use_case: 'home', design_family: 'minimal',
   },
   {
@@ -164,7 +168,7 @@ export const products: Product[] = [
     // personalization_level 'couple' in den Paar-Flow (ProductView-Weiche).
     id: 15, retired: true, category: 'Paare', title: 'Paar-Kompatibilitäts-Poster — personalisiert', price: 69, anchor: 79, rating: 4.9, reviews: 0, sold: 0,
     bullets: ['Beide Geburtscharts exakt berechnet auf EINEM Motiv (合婚)', 'Eure Element-Beziehung als kalligrafisches Relations-Label', 'Museum-quality mattes Papier', 'Aus euren echten Geburtsdaten — kein Standardmotiv'],
-    poster: mk('#B98A5E', '#E9DFCB', 'Mara & Tomas', '1990-06-15'),
+    poster: mk('#B98A5E', '#E9DFCB', 'Demo · Paar', DEMO_DATE),
     product_world: 'bazi', personalization_level: 'couple', use_case: 'gift', design_family: 'classic_ink',
   },
 ]
@@ -236,6 +240,18 @@ export function productsByIds(ids: readonly number[]): Product[] {
   return ids
     .map((id) => activeProducts.find((p) => p.id === id))
     .filter((p): p is Product => p != null)
+}
+
+/** Batch #12 R7 (#11): „Wird oft zusammen gekauft" — PASSEND kuratiert,
+ *  deterministisch aus echten Katalogdaten (nie erfundene Zuordnungen):
+ *  erst aktive Produkte derselben product_world, dann die übrigen aktiven in
+ *  Katalogreihenfolge. Eine Quelle für PDP und Personalisierungsseite. */
+export function relatedProductsFor(product: Pick<Product, 'id' | 'product_world'>, n = 3): Product[] {
+  const others = activeProducts.filter((p) => p.id !== product.id)
+  return [
+    ...others.filter((p) => p.product_world === product.product_world),
+    ...others.filter((p) => p.product_world !== product.product_world),
+  ].slice(0, n)
 }
 
 export interface Bundle {
@@ -353,7 +369,9 @@ export const shopFaqs: ShopFaq[] = [
 
 export const faqDefs: FaqDef[] = [
   { id: 'details', q: 'Details & Material', a: 'Museum-quality mattes Papier (200 g/m²) im Massivholzrahmen (12×22 mm) mit schützendem Plexiglas. Jedes Poster wird im Atelier nummeriert.' },
-  { id: 'size', q: 'Größenberater', a: 'A3 (30×42 cm) für Nischen & Regale, A2 (42×59 cm) als vielseitiger Standard für Praxiswände, A1 (59×84 cm) für große Fernwirkung im Empfangs- oder Wartebereich.' },
+  // Batch #12 R4 (#10): EIN Format-System — der Berater beschreibt die
+  // cm-Formate (Gelato-verifiziert), nicht mehr die abgelöste A-Serie.
+  { id: 'size', q: 'Größenberater', a: '30 × 40 cm für Nischen & Regale, 50 × 70 cm als vielseitiger Standard für Praxiswände, 70 × 100 cm für große Fernwirkung im Empfangs- oder Wartebereich.' },
   { id: 'ship', q: 'Versand & Produktion', a: 'Produktion in 3 Werktagen, anschließend klimaneutraler Versand (DE 1–2 Tage). Kostenloser Versand ab ' + euro(FREE_SHIP_THRESHOLD) + '. Personalisierte Artikel werden auf Bestellung gefertigt — siehe Rückgaberichtlinie.' },
   { id: 'bazi', q: 'Über deine Personalisierung', a: 'Aus Datum, Uhrzeit und Ort, die du eingibst, gestalten wir ein symbolisches Vier-Säulen-Layout mit Himmelsstämmen und Erdzweigen. Wenn du deine Geburtszeit nicht kennst, verwenden wir 12:00 Uhr (Mittag) als Standardannahme — das kann das Ergebnis beeinflussen.' },
 ]

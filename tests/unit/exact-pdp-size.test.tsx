@@ -31,19 +31,41 @@ const findPdp = () => screen.findByTestId('pdp', undefined, { timeout: 15000 })
 beforeEach(() => localStorage.clear())
 
 describe('M13 / REQ-028 — every PDP exposes a size selector', () => {
-  it('a non-personalizable (TCM) PDP shows a NON-FINAL size selector with A3/A2/A1', async () => {
+  it('a non-personalizable (TCM) PDP shows a NON-FINAL size selector with the cm formats', async () => {
+    // Supersession (Batch #12 R4, #10): A3/A2/A1 → 30x40/50x70/70x100 — EIN
+    // Format-System (Personalisierung/Gelato) auch auf den Katalog-PDPs.
     renderPdp('11') // TCM educational, personalizable:false
     const pdp = await findPdp()
     const sizeSel = within(pdp).getByTestId('pdp-size-selector')
     expect(sizeSel).toHaveAttribute('data-nonfinal', 'true')
     const opts = within(sizeSel).getAllByTestId('pdp-size-option')
-    expect(opts.map((o) => o.getAttribute('data-size'))).toEqual(['A3', 'A2', 'A1'])
+    expect(opts.map((o) => o.getAttribute('data-size'))).toEqual(['30x40', '50x70', '70x100'])
   })
 
   // SUPERSEDED (Operator-Batch #12): personalisierbare PDPs sind Redirects —
   // die Größenachse der personalisierten Poster lebt im /personalize-Wähler
   // (30×40/50×70/70×100, delta-personalize-Tests). Hier bleibt der Vertrag der
   // AKTIVEN, nicht-personalisierbaren PDPs (standalone Selektor, Tests unten).
+})
+
+describe('Batch#12 R5 (#9) — Rahmen-Achse auch auf Ready-to-ship-PDPs', () => {
+  it('zeigt beide Rahmen-Optionen; die Wahl wandert in die Cart-Line-Variante (Gelato-UID-Bestimmung)', async () => {
+    // Ohne Rahmen-Achse war die Gelato-Produkt-Variante eines Katalog-Posters
+    // unbestimmbar (PRODUCT_UIDS ist über Format×Rahmen gekeyt) — der Rahmen
+    // ist preisneutral (server/pricing.js ignoriert die frame-Achse).
+    renderPdp('11')
+    const pdp = await findPdp()
+    const frames = within(pdp).getAllByTestId('pdp-frame-option')
+    expect(frames).toHaveLength(2)
+    expect(frames[0]).toHaveAttribute('aria-pressed', 'true') // Default Eiche
+    fireEvent.click(frames[1]) // Schwarz matt
+    expect(frames[1]).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(within(pdp).getByTestId('pdp-add-to-cart'))
+    const cart = JSON.parse(localStorage.getItem('sizhu_cart') || '[]')
+    expect(cart).toHaveLength(1)
+    expect(cart[0].variantId).toContain('size=50x70')
+    expect(cart[0].variantId).toContain('frame=#1B1B1B')
+  })
 })
 
 describe('M13 / REQ-030 — BaZi-only personalization gate preserved', () => {
@@ -61,23 +83,25 @@ describe('M13 / REQ-030 — BaZi-only personalization gate preserved', () => {
 })
 
 describe('M13 / REQ-029 — size selection drives the price display', () => {
-  it('selecting A3 / A2 / A1 on a ready-to-ship PDP yields three distinct prices', async () => {
+  it('selecting the three cm formats on a ready-to-ship PDP yields three distinct prices', async () => {
+    // Supersession (Batch #12 R4, #10): A-Serie → cm-Formate; die Preis-Deltas
+    // (−10 / 0 / +20) und der Vertrag (3 Formate = 3 Preise) sind unverändert.
     renderPdp('11') // base 39 €
     const pdp = await findPdp()
     const sizeSel = within(pdp).getByTestId('pdp-size-selector')
     const priceOf = () => within(pdp).getByTestId('pdp-price').textContent ?? ''
     const pick = (id: string) => fireEvent.click(within(sizeSel).getAllByTestId('pdp-size-option').find((o) => o.getAttribute('data-size') === id)!)
 
-    pick('A2')
+    pick('50x70')
     await waitFor(() => expect(priceOf().length).toBeGreaterThan(0))
-    const a2 = priceOf()
-    pick('A1')
-    await waitFor(() => expect(priceOf()).not.toBe(a2))
-    const a1 = priceOf()
-    pick('A3')
-    await waitFor(() => expect(priceOf()).not.toBe(a1))
-    const a3 = priceOf()
+    const mid = priceOf()
+    pick('70x100')
+    await waitFor(() => expect(priceOf()).not.toBe(mid))
+    const large = priceOf()
+    pick('30x40')
+    await waitFor(() => expect(priceOf()).not.toBe(large))
+    const small = priceOf()
     // three sizes → three distinct prices (base, +20, −10)
-    expect(new Set([a2, a1, a3]).size).toBe(3)
+    expect(new Set([mid, large, small]).size).toBe(3)
   })
 })

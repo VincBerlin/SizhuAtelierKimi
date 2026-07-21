@@ -22,16 +22,24 @@ export interface PTDef {
 // standalone; als Add-on zum personalisierten Poster gilt −25 % (146,25 €).
 export const DIGITAL_ANALYSIS_PRICE = 195
 export const PDF_ADDON_DISCOUNT = 0.25
+export const PDF_ADDON_PRICE = DIGITAL_ANALYSIS_PRICE * (1 - PDF_ADDON_DISCOUNT) // 146.25
+
+// Basispreis eines personalisierten Einzel-Posters (bazi/birthchart).
+const POSTER_BASE_PRICE = 49
 
 export const PRODUCT_TYPES: PTDef[] = [
-  { id: 'bazi', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
-  { id: 'birthchart', basePrice: 49, couple: false, poster: true, pdfIncluded: false },
+  { id: 'bazi', basePrice: POSTER_BASE_PRICE, couple: false, poster: true, pdfIncluded: false },
+  { id: 'birthchart', basePrice: POSTER_BASE_PRICE, couple: false, poster: true, pdfIncluded: false },
   { id: 'couple', basePrice: 69, couple: true, poster: true, pdfIncluded: false },
   { id: 'digital', basePrice: DIGITAL_ANALYSIS_PRICE, couple: false, poster: false, pdfIncluded: true },
-  { id: 'bundle', basePrice: 79, couple: false, poster: true, pdfIncluded: true },
+  // Operator 2026-07-18 (R3-Frage 1): „Poster + Analyse" wird aus denselben
+  // Preisquellen ABGELEITET wie der Einzelkauf (Poster-Basis + rabattiertes
+  // PDF-Add-on = 195,25 €) — vorher stand hier ein widersprüchliches
+  // 79-€-Relikt aus der 39-€-Analyse-Ära. FINALE Preise kalkuliert der
+  // Operator am Ende aller Testläufe; bis dahin sind beide Kaufwege
+  // (Bundle vs. Poster+Add-on) identisch bepreist — keine zwei Wahrheiten.
+  { id: 'bundle', basePrice: POSTER_BASE_PRICE + PDF_ADDON_PRICE, couple: false, poster: true, pdfIncluded: true },
 ]
-
-export const PDF_ADDON_PRICE = DIGITAL_ANALYSIS_PRICE * (1 - PDF_ADDON_DISCOUNT) // 146.25
 
 // ── Personalization gating (REQ-007 / REQ-025) ────────────────────────────────
 //

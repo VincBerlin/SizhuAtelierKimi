@@ -55,7 +55,7 @@ function LangDropdown({ size = 12, up = false, align = 'right' }: { size?: numbe
       <button
         onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
         className="flex items-center justify-center transition-colors hover:text-[#C0492E]"
-        style={{ gap: 5, minHeight: 44, minWidth: 44, background: 'none', border: `1px solid ${C.borderInput}`, borderRadius: 999, padding: '5px 11px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size, fontWeight: 600, color: C.ink }}
+        style={{ gap: 5, minHeight: 44, minWidth: 44, background: 'none', border: `1px solid ${C.borderInput}`, padding: '5px 11px', cursor: 'pointer', fontFamily: FONT_SANS, fontSize: size, fontWeight: 600, color: C.ink }}
       >
         {lang} <ChevronDown size={size + 2} style={{ transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>

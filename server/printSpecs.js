@@ -18,3 +18,19 @@ export const PRINT_SPECS = {
 }
 
 export const MM_TO_PT = 72 / 25.4
+
+/**
+ * Batch #12 R4 (#10) — kanonische Format-ID aus ID ODER Anzeige-Label.
+ *
+ * Der Personalize-Flow schreibt personalization.size als LABEL („50 × 70"),
+ * PRINT_SPECS/Gelato sind über IDs („50x70") gekeyt — vor R4 scheiterte damit
+ * JEDE echte personalisierte Bestellung im PDF-Schritt. Diese EINE Stelle
+ * normalisiert (Whitespace raus, ×/X → x); unbekannte Werte liefern null und
+ * bleiben beim Aufrufer ein LAUTER Fehler — nie eine stille Zuordnung.
+ */
+export function resolvePrintSizeId(value) {
+  const raw = String(value || '').trim()
+  if (PRINT_SPECS[raw]) return raw
+  const norm = raw.replace(/\s+/g, '').replace(/[×X]/g, 'x')
+  return PRINT_SPECS[norm] ? norm : null
+}

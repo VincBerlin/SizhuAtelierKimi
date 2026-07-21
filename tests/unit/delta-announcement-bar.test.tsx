@@ -134,7 +134,7 @@ describe('REQ-016 / AT-016-6 — the announce keys resolve in every shipped loca
       for (const dotted of keys) {
         const value = dotted
           .split('.')
-          .reduce<any>((o, k) => (o == null ? undefined : o[k]), translations[locale])
+          .reduce<unknown>((o, k) => (o == null ? undefined : (o as Record<string, unknown>)[k]), translations[locale])
         expect(value, `${locale} is missing ${dotted}`).toBeTruthy()
         expect(typeof value).toBe('string')
       }

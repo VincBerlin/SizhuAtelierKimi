@@ -31,7 +31,9 @@
 // all of the above so a future edit cannot silently smuggle in fake data.
 import type { ProductWorld, DesignFamily } from './catalog'
 import type { CollectionSlug } from './collections'
-import { sizes } from './bazi'
+// Batch #12 R4 (#10): EIN Format-System — die Größen-Achse zeigt die
+// cm-Formate der Personalisierung/Gelato (nicht mehr die A-Serie).
+import { personalizedSizes as sizes } from './bazi'
 
 // ── Link model ────────────────────────────────────────────────────────────────
 // A taxonomy entry never carries a raw URL; it carries a typed link that
@@ -144,7 +146,9 @@ const SIZE_ENTRIES: readonly TaxonomyEntry[] = sizes.map((s) => ({
 const SET_ENTRIES: readonly TaxonomyEntry[] = [
   { id: 'poster-sets', labelKey: 'taxonomy.set.poster_sets', label: 'Poster Sets', link: { kind: 'route', path: '/bundles' } },
   { id: 'couples-set', labelKey: 'taxonomy.set.couples', label: 'Couples Set', link: { kind: 'route', path: '/personalize?type=couple' } },
-  { id: 'analysis-bundle', labelKey: 'taxonomy.set.analysis', label: 'Poster + Analysis Bundle', link: { kind: 'route', path: '/digital' } },
+  // Batch #12 R3 (#5): das personalisierte Kombi-Angebot lebt auf der zentralen
+  // Personalisierungsseite — nicht mehr auf dem /digital-Duplikat.
+  { id: 'analysis-bundle', labelKey: 'taxonomy.set.analysis', label: 'Poster + Analysis Bundle', link: { kind: 'route', path: '/personalize?type=bundle' } },
 ]
 
 // ── Axis: trends / campaigns (REQ-012) — ONLY real campaigns (no invention) ──────

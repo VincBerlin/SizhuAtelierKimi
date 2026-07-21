@@ -23,6 +23,12 @@ import request from 'supertest'
 // The server exposes `createApp({ stripe })` so the route can be driven with a
 // stubbed Stripe (ADR-001 / REQ-015 AK-4: no real key in tests).
 import { createApp } from '../../server/index.js'
+
+// Form der eingefangenen Stripe-Line-Items (R7-Lint-Nachfix, statt `any`).
+type StripeLineItem = {
+  quantity?: number
+  price_data?: { currency?: string; unit_amount?: number; product_data?: { name?: string } }
+}
 // Server-owned AUTHORITATIVE region→currency + shipping source (T-502).
 import {
   computeShippingCents,
@@ -47,7 +53,7 @@ const eurToCents = (eur: number) => Math.round(eur * 100)
 // Captures exactly what the real route passes to `checkout.sessions.create`,
 // so we assert on the line items (and their currency) the route actually built.
 function makeStripeStub() {
-  const create = vi.fn(async (params: any) => ({
+  const create = vi.fn(async (params: unknown) => ({
     id: 'cs_test_stub_123',
     url: 'https://stripe.test/checkout/cs_test_stub_123',
     _params: params,
@@ -71,7 +77,7 @@ const VALID_POSTER = {
 }
 
 let stub: ReturnType<typeof makeStripeStub>
-let app: any
+let app: ReturnType<typeof createApp>
 let prevTrustedGeo: string | undefined
 
 beforeEach(() => {
@@ -96,11 +102,11 @@ function lineItemsFromLastCall() {
 }
 function shippingLine() {
   return lineItemsFromLastCall().find(
-    (li: any) => li.price_data?.product_data?.name === 'Shipping',
+    (li: StripeLineItem) => li.price_data?.product_data?.name === 'Shipping',
   )
 }
 function allCurrencies() {
-  return lineItemsFromLastCall().map((li: any) => li.price_data?.currency)
+  return lineItemsFromLastCall().map((li: StripeLineItem) => li.price_data?.currency)
 }
 
 describe('[SHIPPED-SCAN] REQ-016 AT-016-7 — declarative region→currency mapping (us→USD, uk→GBP, eu→EUR)', () => {
@@ -136,8 +142,8 @@ describe('[SHIPPED-SCAN] REQ-016 AT-016-7 — declarative region→currency mapp
   })
 
   it('unknown region falls back to EUR (primary settlement currency), never undefined', () => {
-    expect(serverCurrencyForRegion('zz' as any)).toBe('EUR')
-    expect(serverCurrencyForRegion('' as any)).toBe('EUR')
+    expect(serverCurrencyForRegion('zz' as never)).toBe('EUR')
+    expect(serverCurrencyForRegion('' as never)).toBe('EUR')
   })
 })
 

@@ -18,7 +18,7 @@ export default function CatalogSection() {
         <Link
           to="/collections"
           className="transition-colors hover:border-[#C0492E] hover:text-[#C0492E]"
-          style={{ display: 'inline-block', flexShrink: 0, fontFamily: FONT_SANS, fontSize: 13, letterSpacing: '0.02em', color: C.ink, textDecoration: 'none', border: `1px solid ${C.borderInput}`, borderRadius: 999, padding: '10px 22px' }}
+          style={{ display: 'inline-block', flexShrink: 0, fontFamily: FONT_SANS, fontSize: 13, letterSpacing: '0.02em', color: C.ink, textDecoration: 'none', border: `1px solid ${C.borderInput}`, padding: '10px 22px' }}
         >
           {t('catalog.more')}
         </Link>

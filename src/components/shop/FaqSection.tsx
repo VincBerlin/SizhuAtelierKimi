@@ -10,7 +10,7 @@ interface Faq { q: string; a: string; placeholder?: boolean }
 export default function FaqSection({ home = false }: { home?: boolean }) {
   const { t } = useT()
   const [open, setOpen] = useState<number | null>(0)
-  const faqs = ((home ? t('faqHome') : t('content.shopFaqs')) as Faq[]) || []
+  const faqs = ((home ? t('faqHome') : t('content.shopFaqs')) as unknown as Faq[]) || []
 
   return (
     <section style={{ background: C.bg }}>

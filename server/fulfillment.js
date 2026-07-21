@@ -15,6 +15,9 @@
 import { randomUUID } from 'node:crypto'
 import { productUidFor } from './gelatoProducts.js'
 import { shippingAddressFromSession } from './gelato.js'
+import { resolvePrintSizeId } from './printSpecs.js'
+import { printAssetPdf, FRAME_NAME_BY_HEX } from './printAssets.js'
+import { parseVariant } from './pricing.js'
 // Geteilte Poster-Lokalisierung (EINE Quelle mit der Browser-Vorschau —
 // Operator-Fund 2026-07-13: Druck/Vorschau zeigten Element/Tier immer deutsch,
 // unabhängig von der gewählten Poster-Sprache).
@@ -44,6 +47,21 @@ export function posterLinesFrom(personalization) {
   for (const [key, p] of Object.entries(personalization || {})) {
     if (!/^line\d+$/.test(key) || !p || typeof p !== 'object') continue
     if (!p.designId || !p.size) continue // nur Poster-Typen tragen Design+Format
+    lines.push({ lineKey: key, p })
+  }
+  return lines
+}
+
+/** Batch #12 R5 (#9): NICHT-personalisierte Katalog-Poster-Lines (poster:*,
+ *  ohne designId) — seit R5 schreibt /api/checkout für JEDE Line einen
+ *  Metadaten-Datensatz, damit auch diese Bestellungen produziert werden
+ *  (oder LAUT scheitern) statt still übersprungen zu werden. */
+export function catalogPosterLinesFrom(personalization) {
+  const lines = []
+  for (const [key, p] of Object.entries(personalization || {})) {
+    if (!/^line\d+$/.test(key) || !p || typeof p !== 'object') continue
+    if (p.designId) continue // personalisierte Poster → posterLinesFrom
+    if (!String(p.productId || '').startsWith('poster:')) continue
     lines.push({ lineKey: key, p })
   }
   return lines
@@ -126,11 +144,32 @@ async function posterDataFrom(p, fufire) {
   }
 }
 
+/** Batch #12 R6: Alarm-Mail-Inhalt bei Fulfillment-Fehlschlag — der Operator
+ *  erfährt SOFORT von einer bezahlten, aber nicht produzierten Bestellung
+ *  (vorher nur DB-Status + Server-Log). Reiner Text-Builder (testbar);
+ *  Versand-Wiring liegt beim Aufrufer (Webhook + Retry-Route). */
+export function buildFulfillmentAlertMail({ sessionId, failed, publicUrl }) {
+  const lines = (failed || []).map((f) => `- ${f.lineKey}: ${f.reason}`).join('\n')
+  return {
+    subject: `⚠ Fulfillment FAILED — ${sessionId}`,
+    text:
+      `Eine bezahlte Bestellung konnte NICHT (vollständig) produziert werden.\n\n` +
+      `Session: ${sessionId}\n\nFehlgeschlagene Teile:\n${lines}\n\n` +
+      `Nächste Schritte: Ursache beheben (z. B. Druck-Asset registrieren, ` +
+      `print-assets/README.md) und den Retry anstoßen:\n` +
+      `POST ${publicUrl || ''}/api/fulfillment/retry/${sessionId} ` +
+      `(Header x-retry-secret). Idempotent — nie Doppel-Produktion.`,
+  }
+}
+
 export async function fulfillOrder({ session, personalization, deps }) {
   const { pool, fufire, renderPdf, gelato, publicUrl } = deps
   const result = { printed: [], submitted: [], failed: [] }
   const lines = posterLinesFrom(personalization)
-  if (lines.length === 0) return result
+  // R5 (#9): auch NICHT-personalisierte Katalog-Poster werden produziert —
+  // ihre Druckdatei kommt aus der Operator-Registry (server/printAssets.js).
+  const catalogLines = catalogPosterLinesFrom(personalization)
+  if (lines.length === 0 && catalogLines.length === 0) return result
   if (!pool) {
     result.failed.push({ lineKey: '*', reason: 'no database — pdf storage unavailable' })
     return result
@@ -145,14 +184,49 @@ export async function fulfillOrder({ session, personalization, deps }) {
         result.printed.push({ lineKey, reused: true })
         continue
       }
+      // Batch #12 R4 (#10): neue Lines tragen die kanonische ID in p.sizeId;
+      // p.size ist das ANZEIGE-Label („50 × 70") — ältere Lines nur das Label.
+      // resolvePrintSizeId normalisiert beides auf die PRINT_SPECS-/Gelato-ID.
+      // Unbekannte Formate scheitern HIER laut — nie eine stille Zuordnung.
+      const sizeId = resolvePrintSizeId(p.sizeId || p.size)
+      if (!sizeId) throw new Error(`Unknown print size: ${p.size}`)
       const { data, provenance } = await posterDataFrom(p, fufire)
-      const pdf = await renderPdf({ designId: p.designId, data, sizeId: p.size })
+      const pdf = await renderPdf({ designId: p.designId, data, sizeId })
       const token = randomUUID()
       await pool.query(
         'INSERT INTO prints (stripe_session, line_key, token, design_id, size_id, pdf) VALUES ($1,$2,$3,$4,$5,$6)',
-        [session.id, lineKey, token, p.designId, p.size, pdf],
+        [session.id, lineKey, token, p.designId, sizeId, pdf],
       )
       result.printed.push({ lineKey, token, bytes: pdf.length, provenance })
+    } catch (e) {
+      result.failed.push({ lineKey, reason: e.message })
+    }
+  }
+
+  // ── R5 (#9): Katalog-Poster-Lines — Druck-Asset aus der Registry ─────────
+  // Kein Asset registriert → LAUTER Fehler (failed + Status 'failed'), nie
+  // eine stille Nicht-Produktion und nie eine falsche Datei. `deps.printAsset`
+  // ist test-injizierbar (createApp-Muster); Produktion nutzt printAssetPdf.
+  const loadPrintAsset = deps.printAsset || printAssetPdf
+  for (const { lineKey, p } of catalogLines) {
+    try {
+      const existing = await pool.query('SELECT id, gelato_order_id FROM prints WHERE stripe_session=$1 AND line_key=$2', [session.id, lineKey])
+      if (existing.rows.length > 0) {
+        result.printed.push({ lineKey, reused: true })
+        continue
+      }
+      const v = parseVariant(p.variantId)
+      const sizeId = resolvePrintSizeId(v.size)
+      if (!sizeId) throw new Error(`Unknown print size: ${v.size}`)
+      // PRO FORMAT laden (Operator-Fund R5): die Formate haben verschiedene
+      // Seitenverhältnisse — nie eine Datei für ein anderes Format verwenden.
+      const pdf = await loadPrintAsset(p.productId, sizeId)
+      const token = randomUUID()
+      await pool.query(
+        'INSERT INTO prints (stripe_session, line_key, token, design_id, size_id, pdf) VALUES ($1,$2,$3,$4,$5,$6)',
+        [session.id, lineKey, token, `asset:${p.productId}`, sizeId, pdf],
+      )
+      result.printed.push({ lineKey, token, bytes: pdf.length })
     } catch (e) {
       result.failed.push({ lineKey, reason: e.message })
     }
@@ -171,9 +245,14 @@ export async function fulfillOrder({ session, personalization, deps }) {
         const items = []
         for (const r of rows.rows) {
           const p = personalization[r.line_key] || {}
+          // Rahmenname: personalisierte Lines tragen ihn direkt (p.frame);
+          // Katalog-Lines tragen den Rahmen-HEX in der Variante — aufgelöst
+          // über die EINE Server-Tabelle (printAssets.FRAME_NAME_BY_HEX).
+          // Unbekannt → productUidFor wirft (nie eine geratene Zuordnung).
+          const frameName = p.frame || FRAME_NAME_BY_HEX[parseVariant(p.variantId).frame]
           items.push({
             itemReferenceId: r.line_key,
-            productUid: productUidFor({ sizeId: r.size_id, frameName: p.frame }),
+            productUid: productUidFor({ sizeId: r.size_id, frameName }),
             quantity: 1,
             fileUrl: `${publicUrl}/prints/${encodeURIComponent(session.id)}/${r.token}.pdf`,
           })

@@ -37,7 +37,10 @@ const PTYPE_BASE_EUR = {
   birthchart: 49,
   couple: 69,
   digital: 195, // Operator 2026-07-15: Premium-Analyse (vorher 39-€-Platzhalter)
-  bundle: 79,
+  // Operator 2026-07-18 (R3-Frage 1): Bundle = Poster-Basis + rabattiertes
+  // PDF-Add-on (49 + 146,25) — ABGELEITET, damit beide Kaufwege identisch
+  // bepreist sind (Spiegel: productTypes.ts; Parity-Test koppelt 1:1).
+  bundle: 49 + 146.25,
 }
 // Which product types are physical posters (carry size/pdf axes) vs digital-only.
 const PTYPE_IS_POSTER = { bazi: true, birthchart: true, couple: true, digital: false, bundle: true }
@@ -65,7 +68,9 @@ const FLAT_SHIP_CENTS = 490 //            4.90 € (ShopStore.tsx)
 
 // Parse a `variantId` like "size=A2;frame=#B98A5E;pdf=1" into a plain object.
 // Frame is identity-only (does not affect price); size + pdf are priced axes.
-function parseVariant(variantId) {
+// Exportiert seit R5 (#9): das Fulfillment liest Format+Rahmen der
+// Katalog-Poster-Lines aus DERSELBEN Variant-Grammatik (keine zweite Quelle).
+export function parseVariant(variantId) {
   const out = {}
   for (const part of String(variantId || '').split(';')) {
     const i = part.indexOf('=')

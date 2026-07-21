@@ -66,8 +66,8 @@ export default function CartDrawer() {
         {hasCart && (
           <div style={{ padding: '16px 24px', background: C.surfaceWarm, borderBottom: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 13, color: '#4A4438', marginBottom: 9 }}>{shipMessage}</div>
-            <div style={{ height: 7, background: '#E4DBC9', borderRadius: 999, overflow: 'hidden' }}>
-              <div className={reached ? 'stardust-glow' : undefined} style={{ height: '100%', width: shipPct, background: C.accent, borderRadius: 999, transition: 'width .4s ease' }} />
+            <div style={{ height: 7, background: '#E4DBC9', overflow: 'hidden' }}>
+              <div className={reached ? 'stardust-glow' : undefined} style={{ height: '100%', width: shipPct, background: C.accent, transition: 'width .4s ease' }} />
             </div>
           </div>
         )}
@@ -77,7 +77,7 @@ export default function CartDrawer() {
             <div style={{ textAlign: 'center', padding: '60px 20px', color: C.textMuted3 }}>
               <div style={{ fontFamily: FONT_SERIF, fontSize: 24, color: C.textMuted, marginBottom: 8 }}>{t('cart.empty')}</div>
               <p style={{ fontSize: 14, margin: '0 0 20px' }}>{t('cart.emptyHint')}</p>
-              <button onClick={goShop} style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS }}>{t('cart.toCollection')}</button>
+              <button onClick={goShop} style={{ background: C.ink, color: C.bg, border: 'none', cursor: 'pointer', padding: '12px 22px', fontSize: 14, fontFamily: FONT_SANS }}>{t('cart.toCollection')}</button>
             </div>
           )}
 
@@ -182,7 +182,7 @@ export default function CartDrawer() {
 
 /** Compact per-line personalization summary in the cart (REQ-015): birth data,
  *  poster language, design and size, plus partner data for couple orders. */
-function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: (k: string, v?: Record<string, string | number>) => any }) {
+function PersonalizationSummary({ p, t }: { p: Record<string, string>; t: import("../../i18n/I18nProvider").TFunction }) {
   const unknownTime = p.unknownTime === 'true'
   const time = unknownTime ? t('personalize.timeUnknown') : p.time
   const timeB = unknownTime ? t('personalize.timeUnknown') : p.timeB

@@ -9,7 +9,7 @@ export default function ArticleOverlay() {
   const navigate = useNavigate()
   const open = !!articleId
   const base = articleId ? `content.articles.${articleId}` : null
-  const body = (base ? (t(`${base}.body`) as string[]) : []) || []
+  const body = (base ? (t(`${base}.body`) as unknown as string[]) : []) || []
 
   return (
     <>
@@ -27,7 +27,9 @@ export default function ArticleOverlay() {
           ))}
           <div style={{ marginTop: 24, padding: 22, background: C.surfaceWarm }}>
             <div style={{ fontFamily: FONT_SERIF, fontSize: 20, marginBottom: 8 }}>{t('pages.articleCta')}</div>
-            <button onClick={() => { closeArticle(); navigate('/product/1'); window.scrollTo(0, 0) }} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '12px 22px', borderRadius: 999, fontSize: 14, fontFamily: FONT_SANS }}>{t('pages.articleCtaBtn')}</button>
+            {/* Batch #12 R6 (#12/#13): Ziel /personalize statt des soft-retirten
+                Produkts 1 (kein Umweg über den Redirect); Pill-Radius → eckig. */}
+            <button onClick={() => { closeArticle(); navigate('/personalize'); window.scrollTo(0, 0) }} className="transition-[filter] hover:brightness-110" style={{ background: C.accent, color: '#fff', border: 'none', cursor: 'pointer', padding: '12px 22px', fontSize: 14, fontFamily: FONT_SANS }}>{t('pages.articleCtaBtn')}</button>
           </div>
         </div>
       </aside>

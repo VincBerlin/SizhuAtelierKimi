@@ -10,7 +10,7 @@ interface Step { title: string; desc: string }
  *  Quelle --ink-black) als vollbreites Band; Texte hell. */
 export default function HowItWorksSection() {
   const { t } = useT()
-  const steps = (t('howItWorks.steps') as Step[]) || []
+  const steps = (t('howItWorks.steps') as unknown as Step[]) || []
   return (
     <section id="how-it-works" style={{ background: 'var(--ink-black, #2C2420)' }}>
       <div style={{ maxWidth: CONTAINER, margin: '0 auto', padding: '56px 32px 56px' }}>
