@@ -1,6 +1,8 @@
 # Umsetzungsplan: CJK-Shopmigration (aus Präzisionsplan V3, Mobile First)
 
-**Stand:** 2026-07-31 · **Basis-Commit:** `ffda5c6` auf `feat/fufire-personalization` (verifiziert 2026-07-31)
+**Stand:** 2026-07-31 · **Basis-Commit:** `a32de0a` = GitHub-`main`-Spitze (korrigiert am 2026-07-31
+abends nach hartem Baum-Diff; ursprünglich fälschlich `ffda5c6` angenommen — Details im CJK-Ledger,
+Eintrag „Repo-Wahrheit")
 **Normative Quelle:** Operator-Dokument „SizhuAtelier — Präzisionsplan V3" (2026-07-31); wird in T-A04 als
 `docs/plans/2026-07-31-cjk-praezisionsplan-v3-original.md` ins Repo übernommen.
 **Status:** `plan-complete / implementation-unverified` — noch keine Codeänderung.
@@ -33,10 +35,12 @@ Accounts/Postgres, i18n EN/DE/FR/ES, CI, Evidence-Ledger.
 
 **Voraussetzungen (vor T-B01 erfüllt):**
 
-1. Basis-Commit fixiert: `ffda5c6`; Migrationsbranch zweigt von `feat/fufire-personalization` ab
-   (`main` liegt 83 Commits zurück und ist NICHT die Basis).
-2. Railway deployt weiterhin vom bisherigen Arbeits-Branch — der Migrationsbranch wird **nicht**
-   mit Railway verbunden, bis Phase Q abgenommen ist (Rollback-Garantie).
+1. Basis-Commit fixiert: **`a32de0a`** (GitHub-`main`-Spitze, Squash von Batch #12 R3–R7 + 502
+   Zeilen Go-live-Härtung vom 20./21.07.). Gemessen per Baum-Diff: `a32de0a` ⊇ `ffda5c6` — die
+   frühere Annahme „`main` liegt 83 Commits zurück" beruhte auf dem veralteten LOKALEN `main`.
+2. Railway deployt **`main`** (per Railway-API verifiziert: `latestDeployment.meta.branch=main`).
+   Daraus folgt die harte Regel: **kein Merge des Migrationsbranchs nach `main`, bis Phase Q
+   (T-Q05) abgenommen ist** — Branch-Pushes sind deploy-neutral und sicher.
 3. CI-Baseline grün auf dem neuen Branch (Build + sequenzielle Tests + Lint), da lokal
    `RL-VITEST-ENV` (iCloud-I/O) gilt: Tests nur in CI oder warmer Shell außerhalb des Syncs bewerten.
 4. T-A03 (Vertrags-Änderungen + Operator-Sign-off) MUSS vor jedem Löschen abgeschlossen sein.
@@ -460,9 +464,9 @@ Tests: — · Evidence: `[HUMAN-VERIFIED]` Freigabe-Protokoll im Ledger.
 
 **Rollback-Strategie:**
 
-- Gesamte Migration lebt auf `feat/cjk-personalized-poster-shop`; Produktion (Railway) deployt bis
-  zur Abnahme unverändert `feat/fufire-personalization@ffda5c6` → Rollback = nichts tun bzw.
-  Redeploy des Alt-Branches.
+- Gesamte Migration lebt auf `feat/cjk-personalized-poster-shop`; Produktion (Railway) deployt
+  `main@a32de0a` und bleibt von Branch-Pushes unberührt → Rollback = schlicht nicht mergen;
+  nach einem (nur nach T-Q05 erlaubten) Merge = Revert-Commit auf `main`.
 - DB-Änderungen sind rein additiv (`translation_jobs`, neue Statusspalten) — Alt-Branch läuft
   gegen dieselbe DB weiter; keine destruktiven Migrationen auf bestehenden Tabellen.
 - Secrets (T-B06/T-I02) erst entfernen, wenn der Alt-Branch nachweislich nicht mehr deployt ist.

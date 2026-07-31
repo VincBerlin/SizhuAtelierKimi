@@ -5,6 +5,20 @@
 Keine Live-Prüfung der Produktion in dieser Erhebung — Live-Aussagen unten stammen
 ausschließlich aus dem Evidence-Ledger und sind als solche gekennzeichnet.
 
+> **KORREKTUR 2026-07-31 (abends), gemessen gegen GitHub + Railway-API:**
+> §2 dieses Berichts ist in einem zentralen Punkt FALSCH — er verglich gegen den
+> veralteten LOKALEN `main`. Tatsächlich: GitHub-`main` = `a32de0a` (PR #14
+> „Launch stabilization: Batch #12 R3–R7", 2026-07-21) und enthält per Baum-Diff
+> ALLES aus `ffda5c6` **plus 502 Zeilen Go-live-Härtung** (u. a.
+> `tests/server/stripe-webhook-reliability.test.ts`, `server/hostingerAutoReply.js`,
+> `server/start.js`, `docs/plans/2026-07-20-go-live-plan.md`, aktualisiertes
+> `docs/OPERATOR_HANDOFF.md` — Widerspruch §9.1 damit möglicherweise bereits
+> behoben, neu prüfen). Railway deployt **`main`**, nicht den Feature-Branch;
+> letzte Code-Änderung war der 21.07., nicht der 19.07.; Suite auf `main` = 753
+> Tests, `RL-VITEST-ENV` dort per jsdom-`scrollTo`-Stub geschlossen (CI-Befehl
+> läuft durch). Beweis + Konsequenzen: `docs/evidence/cjk-migration/ledger.md`,
+> Eintrag „Repo-Wahrheit". Der CJK-Migrationsbranch basiert auf `a32de0a`.
+
 ---
 
 ## 1. Kurzfassung

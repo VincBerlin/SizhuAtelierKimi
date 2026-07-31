@@ -42,6 +42,7 @@ wurde dem Operator vor dem Befehl vorgelegt).
 | VÄ-3 | Batch #12: „genau EINE Personalisierungsseite mit 5 Angeboten (BaZi/Geburtschart/Paar/Analyse/Bundle)" | ersetzt durch CJK-Poster-Konfigurator (Name/Satz/eigene CJK × zh-Hans/zh-Hant/ja/ko) | V3 §8 |
 | VÄ-4 | FuFirE-Konventions-Pins (TLST/midnight, kanonische Fixture 1990-06-15) als lebende Verträge | nur noch historische Beweise; keine Weiterentwicklungspflicht | V3 §3 |
 | VÄ-5 | `RL-PRINT-ASSETS`: Druck-PDFs für die BESTEHENDEN Katalog-Poster (Fire Horse/TCM/Wuxing) | Astro-Katalog wird retiriert; Pflicht wandert auf die NEUEN kuratierten CJK-Poster (T-E03) — Registry-Mechanik `server/printAssets.js` bleibt | V3 §3, §11 |
+| VÄ-6 | Go-live-Plan `docs/plans/2026-07-20-go-live-plan.md` (nur auf `main`, beim Basis-Wechsel entdeckt) | Business-/Operator-Strecke BLEIBT GÜLTIG (Gewerbe, Stripe-Verifizierung, Rechtsdaten, LUCID/PPWR, Endpreise, Abbruchkriterien). Superseded sind nur: Premium-PDF-Punkt, OQ-TLST, astro-produktbezogene Druckdateien (→ VÄ-1/2/5) | V3 §1/§3 + Sichtung 2026-07-31 |
 
 **Unverändert gültig bleiben:** `RL-STRIPE-LIVE` (Live-Modus nur Operator),
 `RL-VITEST-ENV` (Umgebungs-Empfehlung offen), `RL-GELATO`-Rest (Draft-Sichtung),
@@ -95,5 +96,38 @@ Byte-identische Kopie nachgewiesen per SHA-256 (identischer Hash Quelle ↔ Repo
 `docs/plans/cjk-migration-visual-change-budget.md` angelegt (V3 §15.1). Operator-
 Kenntnisnahme: implizit durch Ausführungsbefehl zum Plan; Einzelfreigaben bleiben
 je Verstoß-Fall erforderlich.
+
+### 2026-07-31 · Repo-Wahrheit korrigiert: Basis ist `main@a32de0a` `[REAL-ARTIFACT]`
+
+V3-Risiko 7 („Bericht und GitHub-Historie widersprechen sich") ist eingetreten und
+aufgelöst. Messung statt Annahme:
+
+- GitHub-API: `main` = `a32de0a` („Launch stabilization: Batch #12 R3–R7 (#14)",
+  gemerged 2026-07-21 01:16 UTC); Remote-`feat/fufire-personalization` = `ffda5c6`
+  (identisch mit lokal). Der lokale `main` war veraltet → daher die falsche
+  „83 Commits zurück"-Aussage in CLAUDE.md/IST-Bericht.
+- Harter Baum-Diff `git diff ffda5c6 a32de0a`: **nur 10 Dateien, +502/−49** — `main`
+  ENTHÄLT den kompletten `ffda5c6`-Stand plus Go-live-Härtung (Webhook-Reliability-Test,
+  Alarm-/Auto-Reply-Mail, `server/start.js`, Catalog-Anpassung, OPERATOR_HANDOFF-Update,
+  Go-live-Plan, `RL-VITEST-ENV`-Schließung via jsdom-`scrollTo`-Stub; Suite dort 753 Tests).
+- Railway-API (`railway status --json`): `latestDeployment.meta.branch = "main"`,
+  Deployment `f24ff865-…`, HTTP/2 200 — die Produktion IST `main@a32de0a`. Damit sind die
+  T-001-Baseline-Screenshots exakt deckungsgleich mit der Code-Basis des Migrationsbranchs.
+- Konsequenz ausgeführt: Migrationsbranch auf `a32de0a` umgebaset (Cherry-Pick des
+  Phase-0/A-Commits; Diff Branch↔`main` = ausschließlich die 43 neuen Doku-/Evidence-
+  Dateien). Neue Schutzregel: **kein Merge nach `main` vor T-Q05** (Merge = Deploy).
+- Beim Umbau ehrlich gefundene Eigenfehler, dokumentiert als Lernposten: (a) ein
+  `| tail` verschluckte den Exit-Code eines fehlgeschlagenen `git checkout` — Folge-
+  kommandos liefen scheinbar „grün" weiter; behoben durch exit-code-treue Wiederholung.
+  (b) Zwei durch iCloud-I/O-Hänger abgebrochene Git-Operationen hinterließen
+  `index.lock`/Rebase-Reste — vor jedem Eingriff Prozessliste geprüft, erst dann Locks
+  entfernt.
+
+### 2026-07-31 · CI-Referenzläufe
+
+- Lauf 1 (Vor-Rebase-Stand `1465aab` = `ffda5c6`+Docs): **grün** — Build + sequenzielle
+  Vitest-Suite + Lint (`gh run view 30654518213`: conclusion success).
+- Lauf 2 (nach Basis-Wechsel, `693cd14` auf `a32de0a`): Ergebnis wird nach Force-Push
+  hier nachgetragen — erst dieser Lauf ist die gültige CI-Baseline (T-A01).
 
 <!-- Weitere Beweiszeilen werden hier chronologisch ergänzt. -->
