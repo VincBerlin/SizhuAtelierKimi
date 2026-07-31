@@ -33,7 +33,8 @@ import type { ProductWorld, DesignFamily } from './catalog'
 import type { CollectionSlug } from './collections'
 // Batch #12 R4 (#10): EIN Format-System — die Größen-Achse zeigt die
 // cm-Formate der Personalisierung/Gelato (nicht mehr die A-Serie).
-import { personalizedSizes as sizes } from './bazi'
+// T-B02: Quelle ist jetzt das neutrale posterOptions-Modul (bazi.ts ist Shim).
+import { personalizedSizes as sizes } from './posterOptions'
 
 // ── Link model ────────────────────────────────────────────────────────────────
 // A taxonomy entry never carries a raw URL; it carries a typed link that

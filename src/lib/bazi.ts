@@ -1,27 +1,16 @@
 // BaZi chart computation + configurator option data — ported 1:1 from the
 // dc-runtime prototype (Shop.dc.html component script). Placeholder logic for
 // the prototype; real astrological computation is wired later.
+//
+// T-B02 CJK-Migration (docs/plans/2026-07-31-cjk-migration.md): Die neutralen
+// Poster-Typen und Optionslisten leben jetzt in posterTypes.ts/posterOptions.ts;
+// dieses Modul re-exportiert sie, damit ALLE bestehenden Import-Stellen
+// unverändert gültig bleiben. Endgültige Löschung dieses Moduls ist ein
+// separates Operator-Gate (T-B05 / GATE-BAZI-DELETE im CJK-Ledger).
 
-export interface Pillar {
-  label: string
-  stem: string
-  branch: string
-}
-
-export interface PosterData {
-  frame: string
-  bg: string
-  name: string
-  element: string
-  animal: string
-  pillars: Pillar[]
-}
-
-export interface ChartResult {
-  pillars: Pillar[]
-  animal: string
-  element: string
-}
+export type { Pillar, PosterData, ChartResult } from './posterTypes'
+export type { FrameOpt, BgOpt, SizeOpt } from './posterOptions'
+export { frames, backgrounds, sizes, personalizedSizes } from './posterOptions'
 
 // PLACEHOLDER engine (ADR-002 pt.4, BLK-RED-BAZI / OQ-004 — RED for ACCURACY).
 // `place` and `birthTimeUnknown` are accepted as genuine inputs for the PLANNED
@@ -38,7 +27,7 @@ export function computeChart(
   _place?: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _birthTimeUnknown?: boolean,
-): ChartResult {
+): import('./posterTypes').ChartResult {
   const stems = '甲乙丙丁戊己庚辛壬癸'
   const branches = '子丑寅卯辰巳午未申酉戌亥'
   let y = 1990
@@ -80,52 +69,6 @@ export function computeChart(
     element: elements[ys],
   }
 }
-
-export interface FrameOpt {
-  name: string
-  hex: string
-}
-export const frames: FrameOpt[] = [
-  { name: 'Eiche natur', hex: '#B98A5E' },
-  { name: 'Schwarz matt', hex: '#1B1B1B' },
-]
-
-export interface BgOpt {
-  name: string
-  hex: string
-}
-export const backgrounds: BgOpt[] = [
-  { name: 'Sandstein', hex: '#E9DFCB' },
-  { name: 'Salbei', hex: '#AFBCA6' },
-  { name: 'Terracotta', hex: '#BC7A5E' },
-  { name: 'Indigo', hex: '#2C3A57' },
-  { name: 'Anthrazit', hex: '#2A2A2C' },
-]
-
-export interface SizeOpt {
-  id: string
-  label: string
-  sub: string
-  delta: number
-}
-export const sizes: SizeOpt[] = [
-  { id: 'A3', label: 'A3', sub: '30 × 42 cm', delta: -10 },
-  { id: 'A2', label: 'A2', sub: '42 × 59 cm', delta: 0 },
-  { id: 'A1', label: 'A1', sub: '59 × 84 cm', delta: 20 },
-]
-
-// Operator-Anweisung 2026-07-15 (explizit, protected-surface-Review erteilt):
-// „die Formate der Poster müssen umgeändert werden … in Vertical bei diesem
-// personalisierten Poster auf 30×40, 50×70 und 70×100". Gilt NUR für den
-// Personalize-Flow — Katalog-Poster und Legacy-Configurator behalten die
-// A-Serie (`sizes` oben). Deltas spiegeln server/pricing.js SIZE_DELTA_EUR;
-// die Druckmaße + live-verifizierten Gelato-UIDs liegen in server/printSpecs.js
-// und server/gelatoProducts.js.
-export const personalizedSizes: SizeOpt[] = [
-  { id: '30x40', label: '30 × 40', sub: '30 × 40 cm', delta: -10 },
-  { id: '50x70', label: '50 × 70', sub: '50 × 70 cm', delta: 0 },
-  { id: '70x100', label: '70 × 100', sub: '70 × 100 cm', delta: 20 },
-]
 
 export interface CfgState {
   frameHex: string
