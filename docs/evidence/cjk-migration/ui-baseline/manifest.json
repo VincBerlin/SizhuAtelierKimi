@@ -1,0 +1,246 @@
+{
+  "task": "T-001 UI-Baseline (CJK-Migration Phase 0)",
+  "generatedAt": "2026-07-31T18:12:12.571Z",
+  "baseUrl": "https://sizhuatelier-shop-production.up.railway.app",
+  "commit": "ffda5c658155fecfec472aba53ba190ebff8beb4",
+  "branch": "feat/cjk-personalized-poster-shop",
+  "railwayDeploymentId": "f24ff865-dc38-4904-b7b6-2da636b3f48a",
+  "total": 33,
+  "failedCount": 0,
+  "shots": [
+    {
+      "name": "home",
+      "tag": "w0375",
+      "file": "home--w0375.png",
+      "bytes": 678235,
+      "ok": true
+    },
+    {
+      "name": "collections",
+      "tag": "w0375",
+      "file": "collections--w0375.png",
+      "bytes": 992374,
+      "ok": true
+    },
+    {
+      "name": "personalize",
+      "tag": "w0375",
+      "file": "personalize--w0375.png",
+      "bytes": 775903,
+      "ok": true
+    },
+    {
+      "name": "product-7",
+      "tag": "w0375",
+      "file": "product-7--w0375.png",
+      "bytes": 215722,
+      "ok": true
+    },
+    {
+      "name": "checkout",
+      "tag": "w0375",
+      "file": "checkout--w0375.png",
+      "bytes": 49917,
+      "ok": true
+    },
+    {
+      "name": "tcm",
+      "tag": "w0375",
+      "file": "tcm--w0375.png",
+      "bytes": 282610,
+      "ok": true
+    },
+    {
+      "name": "how-it-works",
+      "tag": "w0375",
+      "file": "how-it-works--w0375.png",
+      "bytes": 135906,
+      "ok": true
+    },
+    {
+      "name": "faq",
+      "tag": "w0375",
+      "file": "faq--w0375.png",
+      "bytes": 104428,
+      "ok": true
+    },
+    {
+      "name": "collection-first",
+      "tag": "w0375",
+      "file": "collection-first--w0375.png",
+      "bytes": 167381,
+      "ok": true,
+      "slug": "/collections/fire-horse-2026"
+    },
+    {
+      "name": "mobile-menu-open",
+      "tag": "w0375",
+      "file": "mobile-menu-open--w0375.png",
+      "bytes": 19855,
+      "ok": true
+    },
+    {
+      "name": "cart-drawer",
+      "tag": "w0375",
+      "file": "cart-drawer--w0375.png",
+      "bytes": 10400,
+      "ok": true
+    },
+    {
+      "name": "home",
+      "tag": "w0768",
+      "file": "home--w0768.png",
+      "bytes": 930743,
+      "ok": true
+    },
+    {
+      "name": "collections",
+      "tag": "w0768",
+      "file": "collections--w0768.png",
+      "bytes": 1050305,
+      "ok": true
+    },
+    {
+      "name": "personalize",
+      "tag": "w0768",
+      "file": "personalize--w0768.png",
+      "bytes": 749063,
+      "ok": true
+    },
+    {
+      "name": "product-7",
+      "tag": "w0768",
+      "file": "product-7--w0768.png",
+      "bytes": 226438,
+      "ok": true
+    },
+    {
+      "name": "checkout",
+      "tag": "w0768",
+      "file": "checkout--w0768.png",
+      "bytes": 54358,
+      "ok": true
+    },
+    {
+      "name": "tcm",
+      "tag": "w0768",
+      "file": "tcm--w0768.png",
+      "bytes": 258939,
+      "ok": true
+    },
+    {
+      "name": "how-it-works",
+      "tag": "w0768",
+      "file": "how-it-works--w0768.png",
+      "bytes": 133543,
+      "ok": true
+    },
+    {
+      "name": "faq",
+      "tag": "w0768",
+      "file": "faq--w0768.png",
+      "bytes": 109095,
+      "ok": true
+    },
+    {
+      "name": "collection-first",
+      "tag": "w0768",
+      "file": "collection-first--w0768.png",
+      "bytes": 172993,
+      "ok": true,
+      "slug": "/collections/fire-horse-2026"
+    },
+    {
+      "name": "mobile-menu-open",
+      "tag": "w0768",
+      "file": "mobile-menu-open--w0768.png",
+      "bytes": 49243,
+      "ok": true
+    },
+    {
+      "name": "cart-drawer",
+      "tag": "w0768",
+      "file": "cart-drawer--w0768.png",
+      "bytes": 43987,
+      "ok": true
+    },
+    {
+      "name": "home",
+      "tag": "w1280",
+      "file": "home--w1280.png",
+      "bytes": 1078865,
+      "ok": true
+    },
+    {
+      "name": "collections",
+      "tag": "w1280",
+      "file": "collections--w1280.png",
+      "bytes": 820577,
+      "ok": true
+    },
+    {
+      "name": "personalize",
+      "tag": "w1280",
+      "file": "personalize--w1280.png",
+      "bytes": 617925,
+      "ok": true
+    },
+    {
+      "name": "product-7",
+      "tag": "w1280",
+      "file": "product-7--w1280.png",
+      "bytes": 216501,
+      "ok": true
+    },
+    {
+      "name": "checkout",
+      "tag": "w1280",
+      "file": "checkout--w1280.png",
+      "bytes": 60808,
+      "ok": true
+    },
+    {
+      "name": "tcm",
+      "tag": "w1280",
+      "file": "tcm--w1280.png",
+      "bytes": 267026,
+      "ok": true
+    },
+    {
+      "name": "how-it-works",
+      "tag": "w1280",
+      "file": "how-it-works--w1280.png",
+      "bytes": 140917,
+      "ok": true
+    },
+    {
+      "name": "faq",
+      "tag": "w1280",
+      "file": "faq--w1280.png",
+      "bytes": 119649,
+      "ok": true
+    },
+    {
+      "name": "collection-first",
+      "tag": "w1280",
+      "file": "collection-first--w1280.png",
+      "bytes": 183777,
+      "ok": true,
+      "slug": "/collections/fire-horse-2026"
+    },
+    {
+      "name": "megamenu-open",
+      "tag": "w1280",
+      "file": "megamenu-open--w1280.png",
+      "bytes": 381307,
+      "ok": true
+    },
+    {
+      "name": "cart-drawer",
+      "tag": "w1280",
+      "file": "cart-drawer--w1280.png",
+      "bytes": 174620,
+      "ok": true
+    }
+  ]
+}

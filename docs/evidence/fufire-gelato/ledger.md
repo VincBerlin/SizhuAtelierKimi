@@ -427,3 +427,16 @@ Beweisklassen: `[REAL-BOUNDARY-LIVE]` (live API, gespeicherte Response) ·
   selbst korrekt). `exact-taxonomy`/`exact-reality-ledger` lesen Dateien nun
   über `process.cwd()` (Vitest-4-jsdom: `import.meta.url` ist keine
   file://-URL mehr).
+
+---
+
+## Vertrags-Änderung 2026-07-31 — CJK-Migration angeordnet
+
+Der Operator hat am 2026-07-31 die fachliche Migration des Shops zu personalisierten
+CJK-Schriftpostern angeordnet (Präzisionsplan V3; Ausführungsplan
+`docs/plans/2026-07-31-cjk-migration.md`). FuFirE/BaZi/TCM/Analyse werden decommissioned;
+dadurch superseded: `RL-PREMIUM-PDF`, `OQ-TLST`, die FuFirE-Konventions-Pins sowie die
+Batch-#12-Personalisierungsseite (Details + Zitate: Sektion „Vertrags-Änderungen" in
+`docs/evidence/cjk-migration/ledger.md`). Die hier dokumentierten Beweise bleiben als
+historische Beweisführung unverändert gültig; **dieser Ledger wird für die Migration
+nicht fortgeschrieben** — Fortführung ausschließlich im CJK-Ledger.
