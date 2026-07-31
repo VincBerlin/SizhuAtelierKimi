@@ -15,6 +15,8 @@ import { gelatoEnabled, createOrder as gelatoCreateOrder } from './gelato.js'
 import { fulfillOrder, ensurePrintTables, buildFulfillmentAlertMail } from './fulfillment.js'
 import { renderPosterPdf } from './pdf.js'
 import { buildConfirmEmail, confirmResultHtml, unsubscribeResultHtml } from './newsletter.js'
+import { mountTranslationRoutes, providerUnselected } from './translation.js'
+import { ensureTranslationSchema } from './translationStore.js'
 import { runBroadcast, BROADCAST_SERIES } from './broadcast.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -131,6 +133,8 @@ if (process.env.DATABASE_URL) {
   console.log('[db] Postgres connected')
   // Print-Fulfillment-Tabellen (prints + orders.fulfillment_status), idempotent.
   await ensurePrintTables(pool).catch((e) => console.error('[db] prints init failed:', e.message))
+  // Übersetzungs-Jobs (CJK-Migration T-C04), idempotent.
+  await ensureTranslationSchema(pool).catch((e) => console.error('[db] translation init failed:', e.message))
 }
 
 // ---- optional email (Resend) ----------------------------------------------
@@ -266,15 +270,23 @@ app.get('/api/region', (req, res) => {
   res.json({ region, country: country || null })
 })
 
-// ---- BaZi-Berechnung + Geocoding (FuFirE-Proxy) ------------------------------
-// Der Browser spricht NIE direkt mit FuFirE — der API-Key lebt nur hier
-// (Muster: STRIPE_SECRET_KEY). `let` + createApp-Override wie bei `stripe`,
-// damit die REALEN Routen mit gestubbtem Client testbar sind.
-// Ehrlichkeits-Regel (OQ-004): nicht konfiguriert/Upstream-Fehler → 503/502,
-// NIEMALS ein Platzhalter-Chart als echt ausliefern.
+// ---- FuFirE: nur noch fulfillment-intern (T-B03, CJK-Migration) --------------
+// Die öffentlichen Astro-Routen /api/bazi, /api/western, /api/match und
+// /api/geocode wurden entfernt (docs/plans/2026-07-31-cjk-migration.md, Phase B;
+// Beweis: tests/server/astro-routes-removed.test.ts). Der Client bleibt hier
+// injectable, weil server/fulfillment.js Charts für BEZAHLTE Alt-Bestellungen
+// zur Produktionszeit neu berechnet — dieser Pfad wird in T-G01 durch den
+// Übersetzungs-Snapshot ersetzt; bis dahin bleiben Modul + Env-Variablen.
 let fufire = { enabled: fufireEnabled, calculateBazi, calculateWestern, geocodePlace, matchHehun }
 // Gelato-Client — gleiches Override-Muster (createApp({ gelato })) für Tests.
 let gelato = { enabled: gelatoEnabled, createOrder: gelatoCreateOrder }
+
+// ---- Übersetzungs-Pipeline (CJK-Migration, T-C03) ---------------------------
+// Provider bleibt `provider-unselected` bis zum Benchmark-Entscheid T-C07
+// (GATE-PROVIDER im CJK-Ledger) → /api/translation/preview antwortet 503.
+// Modus `customer-cjk` funktioniert ohne Provider (reine Validierung).
+let translationProvider = providerUnselected
+mountTranslationRoutes(app, () => ({ pool, provider: translationProvider, rateLimited }))
 
 // ---- geschützte Druck-PDF-Auslieferung (Gelato holt die Datei hier ab) ------
 // Token = randomUUID pro Print (server/fulfillment.js); Vergleich timing-safe.
@@ -297,98 +309,6 @@ app.get('/prints/:sessionId/:token.pdf', async (req, res) => {
   } catch (e) {
     console.error('[prints] lookup failed:', e.message)
     return res.status(404).end()
-  }
-})
-
-app.post('/api/bazi', async (req, res) => {
-  if (!fufire.enabled()) return res.status(503).json({ error: 'bazi_unavailable' })
-  if (rateLimited(req, 'bazi', 60, 60000)) return res.status(429).json({ error: 'rate_limited' })
-  const { date, time, lat, lon, tz, birthTimeUnknown } = req.body || {}
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return res.status(400).json({ error: 'invalid_date' })
-  if (!/^\d{2}:\d{2}$/.test(String(time || ''))) return res.status(400).json({ error: 'invalid_time' })
-  if (typeof lat !== 'number' || typeof lon !== 'number' || typeof tz !== 'string' || !tz) {
-    return res.status(400).json({ error: 'invalid_place' })
-  }
-  try {
-    const chart = await fufire.calculateBazi({
-      date: `${date}T${time}:00`,
-      tz,
-      lon,
-      lat,
-      birthTimeKnown: birthTimeUnknown !== true,
-    })
-    return res.json(chart)
-  } catch (e) {
-    console.error('[fufire] bazi failed:', e.message)
-    return res.status(502).json({ error: 'bazi_failed' })
-  }
-})
-
-// Westliches Geburtshoroskop (Birth-Chart-Poster, Operator 2026-07-14):
-// gleiche Validierung/Env-Gates wie /api/bazi; Proxy auf /v1/calculate/western.
-app.post('/api/western', async (req, res) => {
-  if (!fufire.enabled()) return res.status(503).json({ error: 'western_unavailable' })
-  if (rateLimited(req, 'western', 60, 60000)) return res.status(429).json({ error: 'rate_limited' })
-  const { date, time, lat, lon, tz, birthTimeUnknown } = req.body || {}
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return res.status(400).json({ error: 'invalid_date' })
-  if (!/^\d{2}:\d{2}$/.test(String(time || ''))) return res.status(400).json({ error: 'invalid_time' })
-  if (typeof lat !== 'number' || typeof lon !== 'number' || typeof tz !== 'string' || !tz) {
-    return res.status(400).json({ error: 'invalid_place' })
-  }
-  try {
-    const chart = await fufire.calculateWestern({
-      date: `${date}T${time}:00`,
-      tz,
-      lon,
-      lat,
-      birthTimeKnown: birthTimeUnknown !== true,
-    })
-    return res.json(chart)
-  } catch (e) {
-    console.error('[fufire] western failed:', e.message)
-    return res.status(502).json({ error: 'western_failed' })
-  }
-})
-
-// Paar-Analyse (合婚) für das Partner-Poster. Validierung je Person wie
-// /api/bazi; consent setzt der Server (Operator-Entscheidung), keine UI-Box.
-app.post('/api/match', async (req, res) => {
-  if (!fufire.enabled()) return res.status(503).json({ error: 'match_unavailable' })
-  if (rateLimited(req, 'match', 30, 60000)) return res.status(429).json({ error: 'rate_limited' })
-  const { a, b } = req.body || {}
-  for (const [label, p] of [['a', a], ['b', b]]) {
-    if (!p || typeof p !== 'object') return res.status(400).json({ error: `invalid_person_${label}` })
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p.date || ''))) return res.status(400).json({ error: `invalid_date_${label}` })
-    if (!/^\d{2}:\d{2}$/.test(String(p.time || ''))) return res.status(400).json({ error: `invalid_time_${label}` })
-    if (typeof p.lat !== 'number' || typeof p.lon !== 'number' || typeof p.tz !== 'string' || !p.tz) {
-      return res.status(400).json({ error: `invalid_place_${label}` })
-    }
-  }
-  const toInput = (p) => ({
-    date: `${p.date}T${p.time}:00`,
-    tz: p.tz,
-    lon: p.lon,
-    lat: p.lat,
-    birthTimeKnown: p.birthTimeUnknown !== true,
-  })
-  try {
-    return res.json(await fufire.matchHehun(toInput(a), toInput(b)))
-  } catch (e) {
-    console.error('[fufire] match failed:', e.message)
-    return res.status(502).json({ error: 'match_failed' })
-  }
-})
-
-app.post('/api/geocode', async (req, res) => {
-  if (!fufire.enabled()) return res.status(503).json({ error: 'geocode_unavailable' })
-  if (rateLimited(req, 'geocode', 30, 60000)) return res.status(429).json({ error: 'rate_limited' })
-  const place = String((req.body || {}).place || '').trim()
-  if (!place || place.length > 200) return res.status(400).json({ error: 'invalid_place' })
-  try {
-    return res.json(await fufire.geocodePlace(place))
-  } catch (e) {
-    console.error('[fufire] geocode failed:', e.message)
-    return res.status(502).json({ error: 'geocode_failed' })
   }
 })
 
@@ -1102,6 +1022,7 @@ export function createApp(overrides = {}) {
   if ('fufire' in overrides) fufire = overrides.fufire
   if ('gelato' in overrides) gelato = overrides.gelato
   if ('mailer' in overrides) resend = overrides.mailer
+  if ('translationProvider' in overrides) translationProvider = overrides.translationProvider
   return app
 }
 
