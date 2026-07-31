@@ -1,6 +1,7 @@
 # Evidence-Ledger — CJK-Migration
 
-**Angelegt:** 2026-07-31 · **Basis-Commit:** `ffda5c6` · **Branch:** `feat/cjk-personalized-poster-shop`
+**Angelegt:** 2026-07-31 · **Basis-Commit:** `a32de0a` (= GitHub-`main`; korrigiert von
+ursprünglich `ffda5c6`, s. Eintrag „Repo-Wahrheit") · **Branch:** `feat/cjk-personalized-poster-shop`
 **Plan:** `docs/plans/2026-07-31-cjk-migration.md` · **Normquelle:** `docs/plans/2026-07-31-cjk-praezisionsplan-v3-original.md`
 
 Es gelten unverändert die Regeln des Haupt-Ledgers (`docs/evidence/fufire-gelato/ledger.md`):
@@ -175,5 +176,45 @@ dafür: B03/B04 (Server-/Client-Decommission, final — keine Wegwerf-Arbeit) �
 V3-Schutzziel (kein Astro im ausgelieferten Shop) bleibt vollständig erhalten und wird
 in T-Q01/T-H02 maschinell geprüft. **Falls der Operator den Flag-Zwischenschritt
 dennoch wünscht: Einspruch genügt, die Analyse oben bleibt als Aufwandsbeleg.**
+
+### 2026-07-31 · T-B03 + T-C01–C04 — CI-bewiesen (`6dfb55b`, Run 30659819775)
+
+**T-B03 (Astro-API-Oberfläche entfernt):** `/api/bazi`, `/api/western`, `/api/match`,
+`/api/geocode` sind aus `server/index.js` herausgeschnitten (92 Zeilen).
+Beweisform bewusst stark: `tests/server/astro-routes-removed.test.ts` injiziert einen
+voll AKTIVIERTEN FuFirE-Stub und verlangt trotzdem 404 — die Oberfläche ist entfernt,
+nicht bloß env-gated. Bewusste Grenze (ehrlich): `server/fufire.js` bleibt als
+fulfillment-internes Modul, weil `fulfillment.js` Charts für BEZAHLTE Alt-Bestellungen
+zur Produktionszeit neu berechnet; Modul + FUFIRE-Env fallen erst mit T-G01/T-I02.
+AK02 ist damit zur Hälfte (Routen) erfüllt. Alt-Test `bazi-routes.test.ts` gelöscht.
+
+**T-C01–C04 (Translation-Domäne, server-seitig):**
+- `src/lib/translationTypes.ts` — Statusmodell V3 §5.2 als Code: druckbar ist
+  AUSSCHLIESSLICH `approved`; `printed` terminal.
+- `server/translationValidation.js` — NFC-Normalisierung, Glyphen-Limits (astral-sicher),
+  Ablehnung von Steuer-/Bidi-/Zero-Width-Zeichen, Skript-Allowlists je Zielsprache für
+  Modus `customer-cjk`.
+- `server/translation.js` — `POST /api/translation/preview`: ohne Provider-Entscheid
+  **503 `provider-unselected`** (GATE-PROVIDER wirkt als Code, nicht als Vorsatz);
+  Providerfehler → 502 OHNE erfundene Kandidaten; `customer-cjk` läuft providerlos;
+  SHA-256-Cache über normalisiertem Input; Rate-Limit. `POST /api/translation/confirm`:
+  persistiert ERST die Kundenbestätigung (Datenminimierung, V3 §7), Kundentext nie in
+  Logs.
+- `server/translationStore.js` — `translation_jobs` (V3-§7-Schema, Boot-idempotent),
+  race-sichere Statusübergänge (UPDATE mit Ist-Status-Guard: zwei konkurrierende
+  Freigaben können nie beide gewinnen), Paritätstest TS↔JS.
+- 20 neue Tests (2 Server-Dateien + Paritätstest); Fehlerfälle inkl. Zero-Width,
+  Steuerzeichen, falsches Skript, Rate-Limit-429.
+
+Beweis: CI auf `6dfb55b` **conclusion success** (Build + sequenzielle Suite + Lint) —
+https://github.com/VincBerlin/SizhuAtelierKimi/actions/runs/30659819775 ·
+`[INTEGRATION-FAKE]` für die Routen (echte Express-Pfade, gestubbte Externals);
+`[REAL-BOUNDARY-LIVE]`-Aufwertung erst mit realem Provider (T-C07 → T-Q04).
+
+*Eigenfehler beim Bauen, gefunden und behoben BEVOR CI sie sah:* (a) Verbots-Regex und
+zwei Test-Literale enthielten ROHE Steuer-/Zero-Width-Zeichen statt Escapes;
+(b) ein „Steuerzeichen"-Testfall und der „ungültiger finalText"-Fall waren in Wahrheit
+saubere Strings und hätten grün-lügend das Falsche getestet — beide auf echte
+Escape-Sequenzen (Tab, BEL, Zero-Width-Space) korrigiert.
 
 <!-- Weitere Beweiszeilen werden hier chronologisch ergänzt. -->
