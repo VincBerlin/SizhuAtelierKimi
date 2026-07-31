@@ -156,13 +156,13 @@ REQ: alle (Normquelle) · Dateien: neue Datei · Tests: keine · Evidence: Datei
 
 ### Phase B — FuFirE/Astrologie decommissionen (Flag zuerst, löschen zuletzt)
 
-**T-B01 · Feature-Flag `ASTRO_ENABLED` (Abschalten ohne Löschen)**
-Flag in `src/lib/config.ts` (Default off auf dem Migrationsbranch): blendet astrologische Produkte,
-Nav-Ziele und den Alt-Konfigurator aus; Legacy-Routen antworten mit Redirect (siehe T-E02).
-Shop-Hülle unverändert.
-REQ: AK01, AK17–21 · Dateien: `src/lib/config.ts`, `src/App.tsx`, `src/lib/taxonomy.ts` (nur Filter) ·
-Tests: neuer Unit-Test „kein Astro-Angebot im gerenderten Nav/Home bei Flag off"; bestehende Suite grün ·
-Evidence: `[REAL-BROWSER]` Screenshot Nav/Home ohne Astro-Einträge.
+**T-B01 · ~~Feature-Flag `ASTRO_ENABLED`~~ — UMSEQUENZIERT (2026-07-31, Ledger-Eintrag
+„T-B01 umsequenziert")**
+Messbefund: Astro = 100 % des sichtbaren Katalogs; ein Flag-Zwischenzustand wäre ein leerer
+Shop mit Hüllenbruch (fixes Mega-Menü-Grid) und erzwänge doppelte Test-Umschreibung, bei
+Schutzwert 0 (Branch deployt nie). Abschaltung und CJK-Ersatz erfolgen in EINEM Zug in
+T-E01; das V3-Schutzziel (kein Astro im ausgelieferten Shop) wird dort + T-H02/T-Q01
+maschinell bewiesen. Operator-Einspruch möglich; Analyse im Ledger.
 
 **T-B02 · Poster-Basistypen aus `bazi.ts` extrahieren**
 `sizes`, `frames` und gemeinsam genutzte Poster-Typen nach `src/lib/posterOptions.ts` +

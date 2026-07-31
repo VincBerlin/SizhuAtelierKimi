@@ -144,4 +144,36 @@ ehrlich vermerkt); Beweis ist der CI-Lauf auf `df0593f`: **conclusion success**
 (Build + sequenzielle Suite + Lint, `gh run view 30658262529`,
 https://github.com/VincBerlin/SizhuAtelierKimi/actions/runs/30658262529).
 
+### 2026-07-31 · T-B01 umsequenziert: „Astro-Flag" entfällt, Abschalten+Ersetzen in einem Zug — ZUR OPERATOR-KENNTNIS
+
+Code-Kartierung (Read-only-Analyse, Datei:Zeile-belegt) hat die Annahme hinter V3 §17
+Schritt 4 („zuerst hinter Feature-Flag abschalten, ohne die Shop-Hülle zu verändern")
+widerlegt:
+
+1. **Astro = 100 % des sichtbaren Katalogs.** Alle aktiven SKUs (7/8/11–14) sind
+   wuxing/mixed/tcm; mit „Flag aus" wäre der Shop leer.
+2. **„Ohne Hüllen-Änderung" ist technisch unmöglich:** Das Mega-Menü rendert ein FIXES
+   Fünfspalten-Grid (`Navbar.tsx:316`) mit Achsen-Überschriften außerhalb der Listen —
+   leere Achsen erzeugen verwaiste Kopfzeilen und leere Spalten (= sichtbarer
+   Hüllenbruch, Change-Budget-Verstoß). MEGA_TILES/QUICK_ACCESS-Container rendern
+   unbedingt.
+3. **Doppelte Test-Umschreibung:** ≥10 Suiten pinnen Astro-Inhalte hart (u. a.
+   `mega-menu` klickt `/collections/tcm-posters` und erwartet eine echte
+   Kollektionsseite; `collections-routes` verlangt ≥1 AKTIVES Produkt je
+   tcm/wuxing/fire-horse; `delta-collection-template-inventory` pinnt die exakte
+   Slug-Menge; `route-titles` pinnt die TCM-PDP; `truthful-claims` pinnt BaZi-FAQ).
+   Ein Flag-Zwischenzustand hieße: alle auf „leer" umschreiben, in T-E01 alle NOCHMAL
+   auf CJK umschreiben.
+4. **Schutzwert des Flags = 0:** Der Branch deployt nie (Kein-Merge-Regel); Produktion
+   läuft bis zur Abnahme unverändert `main`. Das Flag würde niemanden schützen.
+
+**Entscheidung (Agent, revidierbar):** T-B01 wird nicht als eigenes Flag gebaut,
+sondern in T-E01 aufgelöst — Astro-Abschaltung und CJK-Ersatz in EINEM Zug, sodass
+jeder Commit eine sinnvolle, testbare Shop-Oberfläche hat. Die Phasen-Reihenfolge wird
+dafür: B03/B04 (Server-/Client-Decommission, final — keine Wegwerf-Arbeit) → C
+(Translation-Domain) → D (Konfigurator) → E (Taxonomie/Katalog = Astro raus + CJK rein).
+V3-Schutzziel (kein Astro im ausgelieferten Shop) bleibt vollständig erhalten und wird
+in T-Q01/T-H02 maschinell geprüft. **Falls der Operator den Flag-Zwischenschritt
+dennoch wünscht: Einspruch genügt, die Analyse oben bleibt als Aufwandsbeleg.**
+
 <!-- Weitere Beweiszeilen werden hier chronologisch ergänzt. -->
