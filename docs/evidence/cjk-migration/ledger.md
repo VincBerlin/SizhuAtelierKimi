@@ -127,7 +127,21 @@ aufgelöst. Messung statt Annahme:
 
 - Lauf 1 (Vor-Rebase-Stand `1465aab` = `ffda5c6`+Docs): **grün** — Build + sequenzielle
   Vitest-Suite + Lint (`gh run view 30654518213`: conclusion success).
-- Lauf 2 (nach Basis-Wechsel, `693cd14` auf `a32de0a`): Ergebnis wird nach Force-Push
-  hier nachgetragen — erst dieser Lauf ist die gültige CI-Baseline (T-A01).
+- Lauf 2 (nach Basis-Wechsel, Head `2135ca5` auf Basis `a32de0a`): **grün** —
+  `gh run view 30656158121`: status completed, conclusion success
+  (https://github.com/VincBerlin/SizhuAtelierKimi/actions/runs/30656158121).
+  **Das ist die gültige CI-Baseline der Migration (T-A01 erfüllt).** Railway-Quelle
+  dokumentiert (main; Branch-Pushes deploy-neutral).
+
+### 2026-07-31 · T-B02 Poster-Basistypen extrahiert — CI-bewiesen
+
+`src/lib/posterTypes.ts` (Pillar/PosterData/ChartResult) + `src/lib/posterOptions.ts`
+(frames/backgrounds/sizes/personalizedSizes inkl. Operator-Format-Direktive 2026-07-15)
+aus `bazi.ts` extrahiert; `bazi.ts` ist Re-Export-Shim (alle Import-Stellen unverändert,
+Löschung bleibt GATE-BAZI-DELETE), `taxonomy.ts` liest aus dem neutralen Modul.
+Lokaler Build war heute NICHT beweisfähig (I/O-Stall, Prozess ohne Output abgebrochen —
+ehrlich vermerkt); Beweis ist der CI-Lauf auf `df0593f`: **conclusion success**
+(Build + sequenzielle Suite + Lint, `gh run view 30658262529`,
+https://github.com/VincBerlin/SizhuAtelierKimi/actions/runs/30658262529).
 
 <!-- Weitere Beweiszeilen werden hier chronologisch ergänzt. -->
